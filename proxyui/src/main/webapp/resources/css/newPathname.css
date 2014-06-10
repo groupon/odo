@@ -1,0 +1,5 @@
+@CHARSET "UTF-8";
+table, th, td {border:1px solid black;padding:4px}
+table {border-collapse:collapse;width:30%}
+th {height:30px;text-align:center;background-color:green;color:white;}
+td {text-align:left;height:30px;vertical-align:top;}

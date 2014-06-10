@@ -1,0 +1,29 @@
+div.left {
+	width: 50%;
+	float: left;
+}
+
+div.right {
+	width: 50%;
+}
+
+div.hidden { display: none; }
+
+body {
+    background-color: #3E3E3E;
+    padding: 20px;
+}
+
+.center
+{
+    margin-left:auto;
+    margin-right:auto;
+}
+
+.reorderbox
+{
+    -webkit-box-sizing: content-box;
+    -moz-box-sizing: content-box;
+    box-sizing: content-box;
+}
+

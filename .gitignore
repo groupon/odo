@@ -1,0 +1,9 @@
+.swp
+.classpath
+.project
+.settings
+scripts/tmp
+scripts/proxydb
+target/
+.idea
+*.iml

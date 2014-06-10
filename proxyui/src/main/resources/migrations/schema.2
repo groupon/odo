@@ -1,0 +1,4 @@
+ALTER TABLE client_db ADD active_server_group INTEGER DEFAULT 0
+CREATE TABLE server_group_db (id INTEGER IDENTITY, name VARCHAR(256), profile_id INTEGER)
+ALTER TABLE server_redirect_db ADD group_id INTEGER DEFAULT 0
+ALTER TABLE history ADD COLUMN (original_request_url VARCHAR(1024), original_request_params CLOB, original_request_post_data CLOB, original_request_headers CLOB, original_response_code VARCHAR(128), original_response_headers CLOB, original_response_content_type VARCHAR(128), original_response_data CLOB, modified BOOLEAN DEFAULT FALSE)

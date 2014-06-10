@@ -1,0 +1,19 @@
+* { font-family:Arial}
+table, th, td {border:1px solid green;padding:5px}
+table {border-collapse:collapse; width:100%;}
+th {height:40px;text-align:left;background-color:green;color:white;}
+td {text-align:left;height:50px;vertical-align:top;}
+.container {width:80%;margin:30px auto}
+
+.utilities {
+	width:30%;
+}
+
+.popover {
+	position: absolute;
+	display: none;
+	z-index: 2;
+	background-color: #eaeaea;
+	text-alight: left;
+	border:1px solid green;padding:5px
+}

@@ -1,0 +1,282 @@
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ page language="java" contentType="text/html; charset=ISO-8859-1" pageEncoding="ISO-8859-1" isELIgnored="false" %> 
+<%@ page session="false" %>
+<html>
+    <head>
+        <title>Create/Edit Override Group </title>
+
+        <%@ include file="/resources/js/webjars.include" %>
+
+        <script type="text/javascript">
+
+        var selectedGroupId;
+
+            // common function for grid reload
+            function reloadGrid(gridId) {
+                jQuery(gridId).setGridParam({datatype:'json', page:1}).trigger("reloadGrid");
+            }
+
+            //called to add a new group name. theoretically want to go to the editgroup page after
+            function SubmitNewGroup(){
+                var groupname = document.getElementById("groupname").value;
+                $.ajax({
+                    type:"POST",
+                    url: 'api/group',
+                    data: "groupName=" + groupname,
+                    success: function(){
+                        document.getElementById("groupname").value = "";
+                        reloadGrid("#groupsList");
+                    }
+                });
+            }
+
+            //this removes a group, gets the id based on dropdown and passes it though controller/service
+            function RemoveGroup(groupId){
+                $.ajax({
+                    type:"DELETE",
+                    url: 'api/group/' + groupId,
+                    success: function(){
+                        reloadGrid("#groupsList");
+                    }
+                });
+            }
+
+            function removeOverride(groupId, overrideId){
+            	//alert("trying to remove overrideId: " + overrideId);
+            	$.ajax({
+            		type: 'POST',
+            		url: '<c:url value='/api/group/'/>' + groupId + "/" + overrideId,
+            		data: ({_method: 'DELETE'}),
+            		success: function(){
+            		}
+            	});
+            }
+
+            function applyGroupOverrides() {
+                var ids = jQuery("#overrideList").jqGrid('getGridParam', 'selarrrow');
+
+                // add new methods
+                var adds = [];
+                $.each(ids, function(index, value) {
+                    if(enabledMethods[value] == null) {
+                        adds.push(value);
+                    }
+                });
+
+                if(adds.length > 0) {
+                    $.ajax({
+                        type:"POST",
+                        url:"<c:url value='/api/group/'/>" + selectedGroupId,
+                        data: ({'addOverrides[]': adds})
+                    });
+                }
+
+                //remove deleted methods
+                var removes = [];
+                $.each(enabledMethods, function(index, value) {
+                    if(ids.indexOf(index) == -1) {
+                        removeOverride(selectedGroupId, value);
+                    }
+                });
+            }
+
+
+            function navigateProfiles() {
+                window.location = '<c:url value = '/profiles' />';
+            }
+
+            var enabledMethods = {};
+
+            function selectRows(groupId) {
+                $.ajax({
+                    type:"GET",
+                    url: 'api/group/' + groupId,
+                    success: function(data){
+
+                        enabledMethods = {};
+                        $.each(data.methods, function(index, value) {
+                                enabledMethods[value.idString] = value.id;
+                            });
+
+                        var grid = $("#overrideList");
+                        grid.resetSelection();
+
+                        var ids = grid.getDataIDs();
+                        for (var i=0, il=ids.length; i < il; i++ ) {
+                            if(enabledMethods[ids[i]] != null) {
+                                grid.setSelection(ids[i], true);
+                            }
+                        }
+
+                    }
+                });
+            }
+
+            $(document).ready(function() {
+
+                // bind window resize to fix grid width
+                $(window).bind('resize', function() {
+                    $("#groupsList").setGridWidth($("#groupsDiv").width());
+                    $("#overrideList").setGridWidth($("#groupOverridesDiv").width());
+                });
+
+                var groupsList = jQuery("#groupsList");
+                groupsList.jqGrid({
+                    url : '<c:url value="/api/group"/>',
+                    autowidth: true,
+                    pgbuttons : false, // disable page control like next, back button
+                    pgtext : null,
+                    datatype : "json",
+                    colNames : [ 'ID', 'Group Name'],
+                    colModel : [ {
+                        name : 'id',
+                        index : 'id',
+                        width : 55,
+                        hidden : true
+                    }, {
+                        name: 'name',
+                        path: 'name',
+                        width: 200,
+                        editable: true,
+                        align: 'left'
+                    }],
+                    jsonReader : {
+                        page : "page",
+                        total : "total",
+                        records : "records",
+                        root : 'groups',
+                        repeatitems : false
+                    },
+                    loadonce: true,
+                    cellurl : '/testproxy/api/group',
+                    onSelectRow: function(id) {
+                        if (id) {
+
+                            var ret = jQuery("#groupsList").jqGrid('getRowData',id);
+                            var groupName = ret.name;
+                            $("#title").html(ret.name + " Methods");
+                            selectedGroupId = id;
+                        }
+
+                        selectRows(id);
+                    },
+                    editurl: '<c:url value="/api/group/" />',
+                    rowList : [],
+                    rowNum: 10000,
+                    pager : '#groupNavGrid',
+                    sortname : 'name',
+                    viewrecords : true,
+                    sortorder : "asc",
+                    caption : 'Groups'
+                });
+
+                groupsList.jqGrid('navGrid', '#groupNavGrid',
+                    { add: true, edit: false, del: true, search: false },
+                    {},
+                    {
+                        url: '<c:url value="/api/group"/>',
+                        reloadAfterSubmit: true,
+                        closeAfterAdd: true,
+                        afterSubmit: function () {
+                            reloadGrid("#groupsList");
+                            return [true];
+                        }
+                     },
+                    {
+                        mtype: 'DELETE',
+                        reloadAfterSubmit: false,
+                        afterSubmit: function() {
+                            reloadGrid("#groupsList");
+                            return [true];
+                        },
+                        onclickSubmit: function(rp_ge, postdata) {
+                            rp_ge.url = '<c:url value="/api/group/" />' + selectedGroupId;
+                        }
+                    },
+                    {
+                    }
+                );
+
+
+
+                var membersList = jQuery("#overrideList");
+                membersList.jqGrid({
+                    url : '<c:url value="/api/methods"/>',
+                    autowidth : true,
+                    pgbuttons : false, // disable page control like next, back button
+                    pgtext : null,
+                    datatype : "json",
+                    colNames : ['ID', 'Class', 'Method'],
+                    colModel : [
+                    {
+                        name: 'idString',
+                        index: 'id',
+                        key: true,
+                        width: 400,
+                        hidden: true
+                    }, {
+                        name : 'className',
+                        index : 'className',
+                        width : 300,
+                        editable: false
+                    }, {
+                        name : 'methodName',
+                        index : 'methodName',
+                        width : 300,
+                        editable : false
+                    }],
+                    jsonReader : {
+                        page : "page",
+                        total : "total",
+                        records : "records",
+                        root : 'methods',
+                        repeatitems : false
+                    },
+                    height: "auto",
+                    loadonce: true,
+                    multiselect: true,
+                    rownum: 10000,
+                    sortname : 'idString',
+                    sortorder: 'asc',
+                    viewrecords : true
+
+                });
+                membersList.jqGrid('navGrid', '#overrideNavGrid',
+                    { add: false, edit: false, del: false, search: false },
+                    {},
+                    {},
+                    {},
+                    {}
+                );
+
+            });
+
+        </script>
+    </head>
+    <body>
+        <nav class="navbar navbar-default" role="navigation">
+            <div class="container-fluid">
+                <div class="collapse navbar-collapse">
+                    <ul id="status2" class="nav navbar-nav">
+                        <li><a href="#" onClick="navigateProfiles()">Profiles</a></li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+        <div>
+            <div id="groupsDiv" class="ui-widget-content ui-corner-all" style="float: left;width: 30%;">
+                <table id="groupsList"></table>
+                <div id="groupNavGrid"></div>
+            </div>
+
+            <div id="groupOverridesDiv" class="ui-widget-content ui-corner-all" style="float: left;width:70%;">
+                <div>
+                    <h2><span id="title" class="label label-default" /></h2>
+                    <table id="overrideList"></table>
+                    <div id="overrideNavGrid"></div>
+                </div>
+                <button id="testApply" class="btn btn-primary" onclick="applyGroupOverrides();">Apply</button>
+            </div>
+        </div>
+    </body>
+</html>
