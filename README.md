@@ -13,6 +13,18 @@ Benefits
 * Client: A client is an instance of a profile. Clients share the same path definitions, but overrides are specific to a client. This allows multiple users access to a centralized Odo server with their own custom configuration.
 * Override: An action to perform on a given endpoint. The actions could be to return a custom response, add a delay, return a specific response code, modify response data, etc.
 
+## Get Prepackaged Odo
+To try out Odo without needing to download the source and package it, check out the releases for a prepackaged odo.war. Also included are a sample configuration and sample plugin. Import the sample (instructions below) to try out Odo with minimal steps.
+
+### Prepackaged setup
+1. Create a "plugins" directory at the odo.war location.
+2. Place the plugin jar file in the plugins directory
+3. Start Odo by running 
+<code>java -Xmx1024m -jar odo.war</code>
+4. Import the sample configuration by running
+<code>curl -X POST -F fileData=@backup.json http://localhost:8090/testproxy/api/backup</code>
+5. View the Odo UI at http://localhost:8090/testproxy
+
 ## Package Odo
 From the repo root, run
 <pre><code>
