@@ -13,6 +13,18 @@ Benefits
 * Client: A client is an instance of a profile. Clients share the same path definitions, but overrides are specific to a client. This allows multiple users access to a centralized Odo server with their own custom configuration.
 * Override: An action to perform on a given endpoint. The actions could be to return a custom response, add a delay, return a specific response code, modify response data, etc.
 
+## Download Odo
+To try out Odo without needing to download the source and package it, check out the releases for a prepackaged odo.war. Also included are a sample configuration and sample plugin. Import the sample (instructions below) to try out Odo with minimal steps.
+
+### Prepackaged setup
+1. Create a "plugins" directory at the odo.war location.
+2. Place the plugin jar file in the plugins directory
+3. Start Odo by running 
+<code>java -Xmx1024m -jar odo.war</code>
+4. Import the sample configuration by running
+<code>curl -X POST -F fileData=@backup.json http://localhost:8090/testproxy/api/backup</code>
+5. View the Odo UI at http://localhost:8090/testproxy
+
 ## Package Odo
 From the repo root, run
 <pre><code>
@@ -47,6 +59,17 @@ If you are starting from a fresh install, there are a few preliminary steps befo
 2. **Configure the override.** With your newly added override selected, the override parameters are displayed next to the "Overrides" list. For our custom response, we have "response" and "repeat count" parameters. The response parameter is the response content to return to the requestor. Enter "test content" here. The repeat count is a parameter that exists for all overrides. It is the number of times an override will be executed before it is disabled. -1 is infinite. Click "Apply" to update the override.
 3. **Test it.** Verify the override is working by sending a request or navigating to http://localhost:8082/test. You will see that your response content "test content" is returned to you.
 
+#### UI Quickstart: Sample configuration
+Included in the examples directory is a sample configuration backup. The sample configuration uses the sample plugin. After running <code>mvn package</code> the sample plugin will be located at examples/plugin/target/plugin-*.jar. Create a directory called "plugins" at the location of the odo.war and copy the sample plugin jar there.
+
+You can then import the backup.json data and view a sample Odo configuration.
+<code>curl -X POST -F fileData=@backup.json http://localhost:8090/testproxy/api/backup</code>
+
+Items to note:
+1. The API Servers contains a single entry. The source host is "localhost" and the destination host is "blackhole". This implies that requests sent to "localhost" will be considered for overrides. The destination host is "blackhole" simply because this is a host that does not resolve. Since the paths included in the sample are largely custom request overrides, they will never be forwarded to the destination host.
+2. The "Changing Stub" path demonstrates a path that produces a different response for each request. This is done by having multiple custom responses with a repeat count of "1". When the first custom response is activated the repeat count drops to 0, effectively disabling the override. On the next request the next override with a non-zero repeat count will be executed.
+3. The "Plugin Demo" path has an override "http404" that is provided by the sample plugin. There are a couple steps to enable a plugin override for a path. First, the plugin methods must belong to a group. From the "Edit Groups" page, you can create a new group and select the plugin methods that will be included. Back on the Profile edit page, select the path and click the configuration tab. The final step is to select the group you created in the Groups listbox and click apply. The plugin methods will now be available in the override dropdown list.
+
 ### Default Odo Ports
 * 8090: API - access the Odo UI, Odo configuration REST endpoints (http://localhost:8090/testproxy/api/)
 * 8082: HTTP proxy - handles HTTP traffic
@@ -77,6 +100,12 @@ In some cases you will need to install the SSL certificates that Odo is signing 
 </code></pre>
 
 The certificates are regenerated after some time due to expiration.  Additionally since certificates are generated on the fly they will differ if you launch Odo from a different directory or a different machine.
+
+### Samples
+The examples directory contains samples to help get you started with Odo
+* backup.json: A sample configuration that can be imported to demonstrate some basic features of Odo.
+* api-usage: Example code demonstrating modifying an Odo configuration through the Java client.
+* plugin: Example code demonstrating how you can extend Odo's functionality by adding your own override behaviors.
 
 # Development Setup
 This section will go over how to setup STS(Spring Tool Suite) for proxy development.  It assumes you have already checked the code out.

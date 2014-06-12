@@ -1,0 +1,49 @@
+{
+  "groups" : [ {
+    "name" : "Plugins",
+    "methods" : [ {
+      "methodName" : "http404",
+      "className" : "com.groupon.odo.sample.Status"
+    }, {
+      "methodName" : "delay",
+      "className" : "com.groupon.odo.sample.Common"
+    } ]
+  } ],
+  "profiles" : [ {
+    "name" : "Sample Profile",
+    "paths" : [ {
+      "pathName" : "Test Path",
+      "path" : "/test",
+      "bodyFilter" : "",
+      "contentType" : "",
+      "requestType" : 1,
+      "global" : false,
+      "groupNames" : [ "Plugins" ]
+    }, {
+      "pathName" : "Changing Stub",
+      "path" : "/change",
+      "bodyFilter" : null,
+      "contentType" : null,
+      "requestType" : 1,
+      "global" : false,
+      "groupNames" : [ ]
+    }, {
+      "pathName" : "Plugin Demo",
+      "path" : "/plugin",
+      "bodyFilter" : "",
+      "contentType" : "",
+      "requestType" : 0,
+      "global" : false,
+      "groupNames" : [ "Plugins" ]
+    } ],
+    "servers" : [ {
+      "region" : "",
+      "srcUrl" : "localhost",
+      "destUrl" : "blackhole",
+      "hostHeader" : ""
+    } ],
+    "serverGroups" : [ ],
+    "active" : true
+  } ],
+  "scripts" : [ ]
+}

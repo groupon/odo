@@ -21,5 +21,6 @@
     </parent>
     <modules>
         <module>plugin</module>
+        <module>api-usage</module>
     </modules>
 </project>
