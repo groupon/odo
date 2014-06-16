@@ -20,6 +20,7 @@ import com.groupon.odo.proxylib.Constants;
 import com.groupon.odo.proxylib.ProfileService;
 import com.groupon.odo.proxylib.Utils;
 import com.groupon.odo.proxylib.models.Client;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
@@ -28,6 +29,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.WebRequest;
 
 import javax.servlet.http.HttpServletResponse;
+
 import java.util.HashMap;
 
 @Controller
@@ -105,6 +107,12 @@ public class ClientController {
                                       @PathVariable("profileIdentifier") String profileIdentifier,
                                       @RequestParam(required = false) String friendlyName) throws Exception {
         Integer profileId = ControllerUtils.convertProfileIdentifier(profileIdentifier);
+        
+        // make sure client with this name does not already exist
+        if (null != clientService.findClientFromFriendlyName(profileId, friendlyName)) {
+        	throw new Exception("Cannot add client. Friendly name already in use.");
+        }
+        
         Client client = clientService.add(profileId);
 
         // set friendly name if it was specified

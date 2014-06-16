@@ -17,6 +17,7 @@ package com.groupon.odo.proxylib;
 
 import com.groupon.odo.proxylib.models.Client;
 import com.groupon.odo.proxylib.models.Profile;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -245,6 +246,8 @@ public class ClientService {
 
     /**
      * Create a new client for profile
+     * There is a limit of Constants.CLIENT_CLIENTS_PER_PROFILE_LIMIT
+     * If this limit is reached an exception is thrown back to the caller
      *
      * @param profileId
      * @return
@@ -259,12 +262,31 @@ public class ClientService {
         Connection sqlConnection = null;
         Profile profile = ProfileService.getInstance().findProfile(profileId);
         PreparedStatement statement = null;
-        PreparedStatement query = null;
         ResultSet rs = null;
-        ResultSet result = null;
 
         try {
             sqlConnection = sqlService.getConnection();
+            
+            // get the current count of clients
+            statement = sqlConnection.prepareStatement("SELECT COUNT(" + Constants.GENERIC_ID + ") FROM " + 
+            											Constants.DB_TABLE_CLIENT + " WHERE " + Constants.GENERIC_PROFILE_ID + "=?");
+            statement.setInt(1, profileId);
+            int clientCount = -1;
+            rs = statement.executeQuery();
+            if (rs.next()) {
+            	clientCount = rs.getInt(1);
+            }
+            statement.close();
+            rs.close();
+
+            // check count
+            if (clientCount == -1) {
+            	throw new Exception("Error querying clients for profileId=" + profileId);
+            }
+            if (clientCount >= Constants.CLIENT_CLIENTS_PER_PROFILE_LIMIT) {
+            	throw new Exception("Profile(" + profileId + ") already contains 50 clients.  Please remove clients before adding new ones.");
+            }
+            
             statement = sqlConnection.prepareStatement(
                     "INSERT INTO " + Constants.DB_TABLE_CLIENT +
                             " (" + Constants.CLIENT_CLIENT_UUID + ", " +
@@ -289,17 +311,17 @@ public class ClientService {
 
             // adding entries into request response table for this new client for every path
             // basically a copy of what happens when a path gets created
-            query = sqlConnection.prepareStatement(
+            statement = sqlConnection.prepareStatement(
                     "SELECT * FROM " + Constants.DB_TABLE_REQUEST_RESPONSE +
                             " WHERE " + Constants.GENERIC_PROFILE_ID + " = ?" +
                             " AND " + Constants.GENERIC_CLIENT_UUID + " = ?"
             );
-            query.setInt(1, profile.getId());
-            query.setString(2, Constants.PROFILE_CLIENT_DEFAULT_ID);
-            result = query.executeQuery();
-            while (result.next()) {
+            statement.setInt(1, profile.getId());
+            statement.setString(2, Constants.PROFILE_CLIENT_DEFAULT_ID);
+            rs = statement.executeQuery();
+            while (rs.next()) {
                 // collect up the pathIds we need to copy
-                pathsToCopy.add(result.getInt(Constants.REQUEST_RESPONSE_PATH_ID));
+                pathsToCopy.add(rs.getInt(Constants.REQUEST_RESPONSE_PATH_ID));
             }
             client = new Client();
             client.setIsActive(false);
@@ -310,19 +332,11 @@ public class ClientService {
             throw e;
         } finally {
             try {
-                if (result != null) result.close();
-            } catch (Exception e) {
-            }
-            try {
                 if (rs != null) rs.close();
             } catch (Exception e) {
             }
             try {
                 if (statement != null) statement.close();
-            } catch (Exception e) {
-            }
-            try {
-                if (query != null) query.close();
             } catch (Exception e) {
             }
         }
@@ -387,7 +401,7 @@ public class ClientService {
      *
      * @param profileId
      * @param friendlyName
-     * @return
+     * @return Client or null
      * @throws Exception
      */
     public Client findClientFromFriendlyName(int profileId, String friendlyName) throws Exception {
