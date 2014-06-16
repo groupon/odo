@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.StringTokenizer;
 
 public class Utils {
@@ -49,16 +50,6 @@ public class Utils {
         return list;
     }
 
-    public static HashMap<String, Object> getJQGridJSON(ArrayList<?> rows, String rowName) {
-        HashMap<String, Object> returnVal = new HashMap<String, Object>();
-        returnVal.put("records", rows.size());
-        returnVal.put("total", 1);
-        returnVal.put("page", 1);
-        returnVal.put(rowName, rows);
-        System.out.println("Row size is:" + rows.size());
-        return returnVal;
-    }
-
     public static HashMap<String, Object> getJQGridJSON(Object row, String rowName) {
         HashMap<String, Object> returnVal = new HashMap<String, Object>();
         returnVal.put("records", 1);
@@ -75,6 +66,14 @@ public class Utils {
         returnVal.put("page", 1);
         returnVal.put(rowName, rows);
         return returnVal;
+    }
+    
+    public static HashMap<String, Object> getJQGridJSON(List<?> rows, String rowName) {
+    	return getJQGridJSON(rows.toArray(), rowName);
+    }
+    
+    public static HashMap<String, Object> getJQGridJSON(ArrayList<?> rows, String rowName) {
+    	return getJQGridJSON(rows.toArray(), rowName);
     }
 
     public static HashMap<String, Object> getJQGridJSON(Object[] rows, String rowName, int offset, int totalRows, int requestedRows) {

@@ -178,7 +178,8 @@ clientList.jqGrid('navGrid', '#clientnavGrid', {
 		$('#tr_isActive', form).hide();
 	},
 	width: 450,
-	closeAfterAdd: true
+	closeAfterAdd: true,
+	errorTextFormat: jsonErrorFormat
 },
 {
 	mtype:"DELETE", reloadAfterSubmit:true, serializeDelData: function (postdata) {
