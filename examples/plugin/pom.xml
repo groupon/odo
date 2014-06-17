@@ -51,6 +51,11 @@
                     <descriptorRefs>
                         <descriptorRef>jar-with-dependencies</descriptorRef>
                     </descriptorRefs>
+                    <archive>
+                        <manifestEntries>
+                            <Plugin-Package>com.groupon.odo.sample</Plugin-Package>
+                        </manifestEntries>
+                    </archive>
                 </configuration>
             </plugin>
         </plugins>
