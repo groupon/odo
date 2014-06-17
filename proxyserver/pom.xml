@@ -4,7 +4,7 @@
     <groupId>com.groupon.odo</groupId>
     <artifactId>ProxyServer</artifactId>
     <name>ProxyServer</name>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>1.0.0-beta.1</version>
     <packaging>jar</packaging>
 
     <properties>
@@ -46,7 +46,7 @@
         <dependency>
             <groupId>com.groupon.odo</groupId>
             <artifactId>proxylib</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
+            <version>1.0.0-beta.1</version>
         </dependency>
         <dependency>
             <groupId>com.groupon.odo</groupId>
