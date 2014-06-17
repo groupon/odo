@@ -4,7 +4,7 @@
 
     <artifactId>proxylib</artifactId>
     <name>proxylib</name>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>1.0.0-beta</version>
     <packaging>jar</packaging>
 
     <parent>
