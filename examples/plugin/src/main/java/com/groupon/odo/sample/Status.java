@@ -15,7 +15,7 @@
 */
 package com.groupon.odo.sample;
 
-import com.groupon.odo.proxylib.plugin.ResponseOverride;
+import com.groupon.odo.plugin.ResponseOverride;
 
 public class Status {
     @ResponseOverride(

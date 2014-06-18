@@ -76,8 +76,8 @@ public class Constants {
     public static final int PLUGIN_RESPONSE_HEADER_OVERRIDE_REMOVE = -4;
     public static final int PLUGIN_REQUEST_HEADER_OVERRIDE_ADD = -5;
     public static final int PLUGIN_REQUEST_HEADER_OVERRIDE_REMOVE = -6;
-    public static final String PLUGIN_TYPE_RESPONSE_OVERRIDE = "interface com.groupon.odo.proxylib.plugin.ResponseOverride";
-    public static final String PLUGIN_TYPE_REQUEST_OVERRIDE = "interface com.groupon.odo.proxylib.plugin.RequestOverride";
+    public static final String PLUGIN_TYPE_RESPONSE_OVERRIDE = "interface com.groupon.odo.plugin.ResponseOverride";
+    public static final String PLUGIN_TYPE_REQUEST_OVERRIDE = "interface com.groupon.odo.plugin.RequestOverride";
 
     // Override information
     public static final String DB_TABLE_OVERRIDE_METHOD_NAME = "method_name";
@@ -88,8 +88,8 @@ public class Constants {
     public static final String DB_TABLE_PATH_REQUEST_ENABLED = "request_enabled";
 
     // Plugin Annotation information
-    public static final String PLUGIN_RESPONSE_OVERRIDE_CLASS = "com.groupon.odo.proxylib.plugin.ResponseOverride";
-    public static final String PLUGIN_REQUEST_OVERRIDE_CLASS = "com.groupon.odo.proxylib.plugin.RequestOverride";
+    public static final String PLUGIN_RESPONSE_OVERRIDE_CLASS = "com.groupon.odo.plugin.ResponseOverride";
+    public static final String PLUGIN_REQUEST_OVERRIDE_CLASS = "com.groupon.odo.plugin.RequestOverride";
     public static final String PLUGIN_RESPONSE_OVERRIDE_HTTP_CODE = "httpCode";
     public static final String PLUGIN_RESPONSE_OVERRIDE_DESCRIPTION = "description";
 

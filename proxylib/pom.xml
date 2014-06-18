@@ -4,7 +4,7 @@
 
     <artifactId>proxylib</artifactId>
     <name>proxylib</name>
-    <version>${odo.version}</version>
+    <version>1.0.0-beta.1</version>
     <packaging>jar</packaging>
 
     <parent>
@@ -22,6 +22,12 @@
     </properties>
 
     <dependencies>
+        <dependency>
+            <groupId>com.groupon.odo</groupId>
+            <artifactId>proxyplugin</artifactId>
+            <version>1.0.0-beta.1</version>
+        </dependency>
+
         <dependency>
             <groupId>org.json</groupId>
             <artifactId>json</artifactId>
@@ -133,7 +139,6 @@
 
     <build>
         <plugins>
-
             <plugin>
                 <artifactId>maven-eclipse-plugin</artifactId>
                 <version>2.9</version>
@@ -170,7 +175,7 @@
                             <addClasspath>false</addClasspath>
                         </manifest>
                         <manifestEntries>
-                            <Implementation-Version>${odo.version}</Implementation-Version>
+                            <Implementation-Version>1.0.0-beta.1</Implementation-Version>
                         </manifestEntries>
                     </archive>
                 </configuration>

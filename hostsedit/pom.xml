@@ -3,8 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>HostsEdit</groupId>
 	<artifactId>HostsEdit</artifactId>
-	<version>${odo.version}</version>
-
+	<version>1.0.0-beta.1</version>
 	<parent>
 			<groupId>com.groupon.odo</groupId>
 			<artifactId>proxyaggregator</artifactId>
@@ -20,7 +19,7 @@
 		<dependency>
 			<groupId>com.groupon.odo</groupId>
 			<artifactId>proxylib</artifactId>
-			<version>${odo.version}</version>
+			<version>1.0.0-beta.1</version>
 		</dependency>
 	</dependencies>
 

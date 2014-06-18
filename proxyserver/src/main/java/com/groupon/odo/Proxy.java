@@ -17,8 +17,8 @@ package com.groupon.odo;
 
 import com.groupon.odo.proxylib.*;
 import com.groupon.odo.proxylib.models.*;
-import com.groupon.odo.proxylib.plugin.RequestOverride;
-import com.groupon.odo.proxylib.plugin.ResponseOverride;
+import com.groupon.odo.plugin.RequestOverride;
+import com.groupon.odo.plugin.ResponseOverride;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.httpclient.Header;
