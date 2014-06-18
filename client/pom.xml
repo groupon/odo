@@ -4,7 +4,6 @@
     <groupId>com.groupon.odo</groupId>
     <artifactId>client</artifactId>
     <version>1.0.0-beta.1</version>
-
     <parent>
         <artifactId>proxyaggregator</artifactId>
         <groupId>com.groupon.odo</groupId>
@@ -16,6 +15,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
