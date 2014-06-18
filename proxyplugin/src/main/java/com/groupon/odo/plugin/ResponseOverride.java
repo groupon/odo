@@ -13,7 +13,7 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 */
-package com.groupon.odo.proxylib.plugin;
+package com.groupon.odo.plugin;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -22,6 +22,10 @@ import java.lang.annotation.Target;
 
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface RequestOverride {
+public @interface ResponseOverride {
+    public int httpCode();
+
     public String description();
+
+    public String[] parameters() default {};
 }

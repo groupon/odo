@@ -15,9 +15,9 @@
 */
 package com.groupon.odo.proxylib;
 
+import com.groupon.odo.plugin.ResponseOverride;
 import com.groupon.odo.proxylib.models.Configuration;
 import com.groupon.odo.proxylib.models.Plugin;
-import com.groupon.odo.proxylib.plugin.ResponseOverride;
 import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.CtMethod;

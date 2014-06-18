@@ -4,6 +4,13 @@
     <groupId>com.groupon.odo</groupId>
     <artifactId>client</artifactId>
     <version>1.0.0-beta.1</version>
+
+    <parent>
+        <artifactId>proxyaggregator</artifactId>
+        <groupId>com.groupon.odo</groupId>
+        <version>1.0.0-beta.1</version>
+    </parent>
+
     <properties>
         <java-version>1.6</java-version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

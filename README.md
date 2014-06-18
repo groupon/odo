@@ -126,8 +126,8 @@ This section will go over how to setup STS(Spring Tool Suite) for proxy developm
 ## Override Types
 An override is simply a static function with an annotation specifying the type of override it is.  Currently available override types are:
 
-- @ResponseOverride (com.groupon.odo.proxylib.plugin.ResponseOverride) - Overrides response data from an HTTP request.  Currently only passes string data to the function.
-- @RequestOverride (com.groupon.odo.proxylib.plugin.RequestOverride) - Not currently defined - Only custom overrides are supported so far (query replacement)
+- @ResponseOverride (com.groupon.odo.plugin.ResponseOverride) - Overrides response data from an HTTP request.  Currently only passes string data to the function.
+- @RequestOverride (com.groupon.odo.plugin.RequestOverride) - Not currently defined - Only custom overrides are supported so far (query replacement)
 
 ## Maven Project For Plugins
 1. Create a new maven project
@@ -135,7 +135,7 @@ An override is simply a static function with an annotation specifying the type o
 <pre><code>
 	&lt;dependency>
 		&lt;groupId>com.groupon&lt;/groupId>
-		&lt;artifactId>proxylib&lt;/artifactId>
+		&lt;artifactId>proxyplugin&lt;/artifactId>
 		&lt;version>1.0.0-beta.1&lt;/version>
 	&lt;/dependency>
 </pre></code>
@@ -152,7 +152,7 @@ An override is simply a static function with an annotation specifying the type o
 
 ### Override Class and Simple Override Method
 1. Add a new class to your project to hold your override methods.  Generally you will want to group methods into classes by functional area(ex: a class to override all requests that return a list of deals)
-2. Import the appropriate override type (ex: import com.groupon.odo.proxylib.plugin.ResponseOverride)
+2. Import the appropriate override type (ex: import com.groupon.odo.plugin.ResponseOverride)
 3. Add a static method that returns a string with a single String parameter and the following annotation.  Name your function something that is meaningful:
 <pre><code>
 @ResponseOverride(
@@ -339,7 +339,7 @@ In order to enable/disable a method on a path you need the override ID.  The fol
     "description": "Sleeps",
     "methodName": "Sleep",
     "className": "com.groupon.odo.override",
-    "methodType": "interface com.groupon.odo.proxylib.plugin.ResponseOverride",
+    "methodType": "interface com.groupon.odo.plugin.ResponseOverride",
     "methodArguments": [
     ],
     "methodArgumentNames": [
