@@ -136,10 +136,19 @@ An override is simply a static function with an annotation specifying the type o
 	&lt;dependency>
 		&lt;groupId>com.groupon&lt;/groupId>
 		&lt;artifactId>proxylib&lt;/artifactId>
-		&lt;version>0.0.1-SNAPSHOT&lt;/version>
+		&lt;version>1.0.0-beta.1&lt;/version>
 	&lt;/dependency>
 </pre></code>
 3. Your plugin project can depend on any other maven jars that you need.  Building a jar with all dependencies is described later on.
+4. Add an entry to the maven-assembly-plugin configuration section of pom.xml as follows.  Replace com.groupon.odo.sample with the appropriate package.
+   <pre><code>
+   	&lt;archive>
+   		&lt;manifestEntries>
+   			&lt;Plugin-Package>com.groupon.odo.sample&lt;/Plugin-Package>
+   		&lt;/manifestEntries>
+   	&lt;/archive>
+   </code></pre>
+
 
 ### Override Class and Simple Override Method
 1. Add a new class to your project to hold your override methods.  Generally you will want to group methods into classes by functional area(ex: a class to override all requests that return a list of deals)

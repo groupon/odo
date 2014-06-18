@@ -137,7 +137,13 @@ public class PluginManager {
                             try {
                                 jarInformation.add(f.getAbsolutePath());
                                 JarFile jarFile = new JarFile(f);
-                                Enumeration enumer = jarFile.entries();
+                                Enumeration<?> enumer = jarFile.entries();
+
+                                // Use the Plugin-Name manifest entry to match with the provided pluginName
+                                String pluginPackageName = jarFile.getManifest().getMainAttributes().getValue("plugin-package");
+                                if(pluginPackageName == null)
+                                    return;
+
                                 while (enumer.hasMoreElements()) {
                                     Object element = enumer.nextElement();
                                     String elementName = element.toString();
@@ -145,8 +151,9 @@ public class PluginManager {
                                     if (!elementName.endsWith(".class"))
                                         continue;
 
-                                    if (elementName.contains("odo")) {
-                                        String className = getClassNameFromPath(elementName);
+
+                                    String className = getClassNameFromPath(elementName);
+                                    if (className.contains(pluginPackageName)) {
                                         logger.info("Storing plugin information: {}, {}", className,
                                                 f.getAbsolutePath());
 
