@@ -965,7 +965,7 @@ public class PathOverrideService {
      */
     private String getPathSelectString() {
         String queryString = "SELECT " + Constants.DB_TABLE_REQUEST_RESPONSE + "." + Constants.GENERIC_CLIENT_UUID +
-                "," + Constants.DB_TABLE_PATH + "." + Constants.GENERIC_ID +
+        		"," + Constants.DB_TABLE_PATH + "." + Constants.GENERIC_ID +
                 "," + Constants.PATH_PROFILE_PATHNAME +
                 "," + Constants.PATH_PROFILE_ACTUAL_PATH +
                 "," + Constants.PATH_PROFILE_BODY_FILTER +
@@ -978,8 +978,8 @@ public class PathOverrideService {
                 "," + Constants.PATH_PROFILE_CONTENT_TYPE +
                 "," + Constants.PATH_PROFILE_REQUEST_TYPE +
                 "," + Constants.PATH_PROFILE_GLOBAL +
-                " FROM " + Constants.DB_TABLE_REQUEST_RESPONSE +
-                " JOIN " + Constants.DB_TABLE_PATH +
+                " FROM " + Constants.DB_TABLE_PATH +
+                " JOIN " + Constants.DB_TABLE_REQUEST_RESPONSE +
                 " ON " + Constants.DB_TABLE_PATH + "." + Constants.GENERIC_ID +
                 "=" + Constants.DB_TABLE_REQUEST_RESPONSE + "." + Constants.REQUEST_RESPONSE_PATH_ID +
                 " AND " + Constants.DB_TABLE_REQUEST_RESPONSE + "." + Constants.GENERIC_CLIENT_UUID + " = ?";

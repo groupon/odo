@@ -34,7 +34,7 @@ public class Constants {
     public static final int DEFAULT_HTTPS_PORT = 8012;
 
     // DB constants
-    public static final int DB_CURRENT_SCHEMA_VERSION = 2;
+    public static final int DB_CURRENT_SCHEMA_VERSION = 3;
     public static final String DB_TABLE_CONFIGURATION = "configuration";
     public static final String DB_TABLE_HISTORY = "history";
     public static final String DB_TABLE_OVERRIDE = "override_db";
@@ -141,7 +141,7 @@ public class Constants {
     public static final String CLIENT_PROFILE_ID = "profile_id";
     public static final String CLIENT_FRIENDLY_NAME = "friendly_name";
     public static final String CLIENT_ACTIVESERVERGROUP = "active_server_group";
-    public static final int    CLIENT_CLIENTS_PER_PROFILE_LIMIT = 50;
+    public static final int    CLIENT_CLIENTS_PER_PROFILE_LIMIT = 300;
 
     //server_redirect_db
     public static final String SERVER_REDIRECT_REGION = "region";
