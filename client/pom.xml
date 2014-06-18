@@ -3,12 +3,20 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.groupon.odo</groupId>
     <artifactId>client</artifactId>
-    <version>1.0.0-beta.1</version>
+    <version>${odo.version}</version>
+
+    <parent>
+        <artifactId>proxyaggregator</artifactId>
+        <groupId>com.groupon.odo</groupId>
+        <version>1.0.0-beta.1</version>
+    </parent>
+
     <properties>
         <java-version>1.6</java-version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>

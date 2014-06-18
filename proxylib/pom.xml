@@ -4,13 +4,13 @@
 
     <artifactId>proxylib</artifactId>
     <name>proxylib</name>
-    <version>1.0.0-beta.1</version>
+    <version>${odo.version}</version>
     <packaging>jar</packaging>
 
     <parent>
         <groupId>com.groupon.odo</groupId>
         <artifactId>proxyaggregator</artifactId>
-        <version>1.0</version>
+        <version>1.0.0-beta.1</version>
     </parent>
 
     <properties>
