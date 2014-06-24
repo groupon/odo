@@ -154,14 +154,17 @@ An override is simply a static function with an annotation specifying the type o
 1. Add a new class to your project to hold your override methods.  Generally you will want to group methods into classes by functional area(ex: a class to override all requests that return a list of deals)
 2. Import the appropriate override type (ex: import com.groupon.odo.plugin.ResponseOverride)
 3. Add a static method that returns a string with a single String parameter and the following annotation.  Name your function something that is meaningful:
-<pre><code>
+
+
+```java
 @ResponseOverride(
 			httpCode=200,
 			description="Replace a with b")
 public static String replaceLetter(String source) throws Exception {
 	return source.replace('a', 'b');
 }
-</pre></code>
+```
+
 4. Notice that the annotation allows for custom httpCodes and some descriptive text.  This should be set as necessary.
 
 ### Paramaterized Override Method
@@ -174,7 +177,8 @@ The annotation supports an additional item which is "parameters".  This is an ar
 
 
 An example method is:
-<pre><code>
+
+```java
 @ResponseOverride(
 			httpCode=200,
 			description="Replace string with integer",
@@ -187,7 +191,7 @@ public static String replaceLetter(String source, String letter, Integer number,
 	}
 	return returnVal;
 }
-</pre></code>
+```
 
 To configure the arguments through the Proxy UI you simply double click on the enabled override in the enabled overrides list for a path.  A UI will appear allowing you to set parameters.
 
@@ -290,8 +294,12 @@ Refer to Configuration Interfaces section for API details
 {pathIdentifier} - Name or ID of the path to edit(Ex: My%20Path)
 {clientUUID} - UUID of the profile client to update, -1 is the default client(I know this is not a UUID)
 #### Create Profile Client
-<pre><code>POST /testproxy/api/profile/{profileIdentifier}/clients
 
+```
+POST /testproxy/api/profile/{profileIdentifier}/clients
+```
+
+```json
 {
 	"client": {
 		"id": 4,
@@ -302,7 +310,7 @@ Refer to Configuration Interfaces section for API details
 		}
 	}
 }
-</code></pre>
+```
 
 #### Delete Profile Client
 Clients should be deleted when they are no longer going to be used(ex: in test cleanup code)
@@ -330,8 +338,11 @@ POST BODY for Request Path: profileIdentifier={profileIdentifier}&resetRequest=t
 In order to enable/disable a method on a path you need the override ID.  The following request can be used to method information and find the ID  
 {methodName} - Fully qualified method name.  Ex: com.groupon.odo.override.Sleep
 
-<pre><code>GET /testproxy/method/{methodName}
+```
+GET /testproxy/method/{methodName}
+```
 
+```json
 {
   "method": {
     "id": 55,
@@ -346,7 +357,7 @@ In order to enable/disable a method on a path you need the override ID.  The fol
     ]
   }
 }
-</code></pre>
+```
 
 #### Enable method on an override path
 <pre><code>POST /testproxy/api/path/{pathIdentifier}
@@ -456,7 +467,9 @@ Static Functions:
 
 
 ## JSON Settings Backup/Import format
-<pre><code>{
+
+```json
+{
 	"groups": [
 		{
 			"name": "Group Name",
@@ -494,7 +507,7 @@ Static Functions:
 		}
 	]
 }
-</code></pre>
+```
 
 ## Java Database Viewer
 You may need to manually edit entries in database. We recommend using SQL Workbench.
