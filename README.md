@@ -157,12 +157,12 @@ An override is simply a static function with an annotation specifying the type o
 
 
 ```java
-@ResponseOverride(
+    @ResponseOverride(
 			httpCode=200,
 			description="Replace a with b")
-public static String replaceLetter(String source) throws Exception {
-	return source.replace('a', 'b');
-}
+    public static String replaceLetter(String source) throws Exception {
+    	return source.replace('a', 'b');
+    }
 ```
 
 4. Notice that the annotation allows for custom httpCodes and some descriptive text.  This should be set as necessary.
