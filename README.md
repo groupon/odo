@@ -9,7 +9,7 @@ Benefits
 # Getting Started
 ## Odo Concepts
 * Path: Path defines an API endpoint and the actions (overrides) to perform. The path is specified by friendly name, path value, request type.
-* Profile: A profile is a collection of paths. 
+* Profile: A profile is a collection of paths.
 * Client: A client is an instance of a profile. Clients share the same path definitions, but overrides are specific to a client. This allows multiple users access to a centralized Odo server with their own custom configuration.
 * Override: An action to perform on a given endpoint. The actions could be to return a custom response, add a delay, return a specific response code, modify response data, etc.
 
@@ -19,23 +19,26 @@ To try out Odo without needing to download the source and package it, check out 
 ### Prepackaged setup
 1. Create a "plugins" directory at the odo.war location.
 2. Place the plugin jar file in the plugins directory
-3. Start Odo by running 
-<code>java -Xmx1024m -jar odo.war</code>
-4. Import the sample configuration by running
-<code>curl -X POST -F fileData=@backup.json http://localhost:8090/testproxy/api/backup</code>
-5. View the Odo UI at http://localhost:8090/testproxy
+3. Start Odo by running `java -Xmx1024m -jar odo.war`
+4. Import the sample configuration by running `curl -X POST -F fileData=@backup.json http://localhost:8090/testproxy/api/backup`
+5. View the Odo UI at `http://localhost:8090/testproxy`
 
 ## Package Odo
 From the repo root, run
-<pre><code>
-    mvn clean install
-    mvn clean package
-</code></pre>
-The odo.war will be created at proxyui/target.
+
+```
+mvn clean install
+mvn clean package
+```
+
+The `odo.war` will be created at `proxyui/target`.
 
 ## Run Odo
 From the location where you have odo.war, run
-<code>java -Xmx1024m -jar odo.war</code>
+
+```
+java -Xmx1024m -jar odo.war
+```
 
 If you have Odo plugins, place them in a "plugins" directory under the Odo.war location.
 
@@ -46,26 +49,30 @@ Odo UI is available at http://localhost:8090/testproxy
 #### UI Quickstart: Setting up a Profile
 If you are starting from a fresh install, there are a few preliminary steps before actually configuring an override.
 
-1. **Create a profile.** When you navigate to http://localhost:8090/testproxy you are presented with the profile list. Initially it will be empty. To create a new Profile, click the '+' icon below the list and give the new profile a name in the dialog that appears. Select the newly-created profile by clicking on the '>' button to the right of the the profile name.
-2. **Add an API server.** An API server is needed to determine which requests to handle. When a request enters Odo, the request hostname is compared to the API Servers configured. If the request hostname is not in Odo's configured hostnames, Odo will simply pass the request through without processing it.  
-  
+1. **Create a profile.** When you navigate to `http://localhost:8090/testproxy` you are presented with the profile list. Initially it will be empty. To create a new Profile, click the '+' icon below the list and give the new profile a name in the dialog that appears. Select the newly-created profile by clicking on the '>' button to the right of the the profile name.
+2. **Add an API server.** An API server is needed to determine which requests to handle. When a request enters Odo, the request hostname is compared to the API Servers configured. If the request hostname is not in Odo's configured hostnames, Odo will simply pass the request through without processing it.
+
   To add a host, click the '+' button under the "API Servers" list and fill in the Source Hostname and Destination Hostname/IP. For a live server, the source would be the actual hostname (domain.com) and the destination will be the actual IP address of the host. For this example, add Source Hostname "localhost" and Destination "blackhole". When a custom response is enabled on a path that request is never actually sent to the destination, so the destination host will not matter in this case.
 3. **Create a path.** Click on the '+' button under the Paths list to add a new path. A dialog prompting for path name, path value, and path type will show. Path name can be any name for you to identify it. Enter "Test path" for path name. Path value is a regular expression of the endpoint, so "/test" will match a response directed to "localhost/test". Enter "/test" for this value. Select "GET" for the path type.
 
 #### UI Quickstart: Creating a Custom Response
-1. **Add the Custom Response override.** Clicking on your newly added path's name will display a details view. The "Response" tab contains the configuration for your response overrides. A Response Override is for modifying the data received from an API server before sending that data back to the requestor. This is also where we enable a custom response to act as a mock server.  
-  
-  From the "Add Override" dropdown list, select "Custom Response". This will add the "Custom Response" override to the list of enabled overrides and enable the "Response" column in the Paths list. 
+1. **Add the Custom Response override.** Clicking on your newly added path's name will display a details view. The "Response" tab contains the configuration for your response overrides. A Response Override is for modifying the data received from an API server before sending that data back to the requestor. This is also where we enable a custom response to act as a mock server.
+
+  From the "Add Override" dropdown list, select "Custom Response". This will add the "Custom Response" override to the list of enabled overrides and enable the "Response" column in the Paths list.
 2. **Configure the override.** With your newly added override selected, the override parameters are displayed next to the "Overrides" list. For our custom response, we have "response" and "repeat count" parameters. The response parameter is the response content to return to the requestor. Enter "test content" here. The repeat count is a parameter that exists for all overrides. It is the number of times an override will be executed before it is disabled. -1 is infinite. Click "Apply" to update the override.
 3. **Test it.** Verify the override is working by sending a request or navigating to http://localhost:8082/test. You will see that your response content "test content" is returned to you.
 
 #### UI Quickstart: Sample configuration
-Included in the examples directory is a sample configuration backup. The sample configuration uses the sample plugin. After running <code>mvn package</code> the sample plugin will be located at examples/plugin/target/plugin-*.jar. Create a directory called "plugins" at the location of the odo.war and copy the sample plugin jar there.
+Included in the examples directory is a sample configuration backup. The sample configuration uses the sample plugin. After running `mvn package` the sample plugin will be located at `examples/plugin/target/plugin-*.jar`. Create a directory called `plugins` at the location of the `odo.war` and copy the sample plugin jar there.
 
 You can then import the backup.json data and view a sample Odo configuration.
-<code>curl -X POST -F fileData=@backup.json http://localhost:8090/testproxy/api/backup</code>
+
+```
+curl -X POST -F fileData=@backup.json http://localhost:8090/testproxy/api/backup
+```
 
 Items to note:
+
 1. The API Servers contains a single entry. The source host is "localhost" and the destination host is "blackhole". This implies that requests sent to "localhost" will be considered for overrides. The destination host is "blackhole" simply because this is a host that does not resolve. Since the paths included in the sample are largely custom request overrides, they will never be forwarded to the destination host.
 2. The "Changing Stub" path demonstrates a path that produces a different response for each request. This is done by having multiple custom responses with a repeat count of "1". When the first custom response is activated the repeat count drops to 0, effectively disabling the override. On the next request the next override with a non-zero repeat count will be executed.
 3. The "Plugin Demo" path has an override "http404" that is provided by the sample plugin. There are a couple steps to enable a plugin override for a path. First, the plugin methods must belong to a group. From the "Edit Groups" page, you can create a new group and select the plugin methods that will be included. Back on the Profile edit page, select the path and click the configuration tab. The final step is to select the group you created in the Groups listbox and click apply. The plugin methods will now be available in the override dropdown list.
@@ -78,26 +85,30 @@ Items to note:
 * 9092: Database
 
 Each of these ports can be configured by setting an environment variable with the desired port value before startup.
-* API: ODO\_API\_PORT  
-* HTTP: ODO\_HTTP\_PORT   
-* HTTPS: ODO\_HTTPS\_PORT     
-* Forwarding: ODO\_FWD\_PORT    
-* Database: ODO\_DB\_PORT 
+* API: ODO\_API\_PORT
+* HTTP: ODO\_HTTP\_PORT
+* HTTPS: ODO\_HTTPS\_PORT
+* Forwarding: ODO\_FWD\_PORT
+* Database: ODO\_DB\_PORT
 
 ### Create a Configuration Backup
-To export an existing configuration from Odo, simply gather the output from http://localhost:8090/testproxy/api/backup while Odo is running.
+To export an existing configuration from Odo, simply gather the output from `http://localhost:8090/testproxy/api/backup` while Odo is running.
 
 ### Import a Configuration Backup
-Where "backup.json" is the data gathered from http://localhost:8090/testproxy/api/backup,
-<code>curl -X POST -F fileData=@backup.json http://localhost:8090/testproxy/api/backup</code>
+Where `backup.json` is the data gathered from `http://localhost:8090/testproxy/api/backup`,
+
+```
+curl -X POST -F fileData=@backup.json http://localhost:8090/testproxy/api/backup
+```
 
 ### Exporting SSL Certificates
 The following only applies if you are using the port 9090 forwarding proxy.
 
-In some cases you will need to install the SSL certificates that Odo is signing with in order to use Odo as a proxy.  An example is that Windows Phone will only use untrusted SSL connections if the certificate in use is installed on the device.  The certificate for a domain can be exported/generated with the following URL(replace odohost with your Odo host and myurl.com with the target hostname):
+In some cases you will need to install the SSL certificates that Odo is signing with in order to use Odo as a proxy.  An example is that Windows Phone will only use untrusted SSL connections if the certificate in use is installed on the device.  The certificate for a domain can be exported/generated with the following URL (replace odohost with your Odo host and myurl.com with the target hostname):
 
-<pre><code>http://odohost:8090/testproxy/cert/myurl.com
-</code></pre>
+```
+http://odohost:8090/testproxy/cert/myurl.com
+```
 
 The certificates are regenerated after some time due to expiration.  Additionally since certificates are generated on the fly they will differ if you launch Odo from a different directory or a different machine.
 
@@ -108,19 +119,19 @@ The examples directory contains samples to help get you started with Odo
 * plugin: Example code demonstrating how you can extend Odo's functionality by adding your own override behaviors.
 
 # Development Setup
-This section will go over how to setup STS(Spring Tool Suite) for proxy development.  It assumes you have already checked the code out.
+This section will go over how to setup STS (Spring Tool Suite) for proxy development.  It assumes you have already checked the code out.
 ## STS Setup
-1. Install the latest version of STS 3(>=3.5 ) from SpringSource
+1. Install the latest version of STS 3 (>=3.5 ) from SpringSource
 2. Install JDK/OpenJDK 7 and set JAVA_HOME appropriately if you are on OS X
-3. Import all maven projects individually into STS(it does not do well with aggregator POMs) - Each maven project is a subdirectory of the TestProxy directory(proxyui, proxylib, proxyserver, hostsedit, plugins, browsermob-proxy)
+3. Import all maven projects individually into STS (it does not do well with aggregator POMs) - Each maven project is a subdirectory of the TestProxy directory (proxyui, proxylib, proxyserver, hostsedit, plugins, browsermob-proxy)
 	1. File -> Import
 	2. Select Maven -> Existing Maven Projects
 	3. Open the pom.xml from the subdirectory
 	4. Repeat for each project
 4. Open HomeController.java from the proxyui project, right click in the main method and run or debug as Spring Boot
-5. Setup the host editor instance(Optional for a development setup)
-	1. In &lt;repo root>/hostsedit run: mvn assembly:single
-	2. Run: sudo java -jar &lt;repo root>/hostsedit/target/hostsedit-jar-with-dependencies.jar
+5. Setup the host editor instance (Optional for a development setup)
+	1. In <repo root>/hostsedit run: mvn assembly:single
+	2. Run: sudo java -jar <repo root>/hostsedit/target/hostsedit-jar-with-dependencies.jar
 
 # Plugins
 ## Override Types
@@ -131,39 +142,41 @@ An override is simply a static function with an annotation specifying the type o
 
 ## Maven Project For Plugins
 1. Create a new maven project
-2. Add the following dependency(you will have it if you compiled everything in the TestProxy directory with mvn clean install):
-<pre><code>
-	&lt;dependency>
-		&lt;groupId>com.groupon&lt;/groupId>
-		&lt;artifactId>proxyplugin&lt;/artifactId>
-		&lt;version>1.0.0-beta.1&lt;/version>
-	&lt;/dependency>
-</pre></code>
+2. Add the following dependency (you will have it if you compiled everything in the TestProxy directory with `mvn clean install`):
+
+	```xml
+	<dependency>
+		<groupId>com.groupon</groupId>
+		<artifactId>proxyplugin</artifactId>
+		<version>1.0.0-beta.1</version>
+	</dependency>
+	```
+
 3. Your plugin project can depend on any other maven jars that you need.  Building a jar with all dependencies is described later on.
 4. Add an entry to the maven-assembly-plugin configuration section of pom.xml as follows.  Replace com.groupon.odo.sample with the appropriate package.
-   <pre><code>
-   	&lt;archive>
-   		&lt;manifestEntries>
-   			&lt;Plugin-Package>com.groupon.odo.sample&lt;/Plugin-Package>
-   		&lt;/manifestEntries>
-   	&lt;/archive>
-   </code></pre>
+
+	```xml
+	<archive>
+		<manifestEntries>
+			<Plugin-Package>com.groupon.odo.sample</Plugin-Package>
+		</manifestEntries>
+	</archive>
+	```
 
 
 ### Override Class and Simple Override Method
-1. Add a new class to your project to hold your override methods.  Generally you will want to group methods into classes by functional area(ex: a class to override all requests that return a list of deals)
+1. Add a new class to your project to hold your override methods.  Generally you will want to group methods into classes by functional area (ex: a class to override all requests that return a list of deals)
 2. Import the appropriate override type (ex: import com.groupon.odo.plugin.ResponseOverride)
 3. Add a static method that returns a string with a single String parameter and the following annotation.  Name your function something that is meaningful:
 
-
-    ```java
-    @ResponseOverride(
-			httpCode=200,
-			description="Replace a with b")
-    public static String replaceLetter(String source) throws Exception {
-    	return source.replace('a', 'b');
-    }
-    ``` 
+	```java
+	@ResponseOverride(
+				httpCode=200,
+				description="Replace a with b")
+	public static String replaceLetter(String source) throws Exception {
+		return source.replace('a', 'b');
+	}
+	```
 
 4. Notice that the annotation allows for custom httpCodes and some descriptive text.  This should be set as necessary.
 
@@ -184,7 +197,10 @@ An example method is:
 			description="Replace string with integer",
 			parameters={"letter", "number", "replace"
 			})
-public static String replaceLetter(String source, String letter, Integer number, Boolean replace) throws Exception {
+public static String replaceLetter(String source,
+                                   String letter,
+                                   Integer number,
+                                   Boolean replace) throws Exception {
 	String returnVal = source;
 	if (replace) {
 		returnVal = returnVal.replace(letter, number.toString());
@@ -197,75 +213,83 @@ To configure the arguments through the Proxy UI you simply double click on the e
 
 ### Building a plugin jar with dependencies
 1. Add build plugins to your maven project
-<pre><code>
-	&lt;build>
-		&lt;plugins>
-			&lt;plugin>
-				&lt;groupId>org.apache.maven.plugins&lt;/groupId>
-				&lt;artifactId>maven-jar-plugin&lt;/artifactId>
-				&lt;configuration>
-					&lt;archive>
-						&lt;manifest>
-							&lt;addClasspath>true&lt;/addClasspath>
-						&lt;/manifest>
-					&lt;/archive>
-				&lt;/configuration>
-			&lt;/plugin>
-			&lt;plugin>
-				&lt;artifactId>maven-assembly-plugin&lt;/artifactId>
-				&lt;configuration>
-					&lt;finalName>plugins&lt;/finalName>
-					&lt;descriptorRefs>
-						&lt;descriptorRef>jar-with-dependencies&lt;/descriptorRef>
-					&lt;/descriptorRefs>
-				&lt;/configuration>
-			&lt;/plugin>
-		&lt;/plugins>
-	&lt;/build>
-</code></pre>
-2. Build project: mvn clean compile
-3. Build single assembly: mvn assembly:single
-4. Grab assembly and put it in your plugin path directory: cp target/plugins-jar-with-dependencies.jar destination_path
+
+	```xml
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<configuration>
+					<archive>
+						<manifest>
+							<addClasspath>true</addClasspath>
+						</manifest>
+					</archive>
+				</configuration>
+			</plugin>
+			<plugin>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<configuration>
+					<finalName>plugins</finalName>
+					<descriptorRefs>
+						<descriptorRef>jar-with-dependencies</descriptorRef>
+					</descriptorRefs>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+	```
+
+2. Build project: `mvn clean compile`
+3. Build single assembly: `mvn assembly:single`
+4. Grab assembly and put it in your plugin path directory: `cp target/plugins-jar-with-dependencies.jar destination_path`
 
 ### Static Resources
 #### Storing static resources in a plugin jar
 1. Create a "resources" directory under src
 2. Put your static files in that directory
 3. Add an entry to the maven-assembly-plugin configuration section of pom.xml as follows.  Replace NameHere with a unique name
-<pre><code>
-	&lt;archive>
-		&lt;manifestEntries>
-			&lt;Plugin-Name>NameHere&lt;/Plugin-Name>
-		&lt;/manifestEntries>
-	&lt;/archive>
-</code></pre>
+
+	```xml
+	<archive>
+		<manifestEntries>
+			<Plugin-Name>NameHere</Plugin-Name>
+		</manifestEntries>
+	</archive>
+	```
+
 4. Add an entry to the build configuration section as follows:
-<pre><code>
-	&lt;resources>
-		&lt;resource>
-	    	&lt;directory>src&lt;/directory>
-	        &lt;includes>
-	        	&lt;include>resources/**&lt;/include>
-	        &lt;/includes>
-	   &lt;/resource>
-	&lt;/resources>
-</code></pre>
+
+	```xml
+	<resources>
+		<resource>
+	    	<directory>src</directory>
+	        <includes>
+	        	<include>resources/**</include>
+	        </includes>
+	   </resource>
+	</resources>
+	```
+
 5. Compile and assemble package normally
 
 #### Accessing stored resources
-1. Resources can be accessed through the API as /testproxy/api/resource/NameHere/fileName
-<pre><code>
-Example HTML embed: &lt;img src="http://localhost:8090/testproxy/api/resource/NameHere/logo-line.jpg"/>
-</code></pre>
-2. Resource can be accessed in a plugin function using getResourceAsStream on the current class(example classname is MyClass)
-<pre><code>
-InputStream resource = MyClass.class.getResourceAsStream("/resources/resource1.json");
-</code></pre>
+1. Resources can be accessed through the API as `/testproxy/api/resource/NameHere/fileName`
+
+    Example HTML embed: `<img src="http://localhost:8090/testproxy/api/resource/NameHere/logo-line.jpg"/>`
+
+2. Resource can be accessed in a plugin function using `getResourceAsStream` on the current class (example classname is `MyClass`)
+
+	```java
+	InputStream resource = MyClass.class.getResourceAsStream("/resources/resource1.json");
+	```
 
 # Scripts
 Groovy scripts can be added for annotating results in the history list.  Currently failed results color the list row in red.  Scripts can be added via the proxy ui Scripts link on the History page.  Groovy variables are as follows for history script calls:
 
-<pre><code>arg0 - Request Type
+```
+arg0 - Request Type
 arg1 - Request URL
 arg2 - Request Parameters
 arg3 - Request POST Data
@@ -273,13 +297,14 @@ arg4 - Request Headers
 arg5 - Response Code
 arg6 - Response Content Type
 arg7 - Response Headers
-</code></pre>
+```
 
 The result of a script is a List with the following entries:
 
-<pre><code>[0] - 0 or 1 indicating success or failure
+```
+[0] - 0 or 1 indicating success or failure
 [1]+ - A message to display in the history list.  Multiple messages can be specified by adding additional list entries.
-</code></pre>
+```
 
 # Proxy
 ## Parallel Clients for a Profile
@@ -290,9 +315,11 @@ Refer to Configuration Interfaces section for API details
 ## Configuration Interfaces
 ### General API supported by configuration interfaces
 #### Terminology
-{profileIdentifier} - Name or ID of the profile to edit(Ex: My%20Profile)
-{pathIdentifier} - Name or ID of the path to edit(Ex: My%20Path)
-{clientUUID} - UUID of the profile client to update, -1 is the default client(I know this is not a UUID)
+
+* `{profileIdentifier}` - Name or ID of the profile to edit (Ex: My%20Profile)
+* `{pathIdentifier}` - Name or ID of the path to edit (Ex: My%20Path)
+* `{clientUUID}` - UUID of the profile client to update, -1 is the default client (I know this is not a UUID)
+
 #### Create Profile Client
 
 ```
@@ -313,29 +340,37 @@ POST /testproxy/api/profile/{profileIdentifier}/clients
 ```
 
 #### Delete Profile Client
-Clients should be deleted when they are no longer going to be used(ex: in test cleanup code)
-<pre><code>DELETE /testproxy/api/profile/{profileIdentifier}/clients/{clientUUID}
-</code></pre>
+Clients should be deleted when they are no longer going to be used (ex: in test cleanup code)
+
+```
+DELETE /testproxy/api/profile/{profileIdentifier}/clients/{clientUUID}
+```
 
 #### Enable/Disable A Profile/Client
-<pre><code>POST /testproxy/api/profile/{profileIdentifier}/clients/{clientUUID}
+
+```
+POST /testproxy/api/profile/{profileIdentifier}/clients/{clientUUID}
 POST BODY: active=true|false
-</code></pre>
+```
 
 #### Enable/Disable an Override Path
-<pre><code>POST /testproxy/api/path/{pathIdentifier}
+
+```
+POST /testproxy/api/path/{pathIdentifier}
 POST BODY for Response Path: profileIdentifier={profileIdentifier}&responseEnabled=true|false
 POST BODY for Request Path: profileIdentifier={profileIdentifier}&requestEnabled=true|false
-</code></pre>
+```
 
 #### Reset all settings for an Override Path
-<pre><code>POST /testproxy/api/path/{pathIdentifier}
+
+```
+POST /testproxy/api/path/{pathIdentifier}
 POST BODY for Response Path: profileIdentifier={profileIdentifier}&resetResponse=true
 POST BODY for Request Path: profileIdentifier={profileIdentifier}&resetRequest=true
-</code></pre>
+```
 
 #### Get ID for a Method
-In order to enable/disable a method on a path you need the override ID.  The following request can be used to method information and find the ID  
+In order to enable/disable a method on a path you need the override ID.  The following request can be used to method information and find the ID
 {methodName} - Fully qualified method name.  Ex: com.groupon.odo.override.Sleep
 
 ```
@@ -360,61 +395,76 @@ GET /testproxy/method/{methodName}
 ```
 
 #### Enable method on an override path
-<pre><code>POST /testproxy/api/path/{pathIdentifier}
+
+```
+POST /testproxy/api/path/{pathIdentifier}
 POST BODY: profileIdentifier={profileIdentifier}&addOverride={methodID}
-</code></pre>
+```
 
 ##### Special Method IDs
-Custom Response = -1  
-Custom Request = -2  
-Add Response Header = -3  
-Remove Response Header = -4  
-Add Request Header = -5  
+Custom Response = -1
+Custom Request = -2
+Add Response Header = -3
+Remove Response Header = -4
+Add Request Header = -5
 Remove Request Header = -6
 
 #### Remove method from an override path
-<pre><code>POST /testproxy/api/path/{pathIdentifier}
+
+```
+POST /testproxy/api/path/{pathIdentifier}
 POST BODY: profileIdentifier={profileIdentifier}&removeOverride={methodID}
-</code></pre>
+```
 
 #### Set method arguments
 Note: This is not always needed.. depends on the method you are using
 
-The "ordinal" parameter is optional and is intended to indicate which enabled override you want to modify if multiple instances of the same override were added(ex: multiple custom responses).  The ordinal is based at 1.
-<pre><code>POST /testproxy/api/path/{pathIdentifier}/{methodName}
+The "ordinal" parameter is optional and is intended to indicate which enabled override you want to modify if multiple instances of the same override were added (ex: multiple custom responses).  The ordinal is based at 1.
+
+```
+POST /testproxy/api/path/{pathIdentifier}/{methodName}
 POST BODY: profileIdentifier={profileIdentifier}&ordinal=1&arguments[]=argument1&arguments[]=argument2&arguments[]=argument3
-</code></pre>
+```
 
 #### Set custom response data
 Custom response data is just the first argument to the custom response enabled override
-<pre><code>POST /testproxy/api/path/{pathIdentifier}/-1
+
+```
+POST /testproxy/api/path/{pathIdentifier}/-1
 POST BODY: profileIdentifier={profileIdentifier}&ordinal=1&arguments[]=this%20is%20my%20custom%20response
-</code></pre>
+```
 
 #### Set custom request data
-<pre><code>POST /testproxy/api/path/{pathIdentifier}
+
+```
+POST /testproxy/api/path/{pathIdentifier}
 POST BODY for Response Path: profileIdentifier={profileIdentifier}&customResponse=<data>
 POST BODY for Request Path: profileIdentifier={profileIdentifier}&customRequest=<data>
-</code></pre>
+```
 
 #### Set repeat count for an enabled override method
 You can set the repeat count for a specific enabled method instead of the whole path.  This is the same call as setting an argument except using the parameter repeatNumber
-<pre><code>POST /testproxy/api/path/{pathIdentifier}/-1
-POST BODY: profileIdentifier={profileIdentifier}&ordinal=1&repeatNumber=5</code></pre>
+
+```
+POST /testproxy/api/path/{pathIdentifier}/-1
+POST BODY: profileIdentifier={profileIdentifier}&ordinal=1&repeatNumber=5
+```
 
 ### Java Configuration Interface
 There is a Java interface available to configure settings in Odo while tests are running.
 
 API Summary:
-<pre><code>Namespace: com.groupon.odo.client.Client
+
+```
+Namespace: com.groupon.odo.client.Client
 
 Instantiation:
 	Client cli = new Client("My Profile", true); // Create a new configuration client using Odo Parallel Clients
 	Client cli = new Client("My Profile", false); // Create a new configuration client using the default profile client
-	
+
 Destruction:
 	cli.destroy(); // Destroy the configuration client and delete the parallel client if necessary
-	
+
 Functions:
     cli.createPath("My Path", "/path/value", "GET") // Create a new path
 	cli.getClientUUID(); // Get the UUID for the parallel client
@@ -443,9 +493,9 @@ Static Functions:
     Client.setCustomRequestForDefaultProfile("My Path", "bunch of json);
     Client.setCustomResponseForDefaultProfile("My Path", "bunch of json);
 
-</code></pre>
+```
 
-<pre><code>
+```
 Namespace: com.groupon.odo.client.PathValueClient
 
 PathValueClient exists for using Odo as a simple mock/stub server. It simplifies the steps of configuring a stub server through automation.
@@ -462,8 +512,7 @@ Functions:
 Static Functions:
     PathValueClient.setDefaultCustomResponse("My Path", "GET", "bunch of json"); // Sets the custom response for a path using a default profile, or creates a new path if path value does not exist.
     PathValueClient.removeDefaultCustomResponse("My Path", "GET"); // Reset all of the path settings for a specific response path of a default profile
-
-</code></pre>
+```
 
 
 ## JSON Settings Backup/Import format
@@ -536,6 +585,7 @@ Browsermob Proxy 2.0-beta-9 is currently integrated via the "browsermob-proxy-od
 ## Common problems
 
 If you see an error like the following:
+
 ```
 INFO] -------------------------------------------------------------
 [ERROR] COMPILATION ERROR :
