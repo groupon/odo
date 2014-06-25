@@ -10,11 +10,12 @@ Benefits
 ## Odo Concepts
 * Path: Path defines an API endpoint and the actions (overrides) to perform. The path is specified by friendly name, path value, request type.
 * Profile: A profile is a collection of paths.
-* Client: A client is an instance of a profile. Clients share the same path definitions, but overrides are specific to a client. This allows multiple users access to a centralized Odo server with their own custom configuration.
+* Client: A client is an instance of a profile. Clients share the same path definitions, but overrides are specific to a client. This allows multiple users to access a centralized Odo server with their own custom configuration.
 * Override: An action to perform on a given endpoint. The actions could be to return a custom response, add a delay, return a specific response code, modify response data, etc.
+* Plugin: Odo is extensible through plugins. You can provide your own override behaviors by creating an Odo plugin.
 
 ## Download Odo
-To try out Odo without needing to download the source and package it, check out the releases for a prepackaged odo.war. Also included are a sample configuration and sample plugin. Import the sample (instructions below) to try out Odo with minimal steps.
+To try out Odo without needing to download the source and package it, check out the [releases](https://github.com/groupon/odo/releases) for a prepackaged odo.war. Also included are a sample configuration and sample plugin. Import the sample (instructions below) to try out Odo with minimal steps.
 
 ### Prepackaged setup
 1. Create a "plugins" directory at the odo.war location.
@@ -49,7 +50,7 @@ Odo UI is available at http://localhost:8090/testproxy
 #### UI Quickstart: Setting up a Profile
 If you are starting from a fresh install, there are a few preliminary steps before actually configuring an override.
 
-1. **Create a profile.** When you navigate to `http://localhost:8090/testproxy` you are presented with the profile list. Initially it will be empty. To create a new Profile, click the '+' icon below the list and give the new profile a name in the dialog that appears. Select the newly-created profile by clicking on the '>' button to the right of the the profile name.
+1. **Create a profile.** When you navigate to `http://localhost:8090/testproxy` you are presented with the profile list. Initially it will be empty. To create a new Profile, click the '+' icon below the list and give the new profile a name in the dialog that appears. Select the newly-created profile by clicking on the '>' button to the right of the the profile name. Finally, click the "Activate Profile" button at the top of the profile page.
 2. **Add an API server.** An API server is needed to determine which requests to handle. When a request enters Odo, the request hostname is compared to the API Servers configured. If the request hostname is not in Odo's configured hostnames, Odo will simply pass the request through without processing it.
 
   To add a host, click the '+' button under the "API Servers" list and fill in the Source Hostname and Destination Hostname/IP. For a live server, the source would be the actual hostname (domain.com) and the destination will be the actual IP address of the host. For this example, add Source Hostname "localhost" and Destination "blackhole". When a custom response is enabled on a path that request is never actually sent to the destination, so the destination host will not matter in this case.
@@ -71,11 +72,7 @@ You can then import the backup.json data and view a sample Odo configuration.
 curl -X POST -F fileData=@backup.json http://localhost:8090/testproxy/api/backup
 ```
 
-Items to note:
-
-1. The API Servers contains a single entry. The source host is "localhost" and the destination host is "blackhole". This implies that requests sent to "localhost" will be considered for overrides. The destination host is "blackhole" simply because this is a host that does not resolve. Since the paths included in the sample are largely custom request overrides, they will never be forwarded to the destination host.
-2. The "Changing Stub" path demonstrates a path that produces a different response for each request. This is done by having multiple custom responses with a repeat count of "1". When the first custom response is activated the repeat count drops to 0, effectively disabling the override. On the next request the next override with a non-zero repeat count will be executed.
-3. The "Plugin Demo" path has an override "http404" that is provided by the sample plugin. There are a couple steps to enable a plugin override for a path. First, the plugin methods must belong to a group. From the "Edit Groups" page, you can create a new group and select the plugin methods that will be included. Back on the Profile edit page, select the path and click the configuration tab. The final step is to select the group you created in the Groups listbox and click apply. The plugin methods will now be available in the override dropdown list.
+Note that the API Servers contains a single entry. The source host is "localhost" and the destination host is "blackhole". This implies that requests sent to "localhost" will be considered for overrides. The destination host is "blackhole" simply because this is a host that does not resolve. For a path with a custom override enabled the destination host will not be resolved.
 
 ### Default Odo Ports
 * 8090: API - access the Odo UI, Odo configuration REST endpoints (http://localhost:8090/testproxy/api/)
