@@ -80,6 +80,20 @@ The examples directory contains samples to help get you started with Odo
 * api-usage: Example code demonstrating modifying an Odo configuration through the Java client.
 * plugin: Example code demonstrating how you can extend Odo's functionality by adding your own override behaviors.
 
+### Default Odo Ports
+* 8090: API - access the Odo UI, Odo configuration REST endpoints (http://localhost:8090/testproxy/api/)
+* 8082: HTTP proxy - handles HTTP traffic
+* 8012: HTTPS proxy - handles HTTPS traffic
+* 9090: Forwarding port. You can send HTTP and HTTPS requests to this port and Odo will forward them to the correct port according to the protocol
+* 9092: Database
+
+Each of these ports can be configured by setting an environment variable with the desired port value before startup.
+* API: ODO\_API\_PORT
+* HTTP: ODO\_HTTP\_PORT
+* HTTPS: ODO\_HTTPS\_PORT
+* Forwarding: ODO\_FWD\_PORT
+* Database: ODO\_DB\_PORT
+
 ## Odo Details
 
 For more detailed information on Odo and developing with Odo, visit the [Odo Wiki](https://github.com/groupon/odo/wiki) 
