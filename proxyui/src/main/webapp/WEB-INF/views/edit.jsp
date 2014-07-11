@@ -1182,6 +1182,7 @@
                     type:"POST",
                     url: '<c:url value="/api/path/"/>' + pathId + '/' + methodId,
                     data: ({repeatNumber: value, ordinal: ordinal, clientUUID: clientUUID}),
+                    async: false,
                     success: function(){
                         populateEnabledResponseOverrides();
                         populateEnabledRequestOverrides();
@@ -1201,6 +1202,7 @@
                     type:"POST",
                     url: '<c:url value="/api/path/"/>' + pathId + '/' + methodId,
                     data: ({'arguments[]' : args, ordinal: ordinal, clientUUID: clientUUID}),
+                    async: false,
                     success: function(){
 
                     }
