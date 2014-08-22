@@ -235,7 +235,7 @@
                     height: "auto",
                     loadonce: true,
                     multiselect: true,
-                    rownum: 10000,
+                    rowNum: 10000,
                     sortname : 'idString',
                     sortorder: 'asc',
                     viewrecords : true
