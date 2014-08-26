@@ -121,7 +121,7 @@ public class HttpUtilities {
     }
     
     public static String removePortFromHostHeaderString(String host) {
-    	String hostName = "";
+    	String hostName = host;
     	int portPos = host.indexOf(":");
         if (portPos != -1)
             hostName = host.substring(0, portPos);
