@@ -15,13 +15,16 @@
 */
 package com.groupon.odo.sample;
 
+import com.groupon.odo.plugin.HttpRequestInfo;
 import com.groupon.odo.plugin.ResponseOverride;
+
+import javax.servlet.http.HttpServletResponse;
 
 public class Status {
     @ResponseOverride(
-            httpCode=404,
             description="Return HTTP404")
-    public static String http404(String source) throws Exception {
+    public static String http404(HttpServletResponse response, HttpRequestInfo originalRequest, String responseBody) throws Exception {
+        response.setStatus(404);
         return "{\"error\":{\"httpCode\":404,\"message\":\"Testing http 404 Error message here\"}}";
     }
 }

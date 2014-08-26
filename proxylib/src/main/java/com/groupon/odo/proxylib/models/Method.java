@@ -48,15 +48,6 @@ public class Method {
         return this.idString;
     }
 
-    public void setHttpCode(int httpCode) {
-        this.httpCode = httpCode;
-    }
-
-    @JsonView(ViewFilters.BackupIgnore.class)
-    public int getHttpCode() {
-        return this.httpCode;
-    }
-
     public void setDescription(String description) {
         this.description = description;
     }

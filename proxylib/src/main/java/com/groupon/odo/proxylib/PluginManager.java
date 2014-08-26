@@ -18,6 +18,7 @@ package com.groupon.odo.proxylib;
 import com.groupon.odo.plugin.ResponseOverride;
 import com.groupon.odo.proxylib.models.Configuration;
 import com.groupon.odo.proxylib.models.Plugin;
+import com.groupon.odo.plugin.HttpRequestInfo;
 import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.CtMethod;
@@ -25,6 +26,7 @@ import javassist.NotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
@@ -254,7 +256,7 @@ public class PluginManager {
      * @return
      * @throws Exception
      */
-    public Object callFunction(String className, String methodName, String data, Object... args) throws Exception {
+    public Object callFunction(String className, String methodName, HttpServletResponse response, HttpRequestInfo originalRequest, String responseContent, Object... args) throws Exception {
         Class<?> cls = getClass(className);
         Object retval = null;
         com.groupon.odo.proxylib.models.Method m = getMethod(className, methodName);
@@ -262,7 +264,9 @@ public class PluginManager {
         // it is up to this function to do any necessary type conversion for arguments
         ArrayList<Object> newArgs = new ArrayList<Object>();
         // add the first string arg to the new arg list
-        newArgs.add(data);
+        newArgs.add(response);
+        newArgs.add(originalRequest);
+        newArgs.add(responseContent);
 
         // now convert the remaining args as necessary so the function is invoked with the correct types
         if (m.getMethodArguments().length > 0) {
@@ -351,16 +355,15 @@ public class PluginManager {
                         // Convert to the right type and get annotation information
                         if (annotation.annotationType().toString().endsWith(Constants.PLUGIN_RESPONSE_OVERRIDE_CLASS)) {
                             ResponseOverride roAnnotation = (ResponseOverride) all[0];
-                            newMethod.setHttpCode(roAnnotation.httpCode());
                             description = roAnnotation.description();
                             argNames = roAnnotation.parameters();
                         }
 
                         // identify arguments
-                        // first arg is always a reserved that we skip
+                        // first 3 args are always a reserved that we skip
                         ArrayList<String> params = new ArrayList<String>();
-                        if (method.getParameterTypes().length > 1) {
-                            for (int x = 1; x < method.getParameterTypes().length; x++) {
+                        if (method.getParameterTypes().length > 3) {
+                            for (int x = 3; x < method.getParameterTypes().length; x++) {
                                 params.add(method.getParameterTypes()[x].getName());
                             }
                         }

@@ -23,8 +23,6 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ResponseOverride {
-    public int httpCode();
-
     public String description();
 
     public String[] parameters() default {};
