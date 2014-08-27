@@ -15,16 +15,19 @@
 */
 package com.groupon.odo.sample;
 
-import com.groupon.odo.plugin.HttpRequestInfo;
-import com.groupon.odo.plugin.ResponseOverride;
+import com.groupon.odo.plugin.PluginArguments;
+import com.groupon.odo.plugin.PluginHelper;
+import com.groupon.odo.plugin.ResponseOverride2;
 
 import javax.servlet.http.HttpServletResponse;
 
 public class Status {
-    @ResponseOverride(
-            description="Return HTTP404")
-    public static String http404(HttpServletResponse response, HttpRequestInfo originalRequest, String responseBody) throws Exception {
+    @ResponseOverride2(
+            description="Return HTTP404",
+            blockRequest = true)
+    public static void http404(PluginArguments args) throws Exception {
+        HttpServletResponse response = args.getResponse();
         response.setStatus(404);
-        return "{\"error\":{\"httpCode\":404,\"message\":\"Testing http 404 Error message here\"}}";
+        PluginHelper.writeResponseContent(response, "{\"error\":{\"httpCode\":404,\"message\":\"Testing http 404 Error message here\"}}");
     }
 }

@@ -15,16 +15,13 @@
 */
 package com.groupon.odo.sample;
 
-import com.groupon.odo.plugin.HttpRequestInfo;
-import com.groupon.odo.plugin.ResponseOverride;
-
-import javax.servlet.http.HttpServletResponse;
+import com.groupon.odo.plugin.PluginArguments;
+import com.groupon.odo.plugin.ResponseOverride2;
 
 public class Common {
-    @ResponseOverride(
+    @ResponseOverride2(
             description="Slow Down Response")
-    public static String delay(HttpServletResponse response, HttpRequestInfo originalRequest, String responseBody, Integer milliseconds) throws Exception {
+    public static void delay(PluginArguments args, Integer milliseconds) throws Exception {
         Thread.sleep(milliseconds);
-        return responseBody;
     }
 }

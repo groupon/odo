@@ -89,6 +89,7 @@ public class Constants {
 
     // Plugin Annotation information
     public static final String PLUGIN_RESPONSE_OVERRIDE_CLASS = "com.groupon.odo.plugin.ResponseOverride";
+    public static final String PLUGIN_RESPONSE_OVERRIDE2_CLASS = "com.groupon.odo.plugin.ResponseOverride2";
     public static final String PLUGIN_REQUEST_OVERRIDE_CLASS = "com.groupon.odo.plugin.RequestOverride";
     public static final String PLUGIN_RESPONSE_OVERRIDE_HTTP_CODE = "httpCode";
     public static final String PLUGIN_RESPONSE_OVERRIDE_DESCRIPTION = "description";

@@ -15,17 +15,22 @@
 */
 package com.groupon.odo.plugin;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import javax.servlet.http.HttpServletResponse;
 
-@Target(ElementType.METHOD)
-@Retention(RetentionPolicy.RUNTIME)
-public @interface ResponseOverride {
-    @Deprecated public int httpCode();
+public class PluginArguments {
+    private HttpServletResponse response;
+    private HttpRequestInfo originalRequest;
 
-    public String description();
+    public PluginArguments(HttpServletResponse response, HttpRequestInfo request) {
+        this.response = response;
+        this.originalRequest = request;
+    }
 
-    public String[] parameters() default {};
+    public HttpServletResponse getResponse() {
+        return response;
+    }
+
+    public HttpRequestInfo getOriginalRequest() {
+        return originalRequest;
+    }
 }

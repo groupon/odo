@@ -22,10 +22,10 @@ import java.lang.annotation.Target;
 
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface ResponseOverride {
-    @Deprecated public int httpCode();
-
+public @interface ResponseOverride2 {
     public String description();
 
     public String[] parameters() default {};
+
+    public boolean blockRequest() default false;
 }

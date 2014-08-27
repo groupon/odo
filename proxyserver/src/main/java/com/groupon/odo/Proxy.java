@@ -15,11 +15,9 @@
 */
 package com.groupon.odo;
 
-import com.groupon.odo.plugin.RequestOverride;
-import com.groupon.odo.plugin.ResponseOverride;
+import com.groupon.odo.plugin.*;
 import com.groupon.odo.proxylib.*;
 import com.groupon.odo.proxylib.models.*;
-import com.groupon.odo.plugin.HttpRequestInfo;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.httpclient.Header;
@@ -767,7 +765,7 @@ public class Proxy extends HttpServlet {
         }
     }
 
-    private Boolean hasCustomResponse() throws Exception {
+    private Boolean hasRequestBlock() throws Exception {
         for (EndpointOverride selectedPath : requestInformation.get().selectedResponsePaths) {
             // check to see if there is custom override data or if we have headers to remove
             List<EnabledEndpoint> points = selectedPath.getEnabledEndpoints();
@@ -777,6 +775,12 @@ public class Proxy extends HttpServlet {
                     continue;
 
                 if (endpoint.getOverrideId() == Constants.PLUGIN_RESPONSE_OVERRIDE_CUSTOM) {
+                    return true;
+                }
+
+                com.groupon.odo.proxylib.models.Method methodInfo =
+                        PathOverrideService.getInstance().getMethodForEnabledId(endpoint.getOverrideId());
+                if(methodInfo.isBlockRequest()) {
                     return true;
                 }
             }
@@ -841,29 +845,27 @@ public class Proxy extends HttpServlet {
 
             // define output stream
             OutputStream outStream = new ByteArrayOutputStream();
-            requestInfo.hasCustomResponse = hasCustomResponse();
+            requestInfo.blockRequest = hasRequestBlock();
+            PluginResponse responseWrapper = new PluginResponse(httpServletResponse);
+            requestInfo.jsonpCallback = stripJSONPToOutstr(httpServletRequest);
 
-            if (!requestInfo.hasCustomResponse) {
+
+            if (!requestInfo.blockRequest) {
                 logger.info("Sending request to server");
 
                 history.setModified(requestInfo.modified);
 
                 executeRequest(httpMethodProxyRequest,
                         httpServletRequest,
-                        httpServletResponse,
+                        responseWrapper,
                         history,
                         outStream);
 
-                //if (requestInfo.selectedResponsePaths.size() > 0) {
-                requestInfo.outputString = outStream.toString();
-                //}
+                writeResponseOutput(httpServletResponse, requestInfo.jsonpCallback, outStream.toString());
             }
 
             logOriginalResponseHistory(httpServletResponse, history);
-
-            String jsonpCallback = stripJSONPToOutstr(httpServletRequest);
-            applyResponseOverrides(httpServletResponse, httpServletRequest, history);
-            writeResponseOutput(httpServletResponse, jsonpCallback);
+            applyResponseOverrides(responseWrapper, httpServletRequest, history);
             // store history
             history.setModified(requestInfo.modified);
             logRequestHistory(httpMethodProxyRequest, httpServletResponse, history);
@@ -900,7 +902,7 @@ public class Proxy extends HttpServlet {
             httpServletRequest.setAttribute("com.groupon.odo.removeHeaders", headersToRemove);
             intProxyResponseCode = httpClient.executeMethod(httpMethodProxyRequest);
         } catch (Exception e) {
-            requestInformation.get().outputString = "TIMEOUT";
+            writeResponseOutput(httpServletResponse, requestInformation.get().jsonpCallback, "TIMEOUT");
             logRequestHistory(httpMethodProxyRequest, httpServletResponse, history);
             throw e;
         }
@@ -1054,6 +1056,7 @@ public class Proxy extends HttpServlet {
     private void applyResponseOverrides(HttpServletResponse httpServletResponse,
                                         HttpServletRequest httpServletRequest, History history) throws Exception {
         RequestInformation requestInfo = requestInformation.get();
+
         for (EndpointOverride selectedPath : requestInfo.selectedResponsePaths) {
             // check to see if there is custom override data
             // something like
@@ -1073,10 +1076,11 @@ public class Proxy extends HttpServlet {
 
                 if (endpoint.getOverrideId() == Constants.PLUGIN_RESPONSE_OVERRIDE_CUSTOM) {
                     // return custom response
-                    requestInfo.outputString = endpoint.getArguments()[0].toString();
+                    String response = endpoint.getArguments()[0].toString();
                     httpServletResponse.setContentType(selectedPath.getContentType());
                     requestInfo.usedCustomResponse = true;
                     requestInfo.modified = true;
+                    writeResponseOutput(httpServletResponse, requestInfo.jsonpCallback, response);
                 } else if (endpoint.getOverrideId() == Constants.PLUGIN_RESPONSE_HEADER_OVERRIDE_ADD) {
                     httpServletResponse = HttpUtilities.addHeader(httpServletResponse, endpoint.getArguments());
                     requestInfo.modified = true;
@@ -1092,9 +1096,27 @@ public class Proxy extends HttpServlet {
                         logger.info("Calling override for {}",
                                 httpServletRequest.getRequestURL() + "?" + httpServletRequest.getQueryString());
 
-                        requestInfo.outputString = (String)PluginManager.getInstance().callFunction(
-                                methodInfo.getClassName(), methodInfo.getMethodName(),
-                                httpServletResponse, requestInfo.originalRequestInfo, requestInfo.outputString, endpoint.getArguments());
+
+                        // For v1 plugins - verify HTTP code is set correctly
+                        if(methodInfo.getOverrideVersion() == 1) {
+                            String responseOutput = (String)PluginManager.getInstance().callFunction(methodInfo.getClassName(), methodInfo.getMethodName(),
+                                    httpServletResponse.getOutputStream().toString(), endpoint.getArguments());
+                            writeResponseOutput(httpServletResponse, requestInfo.jsonpCallback, responseOutput);
+
+                            if(methodInfo.getHttpCode() != httpServletResponse.getStatus()) {
+                                logger.info("Setting HTTP Code to {}", methodInfo.getHttpCode());
+                                httpServletResponse.setStatus(methodInfo.getHttpCode());
+                                // the server might have set a "Status" header.. so let's reset this too
+                                httpServletResponse.setHeader(Constants.HEADER_STATUS,
+                                    Integer.toString(methodInfo.getHttpCode()));
+                            }
+                        } else if (methodInfo.getOverrideVersion() == 2 ) {
+                            PluginArguments pluginArgs = new PluginArguments(httpServletResponse, requestInfo.originalRequestInfo);
+
+                            PluginManager.getInstance().callFunction(
+                                    methodInfo.getClassName(), methodInfo.getMethodName(),
+                                    pluginArgs, endpoint.getArguments());
+                        }
 
                         requestInfo.modified = true;
                         logger.info("Done calling override");
@@ -1104,6 +1126,8 @@ public class Proxy extends HttpServlet {
                 }
             }
         }
+
+        httpServletResponse.flushBuffer();
     }
 
     /**
@@ -1112,7 +1136,8 @@ public class Proxy extends HttpServlet {
      * @throws IOException
      */
     private void writeResponseOutput(HttpServletResponse httpServletResponse,
-                                     String jsonpCallback) throws IOException {
+                                     String jsonpCallback,
+                                     String responseOutput) throws IOException {
         RequestInformation requestInfo = requestInformation.get();
 
         // check to see if this is chunked
@@ -1124,8 +1149,8 @@ public class Proxy extends HttpServlet {
         }
 
         // reattach JSONP if needed
-        if (requestInfo.outputString != null && jsonpCallback != null) {
-            requestInfo.outputString = jsonpCallback + "(" + requestInfo.outputString + ");";
+        if (responseOutput != null && jsonpCallback != null) {
+            responseOutput = jsonpCallback + "(" + responseOutput + ");";
         }
 
         // don't do this if we got a HTTP 304 since there is no data to send back
@@ -1133,18 +1158,19 @@ public class Proxy extends HttpServlet {
             logger.info("Chunked: {}, {}", chunked, httpServletResponse.getBufferSize());
             if (!chunked) {
                 // change the content length header to the new length
-                if (requestInfo.outputString != null) {
-                    httpServletResponse.setContentLength(requestInfo.outputString.getBytes().length);
+                if (responseOutput != null) {
+                    httpServletResponse.setContentLength(responseOutput.getBytes().length);
                 }
             }
 
             OutputStream outputStreamClientResponse = httpServletResponse.getOutputStream();
+            httpServletResponse.resetBuffer();
 
-            if (requestInfo.outputString != null) {
-                outputStreamClientResponse.write(requestInfo.outputString.getBytes());
+            if (responseOutput != null) {
+                outputStreamClientResponse.write(responseOutput.getBytes());
             }
-            httpServletResponse.flushBuffer();
 
+            requestInfo.outputString = responseOutput; // used for logging
             logger.info("Done writing");
         }
     }
@@ -1220,11 +1246,12 @@ public class Proxy extends HttpServlet {
         public Boolean handle = false;
         public Profile profile = null;
         public Client client = null;
-        public Boolean hasCustomResponse = false;
+        public Boolean blockRequest = false;
         public Boolean usedCustomResponse = false;
         public String outputString = null;
         public ArrayList<EndpointOverride> selectedRequestPaths = new ArrayList<EndpointOverride>();
         public ArrayList<EndpointOverride> selectedResponsePaths = new ArrayList<EndpointOverride>();
         public HttpRequestInfo originalRequestInfo = null;
+        public String jsonpCallback = null;
     }
 }

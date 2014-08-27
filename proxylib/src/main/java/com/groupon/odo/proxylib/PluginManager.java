@@ -15,10 +15,11 @@
 */
 package com.groupon.odo.proxylib;
 
+import com.groupon.odo.plugin.PluginArguments;
 import com.groupon.odo.plugin.ResponseOverride;
+import com.groupon.odo.plugin.ResponseOverride2;
 import com.groupon.odo.proxylib.models.Configuration;
 import com.groupon.odo.proxylib.models.Plugin;
-import com.groupon.odo.plugin.HttpRequestInfo;
 import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.CtMethod;
@@ -26,7 +27,6 @@ import javassist.NotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
@@ -248,7 +248,7 @@ public class PluginManager {
     }
 
     /**
-     * Calls the specified function with the specified arguments
+     * Calls the specified function with the specified arguments. This is used for v2 response overrides
      *
      * @param className
      * @param methodName
@@ -256,7 +256,43 @@ public class PluginManager {
      * @return
      * @throws Exception
      */
-    public Object callFunction(String className, String methodName, HttpServletResponse response, HttpRequestInfo originalRequest, String responseContent, Object... args) throws Exception {
+    public void callFunction(String className, String methodName, PluginArguments pluginArgs, Object... args) throws Exception {
+        Class<?> cls = getClass(className);
+        Object retval = null;
+        com.groupon.odo.proxylib.models.Method m = getMethod(className, methodName);
+
+        // it is up to this function to do any necessary type conversion for arguments
+        ArrayList<Object> newArgs = new ArrayList<Object>();
+        newArgs.add(pluginArgs);
+
+        // now convert the remaining args as necessary so the function is invoked with the correct types
+        if (m.getMethodArguments().length > 0) {
+            int x = 0;
+            for (Object type : m.getMethodArguments()) {
+                if (((String) type).endsWith("Integer")) {
+                    newArgs.add(Integer.parseInt((String) args[x]));
+                } else if (((String) type).endsWith("String")) {
+                    newArgs.add((String) args[x]);
+                } else if (((String) type).endsWith("Boolean")) {
+                    newArgs.add(Boolean.valueOf((String) args[x]));
+                }
+                x++;
+            }
+        }
+
+        m.getMethod().invoke(cls, newArgs.toArray(new Object[0]));
+    }
+
+    /**
+    * Calls the specified function with the specified arguments. This is used for v1 response overrides
+    *
+    * @param className
+    * @param methodName
+    * @param args
+    * @return
+    * @throws Exception
+    */
+    public Object callFunction(String className, String methodName, String responseContent, Object... args) throws Exception {
         Class<?> cls = getClass(className);
         Object retval = null;
         com.groupon.odo.proxylib.models.Method m = getMethod(className, methodName);
@@ -264,8 +300,6 @@ public class PluginManager {
         // it is up to this function to do any necessary type conversion for arguments
         ArrayList<Object> newArgs = new ArrayList<Object>();
         // add the first string arg to the new arg list
-        newArgs.add(response);
-        newArgs.add(originalRequest);
         newArgs.add(responseContent);
 
         // now convert the remaining args as necessary so the function is invoked with the correct types
@@ -343,7 +377,7 @@ public class PluginManager {
                         newMethod.setClassName(className);
                         newMethod.setMethodName(methodName);
                         newMethod.setMethod(method);
-                        newMethod.setMethodType(annotation.annotationType().toString());
+                        newMethod.setMethodType(annotation.annotationType().toString());;
 
                         String[] argNames = null;
                         String description = null;
@@ -355,15 +389,24 @@ public class PluginManager {
                         // Convert to the right type and get annotation information
                         if (annotation.annotationType().toString().endsWith(Constants.PLUGIN_RESPONSE_OVERRIDE_CLASS)) {
                             ResponseOverride roAnnotation = (ResponseOverride) all[0];
+                            newMethod.setHttpCode(roAnnotation.httpCode());
                             description = roAnnotation.description();
                             argNames = roAnnotation.parameters();
+                            newMethod.setOverrideVersion(1);
+                        }
+                        else if(annotation.annotationType().toString().endsWith(Constants.PLUGIN_RESPONSE_OVERRIDE2_CLASS)) {
+                            ResponseOverride2 roAnnotation = (ResponseOverride2) all[0];
+                            description = roAnnotation.description();
+                            argNames = roAnnotation.parameters();
+                            newMethod.setBlockRequest(roAnnotation.blockRequest());
+                            newMethod.setOverrideVersion(2);
                         }
 
                         // identify arguments
-                        // first 3 args are always a reserved that we skip
+                        // first arg is always a reserved that we skip
                         ArrayList<String> params = new ArrayList<String>();
-                        if (method.getParameterTypes().length > 3) {
-                            for (int x = 3; x < method.getParameterTypes().length; x++) {
+                        if (method.getParameterTypes().length > 1) {
+                            for (int x = 1; x < method.getParameterTypes().length; x++) {
                                 params.add(method.getParameterTypes()[x].getName());
                             }
                         }
