@@ -150,7 +150,7 @@ public class SQLService {
             }
             if (_connection == null) {
                 String connectString = "jdbc:h2:tcp://" + databaseHost + ":" + String.valueOf(port) + "/" +
-                        this.databaseName + "/proxydb;MVCC=TRUE;LOCK_MODE=0;FILE_LOCK=SOCKET";
+                        this.databaseName + "/proxydb;MULTI_THREADED=true";
                 _connection = DriverManager.getConnection(connectString, "sa", "");
             }
         } catch (Exception e) {
