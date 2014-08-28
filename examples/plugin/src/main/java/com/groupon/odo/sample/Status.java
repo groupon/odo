@@ -15,13 +15,11 @@
 */
 package com.groupon.odo.sample;
 
-import com.groupon.odo.plugin.HttpRequestInfo;
 import com.groupon.odo.plugin.PluginArguments;
 import com.groupon.odo.plugin.PluginHelper;
 import com.groupon.odo.plugin.v2.ResponseOverride;
 
 import javax.servlet.http.HttpServletResponse;
-import java.util.Map;
 
 public class Status {
     @ResponseOverride(
@@ -29,9 +27,6 @@ public class Status {
             blockRequest = true)
     public static void http404(PluginArguments args) throws Exception {
         HttpServletResponse response = args.getResponse();
-        HttpRequestInfo info = args.getOriginalRequest();
-        Map headers = info.getHeaders();
-        headers.put("WHAAAT", "toasty!");
         response.setStatus(404);
         PluginHelper.writeResponseContent(response, "{\"error\":{\"httpCode\":404,\"message\":\"Testing http 404 Error message here\"}}");
     }
