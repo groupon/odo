@@ -17,7 +17,6 @@ package com.groupon.odo.proxylib;
 
 import com.groupon.odo.plugin.PluginArguments;
 import com.groupon.odo.plugin.ResponseOverride;
-import com.groupon.odo.plugin.ResponseOverride2;
 import com.groupon.odo.proxylib.models.Configuration;
 import com.groupon.odo.proxylib.models.Plugin;
 import javassist.ClassPool;
@@ -394,8 +393,8 @@ public class PluginManager {
                             argNames = roAnnotation.parameters();
                             newMethod.setOverrideVersion(1);
                         }
-                        else if(annotation.annotationType().toString().endsWith(Constants.PLUGIN_RESPONSE_OVERRIDE2_CLASS)) {
-                            ResponseOverride2 roAnnotation = (ResponseOverride2) all[0];
+                        else if(annotation.annotationType().toString().endsWith(Constants.PLUGIN_RESPONSE_OVERRIDE_V2_CLASS)) {
+                            com.groupon.odo.plugin.v2.ResponseOverride roAnnotation = (com.groupon.odo.plugin.v2.ResponseOverride) all[0];
                             description = roAnnotation.description();
                             argNames = roAnnotation.parameters();
                             newMethod.setBlockRequest(roAnnotation.blockRequest());
@@ -496,7 +495,8 @@ public class PluginManager {
 
             // check annotations
             Boolean matchesAnnotation = false;
-            if (methodInfo.getMethodType().endsWith(Constants.PLUGIN_RESPONSE_OVERRIDE_CLASS)) {
+            if (methodInfo.getMethodType().endsWith(Constants.PLUGIN_RESPONSE_OVERRIDE_CLASS) ||
+                    methodInfo.getMethodType().endsWith(Constants.PLUGIN_RESPONSE_OVERRIDE_V2_CLASS)) {
                 matchesAnnotation = true;
             }
 

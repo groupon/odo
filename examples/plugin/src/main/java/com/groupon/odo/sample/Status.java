@@ -17,12 +17,12 @@ package com.groupon.odo.sample;
 
 import com.groupon.odo.plugin.PluginArguments;
 import com.groupon.odo.plugin.PluginHelper;
-import com.groupon.odo.plugin.ResponseOverride2;
+import com.groupon.odo.plugin.v2.ResponseOverride;
 
 import javax.servlet.http.HttpServletResponse;
 
 public class Status {
-    @ResponseOverride2(
+    @ResponseOverride(
             description="Return HTTP404",
             blockRequest = true)
     public static void http404(PluginArguments args) throws Exception {

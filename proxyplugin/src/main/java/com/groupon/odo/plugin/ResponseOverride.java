@@ -22,8 +22,9 @@ import java.lang.annotation.Target;
 
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
+@Deprecated
 public @interface ResponseOverride {
-    @Deprecated public int httpCode();
+    public int httpCode();
 
     public String description();
 

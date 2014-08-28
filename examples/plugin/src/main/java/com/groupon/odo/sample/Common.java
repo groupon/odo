@@ -16,10 +16,10 @@
 package com.groupon.odo.sample;
 
 import com.groupon.odo.plugin.PluginArguments;
-import com.groupon.odo.plugin.ResponseOverride2;
+import com.groupon.odo.plugin.v2.ResponseOverride;
 
 public class Common {
-    @ResponseOverride2(
+    @ResponseOverride(
             description="Slow Down Response")
     public static void delay(PluginArguments args, Integer milliseconds) throws Exception {
         Thread.sleep(milliseconds);

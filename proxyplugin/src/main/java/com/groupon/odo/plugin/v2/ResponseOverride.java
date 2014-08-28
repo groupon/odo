@@ -13,7 +13,7 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 */
-package com.groupon.odo.plugin;
+package com.groupon.odo.plugin.v2;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -22,7 +22,7 @@ import java.lang.annotation.Target;
 
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface ResponseOverride2 {
+public @interface ResponseOverride {
     public String description();
 
     public String[] parameters() default {};

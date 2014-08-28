@@ -1085,7 +1085,8 @@ public class Proxy extends HttpServlet {
                     httpServletResponse = HttpUtilities.addHeader(httpServletResponse, endpoint.getArguments());
                     requestInfo.modified = true;
                 } else if (endpoint.getMethodInformation() != null &&
-                        endpoint.getMethodInformation().getMethodType().equals(Constants.PLUGIN_TYPE_RESPONSE_OVERRIDE)) {
+                        (endpoint.getMethodInformation().getMethodType().equals(Constants.PLUGIN_TYPE_RESPONSE_OVERRIDE) ||
+                                endpoint.getMethodInformation().getMethodType().equals(Constants.PLUGIN_TYPE_RESPONSE_OVERRIDE_V2))) {
                     // run method
                     try {
                         com.groupon.odo.proxylib.models.Method methodInfo =
