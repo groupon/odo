@@ -481,7 +481,8 @@ public class Proxy extends HttpServlet {
         }
 
         String hostName = HttpUtilities.getHostNameFromURL(originalURL);
-
+        int port = HttpUtilities.getPortFromURL(originalURL);
+        
         String origHostName = hostName;
         logger.info("original host name = {}", hostName);
 
@@ -496,7 +497,7 @@ public class Proxy extends HttpServlet {
 
         // if this can't be overridden we are going to finish the string and bail
         if (!requestInfo.handle) {
-            stringProxyURL = stringProxyURL + hostName;
+            stringProxyURL = stringProxyURL + hostName + ":" + port;;
 
             // Handle the path given to the servlet
             stringProxyURL += httpServletRequest.getPathInfo();
@@ -512,9 +513,9 @@ public class Proxy extends HttpServlet {
             logger.info("Trying {}", tryProfile.getName());
             Client tryClient = ClientService.getInstance().findClient(history.getClientUUID(), tryProfile.getId());
 
-            List<EndpointOverride> trySelectedRequestPaths = getSelectedPaths(RequestOverride.class, tryClient,
+            List<EndpointOverride> trySelectedRequestPaths = getSelectedPaths(Constants.OVERRIDE_TYPE_REQUEST, tryClient,
                     tryProfile, httpServletRequest.getRequestURL() + queryString, requestType);
-            List<EndpointOverride> trySelectedResponsePaths = getSelectedPaths(ResponseOverride.class, tryClient,
+            List<EndpointOverride> trySelectedResponsePaths = getSelectedPaths(Constants.OVERRIDE_TYPE_RESPONSE, tryClient,
                     tryProfile, httpServletRequest.getRequestURL() + queryString, requestType);
             logger.info("Sizes {} {}", trySelectedRequestPaths.size(), trySelectedResponsePaths.size());
             if ((trySelectedRequestPaths.size() > 0 || trySelectedResponsePaths.size() > 0) ||
@@ -661,7 +662,7 @@ public class Proxy extends HttpServlet {
      * @return
      * @throws Exception
      */
-    private List<EndpointOverride> getSelectedPaths(Class<?> overrideType, Client client, Profile profile, String uri,
+    private List<EndpointOverride> getSelectedPaths(int overrideType, Client client, Profile profile, String uri,
                                                          Integer requestType) throws Exception {
         List<EndpointOverride> selectPaths = new ArrayList<EndpointOverride>();
 
@@ -700,8 +701,8 @@ public class Proxy extends HttpServlet {
                 // 2. Caller was looking for ResponseOverride and Response is enabled OR looking for RequestOverride
                 // and request is enabled
                 if (path.getEnabledEndpoints().size() > 0 &&
-                        ((overrideType.equals(ResponseOverride.class) && path.getResponseEnabled()) ||
-                                (overrideType.equals(RequestOverride.class) && path.getRequestEnabled()))) {
+                        ((overrideType == Constants.OVERRIDE_TYPE_RESPONSE && path.getResponseEnabled()) ||
+                                (overrideType == Constants.OVERRIDE_TYPE_REQUEST && path.getRequestEnabled()))) {
                     // if we haven't already seen a non global path
                     // or if this is a global path
                     // then add it to the list
@@ -730,7 +731,7 @@ public class Proxy extends HttpServlet {
     private void processVirtualHostName(HttpMethod httpMethodProxyRequest, HttpServletRequest httpServletRequest) {
         String virtualHostName;
         if (httpMethodProxyRequest.getRequestHeader(STRING_HOST_HEADER_NAME) != null) {
-            virtualHostName = httpMethodProxyRequest.getRequestHeader(STRING_HOST_HEADER_NAME).getValue();
+            virtualHostName = HttpUtilities.removePortFromHostHeaderString(httpMethodProxyRequest.getRequestHeader(STRING_HOST_HEADER_NAME).getValue());
         } else {
             virtualHostName = HttpUtilities.getHostNameFromURL(httpServletRequest.getRequestURL().toString());
         }
