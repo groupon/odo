@@ -92,6 +92,42 @@ public class HttpUtilities {
 
         return hostName;
     }
+    
+    public static int getPortFromURL(String url) {
+        int urlLeftPos = url.indexOf("//");
+        Boolean isHttps = url.startsWith("https");
+        
+        // set port defaults
+        int port = 80;
+        if (isHttps) {
+        	port = 443;
+        }
+        
+        String portStr = null;
+        String hostName = url.substring(urlLeftPos + 2);
+        int urlRightPos = hostName.indexOf("/");
+        if (urlRightPos != -1)
+            hostName = hostName.substring(0, urlRightPos);
+        // now look for a port
+        int portPos = hostName.indexOf(":");
+        if (portPos != -1)
+        	portStr = hostName.substring(portPos + 1, urlRightPos);
+
+        if (portStr != null) {
+        	port = Integer.parseInt(portStr);
+        }
+        
+        return port;
+    }
+    
+    public static String removePortFromHostHeaderString(String host) {
+    	String hostName = host;
+    	int portPos = host.indexOf(":");
+        if (portPos != -1)
+            hostName = host.substring(0, portPos);
+        
+        return hostName;
+    }
 
 
     /**

@@ -90,7 +90,7 @@
             function selectRows(groupId) {
                 $.ajax({
                     type:"GET",
-                    url: 'api/group/' + groupId,
+                    url: '<c:url value="/api/group/"/>' + groupId,
                     success: function(data){
 
                         enabledMethods = {};

@@ -471,7 +471,8 @@ public class Proxy extends HttpServlet {
         }
 
         String hostName = HttpUtilities.getHostNameFromURL(originalURL);
-
+        int port = HttpUtilities.getPortFromURL(originalURL);
+        
         String origHostName = hostName;
         logger.info("original host name = {}", hostName);
 
@@ -486,7 +487,7 @@ public class Proxy extends HttpServlet {
 
         // if this can't be overridden we are going to finish the string and bail
         if (!requestInformation.get().handle) {
-            stringProxyURL = stringProxyURL + hostName;
+            stringProxyURL = stringProxyURL + hostName + ":" + port;
 
             // Handle the path given to the servlet
             stringProxyURL += httpServletRequest.getPathInfo();
@@ -720,7 +721,7 @@ public class Proxy extends HttpServlet {
     private void processVirtualHostName(HttpMethod httpMethodProxyRequest, HttpServletRequest httpServletRequest) {
         String virtualHostName;
         if (httpMethodProxyRequest.getRequestHeader(STRING_HOST_HEADER_NAME) != null) {
-            virtualHostName = httpMethodProxyRequest.getRequestHeader(STRING_HOST_HEADER_NAME).getValue();
+            virtualHostName = HttpUtilities.removePortFromHostHeaderString(httpMethodProxyRequest.getRequestHeader(STRING_HOST_HEADER_NAME).getValue());
         } else {
             virtualHostName = HttpUtilities.getHostNameFromURL(httpServletRequest.getRequestURL().toString());
         }
