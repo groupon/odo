@@ -1161,6 +1161,7 @@
 
                 $.ajax({
                     type:"POST",
+                    async: false,
                     url: '<c:url value="/api/path/"/>' + currentPathId,
                     data: ({clientUUID: "${clientUUID}", pathName: pathName, path: path, bodyFilter: bodyFilter, contentType: contentType, repeatNumber: repeat, requestType: requestType, global: global, 'groups[]': groupArray}),
                     success: function(){
