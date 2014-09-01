@@ -82,4 +82,9 @@ public class PluginHelper {
             }
         }
     }
+
+    public static String readResponseContent(HttpServletResponse response) throws IOException {
+        PluginResponse pluginResponse = (PluginResponse)response;
+        return pluginResponse.getContentString();
+    }
 }

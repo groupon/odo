@@ -862,14 +862,14 @@ public class Proxy extends HttpServlet {
                         history,
                         outStream);
 
-                writeResponseOutput(httpServletResponse, requestInfo.jsonpCallback, outStream.toString());
+                writeResponseOutput(responseWrapper, requestInfo.jsonpCallback, outStream.toString());
             }
 
-            logOriginalResponseHistory(httpServletResponse, history);
+            logOriginalResponseHistory(responseWrapper, history);
             applyResponseOverrides(responseWrapper, httpServletRequest, history);
             // store history
             history.setModified(requestInfo.modified);
-            logRequestHistory(httpMethodProxyRequest, httpServletResponse, history);
+            logRequestHistory(httpMethodProxyRequest, responseWrapper, history);
         } catch (Exception e) {
             e.printStackTrace();
             return;
@@ -1054,7 +1054,7 @@ public class Proxy extends HttpServlet {
      * @param httpServletRequest
      * @throws Exception
      */
-    private void applyResponseOverrides(HttpServletResponse httpServletResponse,
+    private void applyResponseOverrides(PluginResponse httpServletResponse,
                                         HttpServletRequest httpServletRequest, History history) throws Exception {
         RequestInformation requestInfo = requestInformation.get();
 
@@ -1083,7 +1083,7 @@ public class Proxy extends HttpServlet {
                     requestInfo.modified = true;
                     writeResponseOutput(httpServletResponse, requestInfo.jsonpCallback, response);
                 } else if (endpoint.getOverrideId() == Constants.PLUGIN_RESPONSE_HEADER_OVERRIDE_ADD) {
-                    httpServletResponse = HttpUtilities.addHeader(httpServletResponse, endpoint.getArguments());
+                    httpServletResponse = (PluginResponse)HttpUtilities.addHeader(httpServletResponse, endpoint.getArguments());
                     requestInfo.modified = true;
                 } else if (endpoint.getMethodInformation() != null &&
                         (endpoint.getMethodInformation().getMethodType().equals(Constants.PLUGIN_TYPE_RESPONSE_OVERRIDE) ||
@@ -1102,7 +1102,7 @@ public class Proxy extends HttpServlet {
                         // For v1 plugins - verify HTTP code is set correctly
                         if(methodInfo.getOverrideVersion() == 1) {
                             String responseOutput = (String)PluginManager.getInstance().callFunction(methodInfo.getClassName(), methodInfo.getMethodName(),
-                                    httpServletResponse.getOutputStream().toString(), endpoint.getArguments());
+                                    httpServletResponse.getContentString(), endpoint.getArguments());
                             writeResponseOutput(httpServletResponse, requestInfo.jsonpCallback, responseOutput);
 
                             if(methodInfo.getHttpCode() != httpServletResponse.getStatus()) {

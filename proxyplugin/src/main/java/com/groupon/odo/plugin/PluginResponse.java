@@ -58,5 +58,10 @@ public class PluginResponse extends HttpServletResponseWrapper{
         OutputStream output = super.getOutputStream();
         output.write(outputStream.toByteArray());
     }
+
+    public String getContentString() {
+        String output = new String(outputStream.toByteArray());
+        return output;
+    }
 }
 
