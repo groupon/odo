@@ -15,6 +15,8 @@
 */
 package com.groupon.odo.proxylib.models;
 
+import com.fasterxml.jackson.annotation.JsonFilter;
+
 /**
  * This class stores the view filters for Jackson JSON output
  * <p/>
@@ -25,5 +27,9 @@ public class ViewFilters {
     }
 
     public static class BackupIgnore {
+    }
+    
+    @JsonFilter("Filter properties from the PathController GET")  
+    public static class GetPathFilter {
     }
 }
