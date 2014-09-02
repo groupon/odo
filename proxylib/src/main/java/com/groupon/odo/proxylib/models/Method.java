@@ -121,6 +121,7 @@ public class Method {
         return this.method;
     }
 
+    @JsonView(ViewFilters.BackupIgnore.class)
     public boolean isBlockRequest() {
         return blockRequest;
     }
@@ -129,6 +130,7 @@ public class Method {
         this.blockRequest = blockRequest;
     }
 
+    @JsonView(ViewFilters.BackupIgnore.class)
     public int getOverrideVersion() {
         return overrideVersion;
     }
