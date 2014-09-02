@@ -260,7 +260,7 @@ public class PluginManager {
 
         ArrayList<Object> newArgs = new ArrayList<Object>();
         newArgs.add(pluginArgs);
-        com.groupon.odo.proxylib.models.Method m = preparePluginMethod(newArgs, m, args);
+        com.groupon.odo.proxylib.models.Method m = preparePluginMethod(newArgs, className, methodName, args);
 
         m.getMethod().invoke(cls, newArgs.toArray(new Object[0]));
     }
