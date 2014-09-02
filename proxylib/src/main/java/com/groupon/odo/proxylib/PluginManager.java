@@ -365,7 +365,7 @@ public class PluginManager {
                         newMethod.setClassName(className);
                         newMethod.setMethodName(methodName);
                         newMethod.setMethod(method);
-                        newMethod.setMethodType(annotation.annotationType().toString());;
+                        newMethod.setMethodType(annotation.annotationType().toString());
 
                         String[] argNames = null;
                         String description = null;
