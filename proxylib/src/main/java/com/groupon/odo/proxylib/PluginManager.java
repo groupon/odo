@@ -257,27 +257,10 @@ public class PluginManager {
      */
     public void callFunction(String className, String methodName, PluginArguments pluginArgs, Object... args) throws Exception {
         Class<?> cls = getClass(className);
-        Object retval = null;
-        com.groupon.odo.proxylib.models.Method m = getMethod(className, methodName);
 
-        // it is up to this function to do any necessary type conversion for arguments
         ArrayList<Object> newArgs = new ArrayList<Object>();
         newArgs.add(pluginArgs);
-
-        // now convert the remaining args as necessary so the function is invoked with the correct types
-        if (m.getMethodArguments().length > 0) {
-            int x = 0;
-            for (Object type : m.getMethodArguments()) {
-                if (((String) type).endsWith("Integer")) {
-                    newArgs.add(Integer.parseInt((String) args[x]));
-                } else if (((String) type).endsWith("String")) {
-                    newArgs.add((String) args[x]);
-                } else if (((String) type).endsWith("Boolean")) {
-                    newArgs.add(Boolean.valueOf((String) args[x]));
-                }
-                x++;
-            }
-        }
+        com.groupon.odo.proxylib.models.Method m = preparePluginMethod(newArgs, m, args);
 
         m.getMethod().invoke(cls, newArgs.toArray(new Object[0]));
     }
@@ -292,19 +275,26 @@ public class PluginManager {
     * @throws Exception
     */
     public Object callFunction(String className, String methodName, String responseContent, Object... args) throws Exception {
+        Object retval;
         Class<?> cls = getClass(className);
-        Object retval = null;
-        com.groupon.odo.proxylib.models.Method m = getMethod(className, methodName);
 
-        // it is up to this function to do any necessary type conversion for arguments
         ArrayList<Object> newArgs = new ArrayList<Object>();
-        // add the first string arg to the new arg list
         newArgs.add(responseContent);
+        com.groupon.odo.proxylib.models.Method m = preparePluginMethod(newArgs, className, methodName, args);
+
+        retval = m.getMethod().invoke(cls, newArgs.toArray(new Object[0]));
+        return retval;
+    }
+
+    private com.groupon.odo.proxylib.models.Method preparePluginMethod(List<Object> newArgs, String className,
+                                                                       String methodName, Object... args) throws Exception {
+
+        com.groupon.odo.proxylib.models.Method method = getMethod(className, methodName);
 
         // now convert the remaining args as necessary so the function is invoked with the correct types
-        if (m.getMethodArguments().length > 0) {
+        if (method.getMethodArguments().length > 0) {
             int x = 0;
-            for (Object type : m.getMethodArguments()) {
+            for (Object type : method.getMethodArguments()) {
                 if (((String) type).endsWith("Integer")) {
                     newArgs.add(Integer.parseInt((String) args[x]));
                 } else if (((String) type).endsWith("String")) {
@@ -316,8 +306,7 @@ public class PluginManager {
             }
         }
 
-        retval = m.getMethod().invoke(cls, newArgs.toArray(new Object[0]));
-        return retval;
+        return method;
     }
 
     /**
