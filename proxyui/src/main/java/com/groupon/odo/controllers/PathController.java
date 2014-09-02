@@ -58,11 +58,9 @@ public class PathController {
         int profileId = ControllerUtils.convertProfileIdentifier(profileIdentifier);
         List<EndpointOverride> paths = PathOverrideService.getInstance().getPaths(profileId, clientUUID, typeFilter);
 
-        logger.info("BEFORE JQGRID");
         HashMap<String, Object> jqReturn = Utils.getJQGridJSON(paths, "paths");
         
         ObjectMapper objectMapper = new ObjectMapper();
-        logger.info("BEFORE WRITER");
         objectMapper.addMixInAnnotations(Object.class, ViewFilters.GetPathFilter.class);
         String[] ignorableFieldNames = { "possibleEndpoints", "enabledEndpoints" }; 
         FilterProvider filters = new SimpleFilterProvider().addFilter("Filter properties from the PathController GET", 
