@@ -405,28 +405,24 @@
 									|| data.history.responseContentType
 											.toLowerCase().indexOf(
 													"application/json") == -1) {
+								showRawResponeData();
+                                showModifiedResponse();
 								$("#showRawFormattedDataButton").attr(
 										"disabled", "disabled");
 							} else {
+                                showFormattedResponeData();
 								$("#showRawFormattedDataButton").removeAttr(
 										"disabled");
 							}
 
-							showRawResponeData();
-							showModifiedResponse();
 							showModifiedRequestData();
-							$("#responseHeaders").val(
-									data.history.responseHeaders);
+							$("#responseHeaders").val(data.history.responseHeaders);
 							$("#originalResponseHeaders").val(data.history.originalResponseHeaders);
-							$("#responseTypeLabel").html(
-									data.history.responseContentType);
+							$("#responseTypeLabel").html(data.history.responseContentType);
 							$("#requestQuery").val(data.history.requestURL);
-							$("#requestParameters").val(
-									data.history.requestParams);
-							$("#requestHeaders").val(
-									data.history.requestHeaders);
-							$("#requestPOSTData").val(
-									data.history.requestPostData);
+							$("#requestParameters").val(data.history.requestParams);
+							$("#requestHeaders").val(data.history.requestHeaders);
+							$("#requestPOSTData").val(data.history.requestPostData);
 							if(data.history.modified){
 								$("#originalResponseHeaders").val(historyData.history.originalResponseHeaders);
 								$("#originalRequestQuery").val(data.history.originalRequestURL);
@@ -541,11 +537,6 @@
 						records : "records",
 						root : 'history',
 						repeatitems : false
-					},
-					resizeStop : function() {
-						$(this.bDiv).find(
-								'>div:first>table.ui-jqgrid-btable:first')
-								.jqGrid('setGridWidth', this.newWidth);
 					},
 					gridComplete : function() {
 						for (var i = 0; i < invalidRows.length; i++) {

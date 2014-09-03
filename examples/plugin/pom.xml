@@ -4,7 +4,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <artifactId>plugin</artifactId>
-    <version>1.0.0-beta.2</version>
+    <version>1.0.0-beta.3</version>
     <packaging>jar</packaging>
 
     <properties>
@@ -17,14 +17,14 @@
     <parent>
         <artifactId>examples</artifactId>
         <groupId>com.groupon.odo</groupId>
-        <version>1.0.0-beta.2</version>
+        <version>1.0.0-beta.3</version>
     </parent>
 
     <dependencies>
         <dependency>
             <groupId>com.groupon.odo</groupId>
             <artifactId>proxyplugin</artifactId>
-            <version>1.0.0-beta.2</version>
+            <version>1.0.0-beta.3</version>
         </dependency>
     </dependencies>
     
