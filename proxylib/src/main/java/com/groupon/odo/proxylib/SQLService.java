@@ -137,7 +137,7 @@ public class SQLService {
         try {
             if (_connection != null) {
                 // test it
-                if (_connection.isClosed()) {
+                if (_connection.isValid(1)) {
                     _connection = null;
 
                     // try to start the server
@@ -148,9 +148,10 @@ public class SQLService {
                     }
                 }
             }
+
             if (_connection == null) {
                 String connectString = "jdbc:h2:tcp://" + databaseHost + ":" + String.valueOf(port) + "/" +
-                        this.databaseName + "/proxydb;MULTI_THREADED=true";
+                        this.databaseName + "/proxydb;MULTI_THREADED=true;AUTO_RECONNECT=TRUE;AUTOCOMMIT=ON";
                 _connection = DriverManager.getConnection(connectString, "sa", "");
             }
         } catch (Exception e) {

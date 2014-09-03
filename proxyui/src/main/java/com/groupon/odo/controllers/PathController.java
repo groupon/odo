@@ -15,10 +15,18 @@
 */
 package com.groupon.odo.controllers;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
+import com.fasterxml.jackson.databind.ser.FilterProvider;
+import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
+import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import com.groupon.odo.controllers.models.Identifiers;
 import com.groupon.odo.proxylib.*;
 import com.groupon.odo.proxylib.models.EndpointOverride;
+import com.groupon.odo.proxylib.models.ViewFilters;
+
 import flexjson.JSONSerializer;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +35,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+
 import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -39,16 +48,27 @@ public class PathController {
 
     private PathOverrideService pathOverrideService = PathOverrideService.getInstance();
 
-    @RequestMapping(value = "/api/path", method = RequestMethod.GET)
+    @SuppressWarnings("deprecation")
+	@RequestMapping(value = "/api/path", method = RequestMethod.GET)
     public
     @ResponseBody
-    HashMap<String, Object> getPathsForProfile(Model model, String profileIdentifier,
+    String getPathsForProfile(Model model, String profileIdentifier,
                                                @RequestParam(value = "typeFilter[]", required = false) String[] typeFilter,
                                                @RequestParam(value = "clientUUID", defaultValue = Constants.PROFILE_CLIENT_DEFAULT_ID) String clientUUID) throws Exception {
         int profileId = ControllerUtils.convertProfileIdentifier(profileIdentifier);
         List<EndpointOverride> paths = PathOverrideService.getInstance().getPaths(profileId, clientUUID, typeFilter);
 
-        return Utils.getJQGridJSON(paths, "paths");
+        HashMap<String, Object> jqReturn = Utils.getJQGridJSON(paths, "paths");
+        
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.addMixInAnnotations(Object.class, ViewFilters.GetPathFilter.class);
+        String[] ignorableFieldNames = { "possibleEndpoints", "enabledEndpoints" }; 
+        FilterProvider filters = new SimpleFilterProvider().addFilter("Filter properties from the PathController GET", 
+        		SimpleBeanPropertyFilter.serializeAllExcept(ignorableFieldNames));
+        		
+        ObjectWriter writer = objectMapper.writer(filters);
+
+        return writer.writeValueAsString(jqReturn);
     }
 
     @RequestMapping(value = "/api/path", method = RequestMethod.POST)

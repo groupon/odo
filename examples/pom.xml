@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>examples</artifactId>
     <groupId>com.groupon.odo</groupId>
-    <version>1.0.0-beta.2</version>
+    <version>1.0.0-beta.3</version>
     <packaging>pom</packaging>
 
     <properties>
@@ -18,7 +18,7 @@
     <parent>
         <artifactId>proxyaggregator</artifactId>
         <groupId>com.groupon.odo</groupId>
-        <version>1.0.0-beta.2</version>
+        <version>1.0.0-beta.3</version>
     </parent>
 
     <modules>
