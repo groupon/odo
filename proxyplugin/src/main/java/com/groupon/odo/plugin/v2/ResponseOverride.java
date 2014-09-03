@@ -13,15 +13,19 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 */
-package com.groupon.odo.sample;
+package com.groupon.odo.plugin.v2;
 
-import com.groupon.odo.plugin.PluginArguments;
-import com.groupon.odo.plugin.v2.ResponseOverride;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-public class Common {
-    @ResponseOverride(
-            description="Slow Down Response")
-    public static void delay(PluginArguments args, Integer milliseconds) throws Exception {
-        Thread.sleep(milliseconds);
-    }
+@Target(ElementType.METHOD)
+@Retention(RetentionPolicy.RUNTIME)
+public @interface ResponseOverride {
+    public String description();
+
+    public String[] parameters() default {};
+
+    public boolean blockRequest() default false;
 }

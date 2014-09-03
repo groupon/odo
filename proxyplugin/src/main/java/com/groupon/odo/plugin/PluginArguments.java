@@ -13,15 +13,24 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 */
-package com.groupon.odo.sample;
+package com.groupon.odo.plugin;
 
-import com.groupon.odo.plugin.PluginArguments;
-import com.groupon.odo.plugin.v2.ResponseOverride;
+import javax.servlet.http.HttpServletResponse;
 
-public class Common {
-    @ResponseOverride(
-            description="Slow Down Response")
-    public static void delay(PluginArguments args, Integer milliseconds) throws Exception {
-        Thread.sleep(milliseconds);
+public class PluginArguments {
+    private HttpServletResponse response;
+    private HttpRequestInfo originalRequest;
+
+    public PluginArguments(HttpServletResponse response, HttpRequestInfo request) {
+        this.response = response;
+        this.originalRequest = request;
+    }
+
+    public HttpServletResponse getResponse() {
+        return response;
+    }
+
+    public HttpRequestInfo getOriginalRequest() {
+        return originalRequest;
     }
 }

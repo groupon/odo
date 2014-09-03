@@ -71,7 +71,7 @@ public class HttpUtilities {
     public static final String STRING_CONTENT_TYPE_JSON = "application/json";
 
     /**
-     *
+     * Form encoded content type value
      */
     public static final String STRING_CONTENT_TYPE_FORM_URLENCODED = "application/x-www-form-urlencoded";
 

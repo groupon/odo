@@ -29,6 +29,8 @@ public class Method {
     private Object[] methodArguments = new Object[0];
     private String[] methodArgumentNames = new String[0];
     private java.lang.reflect.Method method = null;
+    private boolean blockRequest = false;
+    private int overrideVersion;
 
     public void setId(int id) {
         this.id = id;
@@ -43,11 +45,6 @@ public class Method {
         this.idString = idString;
     }
 
-    @JsonView(ViewFilters.BackupIgnore.class)
-    public String getIdString() {
-        return this.idString;
-    }
-
     public void setHttpCode(int httpCode) {
         this.httpCode = httpCode;
     }
@@ -55,6 +52,11 @@ public class Method {
     @JsonView(ViewFilters.BackupIgnore.class)
     public int getHttpCode() {
         return this.httpCode;
+    }
+
+    @JsonView(ViewFilters.BackupIgnore.class)
+    public String getIdString() {
+        return this.idString;
     }
 
     public void setDescription(String description) {
@@ -117,5 +119,23 @@ public class Method {
     @JsonIgnore
     public java.lang.reflect.Method getMethod() {
         return this.method;
+    }
+
+    @JsonView(ViewFilters.BackupIgnore.class)
+    public boolean isBlockRequest() {
+        return blockRequest;
+    }
+
+    public void setBlockRequest(boolean blockRequest) {
+        this.blockRequest = blockRequest;
+    }
+
+    @JsonView(ViewFilters.BackupIgnore.class)
+    public int getOverrideVersion() {
+        return overrideVersion;
+    }
+
+    public void setOverrideVersion(int overrideVersion) {
+        this.overrideVersion = overrideVersion;
     }
 }

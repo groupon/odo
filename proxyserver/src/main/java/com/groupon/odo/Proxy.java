@@ -15,10 +15,9 @@
 */
 package com.groupon.odo;
 
+import com.groupon.odo.plugin.*;
 import com.groupon.odo.proxylib.*;
 import com.groupon.odo.proxylib.models.*;
-import com.groupon.odo.plugin.RequestOverride;
-import com.groupon.odo.plugin.ResponseOverride;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.httpclient.Header;
@@ -141,6 +140,7 @@ public class Proxy extends HttpServlet {
                          HttpServletResponse response) throws ServletException, IOException {
         // create thread specific session data
         requestInformation.set(new RequestInformation());
+        RequestInformation requestInfo = requestInformation.get();
         Boolean alreadyServed = false;
         logger.info("GET Path: {}", request.getPathInfo());
         // some special commands
@@ -163,6 +163,7 @@ public class Proxy extends HttpServlet {
         if (!alreadyServed) {
             History history = new History();
             logOriginalRequestHistory("GET", request, history);
+            requestInfo.originalRequestInfo = new HttpRequestInfo(request);
             try {
                 GetMethod getMethodProxyRequest = new GetMethod(getProxyURL(
                         request, history, Constants.REQUEST_TYPE_GET));
@@ -197,9 +198,11 @@ public class Proxy extends HttpServlet {
                           HttpServletResponse response) throws ServletException, IOException {
         // create thread specific session data
         requestInformation.set(new RequestInformation());
+        RequestInformation requestInfo = requestInformation.get();
 
         History history = new History();
         logOriginalRequestHistory("POST", request, history);
+        requestInfo.originalRequestInfo = new HttpRequestInfo(request);
 
         try {
             PostMethod postMethodProxyRequest = new PostMethod(this.getProxyURL(
@@ -236,9 +239,11 @@ public class Proxy extends HttpServlet {
                          HttpServletResponse response) throws ServletException, IOException {
         // create thread specific session data
         requestInformation.set(new RequestInformation());
+        RequestInformation requestInfo = requestInformation.get();
 
         History history = new History();
         logOriginalRequestHistory("PUT", request, history);
+        requestInfo.originalRequestInfo = new HttpRequestInfo(request);
 
         try {
             PutMethod putMethodProxyRequest = new PutMethod(this.getProxyURL(
@@ -275,9 +280,11 @@ public class Proxy extends HttpServlet {
                             HttpServletResponse response) throws ServletException, IOException {
         // create thread specific session data
         requestInformation.set(new RequestInformation());
+        RequestInformation requestInfo = requestInformation.get();
 
         History history = new History();
         logOriginalRequestHistory("DELETE", request, history);
+        requestInfo.originalRequestInfo = new HttpRequestInfo(request);
 
         try {
             DeleteMethod getMethodProxyRequest = new DeleteMethod(getProxyURL(
@@ -298,12 +305,13 @@ public class Proxy extends HttpServlet {
      */
     @SuppressWarnings("unchecked")
     protected void cullPathsByBodyFilter(History history) throws Exception {
+        RequestInformation requestInfo = requestInformation.get();
         try {
             String requestBody = history.getRequestPostData();
             ArrayList<EndpointOverride> removePaths = new ArrayList<EndpointOverride>();
 
             // requestInformation.get().selectedResponsePaths
-            for (EndpointOverride selectedPath : requestInformation.get().selectedResponsePaths) {
+            for (EndpointOverride selectedPath : requestInfo.selectedResponsePaths) {
                 String pathBodyFilter = selectedPath.getBodyFilter();
                 // check selective post/put filters.
                 if (pathBodyFilter != null && pathBodyFilter.length() > 0) {
@@ -319,7 +327,7 @@ public class Proxy extends HttpServlet {
 
             // remove paths that do not match filter
             for (EndpointOverride removePath : removePaths) {
-                requestInformation.get().selectedResponsePaths.remove(removePath);
+                requestInfo.selectedResponsePaths.remove(removePath);
             }
         } catch (Exception e) {
             logger.info("ERROR: failure culling paths");
@@ -337,7 +345,7 @@ public class Proxy extends HttpServlet {
     @SuppressWarnings("unchecked")
     private void setProxyRequestHeaders(HttpServletRequest httpServletRequest,
                                         HttpMethod httpMethodProxyRequest) throws Exception {
-
+        RequestInformation requestInfo = requestInformation.get();
         String hostName = HttpUtilities.getHostNameFromURL(httpServletRequest.getRequestURL().toString());
         // Get an Enumeration of all of the header names sent by the client
         Enumeration<String> enumerationOfHeaderNames = httpServletRequest.getHeaderNames();
@@ -361,7 +369,7 @@ public class Proxy extends HttpServlet {
                 // rewrite the Host header to ensure that we get content from
                 // the correct virtual server
                 if (stringHeaderName.equalsIgnoreCase(STRING_HOST_HEADER_NAME) &&
-                        requestInformation.get().handle) {
+                        requestInfo.handle) {
                     String hostValue = getHostHeaderForHost(hostName);
                     if (hostValue != null) {
                         stringHeaderValue = hostValue;
@@ -376,7 +384,7 @@ public class Proxy extends HttpServlet {
         }
 
         // bail if we aren't fully handling this request
-        if (!requestInformation.get().handle) {
+        if (!requestInfo.handle) {
             return;
         }
 
@@ -391,16 +399,17 @@ public class Proxy extends HttpServlet {
      * @throws Exception
      */
     private void processRequestHeaderOverrides(HttpMethod httpMethodProxyRequest) throws Exception {
-        for (EndpointOverride selectedPath : requestInformation.get().selectedRequestPaths) {
+        RequestInformation requestInfo = requestInformation.get();
+        for (EndpointOverride selectedPath : requestInfo.selectedRequestPaths) {
             List<EnabledEndpoint> points = selectedPath.getEnabledEndpoints();
             for (EnabledEndpoint endpoint : points) {
                 if (endpoint.getOverrideId() == Constants.PLUGIN_REQUEST_HEADER_OVERRIDE_ADD) {
                     httpMethodProxyRequest.addRequestHeader(endpoint.getArguments()[0].toString(),
                             endpoint.getArguments()[1].toString());
-                    requestInformation.get().modified = true;
+                    requestInfo.modified = true;
                 } else if (endpoint.getOverrideId() == Constants.PLUGIN_REQUEST_HEADER_OVERRIDE_REMOVE) {
                     httpMethodProxyRequest.removeRequestHeader(endpoint.getArguments()[0].toString());
-                    requestInformation.get().modified = true;
+                    requestInfo.modified = true;
                 }
             }
         }
@@ -456,9 +465,10 @@ public class Proxy extends HttpServlet {
     private String getProxyURL(HttpServletRequest httpServletRequest,
                                History history, Integer requestType) throws Exception {
         // first determine if Odo will even fully handle this request
+        RequestInformation requestInfo = requestInformation.get();
         if (ServerRedirectService.getInstance().canHandleRequest(HttpUtilities.getHostNameFromURL(
                 httpServletRequest.getRequestURL().toString()))) {
-            requestInformation.get().handle = true;
+            requestInfo.handle = true;
         }
 
         String stringProxyURL = "http://";
@@ -486,8 +496,8 @@ public class Proxy extends HttpServlet {
         }
 
         // if this can't be overridden we are going to finish the string and bail
-        if (!requestInformation.get().handle) {
-            stringProxyURL = stringProxyURL + hostName + ":" + port;
+        if (!requestInfo.handle) {
+            stringProxyURL = stringProxyURL + hostName + ":" + port;;
 
             // Handle the path given to the servlet
             stringProxyURL += httpServletRequest.getPathInfo();
@@ -503,22 +513,22 @@ public class Proxy extends HttpServlet {
             logger.info("Trying {}", tryProfile.getName());
             Client tryClient = ClientService.getInstance().findClient(history.getClientUUID(), tryProfile.getId());
 
-            List<EndpointOverride> trySelectedRequestPaths = getSelectedPaths(RequestOverride.class, tryClient,
+            List<EndpointOverride> trySelectedRequestPaths = getSelectedPaths(Constants.OVERRIDE_TYPE_REQUEST, tryClient,
                     tryProfile, httpServletRequest.getRequestURL() + queryString, requestType);
-            List<EndpointOverride> trySelectedResponsePaths = getSelectedPaths(ResponseOverride.class, tryClient,
+            List<EndpointOverride> trySelectedResponsePaths = getSelectedPaths(Constants.OVERRIDE_TYPE_RESPONSE, tryClient,
                     tryProfile, httpServletRequest.getRequestURL() + queryString, requestType);
             logger.info("Sizes {} {}", trySelectedRequestPaths.size(), trySelectedResponsePaths.size());
             if ((trySelectedRequestPaths.size() > 0 || trySelectedResponsePaths.size() > 0) ||
-                    tryClient.getIsActive() || requestInformation.get().profile == null) {
+                    tryClient.getIsActive() || requestInfo.profile == null) {
                 logger.info("Selected {}, {}, " + httpServletRequest.getRequestURL() + "?" +
                         httpServletRequest.getQueryString(), tryProfile.getName(), tryClient.getId());
                 // reset history UUID based on client
                 history.setClientUUID(tryClient.getUUID());
 
-                requestInformation.get().profile = tryProfile;
-                requestInformation.get().selectedRequestPaths = new ArrayList<EndpointOverride>(trySelectedRequestPaths);
-                requestInformation.get().selectedResponsePaths = new ArrayList<EndpointOverride>(trySelectedResponsePaths);
-                requestInformation.get().client = tryClient;
+                requestInfo.profile = tryProfile;
+                requestInfo.selectedRequestPaths = new ArrayList<EndpointOverride>(trySelectedRequestPaths);
+                requestInfo.selectedResponsePaths = new ArrayList<EndpointOverride>(trySelectedResponsePaths);
+                requestInfo.client = tryClient;
             }
         }
 
@@ -537,7 +547,7 @@ public class Proxy extends HttpServlet {
         stringProxyURL += processQueryString(queryString);
         logger.info("url = {}", stringProxyURL);
 
-        history.setProfileId(requestInformation.get().profile.getId());
+        history.setProfileId(requestInfo.profile.getId());
         return stringProxyURL;
     }
 
@@ -614,7 +624,7 @@ public class Proxy extends HttpServlet {
                         if (key.length() == 0) {
                             continue;
                         }
-                        requestInformation.get().modified = true;
+                        requestInfo.modified = true;
                         if (originalParams.containsKey(key)) {
                             logger.info("Removing {}", key);
                             originalParams.remove(key);
@@ -652,7 +662,7 @@ public class Proxy extends HttpServlet {
      * @return
      * @throws Exception
      */
-    private List<EndpointOverride> getSelectedPaths(Class<?> overrideType, Client client, Profile profile, String uri,
+    private List<EndpointOverride> getSelectedPaths(int overrideType, Client client, Profile profile, String uri,
                                                          Integer requestType) throws Exception {
         List<EndpointOverride> selectPaths = new ArrayList<EndpointOverride>();
 
@@ -691,8 +701,8 @@ public class Proxy extends HttpServlet {
                 // 2. Caller was looking for ResponseOverride and Response is enabled OR looking for RequestOverride
                 // and request is enabled
                 if (path.getEnabledEndpoints().size() > 0 &&
-                        ((overrideType.equals(ResponseOverride.class) && path.getResponseEnabled()) ||
-                                (overrideType.equals(RequestOverride.class) && path.getRequestEnabled()))) {
+                        ((overrideType == Constants.OVERRIDE_TYPE_RESPONSE && path.getResponseEnabled()) ||
+                                (overrideType == Constants.OVERRIDE_TYPE_REQUEST && path.getRequestEnabled()))) {
                     // if we haven't already seen a non global path
                     // or if this is a global path
                     // then add it to the list
@@ -736,7 +746,8 @@ public class Proxy extends HttpServlet {
     private void cullDisabledPaths() throws Exception {
 
         ArrayList<EndpointOverride> removePaths = new ArrayList<EndpointOverride>();
-        for (EndpointOverride selectedPath : requestInformation.get().selectedResponsePaths) {
+        RequestInformation requestInfo = requestInformation.get();
+        for (EndpointOverride selectedPath : requestInfo.selectedResponsePaths) {
 
             // check repeat count on selectedPath
             // -1 is unlimited
@@ -751,11 +762,11 @@ public class Proxy extends HttpServlet {
 
         // remove paths if we need to
         for (EndpointOverride removePath : removePaths) {
-            requestInformation.get().selectedResponsePaths.remove(removePath);
+            requestInfo.selectedResponsePaths.remove(removePath);
         }
     }
 
-    private Boolean hasCustomResponse() throws Exception {
+    private Boolean hasRequestBlock() throws Exception {
         for (EndpointOverride selectedPath : requestInformation.get().selectedResponsePaths) {
             // check to see if there is custom override data or if we have headers to remove
             List<EnabledEndpoint> points = selectedPath.getEnabledEndpoints();
@@ -765,6 +776,12 @@ public class Proxy extends HttpServlet {
                     continue;
 
                 if (endpoint.getOverrideId() == Constants.PLUGIN_RESPONSE_OVERRIDE_CUSTOM) {
+                    return true;
+                }
+
+                com.groupon.odo.proxylib.models.Method methodInfo =
+                        PathOverrideService.getInstance().getMethodForEnabledId(endpoint.getOverrideId());
+                if(methodInfo.isBlockRequest()) {
                     return true;
                 }
             }
@@ -829,29 +846,30 @@ public class Proxy extends HttpServlet {
 
             // define output stream
             OutputStream outStream = new ByteArrayOutputStream();
-            requestInfo.hasCustomResponse = hasCustomResponse();
+            requestInfo.blockRequest = hasRequestBlock();
+            PluginResponse responseWrapper = new PluginResponse(httpServletResponse);
+            requestInfo.jsonpCallback = stripJSONPToOutstr(httpServletRequest);
 
-            if (!requestInfo.hasCustomResponse) {
+
+            if (!requestInfo.blockRequest) {
                 logger.info("Sending request to server");
 
                 history.setModified(requestInfo.modified);
 
                 executeRequest(httpMethodProxyRequest,
                         httpServletRequest,
-                        httpServletResponse,
+                        responseWrapper,
                         history,
                         outStream);
+
+                writeResponseOutput(responseWrapper, requestInfo.jsonpCallback, outStream.toString());
             }
-            if (requestInfo.selectedResponsePaths.size() > 0) {
-                requestInfo.outputString = outStream.toString();
-            }
-            logOriginalResponseHistory(httpServletResponse, history, outStream);
-            String jsonpCallback = stripJSONPToOutstr(httpServletRequest);
-            applyResponseOverrides(httpServletResponse, httpServletRequest, history);
-            writeResponseOutput(httpServletResponse, outStream, jsonpCallback);
+
+            logOriginalResponseHistory(responseWrapper, history);
+            applyResponseOverrides(responseWrapper, httpServletRequest, history);
             // store history
             history.setModified(requestInfo.modified);
-            logRequestHistory(httpMethodProxyRequest, httpServletResponse, history);
+            logRequestHistory(httpMethodProxyRequest, responseWrapper, history);
         } catch (Exception e) {
             e.printStackTrace();
             return;
@@ -885,7 +903,7 @@ public class Proxy extends HttpServlet {
             httpServletRequest.setAttribute("com.groupon.odo.removeHeaders", headersToRemove);
             intProxyResponseCode = httpClient.executeMethod(httpMethodProxyRequest);
         } catch (Exception e) {
-            requestInformation.get().outputString = "TIMEOUT";
+            writeResponseOutput(httpServletResponse, requestInformation.get().jsonpCallback, "TIMEOUT");
             logRequestHistory(httpMethodProxyRequest, httpServletResponse, history);
             throw e;
         }
@@ -982,14 +1000,14 @@ public class Proxy extends HttpServlet {
      * @throws URIException
      */
     private void logOriginalResponseHistory(
-            HttpServletResponse httpServletResponse, History history, OutputStream outStream) throws URIException {
+            HttpServletResponse httpServletResponse, History history) throws URIException {
         RequestInformation requestInfo = requestInformation.get();
         if (requestInfo.handle && requestInfo.client.getIsActive()) {
             logger.info("Storing original response history");
             history.setOriginalResponseHeaders(HttpUtilities.getHeaders(httpServletResponse));
             history.setOriginalResponseCode(Integer.toString(httpServletResponse.getStatus()));
             history.setOriginalResponseContentType(httpServletResponse.getContentType());
-            history.setOriginalResponseData(outStream.toString());
+            history.setOriginalResponseData(requestInfo.outputString);
             logger.info("Done storing");
         }
     }
@@ -1036,9 +1054,10 @@ public class Proxy extends HttpServlet {
      * @param httpServletRequest
      * @throws Exception
      */
-    private void applyResponseOverrides(HttpServletResponse httpServletResponse,
+    private void applyResponseOverrides(PluginResponse httpServletResponse,
                                         HttpServletRequest httpServletRequest, History history) throws Exception {
         RequestInformation requestInfo = requestInformation.get();
+
         for (EndpointOverride selectedPath : requestInfo.selectedResponsePaths) {
             // check to see if there is custom override data
             // something like
@@ -1058,15 +1077,17 @@ public class Proxy extends HttpServlet {
 
                 if (endpoint.getOverrideId() == Constants.PLUGIN_RESPONSE_OVERRIDE_CUSTOM) {
                     // return custom response
-                    requestInfo.outputString = endpoint.getArguments()[0].toString();
+                    String response = endpoint.getArguments()[0].toString();
                     httpServletResponse.setContentType(selectedPath.getContentType());
-                    requestInformation.get().usedCustomResponse = true;
-                    requestInformation.get().modified = true;
+                    requestInfo.usedCustomResponse = true;
+                    requestInfo.modified = true;
+                    writeResponseOutput(httpServletResponse, requestInfo.jsonpCallback, response);
                 } else if (endpoint.getOverrideId() == Constants.PLUGIN_RESPONSE_HEADER_OVERRIDE_ADD) {
-                    httpServletResponse = HttpUtilities.addHeader(httpServletResponse, endpoint.getArguments());
-                    requestInformation.get().modified = true;
+                    httpServletResponse = (PluginResponse)HttpUtilities.addHeader(httpServletResponse, endpoint.getArguments());
+                    requestInfo.modified = true;
                 } else if (endpoint.getMethodInformation() != null &&
-                        endpoint.getMethodInformation().getMethodType().equals(Constants.PLUGIN_TYPE_RESPONSE_OVERRIDE)) {
+                        (endpoint.getMethodInformation().getMethodType().equals(Constants.PLUGIN_TYPE_RESPONSE_OVERRIDE) ||
+                                endpoint.getMethodInformation().getMethodType().equals(Constants.PLUGIN_TYPE_RESPONSE_OVERRIDE_V2))) {
                     // run method
                     try {
                         com.groupon.odo.proxylib.models.Method methodInfo =
@@ -1074,25 +1095,32 @@ public class Proxy extends HttpServlet {
 
                         logger.info("method = {}", methodInfo);
                         logger.info("Enabled endpoint: {}", methodInfo.getMethodName());
+                        logger.info("Calling override for {}",
+                                httpServletRequest.getRequestURL() + "?" + httpServletRequest.getQueryString());
 
-                        logger.info("Calling override for {} with data: {}",
-                                httpServletRequest.getRequestURL() + "?" + httpServletRequest.getQueryString(),
-                                requestInfo.outputString);
-                        requestInfo.outputString = (String) PluginManager.getInstance().callFunction(
-                                methodInfo.getClassName(), methodInfo.getMethodName(),
-                                requestInfo.outputString, endpoint.getArguments());
 
-                        // check the return code
-                        logger.info("Http code should be {}", methodInfo.getHttpCode());
-                        if (methodInfo.getHttpCode() != httpServletResponse.getStatus()) {
-                            logger.info("Setting HTTP Code to {}", methodInfo.getHttpCode());
-                            httpServletResponse.setStatus(methodInfo.getHttpCode());
+                        // For v1 plugins - verify HTTP code is set correctly
+                        if(methodInfo.getOverrideVersion() == 1) {
+                            String responseOutput = (String)PluginManager.getInstance().callFunction(methodInfo.getClassName(), methodInfo.getMethodName(),
+                                    httpServletResponse.getContentString(), endpoint.getArguments());
+                            writeResponseOutput(httpServletResponse, requestInfo.jsonpCallback, responseOutput);
 
-                            // the server might have set a "Status" header.. so let's reset this too
-                            httpServletResponse.setHeader(Constants.HEADER_STATUS,
+                            if(methodInfo.getHttpCode() != httpServletResponse.getStatus()) {
+                                logger.info("Setting HTTP Code to {}", methodInfo.getHttpCode());
+                                httpServletResponse.setStatus(methodInfo.getHttpCode());
+                                // the server might have set a "Status" header.. so let's reset this too
+                                httpServletResponse.setHeader(Constants.HEADER_STATUS,
                                     Integer.toString(methodInfo.getHttpCode()));
+                            }
+                        } else if (methodInfo.getOverrideVersion() == 2 ) {
+                            PluginArguments pluginArgs = new PluginArguments(httpServletResponse, requestInfo.originalRequestInfo);
+
+                            PluginManager.getInstance().callFunction(
+                                    methodInfo.getClassName(), methodInfo.getMethodName(),
+                                    pluginArgs, endpoint.getArguments());
                         }
-                        requestInformation.get().modified = true;
+
+                        requestInfo.modified = true;
                         logger.info("Done calling override");
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -1100,16 +1128,18 @@ public class Proxy extends HttpServlet {
                 }
             }
         }
+
+        httpServletResponse.flushBuffer();
     }
 
     /**
      * @param httpServletResponse
-     * @param outStream
      * @param jsonpCallback
      * @throws IOException
      */
-    private void writeResponseOutput(HttpServletResponse httpServletResponse, OutputStream outStream,
-                                     String jsonpCallback) throws IOException {
+    private void writeResponseOutput(HttpServletResponse httpServletResponse,
+                                     String jsonpCallback,
+                                     String responseOutput) throws IOException {
         RequestInformation requestInfo = requestInformation.get();
 
         // check to see if this is chunked
@@ -1121,8 +1151,8 @@ public class Proxy extends HttpServlet {
         }
 
         // reattach JSONP if needed
-        if (requestInfo.outputString != null && jsonpCallback != null) {
-            requestInfo.outputString = jsonpCallback + "(" + requestInfo.outputString + ");";
+        if (responseOutput != null && jsonpCallback != null) {
+            responseOutput = jsonpCallback + "(" + responseOutput + ");";
         }
 
         // don't do this if we got a HTTP 304 since there is no data to send back
@@ -1130,32 +1160,20 @@ public class Proxy extends HttpServlet {
             logger.info("Chunked: {}, {}", chunked, httpServletResponse.getBufferSize());
             if (!chunked) {
                 // change the content length header to the new length
-                if (requestInfo.outputString != null) {
-                    httpServletResponse.setContentLength(requestInfo.outputString.getBytes().length);
-                } else {
-                    httpServletResponse.setContentLength(((ByteArrayOutputStream) outStream).toByteArray().length);
+                if (responseOutput != null) {
+                    httpServletResponse.setContentLength(responseOutput.getBytes().length);
                 }
             }
 
             OutputStream outputStreamClientResponse = httpServletResponse.getOutputStream();
+            httpServletResponse.resetBuffer();
 
-            if (requestInfo.outputString != null) {
-                outputStreamClientResponse.write(requestInfo.outputString.getBytes());
-            } else {
-                outputStreamClientResponse.write(((ByteArrayOutputStream) outStream).toByteArray());
+            if (responseOutput != null) {
+                outputStreamClientResponse.write(responseOutput.getBytes());
             }
-            httpServletResponse.flushBuffer();
 
+            requestInfo.outputString = responseOutput; // used for logging
             logger.info("Done writing");
-        }
-
-        // outstr might still be null.. let's try to set it from outStream
-        if (requestInfo.outputString == null) {
-            try {
-                requestInfo.outputString = outStream.toString();
-            } catch (Exception e) {
-                // can ignore any issues.. worst case outstr is still null
-            }
         }
     }
 
@@ -1230,10 +1248,12 @@ public class Proxy extends HttpServlet {
         public Boolean handle = false;
         public Profile profile = null;
         public Client client = null;
-        public Boolean hasCustomResponse = false;
+        public Boolean blockRequest = false;
         public Boolean usedCustomResponse = false;
         public String outputString = null;
         public ArrayList<EndpointOverride> selectedRequestPaths = new ArrayList<EndpointOverride>();
         public ArrayList<EndpointOverride> selectedResponsePaths = new ArrayList<EndpointOverride>();
+        public HttpRequestInfo originalRequestInfo = null;
+        public String jsonpCallback = null;
     }
 }

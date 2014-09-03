@@ -15,6 +15,7 @@
 */
 package com.groupon.odo.proxylib;
 
+import com.groupon.odo.plugin.PluginArguments;
 import com.groupon.odo.plugin.ResponseOverride;
 import com.groupon.odo.proxylib.models.Configuration;
 import com.groupon.odo.proxylib.models.Plugin;
@@ -246,7 +247,7 @@ public class PluginManager {
     }
 
     /**
-     * Calls the specified function with the specified arguments
+     * Calls the specified function with the specified arguments. This is used for v2 response overrides
      *
      * @param className
      * @param methodName
@@ -254,20 +255,46 @@ public class PluginManager {
      * @return
      * @throws Exception
      */
-    public Object callFunction(String className, String methodName, String data, Object... args) throws Exception {
+    public void callFunction(String className, String methodName, PluginArguments pluginArgs, Object... args) throws Exception {
         Class<?> cls = getClass(className);
-        Object retval = null;
-        com.groupon.odo.proxylib.models.Method m = getMethod(className, methodName);
 
-        // it is up to this function to do any necessary type conversion for arguments
         ArrayList<Object> newArgs = new ArrayList<Object>();
-        // add the first string arg to the new arg list
-        newArgs.add(data);
+        newArgs.add(pluginArgs);
+        com.groupon.odo.proxylib.models.Method m = preparePluginMethod(newArgs, className, methodName, args);
+
+        m.getMethod().invoke(cls, newArgs.toArray(new Object[0]));
+    }
+
+    /**
+    * Calls the specified function with the specified arguments. This is used for v1 response overrides
+    *
+    * @param className
+    * @param methodName
+    * @param args
+    * @return
+    * @throws Exception
+    */
+    public Object callFunction(String className, String methodName, String responseContent, Object... args) throws Exception {
+        Object retval;
+        Class<?> cls = getClass(className);
+
+        ArrayList<Object> newArgs = new ArrayList<Object>();
+        newArgs.add(responseContent);
+        com.groupon.odo.proxylib.models.Method m = preparePluginMethod(newArgs, className, methodName, args);
+
+        retval = m.getMethod().invoke(cls, newArgs.toArray(new Object[0]));
+        return retval;
+    }
+
+    private com.groupon.odo.proxylib.models.Method preparePluginMethod(List<Object> newArgs, String className,
+                                                                       String methodName, Object... args) throws Exception {
+
+        com.groupon.odo.proxylib.models.Method method = getMethod(className, methodName);
 
         // now convert the remaining args as necessary so the function is invoked with the correct types
-        if (m.getMethodArguments().length > 0) {
+        if (method.getMethodArguments().length > 0) {
             int x = 0;
-            for (Object type : m.getMethodArguments()) {
+            for (Object type : method.getMethodArguments()) {
                 if (((String) type).endsWith("Integer")) {
                     newArgs.add(Integer.parseInt((String) args[x]));
                 } else if (((String) type).endsWith("String")) {
@@ -279,8 +306,7 @@ public class PluginManager {
             }
         }
 
-        retval = m.getMethod().invoke(cls, newArgs.toArray(new Object[0]));
-        return retval;
+        return method;
     }
 
     /**
@@ -354,6 +380,14 @@ public class PluginManager {
                             newMethod.setHttpCode(roAnnotation.httpCode());
                             description = roAnnotation.description();
                             argNames = roAnnotation.parameters();
+                            newMethod.setOverrideVersion(1);
+                        }
+                        else if(annotation.annotationType().toString().endsWith(Constants.PLUGIN_RESPONSE_OVERRIDE_V2_CLASS)) {
+                            com.groupon.odo.plugin.v2.ResponseOverride roAnnotation = (com.groupon.odo.plugin.v2.ResponseOverride) all[0];
+                            description = roAnnotation.description();
+                            argNames = roAnnotation.parameters();
+                            newMethod.setBlockRequest(roAnnotation.blockRequest());
+                            newMethod.setOverrideVersion(2);
                         }
 
                         // identify arguments
@@ -450,7 +484,8 @@ public class PluginManager {
 
             // check annotations
             Boolean matchesAnnotation = false;
-            if (methodInfo.getMethodType().endsWith(Constants.PLUGIN_RESPONSE_OVERRIDE_CLASS)) {
+            if (methodInfo.getMethodType().endsWith(Constants.PLUGIN_RESPONSE_OVERRIDE_CLASS) ||
+                    methodInfo.getMethodType().endsWith(Constants.PLUGIN_RESPONSE_OVERRIDE_V2_CLASS)) {
                 matchesAnnotation = true;
             }
 
