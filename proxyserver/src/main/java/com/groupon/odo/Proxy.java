@@ -848,7 +848,7 @@ public class Proxy extends HttpServlet {
             OutputStream outStream = new ByteArrayOutputStream();
             requestInfo.blockRequest = hasRequestBlock();
             PluginResponse responseWrapper = new PluginResponse(httpServletResponse);
-            requestInfo.jsonpCallback = stripJSONPToOutstr(httpServletRequest);
+            requestInfo.jsonpCallback = stripJSONPToOutstr(httpServletRequest, responseWrapper);
 
 
             if (!requestInfo.blockRequest) {
@@ -888,7 +888,7 @@ public class Proxy extends HttpServlet {
      */
     private void executeRequest(HttpMethod httpMethodProxyRequest,
                                 HttpServletRequest httpServletRequest,
-                                HttpServletResponse httpServletResponse,
+                                PluginResponse httpServletResponse,
                                 History history,
                                 OutputStream outStream) throws Exception {
         int intProxyResponseCode = 999;
@@ -1000,14 +1000,14 @@ public class Proxy extends HttpServlet {
      * @throws URIException
      */
     private void logOriginalResponseHistory(
-            HttpServletResponse httpServletResponse, History history) throws URIException {
+            PluginResponse httpServletResponse, History history) throws URIException {
         RequestInformation requestInfo = requestInformation.get();
         if (requestInfo.handle && requestInfo.client.getIsActive()) {
             logger.info("Storing original response history");
             history.setOriginalResponseHeaders(HttpUtilities.getHeaders(httpServletResponse));
             history.setOriginalResponseCode(Integer.toString(httpServletResponse.getStatus()));
             history.setOriginalResponseContentType(httpServletResponse.getContentType());
-            history.setOriginalResponseData(requestInfo.outputString);
+            history.setOriginalResponseData(httpServletResponse.getContentString());
             logger.info("Done storing");
         }
     }
@@ -1019,7 +1019,7 @@ public class Proxy extends HttpServlet {
      * @param httpServletResponse
      * @param history
      */
-    private void logRequestHistory(HttpMethod httpMethodProxyRequest, HttpServletResponse httpServletResponse,
+    private void logRequestHistory(HttpMethod httpMethodProxyRequest, PluginResponse httpServletResponse,
                                    History history) {
         try {
             if (requestInformation.get().handle && requestInformation.get().client.getIsActive()) {
@@ -1038,7 +1038,7 @@ public class Proxy extends HttpServlet {
                 history.setResponseHeaders(HttpUtilities.getHeaders(httpServletResponse));
                 history.setResponseCode(Integer.toString(httpServletResponse.getStatus()));
                 history.setResponseContentType(httpServletResponse.getContentType());
-                history.setResponseData(requestInformation.get().outputString);
+                history.setResponseData(httpServletResponse.getContentString());
                 HistoryService.getInstance().addHistory(history);
                 logger.info("Done storing");
             }
@@ -1171,8 +1171,6 @@ public class Proxy extends HttpServlet {
             if (responseOutput != null) {
                 outputStreamClientResponse.write(responseOutput.getBytes());
             }
-
-            requestInfo.outputString = responseOutput; // used for logging
             logger.info("Done writing");
         }
     }
@@ -1218,7 +1216,8 @@ public class Proxy extends HttpServlet {
     }
 
 
-    private String stripJSONPToOutstr(HttpServletRequest httpServletRequest) {
+    private String stripJSONPToOutstr(HttpServletRequest httpServletRequest, PluginResponse response) throws IOException{
+        String responseOutput = response.getContentString();
         RequestInformation requestInfo = requestInformation.get();
         // set outstr if we are overriding anything
         // also strip JSONP from it
@@ -1228,10 +1227,10 @@ public class Proxy extends HttpServlet {
             for (String callbackName : Constants.JSONP_CALLBACK_NAMES) {
                 if (httpServletRequest.getParameter(callbackName) != null) {
                     jsonpCallback = httpServletRequest.getParameter(callbackName);
-                    if (requestInfo.outputString.startsWith(jsonpCallback)) {
-                        requestInfo.outputString = requestInfo.outputString.replaceFirst(jsonpCallback + "\\(", "");
-                        requestInfo.outputString = requestInfo.outputString.substring(0,
-                                requestInfo.outputString.length() - 2);
+                    if (responseOutput.startsWith(jsonpCallback)) {
+                        responseOutput = responseOutput.replaceFirst(jsonpCallback + "\\(", "");
+                        responseOutput = responseOutput.substring(0, responseOutput.length() - 2);
+                        writeResponseOutput(response, null, responseOutput);
                     }
                 }
             }
@@ -1250,7 +1249,6 @@ public class Proxy extends HttpServlet {
         public Client client = null;
         public Boolean blockRequest = false;
         public Boolean usedCustomResponse = false;
-        public String outputString = null;
         public ArrayList<EndpointOverride> selectedRequestPaths = new ArrayList<EndpointOverride>();
         public ArrayList<EndpointOverride> selectedResponsePaths = new ArrayList<EndpointOverride>();
         public HttpRequestInfo originalRequestInfo = null;
