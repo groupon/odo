@@ -5,7 +5,7 @@
     <artifactId>proxyui</artifactId>
     <name>proxyui</name>
     <packaging>war</packaging>
-    <version>1.0.0-beta.2</version>
+    <version>1.0.0-beta.3</version>
 
     <properties>
         <java-version>1.6</java-version>
@@ -20,19 +20,19 @@
     <parent>
         <groupId>com.groupon.odo</groupId>
         <artifactId>proxyaggregator</artifactId>
-        <version>1.0.0-beta.2</version>
+        <version>1.0.0-beta.3</version>
     </parent>
 
     <dependencies>
         <dependency>
             <groupId>com.groupon.odo</groupId>
             <artifactId>proxylib</artifactId>
-            <version>1.0.0-beta.2</version>
+            <version>1.0.0-beta.3</version>
         </dependency>
         <dependency>
             <groupId>com.groupon.odo</groupId>
             <artifactId>ProxyServer</artifactId>
-            <version>1.0.0-beta.2</version>
+            <version>1.0.0-beta.3</version>
         </dependency>
         <dependency>
             <groupId>org.json</groupId>
@@ -183,7 +183,7 @@
         <dependency>
             <groupId>com.groupon.odo</groupId>
             <artifactId>client</artifactId>
-            <version>1.0.0-beta.2</version>
+            <version>1.0.0-beta.3</version>
             <scope>test</scope>
         </dependency>
 

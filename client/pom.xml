@@ -3,11 +3,11 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.groupon.odo</groupId>
     <artifactId>client</artifactId>
-    <version>1.0.0-beta.2</version>
+    <version>1.0.0-beta.3</version>
     <parent>
         <artifactId>proxyaggregator</artifactId>
         <groupId>com.groupon.odo</groupId>
-        <version>1.0.0-beta.2</version>
+        <version>1.0.0-beta.3</version>
     </parent>
 
     <properties>

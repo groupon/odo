@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>browsermob-proxy-odo</artifactId>
     <name>browsermob-proxy-odo</name>
-    <version>1.0.0-beta.2</version>
+    <version>1.0.0-beta.3</version>
     <packaging>jar</packaging>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -13,7 +13,7 @@
     <parent>
         <groupId>com.groupon.odo</groupId>
         <artifactId>proxyaggregator</artifactId>
-        <version>1.0.0-beta.2</version>
+        <version>1.0.0-beta.3</version>
     </parent>
 
     <dependencies>
@@ -25,7 +25,7 @@
         <dependency>
             <groupId>com.groupon.odo</groupId>
             <artifactId>proxylib</artifactId>
-            <version>1.0.0-beta.2</version>
+            <version>1.0.0-beta.3</version>
         </dependency>
     </dependencies>
 
@@ -68,7 +68,7 @@
                             <addClasspath>false</addClasspath>
                         </manifest>
                         <manifestEntries>
-                            <Implementation-Version>1.0.0-beta.2</Implementation-Version>
+                            <Implementation-Version>1.0.0-beta.3</Implementation-Version>
                         </manifestEntries>
                     </archive>
                 </configuration>
