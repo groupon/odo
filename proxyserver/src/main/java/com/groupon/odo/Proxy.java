@@ -202,7 +202,6 @@ public class Proxy extends HttpServlet {
 
         History history = new History();
         logOriginalRequestHistory("POST", request, history);
-        requestInfo.originalRequestInfo = new HttpRequestInfo(request);
 
         try {
             PostMethod postMethodProxyRequest = new PostMethod(this.getProxyURL(
@@ -219,9 +218,10 @@ public class Proxy extends HttpServlet {
                 logger.info("POST:: Not Multipart");
                 HttpUtilities.handleStandardPost(postMethodProxyRequest, request, history);
             }
+
             // use body filter to filter paths
             this.cullPathsByBodyFilter(history);
-
+            requestInfo.originalRequestInfo = new HttpRequestInfo(request, history.getOriginalRequestPostData());
             // Execute the proxy request
             this.executeProxyRequest(postMethodProxyRequest, request, response,
                     history);
@@ -243,7 +243,6 @@ public class Proxy extends HttpServlet {
 
         History history = new History();
         logOriginalRequestHistory("PUT", request, history);
-        requestInfo.originalRequestInfo = new HttpRequestInfo(request);
 
         try {
             PutMethod putMethodProxyRequest = new PutMethod(this.getProxyURL(
@@ -262,6 +261,7 @@ public class Proxy extends HttpServlet {
 
             // use body filter to filter paths
             this.cullPathsByBodyFilter(history);
+            requestInfo.originalRequestInfo = new HttpRequestInfo(request, history.getOriginalRequestPostData());
 
             // Execute the proxy request
             this.executeProxyRequest(putMethodProxyRequest, request, response,

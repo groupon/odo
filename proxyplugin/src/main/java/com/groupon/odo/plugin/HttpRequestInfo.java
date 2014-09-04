@@ -41,7 +41,8 @@ public class HttpRequestInfo {
     private int remotePort;
     private String serverName;
     private boolean secure;
-    private Map<String, String> attributes;
+    private String postContent;
+    private Map<String, Object> attributes;
 
     public HttpRequestInfo(HttpServletRequest request) {
         this.authType = request.getAuthType();
@@ -57,7 +58,7 @@ public class HttpRequestInfo {
         this.contentLength = request.getContentLength();
         this.localName = request.getLocalName();
         this.localPort = request.getLocalPort();
-        this.parameterMap = request.getParameterMap();
+        populateParameters(request);
         this.protocol = request.getProtocol();
         this.remoteAddr = request.getRemoteAddr();
         this.remoteHost = request.getRemoteHost();
@@ -65,6 +66,12 @@ public class HttpRequestInfo {
         this.serverName = request.getServerName();
         this.secure = request.isSecure();
         populateAttributes(request);
+    }
+
+
+    public HttpRequestInfo(HttpServletRequest request, String postContent) {
+        this(request);
+        this.postContent = postContent;
     }
 
     public String getAuthType() {
@@ -87,7 +94,7 @@ public class HttpRequestInfo {
         return attributes;
     }
 
-    public String getAttribute(String name) {
+    public Object getAttribute(String name) {
         return attributes.containsKey(name) ? attributes.get(name) : null;
     }
 
@@ -170,12 +177,27 @@ public class HttpRequestInfo {
 
     private void populateAttributes(HttpServletRequest request) {
         Enumeration attributeNames = request.getAttributeNames();
-        this.attributes = new HashMap<String, String>();
+        this.attributes = new HashMap<String, Object>();
 
         while(attributeNames.hasMoreElements()) {
-            String headerName = (String)attributeNames.nextElement();
-            String value = request.getHeader(headerName);
-            this.headers.put(headerName, value);
+            String attrName = (String)attributeNames.nextElement();
+            Object value = request.getAttribute(attrName);
+            this.attributes.put(attrName, value);
         }
+    }
+
+    private void populateParameters(HttpServletRequest request) {
+        Enumeration paramNames = request.getParameterNames();
+        this.parameterMap = new HashMap<String, String>();
+
+        while(paramNames.hasMoreElements()) {
+            String paramName = (String)paramNames.nextElement();
+            Object value = request.getAttribute(paramName);
+            this.parameterMap.put(paramName, value);
+        }
+    }
+
+    public String getPostContent() {
+        return postContent;
     }
 }
