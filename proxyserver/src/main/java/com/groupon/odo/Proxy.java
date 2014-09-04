@@ -905,6 +905,7 @@ public class Proxy extends HttpServlet {
         } catch (Exception e) {
             writeResponseOutput(httpServletResponse, requestInformation.get().jsonpCallback, "TIMEOUT");
             logRequestHistory(httpMethodProxyRequest, httpServletResponse, history);
+            httpServletResponse.flushBuffer();
             throw e;
         }
         logger.info("Response code: {}, {}", intProxyResponseCode,
