@@ -573,7 +573,7 @@ public class Proxy extends HttpServlet {
                 if (server.getDestUrl() != null && server.getDestUrl().compareTo("") != 0) {
                     return server.getDestUrl();
                 } else {
-                    logger.warn("Tried to apply redirect, but no destination server is specified for: {}",
+                    logger.warn("Using source URL as destination URL since no destination was specified for: {}",
                             server.getSrcUrl());
                 }
 

@@ -615,8 +615,9 @@ public class ServerRedirectService {
         try {
             sqlConnection = sqlService.getConnection();
             queryStatement = sqlConnection.prepareStatement(
-                    "SELECT * FROM " + Constants.DB_TABLE_SERVERS +
-                            " WHERE " + Constants.SERVER_REDIRECT_SRC_URL + " = ?"
+                    "SELECT " + Constants.GENERIC_PROFILE_ID + " FROM " + Constants.DB_TABLE_SERVERS +
+                            " WHERE " + Constants.SERVER_REDIRECT_SRC_URL + " = ? GROUP BY " +
+                            Constants.GENERIC_PROFILE_ID
             );
             queryStatement.setString(1, serverName);
             results = queryStatement.executeQuery();
@@ -625,6 +626,7 @@ public class ServerRedirectService {
                 profileId = results.getInt(Constants.GENERIC_PROFILE_ID);
 
                 Profile profile = ProfileService.getInstance().findProfile(profileId);
+                
                 returnProfiles.add(profile);
             }
         } catch (SQLException e) {
