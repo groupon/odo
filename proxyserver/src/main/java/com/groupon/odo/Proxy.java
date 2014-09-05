@@ -18,16 +18,22 @@ package com.groupon.odo;
 import com.groupon.odo.plugin.*;
 import com.groupon.odo.proxylib.*;
 import com.groupon.odo.proxylib.models.*;
+import com.groupon.odo.plugin.RequestOverride;
+import com.groupon.odo.plugin.ResponseOverride;
+
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpMethod;
+import org.apache.commons.httpclient.HttpMethodRetryHandler;
+import org.apache.commons.httpclient.NoHttpResponseException;
 import org.apache.commons.httpclient.URIException;
 import org.apache.commons.httpclient.methods.DeleteMethod;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.PutMethod;
+import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,6 +42,7 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
 import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -143,6 +150,7 @@ public class Proxy extends HttpServlet {
         RequestInformation requestInfo = requestInformation.get();
         Boolean alreadyServed = false;
         logger.info("GET Path: {}", request.getPathInfo());
+
         // some special commands
         try {
             if (request.getPathInfo().equals(RELOAD_PATH)) {
@@ -537,8 +545,8 @@ public class Proxy extends HttpServlet {
         hostName = getDestinationHostName(hostName);
 
         logger.info("new host name = {}", hostName);
-        if (origHostName.compareTo(hostName) == 0)
-            throw new Exception("Original and new hostname are the same.  this is a bad loop");
+        //if (origHostName.compareTo(hostName) == 0)
+        //    throw new Exception("Original and new hostname are the same.  this is a bad loop");
 
         stringProxyURL = stringProxyURL + hostName;
 
@@ -843,9 +851,18 @@ public class Proxy extends HttpServlet {
             // Otherwise the hostname from the URL is used
             processVirtualHostName(httpMethodProxyRequest, httpServletRequest);
             cullDisabledPaths();
+            
+            // check for existence of ODO_PROXY_HEADER
+            // finding it indicates a bad loop back through the proxy
+            if (httpServletRequest.getHeader(Constants.ODO_PROXY_HEADER) != null) {
+            	logger.error("Request has looped back into the proxy.  This will not be executed: {}", httpServletRequest.getRequestURL());
+            	return;
+            	// TODO: log an error
+            }
+            
+            // set ODO_PROXY_HEADER
+            httpMethodProxyRequest.addRequestHeader(Constants.ODO_PROXY_HEADER, "proxied");
 
-            // define output stream
-            OutputStream outStream = new ByteArrayOutputStream();
             requestInfo.blockRequest = hasRequestBlock();
             PluginResponse responseWrapper = new PluginResponse(httpServletResponse);
             requestInfo.jsonpCallback = stripJSONPToOutstr(httpServletRequest, responseWrapper);
@@ -859,10 +876,7 @@ public class Proxy extends HttpServlet {
                 executeRequest(httpMethodProxyRequest,
                         httpServletRequest,
                         responseWrapper,
-                        history,
-                        outStream);
-
-                writeResponseOutput(responseWrapper, requestInfo.jsonpCallback, outStream.toString());
+                        history);
             }
 
             logOriginalResponseHistory(responseWrapper, history);
@@ -870,6 +884,8 @@ public class Proxy extends HttpServlet {
             // store history
             history.setModified(requestInfo.modified);
             logRequestHistory(httpMethodProxyRequest, responseWrapper, history);
+            
+            writeResponseOutput(responseWrapper, requestInfo.jsonpCallback);
         } catch (Exception e) {
             e.printStackTrace();
             return;
@@ -889,8 +905,7 @@ public class Proxy extends HttpServlet {
     private void executeRequest(HttpMethod httpMethodProxyRequest,
                                 HttpServletRequest httpServletRequest,
                                 PluginResponse httpServletResponse,
-                                History history,
-                                OutputStream outStream) throws Exception {
+                                History history) throws Exception {
         int intProxyResponseCode = 999;
         try {
             // Create a default HttpClient
@@ -901,12 +916,26 @@ public class Proxy extends HttpServlet {
             httpClient.getParams().setSoTimeout(60000);
 
             httpServletRequest.setAttribute("com.groupon.odo.removeHeaders", headersToRemove);
+            
+            // exception handling for httpclient
+            HttpMethodRetryHandler noretryhandler = new HttpMethodRetryHandler() {
+                public boolean retryMethod(
+                		final HttpMethod method, 
+                        final IOException exception, 
+                        int executionCount) {
+                    return false;
+                }
+            };
+            
+            httpMethodProxyRequest.getParams().setParameter(HttpMethodParams.RETRY_HANDLER, noretryhandler);
+            
             intProxyResponseCode = httpClient.executeMethod(httpMethodProxyRequest);
         } catch (Exception e) {
-            writeResponseOutput(httpServletResponse, requestInformation.get().jsonpCallback, "TIMEOUT");
-            logRequestHistory(httpMethodProxyRequest, httpServletResponse, history);
+            //writeResponseOutput(httpServletResponse, requestInformation.get().jsonpCallback, "TIMEOUT");
+            //logRequestHistory(httpMethodProxyRequest, httpServletResponse, history);
             httpServletResponse.flushBuffer();
-            throw e;
+            // TODO: return a http 503
+            return;
         }
         logger.info("Response code: {}, {}", intProxyResponseCode,
                 HttpUtilities.getURL(httpMethodProxyRequest.getURI().toString()));
@@ -932,9 +961,10 @@ public class Proxy extends HttpServlet {
                 BufferedInputStream bufferedInputStream = new BufferedInputStream(inputStreamProxyResponse);
 
                 int intNextByte;
-                // Collect all of the server data
+                // Collect all of the server data and write it
+                httpServletResponse.resetBuffer();
                 while ((intNextByte = bufferedInputStream.read()) != -1) {
-                    outStream.write(intNextByte);
+                    httpServletResponse.getOutputStream().write(intNextByte);
                 }
             }
         }
@@ -1082,7 +1112,7 @@ public class Proxy extends HttpServlet {
                     httpServletResponse.setContentType(selectedPath.getContentType());
                     requestInfo.usedCustomResponse = true;
                     requestInfo.modified = true;
-                    writeResponseOutput(httpServletResponse, requestInfo.jsonpCallback, response);
+                    PluginHelper.writeResponseContent(httpServletResponse, response);
                 } else if (endpoint.getOverrideId() == Constants.PLUGIN_RESPONSE_HEADER_OVERRIDE_ADD) {
                     httpServletResponse = (PluginResponse)HttpUtilities.addHeader(httpServletResponse, endpoint.getArguments());
                     requestInfo.modified = true;
@@ -1102,9 +1132,10 @@ public class Proxy extends HttpServlet {
 
                         // For v1 plugins - verify HTTP code is set correctly
                         if(methodInfo.getOverrideVersion() == 1) {
+                        	logger.info("Running {}", methodInfo.getMethodName());
                             String responseOutput = (String)PluginManager.getInstance().callFunction(methodInfo.getClassName(), methodInfo.getMethodName(),
                                     httpServletResponse.getContentString(), endpoint.getArguments());
-                            writeResponseOutput(httpServletResponse, requestInfo.jsonpCallback, responseOutput);
+                            PluginHelper.writeResponseContent(httpServletResponse, responseOutput);
 
                             if(methodInfo.getHttpCode() != httpServletResponse.getStatus()) {
                                 logger.info("Setting HTTP Code to {}", methodInfo.getHttpCode());
@@ -1128,19 +1159,20 @@ public class Proxy extends HttpServlet {
                     }
                 }
             }
+            
+            
         }
 
         httpServletResponse.flushBuffer();
     }
-
+    
     /**
      * @param httpServletResponse
      * @param jsonpCallback
      * @throws IOException
      */
-    private void writeResponseOutput(HttpServletResponse httpServletResponse,
-                                     String jsonpCallback,
-                                     String responseOutput) throws IOException {
+    private void writeResponseOutput(PluginResponse httpServletResponse,
+                                     String jsonpCallback) throws IOException {
         RequestInformation requestInfo = requestInformation.get();
 
         // check to see if this is chunked
@@ -1150,10 +1182,11 @@ public class Proxy extends HttpServlet {
             httpServletResponse.setHeader(HttpUtilities.STRING_CONNECTION, HttpUtilities.STRING_CHUNKED);
             chunked = true;
         }
-
+        
         // reattach JSONP if needed
-        if (responseOutput != null && jsonpCallback != null) {
-            responseOutput = jsonpCallback + "(" + responseOutput + ");";
+        if (httpServletResponse.getOutputStream() != null && jsonpCallback != null) {
+        	String outStr = jsonpCallback + "(" + httpServletResponse.getOutputStream().toString()  + ");";
+        	PluginHelper.writeResponseContent(httpServletResponse, outStr);
         }
 
         // don't do this if we got a HTTP 304 since there is no data to send back
@@ -1161,17 +1194,16 @@ public class Proxy extends HttpServlet {
             logger.info("Chunked: {}, {}", chunked, httpServletResponse.getBufferSize());
             if (!chunked) {
                 // change the content length header to the new length
-                if (responseOutput != null) {
-                    httpServletResponse.setContentLength(responseOutput.getBytes().length);
+                if (httpServletResponse.getOutputStream() != null) {
+                	logger.info("Content length: {}", httpServletResponse.getByteOutputStream().toByteArray().length);
+                    httpServletResponse.setContentLength(httpServletResponse.getByteOutputStream().toByteArray().length);
                 }
             }
 
             OutputStream outputStreamClientResponse = httpServletResponse.getOutputStream();
-            httpServletResponse.resetBuffer();
 
-            if (responseOutput != null) {
-                outputStreamClientResponse.write(responseOutput.getBytes());
-            }
+            outputStreamClientResponse.write(httpServletResponse.getByteOutputStream().toByteArray());
+            
             logger.info("Done writing");
         }
     }
@@ -1231,7 +1263,6 @@ public class Proxy extends HttpServlet {
                     if (responseOutput.startsWith(jsonpCallback)) {
                         responseOutput = responseOutput.replaceFirst(jsonpCallback + "\\(", "");
                         responseOutput = responseOutput.substring(0, responseOutput.length() - 2);
-                        writeResponseOutput(response, null, responseOutput);
                     }
                 }
             }

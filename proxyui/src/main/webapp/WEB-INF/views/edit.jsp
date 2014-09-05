@@ -373,6 +373,23 @@
             function downloadCert(serverHost) {
                 window.location = '<c:url value="/cert/"/>' + serverHost;
             }
+            
+            function destinationHostFormatter (cellvalue, options, rowObject)
+            {
+            	if (cellvalue === "") {
+            		return "<span style=\"display: none\">hidden</span><span class=\"ui-icon ui-icon-info\" style=\"float: left; margin-right: .3em;\" title=\"Click here to enter a destination address if it is different from the source\"></span>Forwarding to source";
+            	}
+            	return cellvalue;
+            }
+            
+            function destinationHostUnFormatter (cellvalue, options, rowObject)
+            {
+            	// "hidden" is hidden text in the input box
+            	if (cellvalue.indexOf("hidden") === 0) {
+            		return "";
+            	}
+            	return cellvalue;
+            }
 
             $(document).ready(function () {
                 'use strict';
@@ -419,7 +436,9 @@
                         name : 'destUrl',
                         index : 'destUrl',
                         width : 160,
-                        editable : true
+                        editable : true,
+                        formatter : destinationHostFormatter,
+                        unformat : destinationHostUnFormatter
                     }, {
                         name : 'hostHeader',
                         index : 'hostHeader',
