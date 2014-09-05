@@ -857,7 +857,6 @@ public class Proxy extends HttpServlet {
             if (httpServletRequest.getHeader(Constants.ODO_PROXY_HEADER) != null) {
             	logger.error("Request has looped back into the proxy.  This will not be executed: {}", httpServletRequest.getRequestURL());
             	return;
-            	// TODO: log an error
             }
             
             // set ODO_PROXY_HEADER
@@ -931,10 +930,10 @@ public class Proxy extends HttpServlet {
             
             intProxyResponseCode = httpClient.executeMethod(httpMethodProxyRequest);
         } catch (Exception e) {
-            //writeResponseOutput(httpServletResponse, requestInformation.get().jsonpCallback, "TIMEOUT");
-            //logRequestHistory(httpMethodProxyRequest, httpServletResponse, history);
+        	// Return a gateway timeout
+        	httpServletResponse.setStatus(504);
+            httpServletResponse.setHeader(Constants.HEADER_STATUS, "504");
             httpServletResponse.flushBuffer();
-            // TODO: return a http 503
             return;
         }
         logger.info("Response code: {}, {}", intProxyResponseCode,
