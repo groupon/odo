@@ -137,7 +137,7 @@ public class SQLService {
         try {
             if (_connection != null) {
                 // test it
-                if (_connection.isValid(1)) {
+                if (! _connection.isValid(1)) {
                     _connection = null;
 
                     // try to start the server
