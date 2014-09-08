@@ -1134,8 +1134,6 @@ public class Proxy extends HttpServlet {
 
             outputStreamClientResponse.write(httpServletResponse.getByteOutputStream().toByteArray());
             
-            httpServletResponse.flushBuffer();
-            
             logger.info("Done writing");
         }
     }
