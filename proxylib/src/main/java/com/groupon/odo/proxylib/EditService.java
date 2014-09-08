@@ -207,7 +207,7 @@ public class EditService {
                     }
                 }
 
-                if (add)
+                if (add && ! methods.contains(method))
                     methods.add(method);
             }
         } catch (Exception e) {
