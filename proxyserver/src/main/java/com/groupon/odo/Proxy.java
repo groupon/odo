@@ -521,10 +521,10 @@ public class Proxy extends HttpServlet {
             logger.info("Trying {}", tryProfile.getName());
             Client tryClient = ClientService.getInstance().findClient(history.getClientUUID(), tryProfile.getId());
 
-            List<EndpointOverride> trySelectedRequestPaths = getSelectedPaths(Constants.OVERRIDE_TYPE_REQUEST, tryClient,
-                    tryProfile, httpServletRequest.getRequestURL() + queryString, requestType);
-            List<EndpointOverride> trySelectedResponsePaths = getSelectedPaths(Constants.OVERRIDE_TYPE_RESPONSE, tryClient,
-                    tryProfile, httpServletRequest.getRequestURL() + queryString, requestType);
+            List<EndpointOverride> trySelectedRequestPaths = PathOverrideService.getInstance().getSelectedPaths(Constants.OVERRIDE_TYPE_REQUEST, tryClient,
+                    tryProfile, httpServletRequest.getRequestURL() + queryString, requestType, false);
+            List<EndpointOverride> trySelectedResponsePaths = PathOverrideService.getInstance().getSelectedPaths(Constants.OVERRIDE_TYPE_RESPONSE, tryClient,
+                    tryProfile, httpServletRequest.getRequestURL() + queryString, requestType, false);
             logger.info("Sizes {} {}", trySelectedRequestPaths.size(), trySelectedResponsePaths.size());
             if ((trySelectedRequestPaths.size() > 0 || trySelectedResponsePaths.size() > 0) ||
                     tryClient.getIsActive() || requestInfo.profile == null) {
@@ -657,76 +657,6 @@ public class Proxy extends HttpServlet {
             }
         }
         return returnString;
-    }
-
-    /**
-     * Obtain matching paths for a request
-     *
-     * @param overrideType
-     * @param client
-     * @param profile
-     * @param uri
-     * @param requestType
-     * @return
-     * @throws Exception
-     */
-    private List<EndpointOverride> getSelectedPaths(int overrideType, Client client, Profile profile, String uri,
-                                                         Integer requestType) throws Exception {
-        List<EndpointOverride> selectPaths = new ArrayList<EndpointOverride>();
-
-        // get the paths for the current active client profile
-        // this returns paths in priority order
-        List<EndpointOverride> paths = new ArrayList<EndpointOverride>();
-
-        if (client.getIsActive()) {
-            paths = PathOverrideService.getInstance().getPaths(
-                    profile.getId(),
-                    client.getUUID(), null);
-        }
-
-        boolean foundRealPath = false;
-        logger.info("Checking uri: {}", uri);
-
-        // it should now be ordered by priority, i updated tableOverrides to
-        // return the paths in priority order
-        for (EndpointOverride path : paths) {
-            // first see if the request types match..
-            // and if the path request type is not ALL
-            // if they do not then skip this path
-            if (path.getRequestType() != requestType && path.getRequestType() != Constants.REQUEST_TYPE_ALL)
-                continue;
-
-            // first see if we get a match
-            Pattern pattern = Pattern.compile(path.getPath());
-            Matcher matcher = pattern.matcher(uri);
-
-            // we won't select the path if there aren't any enabled endpoints in it
-            // this works since the paths are returned in priority order
-            if (matcher.find()) {
-                // now see if this path has anything enabled in it
-                // Only go into the if:
-                // 1. There are enabled items in this path
-                // 2. Caller was looking for ResponseOverride and Response is enabled OR looking for RequestOverride
-                // and request is enabled
-                if (path.getEnabledEndpoints().size() > 0 &&
-                        ((overrideType == Constants.OVERRIDE_TYPE_RESPONSE && path.getResponseEnabled()) ||
-                                (overrideType == Constants.OVERRIDE_TYPE_REQUEST && path.getRequestEnabled()))) {
-                    // if we haven't already seen a non global path
-                    // or if this is a global path
-                    // then add it to the list
-                    if (!foundRealPath || path.getGlobal())
-                        selectPaths.add(path);
-                }
-
-                // we set this no matter what if a path matched and it was not the global path
-                // this stops us from adding further non global matches to the list
-                if (!path.getGlobal()) {
-                    foundRealPath = true;
-                }
-            }
-        }
-
-        return selectPaths;
     }
 
     /**

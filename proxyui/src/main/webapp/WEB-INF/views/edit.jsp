@@ -11,7 +11,7 @@
         <link rel="stylesheet" type="text/css" media="screen"
              href="<c:url value="/resources/css/odo.css"/>" />
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
 
         <style type="text/css">
             .detailsLeft
@@ -58,6 +58,10 @@
                 width: 60%;
                 display:none;
             }
+            
+            .paddedtable td {
+    			padding: 10px
+			}
         </style>
 
         <script type="text/javascript">
@@ -85,6 +89,20 @@
 
             function navigatePathPriority() {
                 window.location = '<c:url value = '/pathorder/${profile_id}'/>';
+            }
+            
+            function navigatePathTester() {
+            	$("#pathTesterDialog").dialog({
+                    title: "Path Tester",
+                    width: 650,
+                    modal: true,
+                    position:['top',20],
+                    buttons: {
+                      "Close": function() {
+                          $("#pathTesterDialog").dialog("close");
+                      }
+                    }
+                });
             }
 
             function navigateRequestHistory() {
@@ -702,7 +720,7 @@
                 $("#tabs").tabs();
                 $("#tabs").css("overflow", "auto");
                 $("#sel1").select2();
-
+                
                 var currentHTML = $("#gview_serverlist > .ui-jqgrid-titlebar > span").html();
                 var dropDown = "&nbsp;&nbsp;&nbsp;<input id='serverGroupSelection' style='width:360px%'></input>&nbsp;&nbsp;<button id='editServerGroups' type='button' class='btn btn-xs' onClick='toggleServerGroupEdit()'><span class='glyphicon glyphicon-cog'></span></button>";
                 $("#gview_serverlist > .ui-jqgrid-titlebar > span").html(currentHTML + dropDown);
@@ -1403,6 +1421,41 @@
                 }
             }
 
+            function pathTesterSubmit() {
+            	var url = $('#pathTesterURL').val();
+            	var encoded = encodeURIComponent(url);
+            	
+            	$.ajax({
+                    type:"GET",
+                    url: '<c:url value="/api/path/test"/>',
+                    data: 'profileIdentifier=${profile_id}&url=' + encoded,
+                    success: function(data) {
+                        // build up grid
+                        // $("#friendlyNameError").html(json.error.message);
+                        var grid = "<table id=\"pathTesterTable\" class=\"paddedtable\"><tr><td class=\"ui-widget-header\">#</td>";
+                        grid = grid + "<td class=\"ui-widget-header\">Path Name</td>";
+                        grid = grid + "<td class=\"ui-widget-header\">Path</td>";
+                        grid = grid + "<td class=\"ui-widget-header\">Global</td></tr>";
+                        data = $.parseJSON(data);
+                        var x = 1;
+                        jQuery.each(data.paths, function(index, value) {
+                        	grid = grid + "<tr>";
+                            grid = grid + "<td class=\"ui-widget-content\">" + x + "</td>";
+                            grid = grid + "<td class=\"ui-widget-content\">" + value.pathName + "</td>"
+                            grid = grid + "<td class=\"ui-widget-content\">" + value.path + "</td>"
+                            grid = grid + "<td class=\"ui-widget-content\">" + value.global + "</td>"
+                            grid = grid + "</tr>"
+                        	x = x + 1;
+                        });
+                        
+                        grid = grid + "</table>"
+                        
+                        $("#pathTesterResults").html(grid);
+                    },
+                    error: function(xhr) {
+                    }
+                });
+            }
 
         </script>
     </head>
@@ -1417,6 +1470,13 @@
         <div id="switchClientDialog" style="display:none;">
             Client UUID/Name: <input id="switchClientName" value="${clientFriendlyName}"/>
         </div>
+        
+        <!-- Hidden div for path tester -->
+        <div id="pathTesterDialog" style="display:none;">
+            URL to Test: <input id="pathTesterURL" size=45/>
+            <button class="btn btn-primary" onclick="pathTesterSubmit()">Test</button>
+            <div id="pathTesterResults"></div>
+        </div>
 
         <nav class="navbar navbar-default" role="navigation">
             <div class="container-fluid">
@@ -1425,6 +1485,7 @@
                         <li><a href="#" onClick="navigateProfiles()">Profiles</a> </li>
                         <li><a href="#" onClick="navigateRequestHistory()">Request History</a></li>
                         <li><a href="#" onClick="navigatePathPriority()">Path Priority</a></li>
+                        <li><a href="#" onClick="navigatePathTester()">Path Tester</a></li>
                         <li><a href="#" onClick="navigateEditGroups()">Edit Groups</a></li>
                     </ul>
                     <div id="status" class="form-group navbar-form navbar-left" ></div>

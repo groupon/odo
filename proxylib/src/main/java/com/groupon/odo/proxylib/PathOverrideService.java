@@ -18,6 +18,8 @@ package com.groupon.odo.proxylib;
 import com.groupon.odo.proxylib.models.Client;
 import com.groupon.odo.proxylib.models.EndpointOverride;
 import com.groupon.odo.proxylib.models.Group;
+import com.groupon.odo.proxylib.models.Profile;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,6 +28,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * This class has methods to help with adding/updating/deleting paths, overrides and groups
@@ -1452,5 +1456,79 @@ public class PathOverrideService {
         this.setRequestEnabled(pathId, false, clientUUID);
         OverrideService.getInstance().disableAllOverrides(pathId, clientUUID, Constants.OVERRIDE_TYPE_REQUEST);
         EditService.getInstance().updateRepeatNumber(Constants.OVERRIDE_TYPE_REQUEST, pathId, clientUUID);
+    }
+    
+    /**
+     * Obtain matching paths for a request
+     *
+     * @param overrideType
+     * @param client
+     * @param profile
+     * @param uri
+     * @param requestType
+     * @param pathTest - If true this will also match disabled paths
+     * @return
+     * @throws Exception
+     */
+    public List<EndpointOverride> getSelectedPaths(int overrideType, Client client, Profile profile, String uri,
+                                                         Integer requestType, boolean pathTest) throws Exception {
+        List<EndpointOverride> selectPaths = new ArrayList<EndpointOverride>();
+
+        // get the paths for the current active client profile
+        // this returns paths in priority order
+        List<EndpointOverride> paths = new ArrayList<EndpointOverride>();
+
+        if (client.getIsActive()) {
+            paths = getPaths(
+                    profile.getId(),
+                    client.getUUID(), null);
+        }
+
+        boolean foundRealPath = false;
+        logger.info("Checking uri: {}", uri);
+
+        // it should now be ordered by priority, i updated tableOverrides to
+        // return the paths in priority order
+        for (EndpointOverride path : paths) {
+            // first see if the request types match..
+            // and if the path request type is not ALL
+            // if they do not then skip this path
+        	// If requestType is -1 we evaluate all(probably called by the path tester)
+            if (requestType != -1 && path.getRequestType() != requestType && path.getRequestType() != Constants.REQUEST_TYPE_ALL)
+                continue;
+
+            // first see if we get a match
+            Pattern pattern = Pattern.compile(path.getPath());
+            Matcher matcher = pattern.matcher(uri);
+
+            // we won't select the path if there aren't any enabled endpoints in it
+            // this works since the paths are returned in priority order
+            if (matcher.find()) {
+                // now see if this path has anything enabled in it
+                // Only go into the if:
+                // 1. There are enabled items in this path
+                // 2. Caller was looking for ResponseOverride and Response is enabled OR looking for RequestOverride
+            	// 3. If pathTest is true then the rest of the conditions are not evaluated.  The path tester ignores enabled states so everything is returned.
+                // and request is enabled
+                if (pathTest || 
+                		(path.getEnabledEndpoints().size() > 0 &&
+                        ((overrideType == Constants.OVERRIDE_TYPE_RESPONSE && path.getResponseEnabled()) ||
+                                (overrideType == Constants.OVERRIDE_TYPE_REQUEST && path.getRequestEnabled())))) {
+                    // if we haven't already seen a non global path
+                    // or if this is a global path
+                    // then add it to the list
+                    if (!foundRealPath || path.getGlobal())
+                        selectPaths.add(path);
+                }
+
+                // we set this no matter what if a path matched and it was not the global path
+                // this stops us from adding further non global matches to the list
+                if (!path.getGlobal()) {
+                    foundRealPath = true;
+                }
+            }
+        }
+
+        return selectPaths;
     }
 }

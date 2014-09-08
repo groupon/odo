@@ -84,6 +84,11 @@ public class PathController {
                              @RequestParam(value = "global", defaultValue = "false") Boolean global) throws Exception {
         int profileId = ControllerUtils.convertProfileIdentifier(profileIdentifier);
 
+        // TODO: Update UI to display the appropriate error message for this
+        if (pathName.equals("test")) {
+        	throw new Exception("Cannot add path.  \"test\" is a reserved path name.");
+        }
+        
         int pathId = pathOverrideService.addPathnameToProfile(profileId, pathName, path);
         if (groups != null) {
             //then adds all the groups
@@ -101,6 +106,28 @@ public class PathController {
 
         return pathOverrideService.getPath(pathId);
     }
+    
+    @RequestMapping(value = "/api/path/test", method = RequestMethod.GET)
+    public @ResponseBody String testPath(@RequestParam String url, @RequestParam String profileIdentifier) throws Exception {
+    	int profileId = ControllerUtils.convertProfileIdentifier(profileIdentifier);
+    	
+    	List<EndpointOverride> trySelectedRequestPaths = PathOverrideService.getInstance().getSelectedPaths(Constants.OVERRIDE_TYPE_REQUEST, 
+    			ClientService.getInstance().findClient("-1", profileId),
+                ProfileService.getInstance().findProfile(profileId), url, -1, true);
+    	
+    	HashMap<String, Object> jqReturn = Utils.getJQGridJSON(trySelectedRequestPaths, "paths");
+        
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.addMixInAnnotations(Object.class, ViewFilters.GetPathFilter.class);
+        String[] ignorableFieldNames = { "possibleEndpoints", "enabledEndpoints" }; 
+        FilterProvider filters = new SimpleFilterProvider().addFilter("Filter properties from the PathController GET", 
+        		SimpleBeanPropertyFilter.serializeAllExcept(ignorableFieldNames));
+        		
+        ObjectWriter writer = objectMapper.writer(filters);
+
+        return writer.writeValueAsString(jqReturn);
+    }
+    
 
     /**
      * Get information for a specific path name/profileId or pathId
@@ -233,6 +260,10 @@ public class PathController {
 
         // update the name of the path
         if (pathName != null) {
+        	// TODO: Update UI to display the appropriate error message for this
+            if (pathName.equals("test")) {
+            	throw new Exception("Cannot update path.  \"test\" is a reserved path name.");
+            }
             PathOverrideService.getInstance().setName(pathId, pathName);
         }
 
