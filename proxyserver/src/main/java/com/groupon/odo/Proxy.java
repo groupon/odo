@@ -1119,6 +1119,7 @@ public class Proxy extends HttpServlet {
         }
 
         // don't do this if we got a HTTP 304 since there is no data to send back
+        // TODO: Fix things so chunked encoding can pass through blindly
         if (httpServletResponse.getStatus() != HttpServletResponse.SC_NOT_MODIFIED) {
             logger.info("Chunked: {}, {}", chunked, httpServletResponse.getBufferSize());
             if (!chunked) {
@@ -1132,6 +1133,8 @@ public class Proxy extends HttpServlet {
             OutputStream outputStreamClientResponse = httpServletResponse.getOutputStream();
 
             outputStreamClientResponse.write(httpServletResponse.getByteOutputStream().toByteArray());
+            
+            httpServletResponse.flushBuffer();
             
             logger.info("Done writing");
         }
