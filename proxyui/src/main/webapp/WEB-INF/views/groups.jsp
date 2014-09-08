@@ -9,7 +9,7 @@
 
         <script type="text/javascript">
 
-        var selectedGroupId;
+        var selectedGroupId = "";
 
             // common function for grid reload
             function reloadGrid(gridId) {
@@ -52,47 +52,18 @@
             	});
             }
 
-            function applyGroupOverrides() {
-                var ids = jQuery("#overrideList").jqGrid('getGridParam', 'selarrrow');
-
-                // add new methods
-                var adds = [];
-                $.each(ids, function(index, value) {
-                    if(enabledMethods[value] == null) {
-                        adds.push(value);
-                    }
-                });
-
-                if(adds.length > 0) {
-                    $.ajax({
-                        type:"POST",
-                        url:"<c:url value='/api/group/'/>" + selectedGroupId,
-                        data: ({'addOverrides[]': adds})
-                    });
-                }
-
-                //remove deleted methods
-                var removes = [];
-                $.each(enabledMethods, function(index, value) {
-                    if(ids.indexOf(index) == -1) {
-                        removeOverride(selectedGroupId, value);
-                    }
-                });
-            }
-
-
             function navigateProfiles() {
                 window.location = '<c:url value = '/profiles' />';
             }
 
             var enabledMethods = {};
-
+			var selectingRows = false;
             function selectRows(groupId) {
                 $.ajax({
                     type:"GET",
                     url: '<c:url value="/api/group/"/>' + groupId,
                     success: function(data){
-
+						selectingRows = true;
                         enabledMethods = {};
                         $.each(data.methods, function(index, value) {
                                 enabledMethods[value.idString] = value.id;
@@ -107,7 +78,7 @@
                                 grid.setSelection(ids[i], true);
                             }
                         }
-
+                        selectingRows = false;
                     }
                 });
             }
@@ -238,7 +209,25 @@
                     rowNum: 10000,
                     sortname : 'idString',
                     sortorder: 'asc',
-                    viewrecords : true
+                    viewrecords : true,
+                    onSelectRow: function(id, status){ 
+                    	if (selectedGroupId === "" || selectingRows == true)
+                    		return;
+                    	
+                    	if (status == true) {
+                    		$.ajax({
+                                type:"POST",
+                                url:"<c:url value='/api/group/'/>" + selectedGroupId,
+                                data: ({'addOverride': id})
+                            });
+                    	} else {
+                    		$.ajax({
+                                type:"POST",
+                                url:"<c:url value='/api/group/'/>" + selectedGroupId,
+                                data: ({'removeOverride': id})
+                            });
+                    	}
+                     }
 
                 });
                 membersList.jqGrid('navGrid', '#overrideNavGrid',
@@ -275,7 +264,6 @@
                     <table id="overrideList"></table>
                     <div id="overrideNavGrid"></div>
                 </div>
-                <button id="testApply" class="btn btn-primary" onclick="applyGroupOverrides();">Apply</button>
             </div>
         </div>
     </body>

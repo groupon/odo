@@ -18,6 +18,7 @@ package com.groupon.odo.proxylib;
 import com.groupon.odo.proxylib.models.Client;
 import com.groupon.odo.proxylib.models.EndpointOverride;
 import com.groupon.odo.proxylib.models.Group;
+import com.groupon.odo.proxylib.models.Method;
 import com.groupon.odo.proxylib.models.Profile;
 
 import org.slf4j.Logger;
@@ -374,9 +375,17 @@ public class PathOverrideService {
      * @param className
      */
     public void createOverride(int groupId, String methodName, String className) {
-        PreparedStatement queryStatement = null;
-        ResultSet results = null;
-
+        // first make sure this doesn't already exist
+    	try {
+    		for (Method method : EditService.getInstance().getMethodsFromGroupId(groupId, null)) {
+    			if (method.getMethodName().equals(methodName) && method.getClassName().equals(className)) {
+    				// don't add if it already exists in the group
+    				return;
+    			}
+    		}
+    	} catch (Exception e) {
+    	}
+    	
         try (Connection sqlConnection = sqlService.getConnection()) {
             PreparedStatement statement = sqlConnection.prepareStatement(
                     "INSERT INTO " + Constants.DB_TABLE_OVERRIDE
@@ -392,15 +401,6 @@ public class PathOverrideService {
             statement.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
-        } finally {
-            try {
-                if (results != null) results.close();
-            } catch (Exception e) {
-            }
-            try {
-                if (queryStatement != null) queryStatement.close();
-            } catch (Exception e) {
-            }
         }
     }
 
@@ -561,6 +561,36 @@ public class PathOverrideService {
             );
             statement.setInt(1, overrideId);
             statement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (statement != null) statement.close();
+            } catch (Exception e) {
+            }
+        }
+    }
+    
+    /**
+     * Remove an override from a group by method/classname
+     * @param groupId
+     * @param methodName
+     * @param className
+     */
+    public void removeOverride(int groupId, String methodName, String className) {
+    	PreparedStatement statement = null;
+
+        try (Connection sqlConnection = sqlService.getConnection()) {
+            statement = sqlConnection.prepareStatement(
+                    "DELETE FROM " + Constants.DB_TABLE_OVERRIDE + " WHERE " + Constants.OVERRIDE_GROUP_ID + " = ? AND " +
+                    Constants.OVERRIDE_CLASS_NAME + " = ? AND " + Constants.OVERRIDE_METHOD_NAME + " = ?");
+            statement.setInt(1, groupId);
+            statement.setString(2, className);
+            statement.setString(3, methodName);
+            statement.executeUpdate();
+            statement.close();
+
+            // TODO: delete from enabled overrides
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
