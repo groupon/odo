@@ -15,6 +15,8 @@
 */
 package com.groupon.odo.proxylib;
 
+import org.apache.tomcat.jdbc.pool.DataSource;
+import org.apache.tomcat.jdbc.pool.PoolProperties;
 import org.h2.tools.Server;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,11 +37,11 @@ public class SQLService {
             .getLogger(SQLService.class);
     private Server server = null;
     private static SQLService _instance = null;
-    private static Connection _connection = null;
     private String databaseName = "h2proxydb";
     private String databaseHost = null;
     private Boolean externalDatabaseHost = false;
     private int port = 9092;
+    private DataSource datasource = null;
 
     public SQLService() {
         // check system props to see if we are using an external H2DB
@@ -75,8 +77,8 @@ public class SQLService {
      */
     public void stopServer() throws Exception {
         if (!externalDatabaseHost) {
-            try {
-                getConnection().prepareStatement("SHUTDOWN").execute();
+            try (Connection sqlConnection = getConnection()) {
+            	sqlConnection.prepareStatement("SHUTDOWN").execute();
             } catch (Exception e) {
             }
 
@@ -98,14 +100,30 @@ public class SQLService {
             _instance = new SQLService();
             _instance.startServer();
 
-            try {
-                Driver d = (Driver) Class.forName("org.h2.Driver")
-                        .newInstance();
-                DriverManager.registerDriver(d);
-            } catch (Exception e) {
-                logger.info("Driver not found or exception in registering driver");
-                e.printStackTrace();
-            }
+            // initialize connection pool
+            PoolProperties p = new PoolProperties();
+            String connectString = "jdbc:h2:tcp://" + _instance.databaseHost + ":" + String.valueOf(_instance.port) + "/" +
+                    _instance.databaseName + "/proxydb;MULTI_THREADED=true;AUTO_RECONNECT=TRUE;AUTOCOMMIT=ON";
+            p.setUrl(connectString);
+            p.setDriverClassName("org.h2.Driver");
+            p.setUsername("sa");
+            p.setJmxEnabled(true);
+            p.setTestWhileIdle(false);
+            p.setTestOnBorrow(true);
+            p.setValidationQuery("SELECT 1");
+            p.setTestOnReturn(false);
+            p.setValidationInterval(5000);
+            p.setTimeBetweenEvictionRunsMillis(30000);
+            p.setMaxActive(20);
+            p.setInitialSize(10);
+            p.setMaxWait(10000);
+            p.setRemoveAbandonedTimeout(60);
+            p.setMinEvictableIdleTimeMillis(30000);
+            p.setMinIdle(10);
+            p.setLogAbandoned(true);
+            p.setRemoveAbandoned(true);
+            _instance.datasource = new DataSource();
+            _instance.datasource.setPoolProperties(p); 
         }
         return _instance;
     }
@@ -119,10 +137,7 @@ public class SQLService {
     public void setDatabaseName(String name) throws Exception {
         this.databaseName = name;
         // reset connection
-        if (_connection != null) {
-            _connection.close();
-            _connection = null;
-        }
+        releaseConnection();
         this.stopServer();
         this.startServer();
     }
@@ -134,32 +149,8 @@ public class SQLService {
      * @throws SQLException
      */
     public Connection getConnection() throws SQLException {
-        try {
-            if (_connection != null) {
-                // test it
-                if (! _connection.isValid(1)) {
-                    _connection = null;
-
-                    // try to start the server
-                    try {
-                        startServer();
-                    } catch (Exception e) {
-                        // assume it was already started and the connection was just closed
-                    }
-                }
-            }
-
-            if (_connection == null) {
-                String connectString = "jdbc:h2:tcp://" + databaseHost + ":" + String.valueOf(port) + "/" +
-                        this.databaseName + "/proxydb;MULTI_THREADED=true;AUTO_RECONNECT=TRUE;AUTOCOMMIT=ON";
-                _connection = DriverManager.getConnection(connectString, "sa", "");
-            }
-        } catch (Exception e) {
-            logger.info("getConnection got exception of type: {}",
-                    e.getClass());
-        }
-
-        return _connection;
+    	logger.info("Datasource: {}", datasource.getActive());
+        return datasource.getConnection();
     }
 
     /**
@@ -167,9 +158,9 @@ public class SQLService {
      */
     public void releaseConnection() {
         try {
-            if (_connection != null) {
-                _connection.close();
-                _connection = null;
+            if (datasource != null) {
+            	datasource.close();
+            	datasource = null;
             }
         } catch (Exception e) {
         }
@@ -251,11 +242,9 @@ public class SQLService {
      */
     public int executeUpdate(String query) throws Exception {
         int returnVal = 0;
-        Connection sqlConnection = null;
         Statement queryStatement = null;
 
-        try {
-            sqlConnection = getConnection();
+        try (Connection sqlConnection = getConnection()) {
             queryStatement = sqlConnection.createStatement();
             returnVal = queryStatement.executeUpdate(query);
         } catch (Exception e) {
@@ -279,11 +268,9 @@ public class SQLService {
             throws Exception {
         HashMap<String, Object> result = null;
 
-        Connection sqlConnection = null;
         Statement queryStatement = null;
         ResultSet results = null;
-        try {
-            sqlConnection = getConnection();
+        try (Connection sqlConnection = getConnection()) {
             queryStatement = sqlConnection.createStatement();
             results = queryStatement.executeQuery(query);
             if (results.next()) {
@@ -361,11 +348,9 @@ public class SQLService {
      * 'getPathnameFromId' or 'getUUIDfromId'
      */
     public Object getFromTable(String getColumn, String fromColumn, Object fromData, String tableName) {
-        Connection sqlConnection = null;
         Statement query = null;
         ResultSet results = null;
-        try {
-            sqlConnection = getConnection();
+        try (Connection sqlConnection = getConnection()) {
             query = sqlConnection.createStatement();
             results = query.executeQuery("SELECT * FROM " + tableName
                     + " WHERE " + fromColumn + "='" + fromData + "';");

@@ -86,12 +86,11 @@ public class ConfigurationService {
         ArrayList<Configuration> valuesList = new ArrayList<Configuration>();
 
         logger.info("Getting data for {}", name);
-        Connection sqlConnection = null;
+
         PreparedStatement statement = null;
         ResultSet results = null;
 
-        try {
-            sqlConnection = sqlService.getConnection();
+        try (Connection sqlConnection = sqlService.getConnection()) {
 
             String queryString = "SELECT * FROM " + Constants.DB_TABLE_CONFIGURATION;
             if (name != null) {
@@ -141,10 +140,8 @@ public class ConfigurationService {
      * @throws Exception
      */
     public void addValue(String name, String value) throws Exception {
-        Connection sqlConnection = null;
         PreparedStatement statement = null;
-        try {
-            sqlConnection = sqlService.getConnection();
+        try (Connection sqlConnection = sqlService.getConnection()) {
             statement = sqlConnection.prepareStatement(
                     "INSERT INTO " + Constants.DB_TABLE_CONFIGURATION +
                             "(" + Constants.DB_TABLE_CONFIGURATION_NAME + "," + Constants.DB_TABLE_CONFIGURATION_VALUE +
@@ -164,10 +161,8 @@ public class ConfigurationService {
     }
 
     public void deleteValue(int id) throws Exception {
-        Connection sqlConnection = null;
         PreparedStatement statement = null;
-        try {
-            sqlConnection = sqlService.getConnection();
+        try (Connection sqlConnection = sqlService.getConnection()) {
             statement = sqlConnection.prepareStatement(
                     "DELETE FROM " + Constants.DB_TABLE_CONFIGURATION +
                             " WHERE " + Constants.GENERIC_ID + " = ?"

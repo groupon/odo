@@ -96,12 +96,10 @@ public class ServerRedirectService {
      */
     public List<ServerRedirect> tableServers(int profileId, int serverGroupId) {
         ArrayList<ServerRedirect> servers = new ArrayList<ServerRedirect>();
-        Connection sqlConnection = null;
         PreparedStatement queryStatement = null;
         ResultSet results = null;
 
-        try {
-            sqlConnection = sqlService.getConnection();
+        try (Connection sqlConnection = sqlService.getConnection()) {
             queryStatement = sqlConnection.prepareStatement(
                     "SELECT * FROM " + Constants.DB_TABLE_SERVERS +
                             " WHERE " + Constants.GENERIC_PROFILE_ID + " = ?" +
@@ -144,12 +142,10 @@ public class ServerRedirectService {
      */
     public List<ServerGroup> tableServerGroups(int profileId) {
         ArrayList<ServerGroup> serverGroups = new ArrayList<ServerGroup>();
-        Connection sqlConnection = null;
         PreparedStatement queryStatement = null;
         ResultSet results = null;
 
-        try {
-            sqlConnection = sqlService.getConnection();
+        try (Connection sqlConnection = sqlService.getConnection()) {
             queryStatement = sqlConnection.prepareStatement(
                     "SELECT * FROM " + Constants.DB_TABLE_SERVER_GROUPS +
                             " WHERE " + Constants.GENERIC_PROFILE_ID + " = ? " +
@@ -186,12 +182,10 @@ public class ServerRedirectService {
      * @return
      */
     public ServerRedirect getRedirect(int id) throws Exception {
-        Connection sqlConnection = null;
         PreparedStatement queryStatement = null;
         ResultSet results = null;
 
-        try {
-            sqlConnection = sqlService.getConnection();
+        try (Connection sqlConnection = sqlService.getConnection()) {
             queryStatement = sqlConnection.prepareStatement(
                     "SELECT * FROM " + Constants.DB_TABLE_SERVERS +
                             " WHERE " + Constants.GENERIC_ID + " = ?"
@@ -232,7 +226,6 @@ public class ServerRedirectService {
      * @throws Exception
      */
     public ServerGroup getServerGroup(int id, int profileId) throws Exception {
-        Connection sqlConnection = null;
         PreparedStatement queryStatement = null;
         ResultSet results = null;
 
@@ -242,8 +235,7 @@ public class ServerRedirectService {
         }
 
 
-        try {
-            sqlConnection = sqlService.getConnection();
+        try (Connection sqlConnection = sqlService.getConnection()) {
             queryStatement = sqlConnection.prepareStatement(
                     "SELECT * FROM " + Constants.DB_TABLE_SERVER_GROUPS +
                             " WHERE " + Constants.GENERIC_ID + " = ?"
@@ -311,12 +303,10 @@ public class ServerRedirectService {
      */
     public int addServerRedirect(String region, String srcUrl, String destUrl, String hostHeader, int profileId, int groupId) throws Exception {
         int serverId = -1;
-        Connection sqlConnection = null;
         PreparedStatement statement = null;
         ResultSet results = null;
 
-        try {
-            sqlConnection = sqlService.getConnection();
+        try (Connection sqlConnection = sqlService.getConnection()) {
             statement = sqlConnection.prepareStatement("INSERT INTO " + Constants.DB_TABLE_SERVERS
                     + "(" + Constants.SERVER_REDIRECT_REGION + "," +
                     Constants.SERVER_REDIRECT_SRC_URL + "," +
@@ -367,12 +357,10 @@ public class ServerRedirectService {
      */
     public int addServerGroup(String groupName, int profileId) throws Exception {
         int groupId = -1;
-        Connection sqlConnection = null;
         PreparedStatement statement = null;
         ResultSet results = null;
 
-        try {
-            sqlConnection = sqlService.getConnection();
+        try (Connection sqlConnection = sqlService.getConnection()) {
             statement = sqlConnection.prepareStatement("INSERT INTO " + Constants.DB_TABLE_SERVER_GROUPS
                     + "(" + Constants.GENERIC_NAME + "," +
                     Constants.GENERIC_PROFILE_ID + ")"
@@ -413,11 +401,9 @@ public class ServerRedirectService {
      * @param id
      */
     public void setGroupName(String name, int id) {
-        Connection sqlConnection = null;
         PreparedStatement statement = null;
 
-        try {
-            sqlConnection = sqlService.getConnection();
+        try (Connection sqlConnection = sqlService.getConnection()) {
             statement = sqlConnection.prepareStatement(
                     "UPDATE " + Constants.DB_TABLE_SERVER_GROUPS +
                             " SET " + Constants.GENERIC_NAME + " = ?" +
@@ -445,13 +431,10 @@ public class ServerRedirectService {
      * @param clientId
      */
     public void activateServerGroup(int groupId, int clientId) {
-        Connection sqlConnection = null;
         PreparedStatement statement = null;
 
 
-        try {
-            sqlConnection = sqlService.getConnection();
-
+        try (Connection sqlConnection = sqlService.getConnection()) {
             statement = sqlConnection.prepareStatement(
                     "UPDATE " + Constants.DB_TABLE_CLIENT +
                             " SET " + Constants.CLIENT_ACTIVESERVERGROUP + " = ? " +
@@ -479,11 +462,9 @@ public class ServerRedirectService {
      * @param id
      */
     public void setSourceUrl(String newUrl, int id) {
-        Connection sqlConnection = null;
         PreparedStatement statement = null;
 
-        try {
-            sqlConnection = sqlService.getConnection();
+        try (Connection sqlConnection = sqlService.getConnection()) {
             statement = sqlConnection.prepareStatement(
                     "UPDATE " + Constants.DB_TABLE_SERVERS +
                             " SET " + Constants.SERVER_REDIRECT_SRC_URL + " = ?" +
@@ -511,11 +492,9 @@ public class ServerRedirectService {
      * @param id
      */
     public void setDestinationUrl(String newUrl, int id) {
-        Connection sqlConnection = null;
         PreparedStatement statement = null;
 
-        try {
-            sqlConnection = sqlService.getConnection();
+        try (Connection sqlConnection = sqlService.getConnection()) {
             statement = sqlConnection.prepareStatement(
                     "UPDATE " + Constants.DB_TABLE_SERVERS +
                             " SET " + Constants.SERVER_REDIRECT_DEST_URL + " = ?" +
@@ -542,11 +521,9 @@ public class ServerRedirectService {
      * @param id
      */
     public void setHostHeader(String newHost, int id) {
-        Connection sqlConnection = null;
         PreparedStatement statement = null;
 
-        try {
-            sqlConnection = sqlService.getConnection();
+        try (Connection sqlConnection = sqlService.getConnection()) {
             statement = sqlConnection.prepareStatement(
                     "UPDATE " + Constants.DB_TABLE_SERVERS +
                             " SET " + Constants.SERVER_REDIRECT_HOST_HEADER + " = ?" +
@@ -609,11 +586,9 @@ public class ServerRedirectService {
         int profileId = -1;
         ArrayList<Profile> returnProfiles = new ArrayList<Profile>();
 
-        Connection sqlConnection = null;
         PreparedStatement queryStatement = null;
         ResultSet results = null;
-        try {
-            sqlConnection = sqlService.getConnection();
+        try (Connection sqlConnection = sqlService.getConnection()) {
             queryStatement = sqlConnection.prepareStatement(
                     "SELECT " + Constants.GENERIC_PROFILE_ID + " FROM " + Constants.DB_TABLE_SERVERS +
                             " WHERE " + Constants.SERVER_REDIRECT_SRC_URL + " = ? GROUP BY " +

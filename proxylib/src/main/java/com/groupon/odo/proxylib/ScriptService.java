@@ -64,13 +64,10 @@ public class ScriptService {
      * @return
      */
     public Script getScript(int id) {
-        Connection sqlConnection = null;
         PreparedStatement statement = null;
         ResultSet results = null;
 
-        try {
-            sqlConnection = SQLService.getInstance().getConnection();
-
+        try (Connection sqlConnection = SQLService.getInstance().getConnection()) {
             statement = sqlConnection.prepareStatement(
                     "SELECT * FROM " + Constants.DB_TABLE_SCRIPT +
                             " WHERE id = ?"
@@ -113,12 +110,10 @@ public class ScriptService {
      */
     public Script[] getScripts(Integer type) {
         ArrayList<Script> returnData = new ArrayList<Script>();
-        Connection sqlConnection = null;
         PreparedStatement statement = null;
         ResultSet results = null;
 
-        try {
-            sqlConnection = SQLService.getInstance().getConnection();
+        try (Connection sqlConnection = SQLService.getInstance().getConnection()) {
 
             statement = sqlConnection.prepareStatement("SELECT * FROM " + Constants.DB_TABLE_SCRIPT +
                     " ORDER BY " + Constants.GENERIC_ID);
@@ -162,12 +157,10 @@ public class ScriptService {
      */
     public Script addScript(String name, String script) throws Exception {
         int id = -1;
-        Connection sqlConnection = null;
         PreparedStatement statement = null;
         ResultSet results = null;
 
-        try {
-            sqlConnection = SQLService.getInstance().getConnection();
+        try (Connection sqlConnection = SQLService.getInstance().getConnection()) {
             statement = sqlConnection.prepareStatement(
                     "INSERT INTO " + Constants.DB_TABLE_SCRIPT
                             + "(" + Constants.SCRIPT_NAME + "," + Constants.SCRIPT_SCRIPT + "," + Constants.SCRIPT_TYPE + ")"
@@ -214,8 +207,8 @@ public class ScriptService {
     public Script updateName(int id, String name) throws Exception {
         PreparedStatement statement = null;
 
-        try {
-            statement = SQLService.getInstance().getConnection().prepareStatement(
+        try (Connection sqlConnection = SQLService.getInstance().getConnection()) {
+            statement = sqlConnection.prepareStatement(
                     "UPDATE " + Constants.DB_TABLE_SCRIPT +
                             " SET " + Constants.SCRIPT_NAME + " = ? " +
                             " WHERE " + Constants.GENERIC_ID + " = ?"
@@ -244,11 +237,9 @@ public class ScriptService {
      * @throws Exception
      */
     public Script updateScript(int id, String script) throws Exception {
-        Connection sqlConnection = null;
         PreparedStatement statement = null;
 
-        try {
-            sqlConnection = SQLService.getInstance().getConnection();
+        try (Connection sqlConnection = SQLService.getInstance().getConnection()) {
             statement = sqlConnection.prepareStatement(
                     "UPDATE " + Constants.DB_TABLE_SCRIPT +
                             " SET " + Constants.SCRIPT_SCRIPT + " = ? " +
@@ -276,11 +267,9 @@ public class ScriptService {
      * @throws Exception
      */
     public void removeScript(int id) throws Exception {
-        Connection sqlConnection = null;
         PreparedStatement statement = null;
 
-        try {
-            sqlConnection = SQLService.getInstance().getConnection();
+        try (Connection sqlConnection = SQLService.getInstance().getConnection()) {
             statement = sqlConnection.prepareStatement(
                     "DELETE FROM " + Constants.DB_TABLE_SCRIPT +
                             " WHERE " + Constants.GENERIC_ID + " = ?"

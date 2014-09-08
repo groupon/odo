@@ -58,12 +58,10 @@ public class ClientService {
     public List<Client> findAllClients(int profileId) throws Exception {
         ArrayList<Client> clients = new ArrayList<Client>();
 
-        Connection sqlConnection = null;
         PreparedStatement query = null;
         ResultSet results = null;
 
-        try {
-            sqlConnection = sqlService.getConnection();
+        try (Connection sqlConnection = sqlService.getConnection()) {
             query = sqlConnection.prepareStatement(
                     "SELECT * FROM " + Constants.DB_TABLE_CLIENT +
                             " WHERE " + Constants.GENERIC_PROFILE_ID + " = ?"
@@ -98,11 +96,9 @@ public class ClientService {
     public Client getClient(int clientId) throws Exception {
         Client client = null;
 
-        Connection sqlConnection = null;
         PreparedStatement statement = null;
         ResultSet results = null;
-        try {
-            sqlConnection = sqlService.getConnection();
+        try (Connection sqlConnection = sqlService.getConnection()) {
             String queryString = "SELECT * FROM " + Constants.DB_TABLE_CLIENT +
                     " WHERE " + Constants.GENERIC_ID + " = ?";
 
@@ -153,11 +149,9 @@ public class ClientService {
             }
         }
 
-        Connection sqlConnection = null;
         PreparedStatement statement = null;
         ResultSet results = null;
-        try {
-            sqlConnection = sqlService.getConnection();
+        try (Connection sqlConnection = sqlService.getConnection()) {
             String queryString = "SELECT * FROM " + Constants.DB_TABLE_CLIENT +
                     " WHERE " + Constants.CLIENT_CLIENT_UUID + " = ?";
 
@@ -211,12 +205,10 @@ public class ClientService {
 
     private String getUniqueClientUUID() {
         String curClientUUID = UUID.randomUUID().toString();
-        Connection sqlConnection = null;
         PreparedStatement statement = null;
         ResultSet results = null;
 
-        try {
-            sqlConnection = sqlService.getConnection();
+        try (Connection sqlConnection = sqlService.getConnection()) {
             while (true) {
                 statement = sqlConnection.prepareStatement("SELECT * FROM " + Constants.DB_TABLE_CLIENT +
                         " WHERE " + Constants.GENERIC_CLIENT_UUID + " = ?");
@@ -259,13 +251,11 @@ public class ClientService {
         String clientUUID = getUniqueClientUUID();
 
         // get profile for profileId
-        Connection sqlConnection = null;
         Profile profile = ProfileService.getInstance().findProfile(profileId);
         PreparedStatement statement = null;
         ResultSet rs = null;
 
-        try {
-            sqlConnection = sqlService.getConnection();
+        try (Connection sqlConnection = sqlService.getConnection()) {
             
             // get the current count of clients
             statement = sqlConnection.prepareStatement("SELECT COUNT(" + Constants.GENERIC_ID + ") FROM " + 
@@ -364,12 +354,11 @@ public class ClientService {
         if (client != null) {
             throw new Exception("Friendly name already in use");
         }
-        Connection sqlConnection = null;
+
         PreparedStatement statement = null;
         int rowsAffected = 0;
 
-        try {
-            sqlConnection = sqlService.getConnection();
+        try (Connection sqlConnection = sqlService.getConnection()) {
             statement = sqlConnection.prepareStatement(
                     "UPDATE " + Constants.DB_TABLE_CLIENT +
                             " SET " + Constants.CLIENT_FRIENDLY_NAME + " = ?" +
@@ -411,15 +400,14 @@ public class ClientService {
         if (friendlyName == null || friendlyName.compareTo("") == 0) {
             return client;
         }
-        Connection sqlConnection = null;
+
         PreparedStatement statement = null;
         ResultSet results = null;
 
-        try {
+        try (Connection sqlConnection = sqlService.getConnection()) {
             String queryString = "SELECT * FROM " + Constants.DB_TABLE_CLIENT +
                     " WHERE " + Constants.CLIENT_FRIENDLY_NAME + " = ?" +
                     " AND " + Constants.GENERIC_PROFILE_ID + " = ?";
-            sqlConnection = sqlService.getConnection();
             statement = sqlConnection.prepareStatement(queryString);
             statement.setString(1, friendlyName);
             statement.setInt(2, profileId);
@@ -453,10 +441,9 @@ public class ClientService {
      * @throws Exception
      */
     public void remove(int profileId, String clientUUID) throws Exception {
-        Connection sqlConnection = sqlService.getConnection();
         PreparedStatement statement = null;
         ResultSet results = null;
-        try {
+        try (Connection sqlConnection = sqlService.getConnection()) {
             // first try selecting the row we want to deal with
             statement = sqlConnection.prepareStatement(
                     "SELECT * FROM " + Constants.DB_TABLE_CLIENT +
@@ -487,8 +474,7 @@ public class ClientService {
                 " WHERE " + Constants.CLIENT_CLIENT_UUID + " = ? " +
                 " AND " + Constants.CLIENT_PROFILE_ID + " = ?";
 
-        try {
-            sqlConnection = sqlService.getConnection();
+        try (Connection sqlConnection = sqlService.getConnection()) {
             statement = sqlConnection.prepareStatement(queryString);
             statement.setString(1, clientUUID);
             statement.setInt(2, profileId);
@@ -507,7 +493,7 @@ public class ClientService {
 
         // delete from other tables as appropriate
         // need to delete from enabled_overrides and request_response
-        try {
+        try (Connection sqlConnection = sqlService.getConnection()) {
             statement = sqlConnection.prepareStatement(
                     "DELETE FROM " + Constants.DB_TABLE_REQUEST_RESPONSE +
                             " WHERE " + Constants.CLIENT_CLIENT_UUID + " = ? " +
@@ -520,7 +506,7 @@ public class ClientService {
             // ok to swallow this.. just means there wasn't any
         }
 
-        try {
+        try (Connection sqlConnection = sqlService.getConnection()) {
             statement = sqlConnection.prepareStatement(
                     "DELETE FROM " + Constants.DB_TABLE_ENABLED_OVERRIDE +
                             " WHERE " + Constants.CLIENT_CLIENT_UUID + " = ? " +
@@ -548,10 +534,8 @@ public class ClientService {
      * @throws Exception
      */
     public void updateActive(int profileId, String clientUUID, Boolean active) throws Exception {
-        Connection sqlConnection = null;
         PreparedStatement statement = null;
-        try {
-            sqlConnection = sqlService.getConnection();
+        try (Connection sqlConnection = sqlService.getConnection()) {
             statement = sqlConnection.prepareStatement(
                     "UPDATE " + Constants.DB_TABLE_CLIENT +
                             " SET " + Constants.CLIENT_IS_ACTIVE + "= ?" +
@@ -580,12 +564,10 @@ public class ClientService {
      * @throws Exception
      */
     public void reset(int profileId, String clientUUID) throws Exception {
-        Connection sqlConnection = null;
         PreparedStatement statement = null;
 
         // TODO: need a better way to do this than brute force.. but the iterative approach is too slow
-        try {
-            sqlConnection = sqlService.getConnection();
+        try (Connection sqlConnection = sqlService.getConnection()) {
 
             // first remove all enabled overrides with this client uuid
             String queryString = "DELETE FROM " + Constants.DB_TABLE_ENABLED_OVERRIDE +

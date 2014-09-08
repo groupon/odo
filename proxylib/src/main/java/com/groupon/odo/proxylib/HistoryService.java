@@ -62,11 +62,9 @@ public class HistoryService {
      * @param limit
      */
     public void cullHistory(int profileId, String clientUUID, int limit) throws Exception {
-        Connection sqlConnection = null;
         PreparedStatement statement = null;
 
-        try {
-            sqlConnection = sqlService.getConnection();
+        try (Connection sqlConnection = sqlService.getConnection()) {
             statement = sqlConnection.prepareStatement("DELETE FROM " + Constants.DB_TABLE_HISTORY +
                     " WHERE " + Constants.GENERIC_ID + " NOT IN (SELECT TOP " + limit + " " + Constants.GENERIC_ID +
                     " FROM " + Constants.DB_TABLE_HISTORY +
@@ -96,11 +94,9 @@ public class HistoryService {
      * @param history - History object to add
      */
     public void addHistory(History history) {
-        Connection sqlConnection = null;
         PreparedStatement statement = null;
 
-        try {
-            sqlConnection = sqlService.getConnection();
+        try (Connection sqlConnection = sqlService.getConnection())  {
             statement = sqlConnection.prepareStatement("INSERT INTO " + Constants.DB_TABLE_HISTORY +
                     "(" + Constants.GENERIC_PROFILE_ID + "," + Constants.GENERIC_CLIENT_UUID + "," +
                     Constants.HISTORY_CREATED_AT + "," + Constants.GENERIC_REQUEST_TYPE + "," +
@@ -226,12 +222,10 @@ public class HistoryService {
 
     public int getHistoryCount(int profileId, String clientUUID, HashMap<String, String[]> searchFilter) {
         int count = 0;
-        Connection sqlConnection = null;
         Statement query = null;
         ResultSet results = null;
 
-        try {
-            sqlConnection = sqlService.getConnection();
+        try (Connection sqlConnection = sqlService.getConnection()) {
 
             String sqlQuery = "SELECT COUNT(" + Constants.GENERIC_ID + ") FROM " + Constants.DB_TABLE_HISTORY + " ";
 
@@ -283,7 +277,6 @@ public class HistoryService {
      */
     public History[] getHistory(int profileId, String clientUUID, int offset, int limit, boolean withResponseData, HashMap<String, String[]> searchFilter) throws Exception {
         ArrayList<History> returnData = new ArrayList<History>();
-        Connection sqlConnection = null;
         Statement query = null;
         ResultSet results = null;
 
@@ -310,9 +303,8 @@ public class HistoryService {
 
         logger.info("Query: {}", sqlQuery);
 
-        try {
+        try (Connection sqlConnection = sqlService.getConnection()) {
             int entriesMatched = 0;
-            sqlConnection = sqlService.getConnection();
             // loop through all of the results, process filters and build an array of the results to return
             query = sqlConnection.createStatement();
             results = query.executeQuery(sqlQuery);
@@ -377,12 +369,10 @@ public class HistoryService {
      */
     public History getHistoryForID(int id) {
         History history = null;
-        Connection sqlConnection = null;
         PreparedStatement query = null;
         ResultSet results = null;
 
-        try {
-            sqlConnection = sqlService.getConnection();
+        try (Connection sqlConnection = sqlService.getConnection()) {
             query = sqlConnection.prepareStatement("SELECT * FROM " + Constants.DB_TABLE_HISTORY +
                     " WHERE " + Constants.GENERIC_ID + "=?");
             query.setInt(1, id);
@@ -408,11 +398,9 @@ public class HistoryService {
     }
 
     public void clearHistory(int profileId, String clientUUID) {
-        Connection sqlConnection = null;
         PreparedStatement query = null;
 
-        try {
-            sqlConnection = sqlService.getConnection();
+        try (Connection sqlConnection = sqlService.getConnection()) {
             String sqlQuery = "DELETE FROM " + Constants.DB_TABLE_HISTORY + " ";
 
             // see if profileId is null or not (-1)
