@@ -149,7 +149,6 @@ public class SQLService {
      * @throws SQLException
      */
     public Connection getConnection() throws SQLException {
-    	logger.info("Datasource: {}", datasource.getActive());
         return datasource.getConnection();
     }
 
