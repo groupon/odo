@@ -404,7 +404,7 @@
 							if (data.history.responseContentType == null
 									|| data.history.responseContentType
 											.toLowerCase().indexOf(
-													"application/json") == -1) {
+													"application/json") == -1 || data.history.responseData == "") {
 								showRawResponeData();
                                 showModifiedResponse();
 								$("#showRawFormattedDataButton").attr(
