@@ -312,7 +312,7 @@
 			originalResponseRaw = JSON.stringify(JSON.parse(historyData.history.originalResponseData), null, 4);
 			} catch (err) {
 				// use original data
-				responseRaw = historyData.history.originalResponseData;
+				originalResponseRaw = historyData.history.originalResponseData;
 			}
 			
 			$("#responseRaw").val(responseRaw);
@@ -452,6 +452,9 @@
 								document.getElementById("showModifiedRequestButton").className = "btn btn-primary";
 							} 
 							else{
+								// set the query back to the original query data
+								$("#requestQuery").val(data.history.originalRequestURL);
+								
 								$("#responseButtons").hide();
 								$("#requestButtons").hide();
 							} 
@@ -509,8 +512,8 @@
 						editable : false,
 						align : 'center'
 					}, {
-						name : 'requestURL',
-						index : 'requestURL',
+						name : 'originalRequestURL',
+						index : 'originalRequestURL',
 						width : 300,
 						editable : false,
 						formatter : scrollableFormatter
