@@ -115,8 +115,8 @@ public class SQLService {
             p.setValidationInterval(5000);
             p.setTimeBetweenEvictionRunsMillis(30000);
             p.setMaxActive(20);
-            p.setInitialSize(10);
-            p.setMaxWait(10000);
+            p.setInitialSize(5);
+            p.setMaxWait(30000);
             p.setRemoveAbandonedTimeout(60);
             p.setMinEvictableIdleTimeMillis(30000);
             p.setMinIdle(10);
