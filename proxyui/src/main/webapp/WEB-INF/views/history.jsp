@@ -382,7 +382,7 @@
 			var headers = historyData.history.requestHeaders.split('\n');
 			var requestType = historyData.history.requestType;
 
-			var commandLine = "curl -X " + requestType;
+			var commandLine = "curl --insecure --proxy " + window.location.hostname + ":9090 -X " + requestType;
 			for ( var x in headers) {
 				commandLine += " --header \"" + headers[x] + "\"";
 			}
@@ -393,11 +393,11 @@
 						+ "\"";
 			}
 
-			commandLine += " \"" + historyData.history.requestURL;
+			commandLine += " \"" + historyData.history.originalRequestURL;
 
-			if (historyData.history.requestParams != null
-					&& historyData.history.requestParams !== "") {
-				commandLine += "?" + historyData.history.requestParams;
+			if (historyData.history.originalRequestParams != null
+					&& historyData.history.originalRequestParams !== "") {
+				commandLine += "?" + historyData.history.originalRequestParams;
 			}
 
 			commandLine += "\"";
