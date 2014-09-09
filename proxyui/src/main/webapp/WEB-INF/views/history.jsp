@@ -23,6 +23,8 @@
  	</style>
 </head>
 <body>
+<%@ include file="pathtester_part.jsp" %>
+
 <nav class="navbar navbar-default" role="navigation">
 	<div class="container-fluid">
 	    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
@@ -104,6 +106,9 @@
 				<div class="" style="float: left; width: 100%">
 					<h3 style="display: inline;">
 						<span class="label label-default">URL</span>
+						<div class="btn-group btn-group-sm">
+							<button type="button" class="btn btn-default" onClick="showPathTester()">Test Path</button>
+						</div>
 					</h3>
 					<h3 style="display: inline">
 						<div class="btn-group btn-group-sm" style="float:right" id="requestButtons">
@@ -186,7 +191,7 @@
 		function clearHistory() {
 			$.ajax({
 				type : "POST",
-				url : '<c:url value="/api/history/${profileId}"/>',
+				url : '<c:url value="/api/history/${profile_id}"/>',
 				data : ({
 					clientUUID : clientUUID,
 					_method : 'DELETE'
@@ -206,7 +211,7 @@
 					.jqGrid(
 							'setGridParam',
 							{
-								url : '<c:url value="/api/history/${profileId}"/>?clientUUID=${clientUUID}&source_uri[]='
+								url : '<c:url value="/api/history/${profile_id}"/>?clientUUID=${clientUUID}&source_uri[]='
 										+ filter,
 								page : 1
 							}).trigger("reloadGrid");
@@ -218,7 +223,7 @@
 					.jqGrid(
 							'setGridParam',
 							{
-								url : '<c:url value="/api/history/${profileId}"/>?clientUUID=${clientUUID}',
+								url : '<c:url value="/api/history/${profile_id}"/>?clientUUID=${clientUUID}',
 								page : 1
 							}).trigger("reloadGrid");
 		}
@@ -296,8 +301,20 @@
 		
 		var responseRaw, originalResponseRaw;
 		function showFormattedResponeData() {
-			responseRaw = JSON.stringify(JSON.parse(historyData.history.responseData), null, 4);
+			try {
+				responseRaw = JSON.stringify(JSON.parse(historyData.history.responseData), null, 4);
+			} catch (err) {
+				// use original data
+				responseRaw = historyData.history.responseData;
+			}
+			
+			try {
 			originalResponseRaw = JSON.stringify(JSON.parse(historyData.history.originalResponseData), null, 4);
+			} catch (err) {
+				// use original data
+				responseRaw = historyData.history.originalResponseData;
+			}
+			
 			$("#responseRaw").val(responseRaw);
 			$("#originalResponseRaw").val(originalResponseRaw);
 			document.getElementById("showRawFormattedDataButton").className = "btn btn-primary";
@@ -393,7 +410,7 @@
 			$
 					.ajax({
 						type : "GET",
-						url : '<c:url value="/api/history/${profileId}/"/>'
+						url : '<c:url value="/api/history/${profile_id}/"/>'
 								+ historyId,
 						data : 'clientUUID=${clientUUID}',
 						success : function(data) {
@@ -465,7 +482,7 @@
 		var historyList = jQuery("#historylist");
 		historyList
 				.jqGrid({
-					url : '<c:url value="/api/history/${profileId}"/>?clientUUID=${clientUUID}',
+					url : '<c:url value="/api/history/${profile_id}"/>?clientUUID=${clientUUID}',
 					height : 300,
 					autowidth : true,
 					pgbuttons : true, // disable page control like next, back button
@@ -577,6 +594,12 @@
             newCellValue += ' disabled=true>';
             return newCellValue;
         }
+		
+		function showPathTester() {
+			$('#pathTesterURL').val($("#requestQuery").val() + "?" + $("#requestParameters").val());
+			navigatePathTester();
+			pathTesterSubmit();
+		}
 	</script>
 </body>
 </html>
