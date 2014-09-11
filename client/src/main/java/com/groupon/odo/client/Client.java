@@ -821,14 +821,18 @@ public class Client {
      * @return Matching REQUEST_TYPE
      */
     protected int getRequestTypeFromString(String requestType) {
-        if (requestType == "GET")
+        if ("GET".equals(requestType)) {
             return REQUEST_TYPE_GET;
-        if (requestType == "POST")
+        }
+        if ("POST".equals(requestType)) {
             return REQUEST_TYPE_POST;
-        if (requestType == "PUT")
+        }
+        if ("PUT".equals(requestType)) {
             return REQUEST_TYPE_PUT;
-        if (requestType == "DELETE")
+        }
+        if ("DELETE".equals(requestType)) {
             return REQUEST_TYPE_DELETE;
+        }
         return REQUEST_TYPE_ALL;
     }
 
