@@ -545,8 +545,6 @@ public class Proxy extends HttpServlet {
         hostName = getDestinationHostName(hostName);
 
         logger.info("new host name = {}", hostName);
-        //if (origHostName.compareTo(hostName) == 0)
-        //    throw new Exception("Original and new hostname are the same.  this is a bad loop");
 
         stringProxyURL = stringProxyURL + hostName;
 
@@ -861,7 +859,7 @@ public class Proxy extends HttpServlet {
             intProxyResponseCode = httpClient.executeMethod(httpMethodProxyRequest);
         } catch (Exception e) {
         	// Return a gateway timeout
-        	httpServletResponse.setStatus(504);
+            httpServletResponse.setStatus(504);
             httpServletResponse.setHeader(Constants.HEADER_STATUS, "504");
             httpServletResponse.flushBuffer();
             return;

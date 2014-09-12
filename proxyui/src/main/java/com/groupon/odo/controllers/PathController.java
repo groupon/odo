@@ -30,11 +30,13 @@ import flexjson.JSONSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import java.net.URLDecoder;
 import java.util.ArrayList;
@@ -74,21 +76,28 @@ public class PathController {
     @RequestMapping(value = "/api/path", method = RequestMethod.POST)
     public
     @ResponseBody
-    EndpointOverride addPath(Model model, String profileIdentifier,
+    String addPath(Model model, String profileIdentifier,
                              @RequestParam(value = "pathName") String pathName,
                              @RequestParam(value = "path") String path,
                              @RequestParam(value = "bodyFilter", required = false) String bodyFilter,
                              @RequestParam(value = "contentType", required = false) String contentType,
                              @RequestParam(value = "requestType", required = false) Integer requestType,
                              @RequestParam(value = "groups[]", required = false) Integer[] groups,
-                             @RequestParam(value = "global", defaultValue = "false") Boolean global) throws Exception {
+                             @RequestParam(value = "global", defaultValue = "false") Boolean global,
+                             HttpServletResponse response) throws Exception {
         int profileId = ControllerUtils.convertProfileIdentifier(profileIdentifier);
 
         // TODO: Update UI to display the appropriate error message for this
         if (pathName.equals("test")) {
-        	throw new Exception("Cannot add path.  \"test\" is a reserved path name.");
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            return "Cannot add path.  \"test\" is a reserved path name.";
         }
-        
+
+        if (pathName.contains("/")) {
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            return "Cannot add path.  Path names cannot contain \"/\"";
+        }
+
         int pathId = pathOverrideService.addPathnameToProfile(profileId, pathName, path);
         if (groups != null) {
             //then adds all the groups
@@ -104,25 +113,28 @@ public class PathController {
             pathOverrideService.setBodyFilter(pathId, bodyFilter);
         }
 
-        return pathOverrideService.getPath(pathId);
+        ObjectMapper objectMapper = new ObjectMapper();
+        ObjectWriter writer = objectMapper.writer();
+
+        return writer.writeValueAsString(pathOverrideService.getPath(pathId));
     }
     
     @RequestMapping(value = "/api/path/test", method = RequestMethod.GET)
     public @ResponseBody String testPath(@RequestParam String url, @RequestParam String profileIdentifier) throws Exception {
-    	int profileId = ControllerUtils.convertProfileIdentifier(profileIdentifier);
-    	
-    	List<EndpointOverride> trySelectedRequestPaths = PathOverrideService.getInstance().getSelectedPaths(Constants.OVERRIDE_TYPE_REQUEST, 
-    			ClientService.getInstance().findClient("-1", profileId),
+        int profileId = ControllerUtils.convertProfileIdentifier(profileIdentifier);
+
+        List<EndpointOverride> trySelectedRequestPaths = PathOverrideService.getInstance().getSelectedPaths(Constants.OVERRIDE_TYPE_REQUEST, 
+                ClientService.getInstance().findClient("-1", profileId),
                 ProfileService.getInstance().findProfile(profileId), url, -1, true);
     	
-    	HashMap<String, Object> jqReturn = Utils.getJQGridJSON(trySelectedRequestPaths, "paths");
-        
+        HashMap<String, Object> jqReturn = Utils.getJQGridJSON(trySelectedRequestPaths, "paths");
+
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.addMixInAnnotations(Object.class, ViewFilters.GetPathFilter.class);
         String[] ignorableFieldNames = { "possibleEndpoints", "enabledEndpoints" }; 
         FilterProvider filters = new SimpleFilterProvider().addFilter("Filter properties from the PathController GET", 
-        		SimpleBeanPropertyFilter.serializeAllExcept(ignorableFieldNames));
-        		
+              SimpleBeanPropertyFilter.serializeAllExcept(ignorableFieldNames));
+		
         ObjectWriter writer = objectMapper.writer(filters);
 
         return writer.writeValueAsString(jqReturn);
@@ -203,7 +215,7 @@ public class PathController {
     @RequestMapping(value = "/api/path/{pathIdentifier}", method = RequestMethod.POST)
     public
     @ResponseBody
-    EndpointOverride setPath(Model model, @PathVariable String pathIdentifier,
+    String setPath(Model model, @PathVariable String pathIdentifier,
                              @RequestParam(value = "profileIdentifier", required = false) String profileIdentifier,
                              @RequestParam(value = "clientUUID", defaultValue = Constants.PROFILE_CLIENT_DEFAULT_ID) String clientUUID,
                              @RequestParam(required = false) Boolean responseEnabled,
@@ -221,7 +233,8 @@ public class PathController {
                              @RequestParam(required = false) String contentType,
                              @RequestParam(required = false) Integer repeatNumber,
                              @RequestParam(required = false) Boolean global,
-                             @RequestParam(value = "groups[]", required = false) Integer[] groups
+                             @RequestParam(value = "groups[]", required = false) Integer[] groups,
+                             HttpServletResponse response
     ) throws Exception {
         String decodedProfileIdentifier = null;
         if (profileIdentifier != null)
@@ -262,8 +275,15 @@ public class PathController {
         if (pathName != null) {
         	// TODO: Update UI to display the appropriate error message for this
             if (pathName.equals("test")) {
-            	throw new Exception("Cannot update path.  \"test\" is a reserved path name.");
+                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                return "Cannot update path.  \"test\" is a reserved path name.";
             }
+
+            if (pathName.contains("/")) {
+                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                return "Cannot update path.  Path names cannot contain \"/\"";
+            }
+
             PathOverrideService.getInstance().setName(pathId, pathName);
         }
 
@@ -317,7 +337,10 @@ public class PathController {
             pathOverrideService.setGroupsForPath(groups, pathId);
         }
 
-        return PathOverrideService.getInstance().getPath(pathId, clientUUID, null);
+        ObjectMapper objectMapper = new ObjectMapper();
+        ObjectWriter writer = objectMapper.writer();
+
+        return writer.writeValueAsString(PathOverrideService.getInstance().getPath(pathId, clientUUID, null));
     }
 
     // setOverrideArgs needs direct access to HttpServletRequest since Spring messes up array entries with commas
@@ -470,5 +493,4 @@ public class PathController {
         pathOverrideService.removeGroupFromPathProfile(group_id, pathId, profileId);
         return null;
     }
-
 }

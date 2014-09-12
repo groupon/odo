@@ -78,7 +78,7 @@ public class SQLService {
     public void stopServer() throws Exception {
         if (!externalDatabaseHost) {
             try (Connection sqlConnection = getConnection()) {
-            	sqlConnection.prepareStatement("SHUTDOWN").execute();
+                sqlConnection.prepareStatement("SHUTDOWN").execute();
             } catch (Exception e) {
             }
 
@@ -158,8 +158,8 @@ public class SQLService {
     public void releaseConnection() {
         try {
             if (datasource != null) {
-            	datasource.close();
-            	datasource = null;
+                datasource.close();
+                datasource = null;
             }
         } catch (Exception e) {
         }

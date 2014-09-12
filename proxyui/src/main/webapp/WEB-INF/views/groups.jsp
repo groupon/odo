@@ -57,13 +57,13 @@
             }
 
             var enabledMethods = {};
-			var selectingRows = false;
+            var selectingRows = false;
             function selectRows(groupId) {
                 $.ajax({
                     type:"GET",
                     url: '<c:url value="/api/group/"/>' + groupId,
                     success: function(data){
-						selectingRows = true;
+                        selectingRows = true;
                         enabledMethods = {};
                         $.each(data.methods, function(index, value) {
                                 enabledMethods[value.idString] = value.id;

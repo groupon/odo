@@ -374,17 +374,14 @@ public class PathOverrideService {
      * @param methodName
      * @param className
      */
-    public void createOverride(int groupId, String methodName, String className) {
+    public void createOverride(int groupId, String methodName, String className) throws Exception {
         // first make sure this doesn't already exist
-    	try {
-    		for (Method method : EditService.getInstance().getMethodsFromGroupId(groupId, null)) {
-    			if (method.getMethodName().equals(methodName) && method.getClassName().equals(className)) {
-    				// don't add if it already exists in the group
-    				return;
-    			}
-    		}
-    	} catch (Exception e) {
-    	}
+		for (Method method : EditService.getInstance().getMethodsFromGroupId(groupId, null)) {
+			if (method.getMethodName().equals(methodName) && method.getClassName().equals(className)) {
+				// don't add if it already exists in the group
+				return;
+			}
+		}
     	
         try (Connection sqlConnection = sqlService.getConnection()) {
             PreparedStatement statement = sqlConnection.prepareStatement(
@@ -578,12 +575,11 @@ public class PathOverrideService {
      * @param className
      */
     public void removeOverride(int groupId, String methodName, String className) {
-    	PreparedStatement statement = null;
-
+    	String statementString = "DELETE FROM " + Constants.DB_TABLE_OVERRIDE + " WHERE " + Constants.OVERRIDE_GROUP_ID + " = ? AND " +
+                Constants.OVERRIDE_CLASS_NAME + " = ? AND " + Constants.OVERRIDE_METHOD_NAME + " = ?";
         try (Connection sqlConnection = sqlService.getConnection()) {
-            statement = sqlConnection.prepareStatement(
-                    "DELETE FROM " + Constants.DB_TABLE_OVERRIDE + " WHERE " + Constants.OVERRIDE_GROUP_ID + " = ? AND " +
-                    Constants.OVERRIDE_CLASS_NAME + " = ? AND " + Constants.OVERRIDE_METHOD_NAME + " = ?");
+        	try (PreparedStatement statement = sqlConnection.prepareStatement(statementString)) {
+
             statement.setInt(1, groupId);
             statement.setString(2, className);
             statement.setString(3, methodName);
@@ -591,13 +587,11 @@ public class PathOverrideService {
             statement.close();
 
             // TODO: delete from enabled overrides
+        	} catch (SQLException e) {
+                e.printStackTrace();
+            }
         } catch (SQLException e) {
             e.printStackTrace();
-        } finally {
-            try {
-                if (statement != null) statement.close();
-            } catch (Exception e) {
-            }
         }
     }
 

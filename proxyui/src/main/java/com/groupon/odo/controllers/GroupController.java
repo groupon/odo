@@ -135,7 +135,7 @@ public class GroupController {
                        @RequestParam(value = "addOverride", required = false) String addOverride,
                        @RequestParam(value = "groupName", required = false) String groupName,
                        @RequestParam(value = "addOverrides[]", required = false) String[] addOverrides,
-                       @RequestParam(value = "removeOverride", required = false) String removeOverride) {
+                       @RequestParam(value = "removeOverride", required = false) String removeOverride) throws Exception {
         if (addOverride != null) {
             int lastPart = addOverride.lastIndexOf(".");
             String className = addOverride.substring(0, lastPart);
@@ -159,7 +159,7 @@ public class GroupController {
         }
         
         if (removeOverride != null) {
-        	int lastPart = removeOverride.lastIndexOf(".");
+            int lastPart = removeOverride.lastIndexOf(".");
             String className = removeOverride.substring(0, lastPart);
             String methodName = removeOverride.substring(lastPart + 1);
             pathOverrideService.removeOverride(groupId, methodName,

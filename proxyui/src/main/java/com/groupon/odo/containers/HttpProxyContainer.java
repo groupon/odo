@@ -71,25 +71,25 @@ public class HttpProxyContainer extends GenericProxyContainer {
     }
     
     private Connector createSslConnector() {
-    	Connector connector = new Connector("org.apache.coyote.http11.Http11NioProtocol");
-    	Http11NioProtocol protocol = (Http11NioProtocol) connector.getProtocolHandler();
-    	final int httpsPort = Utils.GetSystemPort(Constants.SYS_HTTPS_PORT);
+        Connector connector = new Connector("org.apache.coyote.http11.Http11NioProtocol");
+        Http11NioProtocol protocol = (Http11NioProtocol) connector.getProtocolHandler();
+        final int httpsPort = Utils.GetSystemPort(Constants.SYS_HTTPS_PORT);
         try {
-        	File keyStore = com.groupon.odo.proxylib.Utils.copyResourceToLocalFile("tomcat.ks", "tomcat.ks");
-            connector.setScheme("https");
-            connector.setSecure(true);
-            connector.setPort(httpsPort);
-            protocol.setSSLEnabled(true);
-            protocol.setSslProtocol("TLS");
-            protocol.setKeystoreFile(keyStore.getAbsolutePath());
-            protocol.setKeystorePass("changeit");
-            return connector;
+	        File keyStore = com.groupon.odo.proxylib.Utils.copyResourceToLocalFile("tomcat.ks", "tomcat.ks");
+	        connector.setScheme("https");
+	        connector.setSecure(true);
+	        connector.setPort(httpsPort);
+	        protocol.setSSLEnabled(true);
+	        protocol.setSslProtocol("TLS");
+	        protocol.setKeystoreFile(keyStore.getAbsolutePath());
+	        protocol.setKeystorePass("changeit");
+	        return connector;
         }
         catch (IOException ex) {
             throw new IllegalStateException("can't access keystore: [" + "keystore"
                     + "] or truststore: [" + "keystore" + "]", ex);
         } catch (Exception e) {
-        	e.printStackTrace();
+            e.printStackTrace();
         }
         return null;
     }

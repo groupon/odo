@@ -149,10 +149,10 @@
         </dependency>
         
         <dependency>
-			<groupId>org.apache.tomcat</groupId>
-			<artifactId>tomcat-jdbc</artifactId>
-			<version>7.0.55</version>
-		</dependency>		
+            <groupId>org.apache.tomcat</groupId>
+            <artifactId>tomcat-jdbc</artifactId>
+            <version>7.0.55</version>
+        </dependency>
     </dependencies>
 
     <build>
