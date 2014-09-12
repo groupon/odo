@@ -417,51 +417,46 @@
 							// populate data
 							historyData = data;
 
-							// optionally turn off the Formatted button
-							if (data.history.responseContentType == null
-									|| data.history.responseContentType
-											.toLowerCase().indexOf(
-													"application/json") == -1 || data.history.responseData == "") {
-								showRawResponeData();
-                                showModifiedResponse();
-								$("#showRawFormattedDataButton").attr(
-										"disabled", "disabled");
-							} else {
-                                showFormattedResponeData();
-								$("#showRawFormattedDataButton").removeAttr(
-										"disabled");
-							}
+                            // optionally turn off the Formatted button
+                            if (data.history.responseContentType == null
+							    || data.history.responseContentType.toLowerCase().indexOf(
+                                "application/json") == -1 || data.history.responseData == "") {
+                                $("#showRawFormattedDataButton").attr("disabled", "disabled");
+                            } else {
+                                $("#showRawFormattedDataButton").removeAttr("disabled");
+                            }
 
-							showModifiedRequestData();
-							$("#responseHeaders").val(data.history.responseHeaders);
-							$("#originalResponseHeaders").val(data.history.originalResponseHeaders);
-							$("#responseTypeLabel").html(data.history.responseContentType);
-							$("#requestQuery").val(data.history.requestURL);
-							$("#requestParameters").val(data.history.requestParams);
-							$("#requestHeaders").val(data.history.requestHeaders);
-							$("#requestPOSTData").val(data.history.requestPostData);
-							if(data.history.modified){
-								$("#originalResponseHeaders").val(historyData.history.originalResponseHeaders);
-								$("#originalRequestQuery").val(data.history.originalRequestURL);
-								$("#originalRequestParameters").val(data.history.originalRequestParams);
-								$("#originalRequestHeaders").val(data.history.originalRequestHeaders);
-								$("#originalRequestPOSTData").val(data.history.originalRequestPostData);
-								$("#responseButtons").show();
-								$("#requestButtons").show();
-								document.getElementById("showModifiedResponseButton").className = "btn btn-primary";
-								document.getElementById("showModifiedRequestButton").className = "btn btn-primary";
-							} 
-							else{
-								// set the query back to the original query data
-								$("#requestQuery").val(data.history.originalRequestURL);
-								
-								$("#responseButtons").hide();
-								$("#requestButtons").hide();
-							} 
-								
-							showCurlCommand();
-						}
-					});
+                            showRawResponeData();
+                            showModifiedResponse();
+                            showModifiedRequestData();
+                            $("#responseHeaders").val(data.history.responseHeaders);
+                            $("#originalResponseHeaders").val(data.history.originalResponseHeaders);
+                            $("#responseTypeLabel").html(data.history.responseContentType);
+                            $("#requestQuery").val(data.history.requestURL);
+                            $("#requestParameters").val(data.history.requestParams);
+                            $("#requestHeaders").val(data.history.requestHeaders);
+                            $("#requestPOSTData").val(data.history.requestPostData);
+                            if(data.history.modified){
+                                $("#originalResponseHeaders").val(historyData.history.originalResponseHeaders);
+                                $("#originalRequestQuery").val(data.history.originalRequestURL);
+                                $("#originalRequestParameters").val(data.history.originalRequestParams);
+                                $("#originalRequestHeaders").val(data.history.originalRequestHeaders);
+                                $("#originalRequestPOSTData").val(data.history.originalRequestPostData);
+                                $("#responseButtons").show();
+                                $("#requestButtons").show();
+                                document.getElementById("showModifiedResponseButton").className = "btn btn-primary";
+                                document.getElementById("showModifiedRequestButton").className = "btn btn-primary";
+                            } else{
+                                // set the query back to the original query data
+                                $("#requestQuery").val(data.history.originalRequestURL);
+
+                                $("#responseButtons").hide();
+                                $("#requestButtons").hide();
+                            }
+
+                            showCurlCommand();
+                        }
+				    });
 		}
 
 		$(document).ready(function() {

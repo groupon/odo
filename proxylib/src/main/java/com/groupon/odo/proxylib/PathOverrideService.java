@@ -578,7 +578,7 @@ public class PathOverrideService {
     	String statementString = "DELETE FROM " + Constants.DB_TABLE_OVERRIDE + " WHERE " + Constants.OVERRIDE_GROUP_ID + " = ? AND " +
                 Constants.OVERRIDE_CLASS_NAME + " = ? AND " + Constants.OVERRIDE_METHOD_NAME + " = ?";
         try (Connection sqlConnection = sqlService.getConnection()) {
-        	try (PreparedStatement statement = sqlConnection.prepareStatement(statementString)) {
+            try (PreparedStatement statement = sqlConnection.prepareStatement(statementString)) {
 
             statement.setInt(1, groupId);
             statement.setString(2, className);
