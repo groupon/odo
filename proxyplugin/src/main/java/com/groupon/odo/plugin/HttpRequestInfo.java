@@ -192,7 +192,9 @@ public class HttpRequestInfo {
 
         while(paramNames.hasMoreElements()) {
             String paramName = (String)paramNames.nextElement();
-            Object value = request.getAttribute(paramName);
+            
+            Object value = request.getParameter(paramName);
+            System.out.println("Param : " + paramName + ", Value: " + value);
             this.parameterMap.put(paramName, value);
         }
     }
