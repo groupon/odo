@@ -11,7 +11,7 @@
         <link rel="stylesheet" type="text/css" media="screen"
              href="<c:url value="/resources/css/odo.css"/>" />
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
 
         <style type="text/css">
             .detailsLeft
@@ -86,7 +86,7 @@
             function navigatePathPriority() {
                 window.location = '<c:url value = '/pathorder/${profile_id}'/>';
             }
-
+            
             function navigateRequestHistory() {
                 window.open('<c:url value='/history/${profile_id}'/>?clientUUID=${clientUUID}', "_blank");
             }
@@ -373,6 +373,23 @@
             function downloadCert(serverHost) {
                 window.location = '<c:url value="/cert/"/>' + serverHost;
             }
+            
+            function destinationHostFormatter (cellvalue, options, rowObject)
+            {
+            	if (cellvalue === "") {
+            		return "<span style=\"display: none\">hidden</span><span class=\"ui-icon ui-icon-info\" style=\"float: left; margin-right: .3em;\" title=\"Click here to enter a destination address if it is different from the source\"></span>Forwarding to source";
+            	}
+            	return cellvalue;
+            }
+            
+            function destinationHostUnFormatter (cellvalue, options, rowObject)
+            {
+            	// "hidden" is hidden text in the input box
+            	if (cellvalue.indexOf("hidden") === 0) {
+            		return "";
+            	}
+            	return cellvalue;
+            }
 
             $(document).ready(function () {
                 'use strict';
@@ -419,7 +436,9 @@
                         name : 'destUrl',
                         index : 'destUrl',
                         width : 160,
-                        editable : true
+                        editable : true,
+                        formatter : destinationHostFormatter,
+                        unformat : destinationHostUnFormatter
                     }, {
                         name : 'hostHeader',
                         index : 'hostHeader',
@@ -683,7 +702,7 @@
                 $("#tabs").tabs();
                 $("#tabs").css("overflow", "auto");
                 $("#sel1").select2();
-
+                
                 var currentHTML = $("#gview_serverlist > .ui-jqgrid-titlebar > span").html();
                 var dropDown = "&nbsp;&nbsp;&nbsp;<input id='serverGroupSelection' style='width:360px%'></input>&nbsp;&nbsp;<button id='editServerGroups' type='button' class='btn btn-xs' onClick='toggleServerGroupEdit()'><span class='glyphicon glyphicon-cog'></span></button>";
                 $("#gview_serverlist > .ui-jqgrid-titlebar > span").html(currentHTML + dropDown);
@@ -1383,8 +1402,6 @@
                     $("#groupSelect").val(ids);
                 }
             }
-
-
         </script>
     </head>
     <body>
@@ -1398,6 +1415,8 @@
         <div id="switchClientDialog" style="display:none;">
             Client UUID/Name: <input id="switchClientName" value="${clientFriendlyName}"/>
         </div>
+        
+        <%@ include file="pathtester_part.jsp" %>
 
         <nav class="navbar navbar-default" role="navigation">
             <div class="container-fluid">
@@ -1406,6 +1425,7 @@
                         <li><a href="#" onClick="navigateProfiles()">Profiles</a> </li>
                         <li><a href="#" onClick="navigateRequestHistory()">Request History</a></li>
                         <li><a href="#" onClick="navigatePathPriority()">Path Priority</a></li>
+                        <li><a href="#" onClick="navigatePathTester()">Path Tester</a></li>
                         <li><a href="#" onClick="navigateEditGroups()">Edit Groups</a></li>
                     </ul>
                     <div id="status" class="form-group navbar-form navbar-left" ></div>

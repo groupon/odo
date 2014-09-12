@@ -223,19 +223,12 @@ public class PluginManager {
 
         // load the plugin directory
         URL classURL = new File(classInfo.pluginPath).toURI().toURL();
-        ClassLoader sysClassLoader = Thread.currentThread().getContextClassLoader();
 
-        //Get the URLs
-        URL[] oldUrls = ((URLClassLoader) sysClassLoader).getURLs();
-        ArrayList<URL> urlList = new ArrayList<URL>();
-        Collections.addAll(urlList, oldUrls);
-        urlList.add(classURL);
-
-        URL[] urls = urlList.toArray(new URL[0]);
-        classLoader = new URLClassLoader(urls);
+        URL[] urls = new URL[] {classURL};
+        URLClassLoader child = new URLClassLoader (urls, this.getClass().getClassLoader());
 
         // load the class
-        Class<?> cls = classLoader.loadClass(className);
+        Class<?> cls = child.loadClass(className);
 
         // put loaded class into classInfo
         classInfo.loadedClass = cls;

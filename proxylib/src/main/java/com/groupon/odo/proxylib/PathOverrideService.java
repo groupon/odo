@@ -18,6 +18,9 @@ package com.groupon.odo.proxylib;
 import com.groupon.odo.proxylib.models.Client;
 import com.groupon.odo.proxylib.models.EndpointOverride;
 import com.groupon.odo.proxylib.models.Group;
+import com.groupon.odo.proxylib.models.Method;
+import com.groupon.odo.proxylib.models.Profile;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,6 +29,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * This class has methods to help with adding/updating/deleting paths, overrides and groups
@@ -61,11 +66,9 @@ public class PathOverrideService {
      */
     public List<Group> findAllGroups() {
         ArrayList<Group> allGroups = new ArrayList<Group>();
-        Connection sqlConnection = null;
         PreparedStatement queryStatement = null;
         ResultSet results = null;
-        try {
-            sqlConnection = sqlService.getConnection();
+        try (Connection sqlConnection = sqlService.getConnection()) {
             queryStatement = sqlConnection.prepareStatement("SELECT * FROM "
                     + Constants.DB_TABLE_GROUPS +
                     " ORDER BY " + Constants.GROUPS_GROUP_NAME);
@@ -104,12 +107,10 @@ public class PathOverrideService {
     public int addPathnameToProfile(int id, String pathname, String actualPath) throws Exception {
         int pathOrder = getPathOrder(id).size() + 1;
         int pathId = -1;
-        Connection sqlConnection = null;
         PreparedStatement statement = null;
         ResultSet results = null;
 
-        try {
-            sqlConnection = sqlService.getConnection();
+        try (Connection sqlConnection = sqlService.getConnection()) {
             statement = sqlConnection.prepareStatement(
                     "INSERT INTO " + Constants.DB_TABLE_PATH
                             + "(" + Constants.PATH_PROFILE_PATHNAME + ","
@@ -172,11 +173,8 @@ public class PathOverrideService {
      * @throws Exception
      */
     public void addPathToRequestResponseTable(int profileId, String clientUUID, int pathId) throws Exception {
-        Connection sqlConnection = null;
         PreparedStatement statement = null;
-        try {
-            sqlConnection = sqlService.getConnection();
-
+        try (Connection sqlConnection = sqlService.getConnection()) {
             statement = sqlConnection
                     .prepareStatement("INSERT INTO " + Constants.DB_TABLE_REQUEST_RESPONSE +
                             "(" + Constants.REQUEST_RESPONSE_PATH_ID + ","
@@ -215,12 +213,10 @@ public class PathOverrideService {
      */
     public List<Integer> getPathOrder(int profileId) {
         ArrayList<Integer> pathOrder = new ArrayList<Integer>();
-        Connection sqlConnection = null;
         PreparedStatement queryStatement = null;
         ResultSet results = null;
 
-        try {
-            sqlConnection = sqlService.getConnection();
+        try (Connection sqlConnection = sqlService.getConnection()) {
             queryStatement = sqlConnection.prepareStatement(
                     "SELECT * FROM "
                             + Constants.DB_TABLE_PATH + " WHERE "
@@ -322,12 +318,10 @@ public class PathOverrideService {
      * @return
      */
     public Integer addGroup(String nameOfGroup) {
-        Connection sqlConnection = null;
         PreparedStatement queryStatement = null;
         ResultSet results = null;
 
-        try {
-            sqlConnection = sqlService.getConnection();
+        try (Connection sqlConnection = sqlService.getConnection()) {
             PreparedStatement statement = sqlConnection.prepareStatement(
                     "INSERT INTO " + Constants.DB_TABLE_GROUPS
                             + "(" + Constants.GROUPS_GROUP_NAME + ")"
@@ -380,13 +374,16 @@ public class PathOverrideService {
      * @param methodName
      * @param className
      */
-    public void createOverride(int groupId, String methodName, String className) {
-        Connection sqlConnection = null;
-        PreparedStatement queryStatement = null;
-        ResultSet results = null;
-
-        try {
-            sqlConnection = sqlService.getConnection();
+    public void createOverride(int groupId, String methodName, String className) throws Exception {
+        // first make sure this doesn't already exist
+		for (Method method : EditService.getInstance().getMethodsFromGroupId(groupId, null)) {
+			if (method.getMethodName().equals(methodName) && method.getClassName().equals(className)) {
+				// don't add if it already exists in the group
+				return;
+			}
+		}
+    	
+        try (Connection sqlConnection = sqlService.getConnection()) {
             PreparedStatement statement = sqlConnection.prepareStatement(
                     "INSERT INTO " + Constants.DB_TABLE_OVERRIDE
                             + "(" + Constants.OVERRIDE_METHOD_NAME
@@ -401,15 +398,6 @@ public class PathOverrideService {
             statement.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
-        } finally {
-            try {
-                if (results != null) results.close();
-            } catch (Exception e) {
-            }
-            try {
-                if (queryStatement != null) queryStatement.close();
-            } catch (Exception e) {
-            }
         }
     }
 
@@ -431,11 +419,9 @@ public class PathOverrideService {
      * @param id
      */
     public void updateGroupName(String newGroupName, int id) {
-        Connection sqlConnection = null;
         PreparedStatement statement = null;
 
-        try {
-            sqlConnection = sqlService.getConnection();
+        try (Connection sqlConnection = sqlService.getConnection()) {
             statement = sqlConnection.prepareStatement(
                     "UPDATE " + Constants.DB_TABLE_GROUPS +
                             " SET " + Constants.GROUPS_GROUP_NAME + " = ? " +
@@ -460,12 +446,9 @@ public class PathOverrideService {
      * @param groupId
      */
     public void removeGroup(int groupId) {
-        Connection sqlConnection = null;
         PreparedStatement statement = null;
 
-        try {
-            sqlConnection = sqlService.getConnection();
-
+        try (Connection sqlConnection = sqlService.getConnection()) {
             statement = sqlConnection.prepareStatement(
                     "DELETE FROM " + Constants.DB_TABLE_GROUPS
                             + " WHERE " + Constants.GENERIC_ID + " = ?"
@@ -498,14 +481,11 @@ public class PathOverrideService {
      * @param groupIdToRemove
      */
     private void removeGroupIdFromTablePaths(int groupIdToRemove) {
-        Connection sqlConnection = null;
         PreparedStatement queryStatement = null;
         PreparedStatement statement = null;
         ResultSet results = null;
 
-        try {
-            sqlConnection = sqlService.getConnection();
-
+        try (Connection sqlConnection = sqlService.getConnection()) {
             queryStatement = sqlConnection.prepareStatement("SELECT * FROM " + Constants.DB_TABLE_PATH);
             results = queryStatement.executeQuery();
             // this is a hashamp from a pathId to the string of groups
@@ -563,12 +543,9 @@ public class PathOverrideService {
      * @param overrideId
      */
     public void removeOverride(int overrideId) {
-        Connection sqlConnection = null;
         PreparedStatement statement = null;
 
-        try {
-            sqlConnection = sqlService.getConnection();
-
+        try (Connection sqlConnection = sqlService.getConnection()) {
             statement = sqlConnection.prepareStatement(
                     "DELETE FROM " + Constants.DB_TABLE_OVERRIDE + " WHERE " + Constants.GENERIC_ID + " = ?");
             statement.setInt(1, overrideId);
@@ -590,6 +567,32 @@ public class PathOverrideService {
             }
         }
     }
+    
+    /**
+     * Remove an override from a group by method/classname
+     * @param groupId
+     * @param methodName
+     * @param className
+     */
+    public void removeOverride(int groupId, String methodName, String className) {
+        String statementString = "DELETE FROM " + Constants.DB_TABLE_OVERRIDE + " WHERE " + Constants.OVERRIDE_GROUP_ID + " = ? AND " +
+                Constants.OVERRIDE_CLASS_NAME + " = ? AND " + Constants.OVERRIDE_METHOD_NAME + " = ?";
+        try (Connection sqlConnection = sqlService.getConnection()) {
+            try (PreparedStatement statement = sqlConnection.prepareStatement(statementString)) {
+                statement.setInt(1, groupId);
+                statement.setString(2, className);
+                statement.setString(3, methodName);
+                statement.executeUpdate();
+                statement.close();
+
+                // TODO: delete from enabled overrides
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
 
     /**
      * Remove a path
@@ -597,12 +600,9 @@ public class PathOverrideService {
      * @param pathId
      */
     public void removePath(int pathId) {
-        Connection sqlConnection = null;
         PreparedStatement statement = null;
 
-        try {
-            sqlConnection = sqlService.getConnection();
-
+        try (Connection sqlConnection = sqlService.getConnection()) {
             // remove any enabled overrides with this path
             statement = sqlConnection.prepareStatement(
                     "DELETE FROM " + Constants.DB_TABLE_ENABLED_OVERRIDE +
@@ -650,12 +650,10 @@ public class PathOverrideService {
     public com.groupon.odo.proxylib.models.Method getMethodForEnabledId(int enabledId) {
         com.groupon.odo.proxylib.models.Method method = null;
         int override_id = 0;
-        Connection sqlConnection = null;
         PreparedStatement queryStatement = null;
         ResultSet results = null;
 
-        try {
-            sqlConnection = sqlService.getConnection();
+        try (Connection sqlConnection = sqlService.getConnection()) {
             queryStatement = sqlConnection.prepareStatement(
                     "SELECT * FROM " + Constants.DB_TABLE_ENABLED_OVERRIDE +
                             " WHERE " + Constants.ENABLED_OVERRIDES_OVERRIDE_ID + " = ?"
@@ -726,11 +724,9 @@ public class PathOverrideService {
             }
         } else {
             // get method information from the database
-            Connection sqlConnection = null;
             PreparedStatement queryStatement = null;
             ResultSet results = null;
-            try {
-                sqlConnection = sqlService.getConnection();
+            try (Connection sqlConnection = sqlService.getConnection()) {
                 queryStatement = sqlConnection.prepareStatement(
                         "SELECT * FROM " + Constants.DB_TABLE_OVERRIDE +
                                 " WHERE " + Constants.GENERIC_ID + " = ?"
@@ -868,13 +864,11 @@ public class PathOverrideService {
      * @return
      */
     public int getPathId(String pathName, int profileId) {
-        Connection sqlConnection = null;
         PreparedStatement queryStatement = null;
         ResultSet results = null;
         // first get the pathId for the pathName/profileId
         int pathId = -1;
-        try {
-            sqlConnection = sqlService.getConnection();
+        try (Connection sqlConnection = sqlService.getConnection()) {
             queryStatement = sqlConnection.prepareStatement(
                     "SELECT " + Constants.GENERIC_ID + " FROM " + Constants.DB_TABLE_PATH
                             + " WHERE " + Constants.PATH_PROFILE_PATHNAME + "= ? "
@@ -923,16 +917,15 @@ public class PathOverrideService {
      * @throws Exception
      */
     public String getCustomData(int pathId, String clientUUID, String type) throws Exception {
-        Connection sqlConnection = null;
         PreparedStatement statement = null;
         ResultSet results = null;
         String data = "";
 
-        try {
+        try (Connection sqlConnection = sqlService.getConnection()) {
             String queryString = "SELECT " + type + " FROM " + Constants.DB_TABLE_REQUEST_RESPONSE +
                     " WHERE " + Constants.REQUEST_RESPONSE_PATH_ID + " = ? " +
                     " AND " + Constants.GENERIC_CLIENT_UUID + " = ?";
-            statement = sqlService.getConnection().prepareStatement(queryString);
+            statement = sqlConnection.prepareStatement(queryString);
             statement.setInt(1, pathId);
             statement.setString(2, clientUUID);
 
@@ -1020,14 +1013,12 @@ public class PathOverrideService {
      */
     public EndpointOverride getPath(int pathId, String clientUUID, String[] filters) throws Exception {
         EndpointOverride endpoint = null;
-        Connection sqlConnection = null;
         PreparedStatement statement = null;
         ResultSet results = null;
 
-        try {
+        try (Connection sqlConnection = sqlService.getConnection()) {
             String queryString = this.getPathSelectString();
             queryString += " AND " + Constants.DB_TABLE_PATH + "." + Constants.GENERIC_ID + "=" + pathId + ";";
-            sqlConnection = sqlService.getConnection();
             statement = sqlConnection.prepareStatement(queryString);
             statement.setString(1, clientUUID);
 
@@ -1061,11 +1052,9 @@ public class PathOverrideService {
      * @param pathName
      */
     public void setName(int pathId, String pathName) {
-        Connection sqlConnection = null;
         PreparedStatement statement = null;
-        try {
-            sqlConnection = sqlService.getConnection();
-            statement = sqlService.getConnection().prepareStatement(
+        try (Connection sqlConnection = sqlService.getConnection()) {
+            statement = sqlConnection.prepareStatement(
                     "UPDATE " + Constants.DB_TABLE_PATH +
                             " SET " + Constants.PATH_PROFILE_PATHNAME + " = ?" +
                             " WHERE " + Constants.GENERIC_ID + " = ?"
@@ -1091,10 +1080,8 @@ public class PathOverrideService {
      * @param path
      */
     public void setPath(int pathId, String path) {
-        Connection sqlConnection = null;
         PreparedStatement statement = null;
-        try {
-            sqlConnection = sqlService.getConnection();
+        try (Connection sqlConnection = sqlService.getConnection()) {
             statement = sqlConnection.prepareStatement(
                     "UPDATE " + Constants.DB_TABLE_PATH +
                             " SET " + Constants.PATH_PROFILE_ACTUAL_PATH + " = ? " +
@@ -1121,10 +1108,8 @@ public class PathOverrideService {
      * @param bodyFilter
      */
     public void setBodyFilter(int pathId, String bodyFilter) {
-        Connection sqlConnection = null;
         PreparedStatement statement = null;
-        try {
-            sqlConnection = sqlService.getConnection();
+        try (Connection sqlConnection = sqlService.getConnection()) {
             statement = sqlConnection.prepareStatement(
                     "UPDATE " + Constants.DB_TABLE_PATH +
                             " SET " + Constants.PATH_PROFILE_BODY_FILTER + " = ? " +
@@ -1151,10 +1136,8 @@ public class PathOverrideService {
      * @param contentType
      */
     public void setContentType(int pathId, String contentType) {
-        Connection sqlConnection = null;
         PreparedStatement statement = null;
-        try {
-            sqlConnection = sqlService.getConnection();
+        try (Connection sqlConnection = sqlService.getConnection()) {
             statement = sqlConnection.prepareStatement(
                     "UPDATE " + Constants.DB_TABLE_PATH +
                             " SET " + Constants.PATH_PROFILE_CONTENT_TYPE + " = ? " +
@@ -1183,11 +1166,9 @@ public class PathOverrideService {
     public void setRequestType(int pathId, Integer requestType) {
         if (requestType == null)
             requestType = Constants.REQUEST_TYPE_GET;
-        Connection sqlConnection = null;
         PreparedStatement statement = null;
 
-        try {
-            sqlConnection = sqlService.getConnection();
+        try (Connection sqlConnection = sqlService.getConnection()) {
             statement = sqlConnection.prepareStatement(
                     "UPDATE " + Constants.DB_TABLE_PATH +
                             " SET " + Constants.PATH_PROFILE_REQUEST_TYPE + " = ?" +
@@ -1213,11 +1194,9 @@ public class PathOverrideService {
      * @param global
      */
     public void setGlobal(int pathId, Boolean global) {
-        Connection sqlConnection = null;
         PreparedStatement statement = null;
 
-        try {
-            sqlConnection = sqlService.getConnection();
+        try (Connection sqlConnection = sqlService.getConnection()) {
             statement = sqlConnection.prepareStatement(
                     "UPDATE " + Constants.DB_TABLE_PATH +
                             " SET " + Constants.PATH_PROFILE_GLOBAL + " = ? " +
@@ -1248,15 +1227,14 @@ public class PathOverrideService {
     // TODO: enable path filtering
     public List<EndpointOverride> getPaths(int profileId, String clientUUID, String[] filters) throws Exception {
         ArrayList<EndpointOverride> properties = new ArrayList<EndpointOverride>();
-        Connection sqlConnection = null;
         PreparedStatement statement = null;
         ResultSet results = null;
 
-        try {
+        try (Connection sqlConnection = sqlService.getConnection()) {
             String queryString = this.getPathSelectString();
             queryString += " AND " + Constants.DB_TABLE_PATH + "." + Constants.GENERIC_PROFILE_ID + "=? " +
                     " ORDER BY " + Constants.PATH_PROFILE_PATH_ORDER + " ASC";
-            sqlConnection = sqlService.getConnection();
+
             statement = sqlConnection.prepareStatement(queryString);
             statement.setString(1, clientUUID);
             statement.setInt(2, profileId);
@@ -1291,11 +1269,9 @@ public class PathOverrideService {
      * @param enabled - 1 for enabled, 0 for disabled
      */
     public void setResponseEnabled(int pathId, boolean enabled, String clientUUID) throws Exception {
-        Connection sqlConnection = null;
         PreparedStatement statement = null;
         int profileId = EditService.getProfileIdFromPathID(pathId);
-        try {
-            sqlConnection = sqlService.getConnection();
+        try (Connection sqlConnection = sqlService.getConnection()) {
             statement = sqlConnection.prepareStatement(
                     "UPDATE " + Constants.DB_TABLE_REQUEST_RESPONSE +
                             " SET " + Constants.DB_TABLE_PATH_RESPONSE_ENABLED + "= ?" +
@@ -1326,12 +1302,10 @@ public class PathOverrideService {
      * @param clientUUID
      */
     public void setRequestEnabled(int pathId, boolean enabled, String clientUUID) {
-        Connection sqlConnection = null;
         PreparedStatement statement = null;
 
-        try {
+        try (Connection sqlConnection = sqlService.getConnection()) {
             int profileId = EditService.getProfileIdFromPathID(pathId);
-            sqlConnection = sqlService.getConnection();
             statement = sqlConnection.prepareStatement(
                     "UPDATE " + Constants.DB_TABLE_REQUEST_RESPONSE +
                             " SET " + Constants.DB_TABLE_PATH_REQUEST_ENABLED + "= ?" +
@@ -1362,12 +1336,10 @@ public class PathOverrideService {
      * @param clientUUID
      */
     public void setCustomResponse(int pathId, String customResponse, String clientUUID) {
-        Connection sqlConnection = null;
         PreparedStatement statement = null;
 
-        try {
+        try (Connection sqlConnection = sqlService.getConnection()) {
             int profileId = EditService.getProfileIdFromPathID(pathId);
-            sqlConnection = sqlService.getConnection();
             statement = sqlConnection.prepareStatement(
                     "UPDATE " + Constants.DB_TABLE_REQUEST_RESPONSE +
                             " SET " + Constants.REQUEST_RESPONSE_CUSTOM_RESPONSE + "= ?" +
@@ -1398,12 +1370,10 @@ public class PathOverrideService {
      * @param clientUUID
      */
     public void setCustomRequest(int pathId, String customRequest, String clientUUID) {
-        Connection sqlConnection = null;
         PreparedStatement statement = null;
 
-        try {
+        try (Connection sqlConnection = sqlService.getConnection()) {
             int profileId = EditService.getProfileIdFromPathID(pathId);
-            sqlConnection = sqlService.getConnection();
             statement = sqlConnection.prepareStatement(
                     "UPDATE " + Constants.DB_TABLE_REQUEST_RESPONSE +
                             " SET " + Constants.REQUEST_RESPONSE_CUSTOM_REQUEST + "= ?" +
@@ -1452,5 +1422,79 @@ public class PathOverrideService {
         this.setRequestEnabled(pathId, false, clientUUID);
         OverrideService.getInstance().disableAllOverrides(pathId, clientUUID, Constants.OVERRIDE_TYPE_REQUEST);
         EditService.getInstance().updateRepeatNumber(Constants.OVERRIDE_TYPE_REQUEST, pathId, clientUUID);
+    }
+    
+    /**
+     * Obtain matching paths for a request
+     *
+     * @param overrideType
+     * @param client
+     * @param profile
+     * @param uri
+     * @param requestType
+     * @param pathTest - If true this will also match disabled paths
+     * @return
+     * @throws Exception
+     */
+    public List<EndpointOverride> getSelectedPaths(int overrideType, Client client, Profile profile, String uri,
+                                                         Integer requestType, boolean pathTest) throws Exception {
+        List<EndpointOverride> selectPaths = new ArrayList<EndpointOverride>();
+
+        // get the paths for the current active client profile
+        // this returns paths in priority order
+        List<EndpointOverride> paths = new ArrayList<EndpointOverride>();
+
+        if (client.getIsActive()) {
+            paths = getPaths(
+                    profile.getId(),
+                    client.getUUID(), null);
+        }
+
+        boolean foundRealPath = false;
+        logger.info("Checking uri: {}", uri);
+
+        // it should now be ordered by priority, i updated tableOverrides to
+        // return the paths in priority order
+        for (EndpointOverride path : paths) {
+            // first see if the request types match..
+            // and if the path request type is not ALL
+            // if they do not then skip this path
+        	// If requestType is -1 we evaluate all(probably called by the path tester)
+            if (requestType != -1 && path.getRequestType() != requestType && path.getRequestType() != Constants.REQUEST_TYPE_ALL)
+                continue;
+
+            // first see if we get a match
+            Pattern pattern = Pattern.compile(path.getPath());
+            Matcher matcher = pattern.matcher(uri);
+
+            // we won't select the path if there aren't any enabled endpoints in it
+            // this works since the paths are returned in priority order
+            if (matcher.find()) {
+                // now see if this path has anything enabled in it
+                // Only go into the if:
+                // 1. There are enabled items in this path
+                // 2. Caller was looking for ResponseOverride and Response is enabled OR looking for RequestOverride
+            	// 3. If pathTest is true then the rest of the conditions are not evaluated.  The path tester ignores enabled states so everything is returned.
+                // and request is enabled
+                if (pathTest || 
+                		(path.getEnabledEndpoints().size() > 0 &&
+                        ((overrideType == Constants.OVERRIDE_TYPE_RESPONSE && path.getResponseEnabled()) ||
+                                (overrideType == Constants.OVERRIDE_TYPE_REQUEST && path.getRequestEnabled())))) {
+                    // if we haven't already seen a non global path
+                    // or if this is a global path
+                    // then add it to the list
+                    if (!foundRealPath || path.getGlobal())
+                        selectPaths.add(path);
+                }
+
+                // we set this no matter what if a path matched and it was not the global path
+                // this stops us from adding further non global matches to the list
+                if (!path.getGlobal()) {
+                    foundRealPath = true;
+                }
+            }
+        }
+
+        return selectPaths;
     }
 }

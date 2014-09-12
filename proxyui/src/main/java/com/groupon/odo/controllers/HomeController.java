@@ -16,7 +16,6 @@
 package com.groupon.odo.controllers;
 
 import com.groupon.odo.containers.HttpProxyContainer;
-import com.groupon.odo.containers.HttpsProxyContainer;
 import com.groupon.odo.proxylib.Constants;
 import com.groupon.odo.proxylib.SQLService;
 import com.groupon.odo.proxylib.Utils;
@@ -45,8 +44,7 @@ import java.util.concurrent.TimeUnit;
 @Controller
 @PropertySources(value = {@PropertySource("classpath:application.properties")})
 @ComponentScan(basePackages = {"com.groupon.odo.controllers"}, excludeFilters = {
-        @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = HttpProxyContainer.class),
-        @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = HttpsProxyContainer.class)})
+        @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = HttpProxyContainer.class)})
 
 @EnableAutoConfiguration(exclude = {EmbeddedServletContainerAutoConfiguration.class})
 public class HomeController {
@@ -102,6 +100,5 @@ public class HomeController {
     public static void main(String[] args) {
         SpringApplication.run(HomeController.class, args);
         SpringApplication.run(HttpProxyContainer.class, args);
-        SpringApplication.run(HttpsProxyContainer.class, args);
     }
 }

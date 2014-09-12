@@ -37,7 +37,7 @@ public class HistoryController {
                        @RequestParam(value = "clientUUID", defaultValue = Constants.PROFILE_CLIENT_DEFAULT_ID) String clientUUID) throws Exception {
         Integer profileId = ControllerUtils.convertProfileIdentifier(profileIdentifier);
 
-        model.addAttribute("profileId", profileId);
+        model.addAttribute("profile_id", profileId);
         model.addAttribute("limit", limit);
         model.addAttribute("offset", offset);
         model.addAttribute("clientUUID", clientUUID);

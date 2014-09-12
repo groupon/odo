@@ -75,11 +75,9 @@ public class EditService {
      * @param client_uuid
      */
     public void makeAllRepeatUnlimited(int profileId, String client_uuid) {
-        Connection sqlConnection = null;
         PreparedStatement statement = null;
 
-        try {
-            sqlConnection = sqlService.getConnection();
+        try (Connection sqlConnection = sqlService.getConnection()) {
             statement = sqlConnection.prepareStatement(
                     "UPDATE " + Constants.DB_TABLE_REQUEST_RESPONSE +
                             " SET " + Constants.REQUEST_RESPONSE_REPEAT_NUMBER + " = ?" +
@@ -119,10 +117,8 @@ public class EditService {
      * @param client_uuid
      */
     public void disableAll(int profileId, String client_uuid) {
-        Connection sqlConnection = null;
         PreparedStatement statement = null;
-        try {
-            sqlConnection = sqlService.getConnection();
+        try (Connection sqlConnection = sqlService.getConnection()) {
             statement = sqlConnection.prepareStatement(
                     "DELETE FROM " + Constants.DB_TABLE_ENABLED_OVERRIDE +
                             " WHERE " + Constants.CLIENT_PROFILE_ID + " = ?" +
@@ -149,10 +145,8 @@ public class EditService {
      * @param profileId
      */
     public void removePathnameFromProfile(int path_id, int profileId) {
-        Connection sqlConnection = null;
         PreparedStatement statement = null;
-        try {
-            sqlConnection = sqlService.getConnection();
+        try (Connection sqlConnection = sqlService.getConnection()) {
             statement = sqlConnection.prepareStatement(
                     "DELETE FROM " + Constants.DB_TABLE_ENABLED_OVERRIDE +
                             " WHERE " + Constants.ENABLED_OVERRIDES_PATH_ID + " = ?"
@@ -186,12 +180,10 @@ public class EditService {
      */
     public List<Method> getMethodsFromGroupId(int groupId, String[] filters) throws Exception {
         ArrayList<Method> methods = new ArrayList<Method>();
-        Connection sqlConnection = null;
         PreparedStatement statement = null;
         ResultSet results = null;
 
-        try {
-            sqlConnection = sqlService.getConnection();
+        try (Connection sqlConnection = sqlService.getConnection()) {
             statement = sqlConnection.prepareStatement(
                     "SELECT * FROM " + Constants.DB_TABLE_OVERRIDE +
                             " WHERE " + Constants.OVERRIDE_GROUP_ID + " = ?"
@@ -215,7 +207,7 @@ public class EditService {
                     }
                 }
 
-                if (add)
+                if (add && ! methods.contains(method))
                     methods.add(method);
             }
         } catch (Exception e) {
@@ -248,12 +240,10 @@ public class EditService {
     }
 
     public static void updateRequestResponseTables(String columnName, Object newData, int profileId, String client_uuid, int path_id) {
-        Connection sqlConnection = null;
         PreparedStatement statement = null;
 
-        try {
-            sqlConnection = sqlService.getConnection();
-            statement = sqlService.getConnection().prepareStatement(
+        try (Connection sqlConnection = sqlService.getConnection()) {
+            statement = sqlConnection.prepareStatement(
                     "UPDATE " + Constants.DB_TABLE_REQUEST_RESPONSE +
                             " SET " + columnName + " = ?" +
                             " WHERE " + Constants.GENERIC_PROFILE_ID + "= ?" +
@@ -283,12 +273,10 @@ public class EditService {
      * @param path_id
      */
     public static void updatePathTable(String columnName, Object newData, int path_id) {
-        Connection sqlConnection = null;
         PreparedStatement statement = null;
 
-        try {
-            sqlConnection = sqlService.getConnection();
-            statement = sqlService.getConnection().prepareStatement(
+        try (Connection sqlConnection = sqlService.getConnection()) {
+            statement = sqlConnection.prepareStatement(
                     "UPDATE " + Constants.DB_TABLE_PATH +
                             " SET " + columnName + " = ?" +
                             " WHERE " + Constants.GENERIC_ID + " = ?"

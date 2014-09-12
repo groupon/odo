@@ -32,10 +32,12 @@ public class RemoveHeaderFilter implements Filter {
             @SuppressWarnings("unchecked")
             public void setHeader(String name, String value) {
                 ArrayList<String> removeHeaders = new ArrayList<String>();
+                
                 if (r1.getAttribute("com.groupon.odo.removeHeaders") != null)
                     removeHeaders = (ArrayList<String>) r1.getAttribute("com.groupon.odo.removeHeaders");
 
-                if (!removeHeaders.contains(name)) {
+                removeHeaders.add("transfer-encoding");
+                if (!removeHeaders.contains(name.toLowerCase())) {
                     super.setHeader(name, value);
                 }
             }

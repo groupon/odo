@@ -23,6 +23,8 @@
  	</style>
 </head>
 <body>
+<%@ include file="pathtester_part.jsp" %>
+
 <nav class="navbar navbar-default" role="navigation">
 	<div class="container-fluid">
 	    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
@@ -104,6 +106,9 @@
 				<div class="" style="float: left; width: 100%">
 					<h3 style="display: inline;">
 						<span class="label label-default">URL</span>
+						<div class="btn-group btn-group-sm">
+							<button type="button" class="btn btn-default" onClick="showPathTester()">Test Path</button>
+						</div>
 					</h3>
 					<h3 style="display: inline">
 						<div class="btn-group btn-group-sm" style="float:right" id="requestButtons">
@@ -186,7 +191,7 @@
 		function clearHistory() {
 			$.ajax({
 				type : "POST",
-				url : '<c:url value="/api/history/${profileId}"/>',
+				url : '<c:url value="/api/history/${profile_id}"/>',
 				data : ({
 					clientUUID : clientUUID,
 					_method : 'DELETE'
@@ -206,7 +211,7 @@
 					.jqGrid(
 							'setGridParam',
 							{
-								url : '<c:url value="/api/history/${profileId}"/>?clientUUID=${clientUUID}&source_uri[]='
+								url : '<c:url value="/api/history/${profile_id}"/>?clientUUID=${clientUUID}&source_uri[]='
 										+ filter,
 								page : 1
 							}).trigger("reloadGrid");
@@ -218,7 +223,7 @@
 					.jqGrid(
 							'setGridParam',
 							{
-								url : '<c:url value="/api/history/${profileId}"/>?clientUUID=${clientUUID}',
+								url : '<c:url value="/api/history/${profile_id}"/>?clientUUID=${clientUUID}',
 								page : 1
 							}).trigger("reloadGrid");
 		}
@@ -296,8 +301,20 @@
 		
 		var responseRaw, originalResponseRaw;
 		function showFormattedResponeData() {
-			responseRaw = JSON.stringify(JSON.parse(historyData.history.responseData), null, 4);
+			try {
+				responseRaw = JSON.stringify(JSON.parse(historyData.history.responseData), null, 4);
+			} catch (err) {
+				// use original data
+				responseRaw = historyData.history.responseData;
+			}
+			
+			try {
 			originalResponseRaw = JSON.stringify(JSON.parse(historyData.history.originalResponseData), null, 4);
+			} catch (err) {
+				// use original data
+				originalResponseRaw = historyData.history.originalResponseData;
+			}
+			
 			$("#responseRaw").val(responseRaw);
 			$("#originalResponseRaw").val(originalResponseRaw);
 			document.getElementById("showRawFormattedDataButton").className = "btn btn-primary";
@@ -365,7 +382,7 @@
 			var headers = historyData.history.requestHeaders.split('\n');
 			var requestType = historyData.history.requestType;
 
-			var commandLine = "curl -X " + requestType;
+			var commandLine = "curl --insecure --proxy " + window.location.hostname + ":9090 -X " + requestType;
 			for ( var x in headers) {
 				commandLine += " --header \"" + headers[x] + "\"";
 			}
@@ -376,11 +393,11 @@
 						+ "\"";
 			}
 
-			commandLine += " \"" + historyData.history.requestURL;
+			commandLine += " \"" + historyData.history.originalRequestURL;
 
-			if (historyData.history.requestParams != null
-					&& historyData.history.requestParams !== "") {
-				commandLine += "?" + historyData.history.requestParams;
+			if (historyData.history.originalRequestParams != null
+					&& historyData.history.originalRequestParams !== "") {
+				commandLine += "?" + historyData.history.originalRequestParams;
 			}
 
 			commandLine += "\"";
@@ -393,55 +410,53 @@
 			$
 					.ajax({
 						type : "GET",
-						url : '<c:url value="/api/history/${profileId}/"/>'
+						url : '<c:url value="/api/history/${profile_id}/"/>'
 								+ historyId,
 						data : 'clientUUID=${clientUUID}',
 						success : function(data) {
 							// populate data
 							historyData = data;
 
-							// optionally turn off the Formatted button
-							if (data.history.responseContentType == null
-									|| data.history.responseContentType
-											.toLowerCase().indexOf(
-													"application/json") == -1) {
-								showRawResponeData();
-                                showModifiedResponse();
-								$("#showRawFormattedDataButton").attr(
-										"disabled", "disabled");
-							} else {
-                                showFormattedResponeData();
-								$("#showRawFormattedDataButton").removeAttr(
-										"disabled");
-							}
+                            // optionally turn off the Formatted button
+                            if (data.history.responseContentType == null
+							    || data.history.responseContentType.toLowerCase().indexOf(
+                                "application/json") == -1 || data.history.responseData == "") {
+                                $("#showRawFormattedDataButton").attr("disabled", "disabled");
+                            } else {
+                                $("#showRawFormattedDataButton").removeAttr("disabled");
+                            }
 
-							showModifiedRequestData();
-							$("#responseHeaders").val(data.history.responseHeaders);
-							$("#originalResponseHeaders").val(data.history.originalResponseHeaders);
-							$("#responseTypeLabel").html(data.history.responseContentType);
-							$("#requestQuery").val(data.history.requestURL);
-							$("#requestParameters").val(data.history.requestParams);
-							$("#requestHeaders").val(data.history.requestHeaders);
-							$("#requestPOSTData").val(data.history.requestPostData);
-							if(data.history.modified){
-								$("#originalResponseHeaders").val(historyData.history.originalResponseHeaders);
-								$("#originalRequestQuery").val(data.history.originalRequestURL);
-								$("#originalRequestParameters").val(data.history.originalRequestParams);
-								$("#originalRequestHeaders").val(data.history.originalRequestHeaders);
-								$("#originalRequestPOSTData").val(data.history.originalRequestPostData);
-								$("#responseButtons").show();
-								$("#requestButtons").show();
-								document.getElementById("showModifiedResponseButton").className = "btn btn-primary";
-								document.getElementById("showModifiedRequestButton").className = "btn btn-primary";
-							} 
-							else{
-								$("#responseButtons").hide();
-								$("#requestButtons").hide();
-							} 
-								
-							showCurlCommand();
-						}
-					});
+                            showRawResponeData();
+                            showModifiedResponse();
+                            showModifiedRequestData();
+                            $("#responseHeaders").val(data.history.responseHeaders);
+                            $("#originalResponseHeaders").val(data.history.originalResponseHeaders);
+                            $("#responseTypeLabel").html(data.history.responseContentType);
+                            $("#requestQuery").val(data.history.requestURL);
+                            $("#requestParameters").val(data.history.requestParams);
+                            $("#requestHeaders").val(data.history.requestHeaders);
+                            $("#requestPOSTData").val(data.history.requestPostData);
+                            if(data.history.modified){
+                                $("#originalResponseHeaders").val(historyData.history.originalResponseHeaders);
+                                $("#originalRequestQuery").val(data.history.originalRequestURL);
+                                $("#originalRequestParameters").val(data.history.originalRequestParams);
+                                $("#originalRequestHeaders").val(data.history.originalRequestHeaders);
+                                $("#originalRequestPOSTData").val(data.history.originalRequestPostData);
+                                $("#responseButtons").show();
+                                $("#requestButtons").show();
+                                document.getElementById("showModifiedResponseButton").className = "btn btn-primary";
+                                document.getElementById("showModifiedRequestButton").className = "btn btn-primary";
+                            } else{
+                                // set the query back to the original query data
+                                $("#requestQuery").val(data.history.originalRequestURL);
+
+                                $("#responseButtons").hide();
+                                $("#requestButtons").hide();
+                            }
+
+                            showCurlCommand();
+                        }
+				    });
 		}
 
 		$(document).ready(function() {
@@ -465,7 +480,7 @@
 		var historyList = jQuery("#historylist");
 		historyList
 				.jqGrid({
-					url : '<c:url value="/api/history/${profileId}"/>?clientUUID=${clientUUID}',
+					url : '<c:url value="/api/history/${profile_id}"/>?clientUUID=${clientUUID}',
 					height : 300,
 					autowidth : true,
 					pgbuttons : true, // disable page control like next, back button
@@ -492,8 +507,8 @@
 						editable : false,
 						align : 'center'
 					}, {
-						name : 'requestURL',
-						index : 'requestURL',
+						name : 'originalRequestURL',
+						index : 'originalRequestURL',
 						width : 300,
 						editable : false,
 						formatter : scrollableFormatter
@@ -577,6 +592,12 @@
             newCellValue += ' disabled=true>';
             return newCellValue;
         }
+		
+		function showPathTester() {
+			$('#pathTesterURL').val($("#requestQuery").val() + "?" + $("#requestParameters").val());
+			navigatePathTester();
+			pathTesterSubmit();
+		}
 	</script>
 </body>
 </html>

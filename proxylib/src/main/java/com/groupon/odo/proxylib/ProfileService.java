@@ -16,6 +16,7 @@
 package com.groupon.odo.proxylib;
 
 import com.groupon.odo.proxylib.models.Profile;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,11 +59,9 @@ public class ProfileService {
      */
     public boolean isActive(int profileId) {
         boolean active = false;
-        Connection sqlConnection = null;
         PreparedStatement queryStatement = null;
 
-        try {
-            sqlConnection = sqlService.getConnection();
+        try (Connection sqlConnection = sqlService.getConnection()) {
             queryStatement = sqlConnection.prepareStatement(
                     "SELECT " + Constants.CLIENT_IS_ACTIVE + " FROM " + Constants.DB_TABLE_CLIENT +
                             " WHERE " + Constants.GENERIC_CLIENT_UUID + "= '-1' " +
@@ -93,12 +92,10 @@ public class ProfileService {
      */
     public List<Profile> findAllProfiles() throws Exception {
         ArrayList<Profile> allProfiles = new ArrayList<Profile>();
-        Connection sqlConnection = null;
         PreparedStatement statement = null;
         ResultSet results = null;
 
-        try {
-            sqlConnection = sqlService.getConnection();
+        try (Connection sqlConnection = sqlService.getConnection()) {
             statement = sqlConnection.prepareStatement("SELECT * FROM " + Constants.DB_TABLE_PROFILE);
             results = statement.executeQuery();
             while (results.next()) {
@@ -128,12 +125,10 @@ public class ProfileService {
      */
     public Profile findProfile(int profileId) throws Exception {
         Profile profile = null;
-        Connection sqlConnection = null;
         PreparedStatement statement = null;
         ResultSet results = null;
 
-        try {
-            sqlConnection = sqlService.getConnection();
+        try (Connection sqlConnection = sqlService.getConnection()) {
             statement = sqlConnection.prepareStatement(
                     "SELECT * FROM " + Constants.DB_TABLE_PROFILE +
                             " WHERE " + Constants.GENERIC_ID + " = ?"
@@ -184,12 +179,10 @@ public class ProfileService {
     public Profile add(String profileName) throws Exception {
         Profile profile = new Profile();
         int id = -1;
-        Connection sqlConnection = null;
         PreparedStatement statement = null;
         ResultSet results = null;
 
-        try {
-            sqlConnection = sqlService.getConnection();
+        try (Connection sqlConnection = sqlService.getConnection()) {
             Clob clobProfileName = sqlService.toClob(profileName, sqlConnection);
 
             statement = sqlConnection.prepareStatement(
@@ -245,11 +238,9 @@ public class ProfileService {
      * @param profileId
      */
     public void remove(int profileId) {
-        Connection sqlConnection = null;
         PreparedStatement statement = null;
 
-        try {
-            sqlConnection = sqlService.getConnection();
+        try (Connection sqlConnection = sqlService.getConnection()) {
             statement = sqlConnection.prepareStatement("DELETE FROM " + Constants.DB_TABLE_PROFILE +
                     " WHERE " + Constants.GENERIC_ID + " = ?");
             statement.setInt(1, profileId);
@@ -312,12 +303,10 @@ public class ProfileService {
      * @return
      */
     public Integer getIdFromName(String profileName) {
-        Connection sqlConnection = null;
         PreparedStatement query = null;
         ResultSet results = null;
 
-        try {
-            sqlConnection = sqlService.getConnection();
+        try (Connection sqlConnection = sqlService.getConnection()) {
             query = sqlConnection.prepareStatement("SELECT * FROM " + Constants.DB_TABLE_PROFILE +
                     " WHERE " + Constants.PROFILE_PROFILE_NAME + " = ?");
             query.setString(1, profileName);
