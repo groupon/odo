@@ -575,19 +575,18 @@ public class PathOverrideService {
      * @param className
      */
     public void removeOverride(int groupId, String methodName, String className) {
-    	String statementString = "DELETE FROM " + Constants.DB_TABLE_OVERRIDE + " WHERE " + Constants.OVERRIDE_GROUP_ID + " = ? AND " +
+        String statementString = "DELETE FROM " + Constants.DB_TABLE_OVERRIDE + " WHERE " + Constants.OVERRIDE_GROUP_ID + " = ? AND " +
                 Constants.OVERRIDE_CLASS_NAME + " = ? AND " + Constants.OVERRIDE_METHOD_NAME + " = ?";
         try (Connection sqlConnection = sqlService.getConnection()) {
             try (PreparedStatement statement = sqlConnection.prepareStatement(statementString)) {
+                statement.setInt(1, groupId);
+                statement.setString(2, className);
+                statement.setString(3, methodName);
+                statement.executeUpdate();
+                statement.close();
 
-            statement.setInt(1, groupId);
-            statement.setString(2, className);
-            statement.setString(3, methodName);
-            statement.executeUpdate();
-            statement.close();
-
-            // TODO: delete from enabled overrides
-        	} catch (SQLException e) {
+                // TODO: delete from enabled overrides
+            } catch (SQLException e) {
                 e.printStackTrace();
             }
         } catch (SQLException e) {
