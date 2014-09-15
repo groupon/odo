@@ -15,20 +15,15 @@
 */
 package com.groupon.odo;
 
-import com.groupon.odo.plugin.*;
+import com.groupon.odo.plugin.HttpRequestInfo;
+import com.groupon.odo.plugin.PluginArguments;
+import com.groupon.odo.plugin.PluginHelper;
+import com.groupon.odo.plugin.PluginResponse;
 import com.groupon.odo.proxylib.*;
 import com.groupon.odo.proxylib.models.*;
-import com.groupon.odo.plugin.RequestOverride;
-import com.groupon.odo.plugin.ResponseOverride;
-
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
-import org.apache.commons.httpclient.Header;
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpMethod;
-import org.apache.commons.httpclient.HttpMethodRetryHandler;
-import org.apache.commons.httpclient.NoHttpResponseException;
-import org.apache.commons.httpclient.URIException;
+import org.apache.commons.httpclient.*;
 import org.apache.commons.httpclient.methods.DeleteMethod;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
@@ -42,7 +37,6 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -715,6 +709,11 @@ public class Proxy extends HttpServlet {
                     return true;
                 }
 
+                // other built-in overrides
+                if(endpoint.getOverrideId() < 0) {
+                    continue;
+                }
+
                 com.groupon.odo.proxylib.models.Method methodInfo =
                         PathOverrideService.getInstance().getMethodForEnabledId(endpoint.getOverrideId());
                 if(methodInfo.isBlockRequest()) {
@@ -815,7 +814,6 @@ public class Proxy extends HttpServlet {
             writeResponseOutput(responseWrapper, requestInfo.jsonpCallback);
         } catch (Exception e) {
             e.printStackTrace();
-            return;
         }
     }
 
@@ -826,7 +824,6 @@ public class Proxy extends HttpServlet {
      * @param httpServletRequest
      * @param httpServletResponse
      * @param history
-     * @param outStream
      * @throws Exception
      */
     private void executeRequest(HttpMethod httpMethodProxyRequest,
