@@ -1,17 +1,23 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>proxyplugin</artifactId>
     <name>proxyplugin</name>
-    <version>1.0.0-beta.3</version>
+    <version>1.0.0-beta.4-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <parent>
         <groupId>com.groupon.odo</groupId>
         <artifactId>proxyaggregator</artifactId>
-        <version>1.0.0-beta.3</version>
+        <version>1.0.0-beta.4-SNAPSHOT</version>
     </parent>
+
+    <scm>
+        <url>git@github.com:groupon/odo.git</url>
+        <connection>scm:git:git@github.com:groupon/odo.git</connection>
+        <developerConnection>scm:git:git@github.com:groupon/odo.git</developerConnection>
+      <tag>HEAD</tag>
+  </scm>
 
     <properties>
         <org.springframework-version>4.0.1.RELEASE</org.springframework-version>
@@ -60,10 +66,32 @@
                             <addClasspath>false</addClasspath>
                         </manifest>
                         <manifestEntries>
-                            <Implementation-Version>1.0.0-beta.3</Implementation-Version>
+                            <Implementation-Version>1.0.0-beta.3-SNAPSHOT</Implementation-Version>
                         </manifestEntries>
                     </archive>
                 </configuration>
+            </plugin>
+            <plugin>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <configuration>
+                    <descriptorRefs>
+                        <descriptorRef>jar-with-dependencies</descriptorRef>
+                    </descriptorRefs>
+                    <archive>
+                        <manifestEntries>
+                            <Plugin-Package>com.groupon.odo.proxyplugin</Plugin-Package>
+                        </manifestEntries>
+                    </archive>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>make-assembly</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>

@@ -1,12 +1,9 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
-    http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.groupon.odo</groupId>
     <artifactId>proxyaggregator</artifactId>
-    <version>1.0.0-beta.3</version>
+    <version>1.0.0-beta.4-SNAPSHOT</version>
     <name>proxyaggregator</name>
     <packaging>pom</packaging>
 
@@ -25,4 +22,35 @@
         <module>hostsedit</module>
         <module>examples</module>
     </modules>
+
+    <scm>
+        <url>git@github.com:groupon/odo.git</url>
+        <connection>scm:git:git@github.com:groupon/odo.git</connection>
+        <developerConnection>scm:git:git@github.com:groupon/odo.git</developerConnection>
+      <tag>HEAD</tag>
+    </scm>
+
+    <distributionManagement>
+        <repository>
+            <id>repo</id>
+            <url>https://guthub.com/groupon/odo/raw/master/releases</url>
+        </repository>
+        <snapshotRepository>
+            <id>snapshot-repo</id>
+            <url>https://github.com/groupon/odo/raw/master/snapshots</url>
+        </snapshotRepository>
+    </distributionManagement>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-release-plugin</artifactId>
+                <configuration>
+                    <localCheckout>true</localCheckout>
+                    <pushChanges>false</pushChanges>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>

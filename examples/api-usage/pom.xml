@@ -1,10 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <artifactId>api-usage</artifactId>
-    <version>1.0.0-beta.3</version>
+    <version>1.0.0-beta.4-SNAPSHOT</version>
     <packaging>jar</packaging>
     <properties>
         <org.springframework-version>4.0.1.RELEASE</org.springframework-version>
@@ -15,18 +13,26 @@
     <parent>
         <artifactId>examples</artifactId>
         <groupId>com.groupon.odo</groupId>
-        <version>1.0.0-beta.3</version>
+        <version>1.0.0-beta.4-SNAPSHOT</version>
     </parent>
+
+    <scm>
+        <url>git@github.com:groupon/odo.git</url>
+        <connection>scm:git:git@github.com:groupon/odo.git</connection>
+        <developerConnection>scm:git:git@github.com:groupon/odo.git</developerConnection>
+      <tag>HEAD</tag>
+  </scm>
+
     <dependencies>
         <dependency>
             <groupId>com.groupon.odo</groupId>
             <artifactId>proxylib</artifactId>
-            <version>1.0.0-beta.3</version>
+            <version>1.0.0-beta.4-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>com.groupon.odo</groupId>
             <artifactId>client</artifactId>
-            <version>1.0.0-beta.3</version>
+            <version>1.0.0-beta.4-SNAPSHOT</version>
         </dependency>
     </dependencies>
     <build>
@@ -55,6 +61,14 @@
                     <descriptorRefs>
                         <descriptorRef>jar-with-dependencies</descriptorRef>
                     </descriptorRefs>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <version>2.7</version>
+                <configuration>
+                    <skip>true</skip>
                 </configuration>
             </plugin>
         </plugins>
