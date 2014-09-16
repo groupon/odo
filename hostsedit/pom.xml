@@ -1,20 +1,20 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>HostsEdit</groupId>
 	<artifactId>HostsEdit</artifactId>
-	<version>1.0.0-beta.4-SNAPSHOT</version>
+	<version>1.0.0-beta.3-SNAPSHOT</version>
 	<parent>
 			<groupId>com.groupon.odo</groupId>
 			<artifactId>proxyaggregator</artifactId>
-			<version>1.0.0-beta.4-SNAPSHOT</version>
+			<version>1.0.0-beta.3-SNAPSHOT</version>
 	</parent>
 
     <scm>
         <url>git@github.com:groupon/odo.git</url>
         <connection>scm:git:git@github.com:groupon/odo.git</connection>
         <developerConnection>scm:git:git@github.com:groupon/odo.git</developerConnection>
-      <tag>HEAD</tag>
-  </scm>
+    </scm>
 
 	<properties>
       <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -25,7 +25,7 @@
 		<dependency>
 			<groupId>com.groupon.odo</groupId>
 			<artifactId>proxylib</artifactId>
-			<version>1.0.0-beta.4-SNAPSHOT</version>
+			<version>1.0.0-beta.3-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
 

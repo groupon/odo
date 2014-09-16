@@ -3,7 +3,7 @@
 
     <groupId>com.groupon.odo</groupId>
     <artifactId>proxyaggregator</artifactId>
-    <version>1.0.0-beta.4-SNAPSHOT</version>
+    <version>1.0.0-beta.3-SNAPSHOT</version>
     <name>proxyaggregator</name>
     <packaging>pom</packaging>
 
@@ -27,7 +27,6 @@
         <url>git@github.com:groupon/odo.git</url>
         <connection>scm:git:git@github.com:groupon/odo.git</connection>
         <developerConnection>scm:git:git@github.com:groupon/odo.git</developerConnection>
-      <tag>HEAD</tag>
     </scm>
 
     <distributionManagement>
