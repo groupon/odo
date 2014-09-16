@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>examples</artifactId>
     <groupId>com.groupon.odo</groupId>
-    <version>1.0.0-beta.3</version>
+    <version>1.0.0-beta.3-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <properties>
@@ -18,8 +18,14 @@
     <parent>
         <artifactId>proxyaggregator</artifactId>
         <groupId>com.groupon.odo</groupId>
-        <version>1.0.0-beta.3</version>
+        <version>1.0.0-beta.3-SNAPSHOT</version>
     </parent>
+
+    <scm>
+        <url>git@github.com:groupon/odo.git</url>
+        <connection>scm:git:git@github.com:groupon/odo.git</connection>
+        <developerConnection>scm:git:git@github.com:groupon/odo.git</developerConnection>
+    </scm>
 
     <modules>
         <module>plugin</module>
@@ -34,4 +40,17 @@
             <scope>provided</scope>
         </dependency>
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <version>2.7</version>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>

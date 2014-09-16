@@ -5,7 +5,7 @@
     <artifactId>proxyui</artifactId>
     <name>proxyui</name>
     <packaging>war</packaging>
-    <version>1.0.0-beta.3</version>
+    <version>1.0.0-beta.3-SNAPSHOT</version>
 
     <properties>
         <java-version>1.6</java-version>
@@ -20,19 +20,25 @@
     <parent>
         <groupId>com.groupon.odo</groupId>
         <artifactId>proxyaggregator</artifactId>
-        <version>1.0.0-beta.3</version>
+        <version>1.0.0-beta.3-SNAPSHOT</version>
     </parent>
+
+    <scm>
+        <url>git@github.com:groupon/odo.git</url>
+        <connection>scm:git:git@github.com:groupon/odo.git</connection>
+        <developerConnection>scm:git:git@github.com:groupon/odo.git</developerConnection>
+    </scm>
 
     <dependencies>
         <dependency>
             <groupId>com.groupon.odo</groupId>
             <artifactId>proxylib</artifactId>
-            <version>1.0.0-beta.3</version>
+            <version>1.0.0-beta.3-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>com.groupon.odo</groupId>
             <artifactId>ProxyServer</artifactId>
-            <version>1.0.0-beta.3</version>
+            <version>1.0.0-beta.3-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.json</groupId>
@@ -183,7 +189,7 @@
         <dependency>
             <groupId>com.groupon.odo</groupId>
             <artifactId>client</artifactId>
-            <version>1.0.0-beta.3</version>
+            <version>1.0.0-beta.3-SNAPSHOT</version>
             <scope>test</scope>
         </dependency>
 
@@ -319,6 +325,14 @@
                 </executions>
                 <configuration>
                     <mainClass>com.groupon.odo.controllers.HomeController</mainClass>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <version>2.7</version>
+                <configuration>
+                    <skip>true</skip>
                 </configuration>
             </plugin>
         </plugins>

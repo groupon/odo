@@ -4,14 +4,20 @@
 
     <artifactId>proxylib</artifactId>
     <name>proxylib</name>
-    <version>1.0.0-beta.3</version>
+    <version>1.0.0-beta.3-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <parent>
         <groupId>com.groupon.odo</groupId>
         <artifactId>proxyaggregator</artifactId>
-        <version>1.0.0-beta.3</version>
+        <version>1.0.0-beta.3-SNAPSHOT</version>
     </parent>
+
+    <scm>
+        <url>git@github.com:groupon/odo.git</url>
+        <connection>scm:git:git@github.com:groupon/odo.git</connection>
+        <developerConnection>scm:git:git@github.com:groupon/odo.git</developerConnection>
+    </scm>
 
     <properties>
         <org.springframework-version>4.0.1.RELEASE</org.springframework-version>
@@ -25,7 +31,7 @@
         <dependency>
             <groupId>com.groupon.odo</groupId>
             <artifactId>proxyplugin</artifactId>
-            <version>1.0.0-beta.3</version>
+            <version>1.0.0-beta.3-SNAPSHOT</version>
         </dependency>
 
         <dependency>
@@ -193,9 +199,17 @@
                             <addClasspath>false</addClasspath>
                         </manifest>
                         <manifestEntries>
-                            <Implementation-Version>1.0.0-beta.3</Implementation-Version>
+                            <Implementation-Version>1.0.0-beta.3-SNAPSHOT</Implementation-Version>
                         </manifestEntries>
                     </archive>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <version>2.7</version>
+                <configuration>
+                    <skip>true</skip>
                 </configuration>
             </plugin>
         </plugins>
