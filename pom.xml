@@ -5,7 +5,31 @@
     <artifactId>proxyaggregator</artifactId>
     <version>1.0.0-beta.3-SNAPSHOT</version>
     <name>proxyaggregator</name>
+    <description>A configurable proxy server which can be used to modify data passing through it or as a mock server to simulate different conditions</description>
+    <url>https://github.com/groupon/odo</url>
     <packaging>pom</packaging>
+
+    <licenses>
+        <license>
+            <name>The Apache License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <name>David van der Bokke</name>
+            <email>davidv@groupon.com</email>
+            <organization>Groupon, Inc.</organization>
+            <organizationUrl>http://www.groupon.com</organizationUrl>
+        </developer>
+        <developer>
+            <name>David Willson</name>
+            <email>davidw@groupon.com</email>
+            <organization>Groupon, Inc.</organization>
+            <organizationUrl>http://www.groupon.com</organizationUrl>
+        </developer>
+    </developers>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
