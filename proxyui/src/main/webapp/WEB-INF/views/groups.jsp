@@ -121,8 +121,10 @@
                     loadonce: true,
                     cellurl : '/testproxy/api/group',
                     gridComplete : function() {
-                        jQuery("#groupsList").setSelection(
-                            $("#groupsList").getDataIDs()[0], true);
+                        if($("#groupsList").length > 0){
+                    	    jQuery("#groupsList").setSelection(
+                    	        $("#groupsList").getDataIDs()[0], true);
+                    	}
                     },
                     onSelectRow: function(id) {
                         if (id) {
