@@ -424,7 +424,7 @@ public class Proxy extends HttpServlet {
      * @return
      */
     private String getHostHeaderForHost(String hostName) {
-        List<ServerRedirect> servers = serverRedirectService.tableServers(requestInformation.get().profile.getId());
+        List<ServerRedirect> servers = serverRedirectService.tableServers(requestInformation.get().client.getId());
         for (ServerRedirect server : servers) {
             if (server.getSrcUrl().compareTo(hostName) == 0) {
                 String hostHeader = server.getHostHeader();
@@ -559,7 +559,7 @@ public class Proxy extends HttpServlet {
      */
     private String getDestinationHostName(String hostName) {
         List<ServerRedirect> servers = serverRedirectService
-                .tableServers(requestInformation.get().profile.getId());
+                .tableServers(requestInformation.get().client.getId());
         for (ServerRedirect server : servers) {
             if (server.getSrcUrl().compareTo(hostName) == 0) {
                 if (server.getDestUrl() != null && server.getDestUrl().compareTo("") != 0) {
