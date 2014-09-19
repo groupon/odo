@@ -363,25 +363,23 @@ public class PluginManager {
                         String[] argNames = null;
                         String description = null;
 
-                        CtClass cc = classPool.get(className);
-                        CtMethod cm = cc.getDeclaredMethod(methodName);
-                        Object[] all = cm.getAnnotations();
-
                         // Convert to the right type and get annotation information
                         if (annotation.annotationType().toString().endsWith(Constants.PLUGIN_RESPONSE_OVERRIDE_CLASS)) {
-                            ResponseOverride roAnnotation = (ResponseOverride) all[0];
+                            ResponseOverride roAnnotation = (ResponseOverride)annotation;
                             newMethod.setHttpCode(roAnnotation.httpCode());
                             description = roAnnotation.description();
                             argNames = roAnnotation.parameters();
                             newMethod.setOverrideVersion(1);
                         }
                         else if(annotation.annotationType().toString().endsWith(Constants.PLUGIN_RESPONSE_OVERRIDE_V2_CLASS)) {
-                            com.groupon.odo.plugin.v2.ResponseOverride roAnnotation = (com.groupon.odo.plugin.v2.ResponseOverride) all[0];
+                            com.groupon.odo.plugin.v2.ResponseOverride roAnnotation = (com.groupon.odo.plugin.v2.ResponseOverride) annotation;
                             description = roAnnotation.description();
                             argNames = roAnnotation.parameters();
                             newMethod.setBlockRequest(roAnnotation.blockRequest());
                             newMethod.setOverrideVersion(2);
                         }
+                        else
+                            continue;
 
                         // identify arguments
                         // first arg is always a reserved that we skip
@@ -398,14 +396,11 @@ public class PluginManager {
 
                         methodInformation.put(fullName, newMethod);
                         m = newMethod;
-                        // want to break since we only care about the first annotation
-                        break;
                     }
 
                     break;
 
-                } catch (javassist.NotFoundException nfe) {
-                    // this can happen if libraries mismatch
+                } catch (Exception e) {
                     // in this case we just return null since the method would be unuseable
                     return null;
                 }
