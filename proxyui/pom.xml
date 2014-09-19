@@ -5,7 +5,7 @@
     <artifactId>proxyui</artifactId>
     <name>proxyui</name>
     <packaging>war</packaging>
-    <version>1.0.0-beta.3-SNAPSHOT</version>
+    <version>1.0.0-beta.3</version>
 
     <properties>
         <java-version>1.6</java-version>
@@ -20,7 +20,7 @@
     <parent>
         <groupId>com.groupon.odo</groupId>
         <artifactId>proxyaggregator</artifactId>
-        <version>1.0.0-beta.3-SNAPSHOT</version>
+        <version>1.0.0-beta.3</version>
     </parent>
 
     <scm>
@@ -33,12 +33,12 @@
         <dependency>
             <groupId>com.groupon.odo</groupId>
             <artifactId>proxylib</artifactId>
-            <version>1.0.0-beta.3-SNAPSHOT</version>
+            <version>1.0.0-beta.3</version>
         </dependency>
         <dependency>
             <groupId>com.groupon.odo</groupId>
             <artifactId>ProxyServer</artifactId>
-            <version>1.0.0-beta.3-SNAPSHOT</version>
+            <version>1.0.0-beta.3</version>
         </dependency>
         <dependency>
             <groupId>org.json</groupId>
@@ -189,7 +189,7 @@
         <dependency>
             <groupId>com.groupon.odo</groupId>
             <artifactId>client</artifactId>
-            <version>1.0.0-beta.3-SNAPSHOT</version>
+            <version>1.0.0-beta.3</version>
             <scope>test</scope>
         </dependency>
 
@@ -330,7 +330,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-deploy-plugin</artifactId>
-                <version>2.7</version>
+                <version>2.8.2</version>
                 <configuration>
                     <skip>true</skip>
                 </configuration>
