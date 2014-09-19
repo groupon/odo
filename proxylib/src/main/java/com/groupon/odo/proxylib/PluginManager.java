@@ -350,8 +350,6 @@ public class PluginManager {
 
                 try {
                     // get annotation information
-                    // each item should only have 1 annotation.. if it doesn't have any then skip it..
-                    // if it has more than one then use the first one
                     Annotation[] annotations = method.getAnnotations();
                     for (Annotation annotation : annotations) {
                         com.groupon.odo.proxylib.models.Method newMethod = new com.groupon.odo.proxylib.models.Method();
