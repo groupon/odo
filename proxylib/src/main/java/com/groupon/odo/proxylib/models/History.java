@@ -15,6 +15,10 @@
 */
 package com.groupon.odo.proxylib.models;
 
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.map.ObjectWriter;
+import org.json.JSONObject;
+
 import com.groupon.odo.proxylib.Constants;
 
 /**
@@ -36,6 +40,7 @@ public class History {
     private String responseHeaders = "";
     private String responseContentType = "";
     private String responseData = "";
+    private String formattedResponseData = "";
     private String originalRequestURL = "";
     private String originalRequestParams = "";
     private String originalRequestPostData = "";
@@ -44,6 +49,7 @@ public class History {
     private String originalResponseHeaders = "";
     private String originalResponseContentType = "";
     private String originalResponseData = "";
+    private String formattedOriginalResponseData = "";
     private boolean valid = true;
     private String validationMessage = "";
     private boolean modified = false;
@@ -82,6 +88,16 @@ public class History {
         this.originalResponseContentType = originalResponseContentType;
         this.originalResponseData = originalResponseData;
         this.modified = modified;
+    	ObjectMapper objectMapper = new ObjectMapper();
+        ObjectWriter writer = objectMapper.defaultPrettyPrintingWriter();
+
+        try{
+	        this.formattedResponseData = writer.writeValueAsString(responseData);
+	        this.formattedOriginalResponseData = writer.writeValueAsString(originalResponseData);
+        }catch (Exception e){
+        	e.printStackTrace();
+        }
+        
     }
 
     public void setId(int id) {
@@ -133,7 +149,34 @@ public class History {
     }
 
     public void setResponseData(String data) {
-        this.responseData = data;
+    	/*
+    	if(data!=null){
+    		ObjectMapper objectMapper = new ObjectMapper();
+            ObjectWriter writer = objectMapper.writer();
+            try{
+	            Object json = objectMapper.readValue(data, Object.class);
+	            this.responseData = writer.withView(ViewFilters.Default.class).writeValueAsString(json);
+            }catch (Exception e){
+            	e.printStackTrace();
+            }
+    	}
+    	else{
+    		this.responseData = data;
+    	}
+    	*/
+    	this.responseData = data;
+    }
+    
+    public void setFormattedResponseData(String data) throws Exception {
+    	if(data!=null){
+    		ObjectMapper objectMapper = new ObjectMapper();
+            ObjectWriter writer = objectMapper.defaultPrettyPrintingWriter();
+            Object json = objectMapper.readValue(data, Object.class);
+            this.formattedResponseData = writer.withView(ViewFilters.Default.class).writeValueAsString(json);
+    	}
+    	else{
+    		this.formattedResponseData = data;
+    	}
     }
 
     public int getProfileId() {
@@ -178,6 +221,10 @@ public class History {
 
     public String getResponseData() {
         return this.responseData;
+    }
+    
+    public String getFormattedResponseData(){
+    	return this.formattedResponseData;
     }
 
     public String getClientUUID() {
@@ -263,9 +310,37 @@ public class History {
     public String getOriginalResponseData() {
         return originalResponseData;
     }
+    
+    public String getFormattedOriginalResponseData() {
+    	return this.formattedOriginalResponseData;
+    }
 
     public void setOriginalResponseData(String originalResponseData) {
-        this.originalResponseData = originalResponseData;
+    	if(originalResponseData!=null){
+    		ObjectMapper objectMapper = new ObjectMapper();
+            ObjectWriter writer = objectMapper.writer();
+            try{
+	            Object json = objectMapper.readValue(originalResponseData, Object.class);
+	            this.originalResponseData = writer.withView(ViewFilters.Default.class).writeValueAsString(json);
+            }catch (Exception e){
+            	e.printStackTrace();
+            }
+    	}
+    	else{
+    		this.originalResponseData = originalResponseData;
+    	}
+    }
+    
+    public void setFormattedOriginalResponseData(String originalResponseData) throws Exception {
+    	if(originalResponseData!=null){
+    		ObjectMapper objectMapper = new ObjectMapper();
+            ObjectWriter writer = objectMapper.defaultPrettyPrintingWriter();
+            Object json = objectMapper.readValue(originalResponseData, Object.class);
+            this.formattedOriginalResponseData = writer.withView(ViewFilters.Default.class).writeValueAsString(json);
+    	}
+    	else{
+    		this.formattedOriginalResponseData = originalResponseData;
+    	}
     }
 
     public boolean isModified() {

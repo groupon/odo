@@ -87,9 +87,9 @@
 					<h3 style="display: inline;">
 						<div class="btn-group btn-group-sm">
 							<button type="button" class="btn btn-default"
-								id="showRawResponseDataButton" onClick="showRawResponeData()">Raw</button>
+								id="showRawResponseDataButton" onClick="showRawResponseData()">Raw</button>
 							<button type="button" class="btn btn-default"
-								id="showRawFormattedDataButton" onClick="showFormattedResponeData()">Formatted</button>
+								id="showRawFormattedDataButton" onClick="showFormattedResponseData()">Formatted</button>
 						</div>
 					</h3>
 					<h3 style="display: inline;">
@@ -300,28 +300,14 @@
 		}
 		
 		var responseRaw, originalResponseRaw;
-		function showFormattedResponeData() {
-			try {
-				responseRaw = JSON.stringify(JSON.parse(historyData.history.responseData), null, 4);
-			} catch (err) {
-				// use original data
-				responseRaw = historyData.history.responseData;
-			}
-			
-			try {
-			originalResponseRaw = JSON.stringify(JSON.parse(historyData.history.originalResponseData), null, 4);
-			} catch (err) {
-				// use original data
-				originalResponseRaw = historyData.history.originalResponseData;
-			}
-			
-			$("#responseRaw").val(responseRaw);
-			$("#originalResponseRaw").val(originalResponseRaw);
+		function showFormattedResponseData() {
+			$("#responseRaw").val(historyData.history.formattedResponseData);
+			$("#originalResponseRaw").val(historyData.history.formattedOriginalResponseData);
 			document.getElementById("showRawFormattedDataButton").className = "btn btn-primary";
 			document.getElementById("showRawResponseDataButton").className = "btn btn-default";
 		}
 
-		function showRawResponeData() {
+		function showRawResponseData() {
 			responseRaw = historyData.history.responseData.replace(/[<]/g, '&lt;');
 			originalResponseRaw = historyData.history.originalResponseData.replace(/[<]/g, '&lt;');
 			$("#responseRaw").val(responseRaw);
@@ -421,13 +407,14 @@
                             if (data.history.responseContentType == null
 							    || data.history.responseContentType.toLowerCase().indexOf(
                                 "application/json") == -1 || data.history.responseData == "") {
+                            	showRawResponseData();
+                            	showModifiedResponse();
                                 $("#showRawFormattedDataButton").attr("disabled", "disabled");
                             } else {
+                            	showFormattedResponseData();
                                 $("#showRawFormattedDataButton").removeAttr("disabled");
                             }
 
-                            showRawResponeData();
-                            showModifiedResponse();
                             showModifiedRequestData();
                             $("#responseHeaders").val(data.history.responseHeaders);
                             $("#originalResponseHeaders").val(data.history.originalResponseHeaders);
