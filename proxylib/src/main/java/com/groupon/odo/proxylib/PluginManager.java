@@ -349,6 +349,7 @@ public class PluginManager {
                     continue;
 
                 try {
+                    // get annotation information
                     Annotation[] annotations = method.getAnnotations();
                     for (Annotation annotation : annotations) {
                         com.groupon.odo.proxylib.models.Method newMethod = new com.groupon.odo.proxylib.models.Method();

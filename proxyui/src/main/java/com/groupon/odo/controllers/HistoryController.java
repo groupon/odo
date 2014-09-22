@@ -116,7 +116,8 @@ public class HistoryController {
     }
 
     /**
-     * Retrieve formatted history details for an entry
+     * Retrieve history details for an entry
+     * Formatted string is optional
      *
      * @param mode
      * @param profileIdentifier
