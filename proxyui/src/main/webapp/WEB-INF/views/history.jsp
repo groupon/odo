@@ -262,7 +262,7 @@
 			    if(historyData.history.formattedOriginalResponseData == ""){
 			        showFormattedResponseData();
 			    }else{
-			       $("#originalResponseRaw").val(historyData.history.formattedOriginalResponseData);
+			        $("#originalResponseRaw").val(historyData.history.formattedOriginalResponseData);
 			    }
 			}
 			$("#originalResponseHeaders").show();
@@ -298,16 +298,16 @@
 		function showModifiedResponse(){
 			$("#responseHeaders").val(historyData.history.responseHeaders);
 			if(historyData.history.responseContentType == null ||
-            	historyData.history.responseContentType.toLowerCase().indexOf("application/json") == -1 ||
-            	historyData.history.responseData == "" || $.cookie("formatted") == "false"){
-            		$("#responseRaw").val(responseRaw);
-            	}else{
-            		if(historyData.history.formattedResponseData == ""){
-            		    showFormattedResponseData();
-            	}else{
-            		$("#responseRaw").val(historyData.history.formattedResponseData);
-            	}
-            }
+			    historyData.history.responseContentType.toLowerCase().indexOf("application/json") == -1 ||
+			    historyData.history.responseData == "" || $.cookie("formatted") == "false"){
+			        $("#responseRaw").val(responseRaw);
+			}else{
+			    if(historyData.history.formattedResponseData == ""){
+			        showFormattedResponseData();
+			    }else{
+			        $("#responseRaw").val(historyData.history.formattedResponseData);
+			    }
+			}
 			$("#responseHeaders").show();
 			$("#responseRaw").show();
 			$("#originalResponseHeaderChange").hide();
@@ -321,20 +321,20 @@
 		
 		var responseRaw, originalResponseRaw;
 		function showFormattedResponseData() {
-			$.ajax({
-        		type : "GET",
-        	    url : '<c:url value="/api/history/${profile_id}/"/>'
-        			+ currentHistoryId,
-        		data : 'clientUUID=${clientUUID}&format=formattedAll',
-        		success : function(data) {
-        		    historyData = data;
-			        $("#responseRaw").val(data.history.formattedResponseData);
-			        $("#originalResponseRaw").val(data.history.formattedOriginalResponseData);
-			        $.cookie("formatted", "true");
-			        document.getElementById("showRawFormattedDataButton").className = "btn btn-primary";
-			        document.getElementById("showRawResponseDataButton").className = "btn btn-default";
-			    }
-			});
+		    $.ajax({
+		        type : "GET",
+		        url : '<c:url value="/api/history/${profile_id}/"/>'
+		            + currentHistoryId,
+		        data : 'clientUUID=${clientUUID}&format=formattedAll',
+		        success : function(data) {
+		            historyData = data;
+		            $("#responseRaw").val(data.history.formattedResponseData);
+		            $("#originalResponseRaw").val(data.history.formattedOriginalResponseData);
+		            $.cookie("formatted", "true");
+		            document.getElementById("showRawFormattedDataButton").className = "btn btn-primary";
+		            document.getElementById("showRawResponseDataButton").className = "btn btn-default";
+		        }
+		    });
 		}
 
 		function showRawResponseData() {

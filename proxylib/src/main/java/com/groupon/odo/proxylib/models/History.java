@@ -143,20 +143,30 @@ public class History {
     }
 
     public void setResponseData(String data) {
-    	this.responseData = data;
+        if(data!=null && !data.equals("") &&
+                responseContentType!= null && responseContentType.toLowerCase().indexOf("application/json")!=-1){
+            try{
+                JSONObject responseJSON = new JSONObject(data);
+                this.responseData = responseJSON.toString();
+            }catch(Exception e){
+                e.printStackTrace();
+            }
+        }else {
+            this.responseData = data;
+        }
     }
     
     public void setFormattedResponseData(String data) throws Exception {
-    	if(data!=null && !originalResponseData.equals("") && 
-    			originalResponseContentType!= null && originalResponseContentType.toLowerCase().indexOf("application/json")!=-1){
-    		ObjectMapper objectMapper = new ObjectMapper();
+        if(data!=null && !data.equals("") &&
+                responseContentType!= null && responseContentType.toLowerCase().indexOf("application/json")!=-1){
+            ObjectMapper objectMapper = new ObjectMapper();
             ObjectWriter writer = objectMapper.defaultPrettyPrintingWriter();
             Object json = objectMapper.readValue(data, Object.class);
             this.formattedResponseData = writer.withView(ViewFilters.Default.class).writeValueAsString(json);
-    	}
-    	else{
-    		this.formattedResponseData = data;
-    	}
+        }
+        else{
+            this.formattedResponseData = data;
+        }
     }
 
     public int getProfileId() {
@@ -204,7 +214,7 @@ public class History {
     }
     
     public String getFormattedResponseData(){
-    	return this.formattedResponseData;
+        return this.formattedResponseData;
     }
 
     public String getClientUUID() {
@@ -292,24 +302,34 @@ public class History {
     }
     
     public String getFormattedOriginalResponseData() {
-    	return this.formattedOriginalResponseData;
+        return this.formattedOriginalResponseData;
     }
 
     public void setOriginalResponseData(String originalResponseData) {
-        this.originalResponseData = originalResponseData;
+        if(originalResponseData!=null && !originalResponseData.equals("") &&
+                originalResponseContentType!= null && originalResponseContentType.toLowerCase().indexOf("application/json")!=-1){
+            try{
+                JSONObject originalResponseJSON = new JSONObject(originalResponseData);
+                this.originalResponseData = originalResponseJSON.toString();
+            }catch(Exception e){
+                e.printStackTrace();
+            }
+        }else {
+            this.originalResponseData = originalResponseData;
+        }
     }
     
     public void setFormattedOriginalResponseData(String originalResponseData) throws Exception {
-    	if(originalResponseData!=null && !originalResponseData.equals("") && 
-    			responseContentType!= null && responseContentType.toLowerCase().indexOf("application/json")!=-1){
-    		ObjectMapper objectMapper = new ObjectMapper();
+        if(originalResponseData!=null && !originalResponseData.equals("") &&
+                originalResponseContentType!= null && originalResponseContentType.toLowerCase().indexOf("application/json")!=-1){
+            ObjectMapper objectMapper = new ObjectMapper();
             ObjectWriter writer = objectMapper.defaultPrettyPrintingWriter();
             Object json = objectMapper.readValue(originalResponseData, Object.class);
             this.formattedOriginalResponseData = writer.withView(ViewFilters.Default.class).writeValueAsString(json);
-    	}
-    	else{
-    		this.formattedOriginalResponseData = originalResponseData;
-    	}
+        }
+        else{
+            this.formattedOriginalResponseData = originalResponseData;
+        }
     }
 
     public boolean isModified() {
