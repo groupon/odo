@@ -15,6 +15,7 @@
 */
 package com.groupon.odo.proxylib.models;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.ObjectWriter;
 import org.json.JSONObject;
@@ -24,8 +25,8 @@ import com.groupon.odo.proxylib.Constants;
 /**
  * Represents a single history object
  */
+@JsonPropertyOrder(alphabetic = true)
 public class History {
-
 
     private int id = -1;
     private int profileId = -1;
@@ -88,6 +89,7 @@ public class History {
         this.originalResponseContentType = originalResponseContentType;
         this.originalResponseData = originalResponseData;
         this.modified = modified;
+        /*
     	ObjectMapper objectMapper = new ObjectMapper();
         ObjectWriter writer = objectMapper.defaultPrettyPrintingWriter();
 
@@ -97,6 +99,9 @@ public class History {
         }catch (Exception e){
         	e.printStackTrace();
         }
+        */
+        this.formattedOriginalResponseData = "";
+        this.formattedResponseData = "";
         
     }
 
@@ -149,7 +154,7 @@ public class History {
     }
 
     public void setResponseData(String data) {
-    	/*
+        /*
     	if(data!=null){
     		ObjectMapper objectMapper = new ObjectMapper();
             ObjectWriter writer = objectMapper.writer();
@@ -168,7 +173,7 @@ public class History {
     }
     
     public void setFormattedResponseData(String data) throws Exception {
-    	if(data!=null){
+    	if(data!=null && originalResponseContentType.toLowerCase().indexOf("application/json")!=-1){
     		ObjectMapper objectMapper = new ObjectMapper();
             ObjectWriter writer = objectMapper.defaultPrettyPrintingWriter();
             Object json = objectMapper.readValue(data, Object.class);
@@ -316,6 +321,7 @@ public class History {
     }
 
     public void setOriginalResponseData(String originalResponseData) {
+        /*
     	if(originalResponseData!=null){
     		ObjectMapper objectMapper = new ObjectMapper();
             ObjectWriter writer = objectMapper.writer();
@@ -329,10 +335,12 @@ public class History {
     	else{
     		this.originalResponseData = originalResponseData;
     	}
+    	*/
+        this.originalResponseData = originalResponseData;
     }
     
     public void setFormattedOriginalResponseData(String originalResponseData) throws Exception {
-    	if(originalResponseData!=null){
+    	if(originalResponseData!=null && responseContentType.toLowerCase().indexOf("application/json")!=-1){
     		ObjectMapper objectMapper = new ObjectMapper();
             ObjectWriter writer = objectMapper.defaultPrettyPrintingWriter();
             Object json = objectMapper.readValue(originalResponseData, Object.class);

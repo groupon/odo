@@ -169,14 +169,14 @@ public class HistoryService {
         history.setModified(result.getBoolean(Constants.HISTORY_MODIFIED));
         if (withResponseData) {
             history.setResponseData(result.getString(Constants.HISTORY_RESPONSE_DATA));
-            history.setFormattedResponseData(result.getString(Constants.HISTORY_RESPONSE_DATA));
+            //history.setFormattedResponseData(result.getString(Constants.HISTORY_RESPONSE_DATA));
             history.setOriginalResponseData(result.getString(Constants.HISTORY_ORIGINAL_RESPONSE_DATA));
-            history.setFormattedOriginalResponseData(result.getString(Constants.HISTORY_ORIGINAL_RESPONSE_DATA));
+           //history.setFormattedOriginalResponseData(result.getString(Constants.HISTORY_ORIGINAL_RESPONSE_DATA));
         } else {
             history.setResponseData(null);
-            history.setFormattedResponseData(null);
+            //history.setFormattedResponseData(null);
             history.setOriginalResponseData(null);
-            history.setFormattedResponseData(null);
+            //history.setFormattedResponseData(null);
         }
 
 
@@ -196,7 +196,7 @@ public class HistoryService {
                         history.getOriginalRequestPostData(),
                         history.getOriginalRequestHeaders(),
                         history.getOriginalResponseData(),
-                        history.getFormattedOriginalResponseData(),
+                        //history.getFormattedOriginalResponseData(),
                         history.getOriginalResponseContentType(),
                         history.getOriginalResponseHeaders(),
                         history.isModified());

@@ -116,20 +116,42 @@ public class HistoryController {
     }
 
     /**
-     * Retrieve history details for an entry
+     * Retrieve formatted history details for an entry
      *
      * @param mode
      * @param profileIdentifier
      * @param id
      * @return
      */
+
     @RequestMapping(value = "/api/history/{profileIdentifier}/{id}", method = RequestMethod.GET)
     public
     @ResponseBody
-    HashMap<String, Object> getHistoryForId(Model mode, @PathVariable String profileIdentifier, @PathVariable Integer id) {
+    HashMap<String, Object> getHistoryForId(Model mode, @PathVariable String profileIdentifier, @PathVariable Integer id,
+                                                     @RequestParam(value = "format", required = false) String formatted) {
         HashMap<String, Object> returnData = new HashMap<String, Object>();
-        returnData.put("history", HistoryService.getInstance().getHistoryForID(id));
+        History history = HistoryService.getInstance().getHistoryForID(id);
+        if(formatted != null) {
+        	try{
+        		if(formatted.equals("formattedAll")){
+        			history.setFormattedResponseData(history.getResponseData());
+        			history.setFormattedOriginalResponseData(history.getOriginalResponseData());
+        		}else if(formatted.equals("formattedModified")){
+        			history.setFormattedResponseData(history.getResponseData());
+        		}else if(formatted.equals("formattedOriginal")){
+        			history.setFormattedOriginalResponseData(history.getOriginalResponseData());
+        		}
+                returnData.put("history", history);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        else{
+            returnData = new HashMap<String, Object>();
+            returnData.put("history", HistoryService.getInstance().getHistoryForID(id));
+        }
 
         return returnData;
     }
+
 }

@@ -349,8 +349,6 @@ public class PluginManager {
                     continue;
 
                 try {
-                    // get annotation information
-                    // each item should only have 1 annotation.. if it doesn't have any then skip it..
                     // if it has more than one then use the first one
                     Annotation[] annotations = method.getAnnotations();
                     for (Annotation annotation : annotations) {
@@ -401,7 +399,6 @@ public class PluginManager {
                     break;
 
                 } catch (Exception nfe) {
-                    // this can happen if libraries mismatch
                     // in this case we just return null since the method would be unuseable
                     return null;
                 }

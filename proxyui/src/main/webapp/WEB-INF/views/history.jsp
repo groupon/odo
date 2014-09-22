@@ -254,7 +254,17 @@
 		
 		function showOriginalResponse(){
 			$("#originalResponseHeaders").val(historyData.history.originalResponseHeaders);
-			$("#originalResponseRaw").val(originalResponseRaw);
+			if(historyData.history.responseContentType == null ||
+			    historyData.history.responseContentType.toLowerCase().indexOf("application/json") == -1 ||
+			    historyData.history.responseData == "" || $.cookie("formatted") == "false"){
+			        $("#originalResponseRaw").val(originalResponseRaw);
+			}else{
+			    if(historyData.history.formattedOriginalResponseData == ""){
+			        showFormattedResponseData();
+			    }else{
+			       $("#originalResponseRaw").val(historyData.history.formattedOriginalResponseData);
+			    }
+			}
 			$("#originalResponseHeaders").show();
 			$("#originalResponseRaw").show();
 			$("#originalResponseHeaderChange").hide();
@@ -287,7 +297,17 @@
 		
 		function showModifiedResponse(){
 			$("#responseHeaders").val(historyData.history.responseHeaders);
-			$("#responseRaw").val(historyData.history.responseData);
+			if(historyData.history.responseContentType == null ||
+            	historyData.history.responseContentType.toLowerCase().indexOf("application/json") == -1 ||
+            	historyData.history.responseData == "" || $.cookie("formatted") == "false"){
+            		$("#responseRaw").val(responseRaw);
+            	}else{
+            		if(historyData.history.formattedResponseData == ""){
+            		    showFormattedResponseData();
+            	}else{
+            		$("#responseRaw").val(historyData.history.formattedResponseData);
+            	}
+            }
 			$("#responseHeaders").show();
 			$("#responseRaw").show();
 			$("#originalResponseHeaderChange").hide();
@@ -301,10 +321,20 @@
 		
 		var responseRaw, originalResponseRaw;
 		function showFormattedResponseData() {
-			$("#responseRaw").val(historyData.history.formattedResponseData);
-			$("#originalResponseRaw").val(historyData.history.formattedOriginalResponseData);
-			document.getElementById("showRawFormattedDataButton").className = "btn btn-primary";
-			document.getElementById("showRawResponseDataButton").className = "btn btn-default";
+			$.ajax({
+        		type : "GET",
+        	    url : '<c:url value="/api/history/${profile_id}/"/>'
+        			+ currentHistoryId,
+        		data : 'clientUUID=${clientUUID}&format=formattedAll',
+        		success : function(data) {
+        		    historyData = data;
+			        $("#responseRaw").val(data.history.formattedResponseData);
+			        $("#originalResponseRaw").val(data.history.formattedOriginalResponseData);
+			        $.cookie("formatted", "true");
+			        document.getElementById("showRawFormattedDataButton").className = "btn btn-primary";
+			        document.getElementById("showRawResponseDataButton").className = "btn btn-default";
+			    }
+			});
 		}
 
 		function showRawResponseData() {
@@ -312,6 +342,7 @@
 			originalResponseRaw = historyData.history.originalResponseData.replace(/[<]/g, '&lt;');
 			$("#responseRaw").val(responseRaw);
 			$("#originalResponseRaw").val(originalResponseRaw);
+			$.cookie("formatted", "false");
 			document.getElementById("showRawResponseDataButton").className = "btn btn-primary";
 			document.getElementById("showRawFormattedDataButton").className = "btn btn-default";
 		}
@@ -406,12 +437,17 @@
                             // optionally turn off the Formatted button
                             if (data.history.responseContentType == null
 							    || data.history.responseContentType.toLowerCase().indexOf(
-                                "application/json") == -1 || data.history.responseData == "") {
-                            	showRawResponseData();
-                            	showModifiedResponse();
-                                $("#showRawFormattedDataButton").attr("disabled", "disabled");
+                                "application/json") == -1 || data.history.responseData == ""){
+                                	showRawResponseData();
+                                	showModifiedResponse();
+                                	$("#showRawFormattedDataButton").attr("disabled", "disabled");
                             } else {
-                            	showFormattedResponseData();
+                            	if($.cookie("formatted") == "true") {
+                            		showFormattedResponseData();
+                            	}else{
+                            		showRawResponseData();
+                            		showModifiedResponse();
+                            	}
                                 $("#showRawFormattedDataButton").removeAttr("disabled");
                             }
 
@@ -552,6 +588,7 @@
 					onSelectRow : function(id) {
 						var data = jQuery("#historylist").jqGrid('getRowData',
 								id);
+						currentHistoryId = data.id;
 						loadData(data.id);
 					},
 					rowList : [],
