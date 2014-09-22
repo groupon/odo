@@ -349,7 +349,6 @@ public class PluginManager {
                     continue;
 
                 try {
-                    // if it has more than one then use the first one
                     Annotation[] annotations = method.getAnnotations();
                     for (Annotation annotation : annotations) {
                         com.groupon.odo.proxylib.models.Method newMethod = new com.groupon.odo.proxylib.models.Method();
@@ -398,7 +397,7 @@ public class PluginManager {
 
                     break;
 
-                } catch (Exception nfe) {
+                } catch (Exception e) {
                     // in this case we just return null since the method would be unuseable
                     return null;
                 }
