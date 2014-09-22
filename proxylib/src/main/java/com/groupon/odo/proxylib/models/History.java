@@ -89,17 +89,6 @@ public class History {
         this.originalResponseContentType = originalResponseContentType;
         this.originalResponseData = originalResponseData;
         this.modified = modified;
-        /*
-    	ObjectMapper objectMapper = new ObjectMapper();
-        ObjectWriter writer = objectMapper.defaultPrettyPrintingWriter();
-
-        try{
-	        this.formattedResponseData = writer.writeValueAsString(responseData);
-	        this.formattedOriginalResponseData = writer.writeValueAsString(originalResponseData);
-        }catch (Exception e){
-        	e.printStackTrace();
-        }
-        */
         this.formattedOriginalResponseData = "";
         this.formattedResponseData = "";
         
@@ -154,26 +143,12 @@ public class History {
     }
 
     public void setResponseData(String data) {
-        /*
-    	if(data!=null){
-    		ObjectMapper objectMapper = new ObjectMapper();
-            ObjectWriter writer = objectMapper.writer();
-            try{
-	            Object json = objectMapper.readValue(data, Object.class);
-	            this.responseData = writer.withView(ViewFilters.Default.class).writeValueAsString(json);
-            }catch (Exception e){
-            	e.printStackTrace();
-            }
-    	}
-    	else{
-    		this.responseData = data;
-    	}
-    	*/
     	this.responseData = data;
     }
     
     public void setFormattedResponseData(String data) throws Exception {
-    	if(data!=null && originalResponseContentType.toLowerCase().indexOf("application/json")!=-1){
+    	if(data!=null && !originalResponseData.equals("") && 
+    			originalResponseContentType!= null && originalResponseContentType.toLowerCase().indexOf("application/json")!=-1){
     		ObjectMapper objectMapper = new ObjectMapper();
             ObjectWriter writer = objectMapper.defaultPrettyPrintingWriter();
             Object json = objectMapper.readValue(data, Object.class);
@@ -321,26 +296,12 @@ public class History {
     }
 
     public void setOriginalResponseData(String originalResponseData) {
-        /*
-    	if(originalResponseData!=null){
-    		ObjectMapper objectMapper = new ObjectMapper();
-            ObjectWriter writer = objectMapper.writer();
-            try{
-	            Object json = objectMapper.readValue(originalResponseData, Object.class);
-	            this.originalResponseData = writer.withView(ViewFilters.Default.class).writeValueAsString(json);
-            }catch (Exception e){
-            	e.printStackTrace();
-            }
-    	}
-    	else{
-    		this.originalResponseData = originalResponseData;
-    	}
-    	*/
         this.originalResponseData = originalResponseData;
     }
     
     public void setFormattedOriginalResponseData(String originalResponseData) throws Exception {
-    	if(originalResponseData!=null && responseContentType.toLowerCase().indexOf("application/json")!=-1){
+    	if(originalResponseData!=null && !originalResponseData.equals("") && 
+    			responseContentType!= null && responseContentType.toLowerCase().indexOf("application/json")!=-1){
     		ObjectMapper objectMapper = new ObjectMapper();
             ObjectWriter writer = objectMapper.defaultPrettyPrintingWriter();
             Object json = objectMapper.readValue(originalResponseData, Object.class);
