@@ -25,7 +25,6 @@ import com.groupon.odo.proxylib.Constants;
 /**
  * Represents a single history object
  */
-@JsonPropertyOrder(alphabetic = true)
 public class History {
 
     private int id = -1;
