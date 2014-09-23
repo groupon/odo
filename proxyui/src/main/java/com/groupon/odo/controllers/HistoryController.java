@@ -34,13 +34,24 @@ public class HistoryController {
     @RequestMapping(value = "/history/{profileIdentifier}", method = RequestMethod.GET)
     public String list(Model model, @PathVariable String profileIdentifier, @RequestParam(value = "offset", defaultValue = "0") Integer offset,
                        @RequestParam(value = "limit", defaultValue = "-1") Integer limit,
-                       @RequestParam(value = "clientUUID", defaultValue = Constants.PROFILE_CLIENT_DEFAULT_ID) String clientUUID) throws Exception {
+                       @RequestParam(value = "clientUUID", defaultValue = Constants.PROFILE_CLIENT_DEFAULT_ID) String clientUUID,
+                       @RequestParam(value = "historyID", defaultValue = "-1") Integer historyID) throws Exception {
         Integer profileId = ControllerUtils.convertProfileIdentifier(profileIdentifier);
 
         model.addAttribute("profile_id", profileId);
         model.addAttribute("limit", limit);
         model.addAttribute("offset", offset);
         model.addAttribute("clientUUID", clientUUID);
+        model.addAttribute("historyID", historyID);
+
+        Integer page = 1;
+        if(historyID != -1) {
+            HashMap<String, String[]> filters = new HashMap<String, String[]>();
+            History[] histories = HistoryService.getInstance().getHistory(profileId, clientUUID, offset, limit, false, filters);
+            Integer lastID = histories[0].getId();
+            page = 1 + (lastID - historyID)/20;
+        }
+        model.addAttribute("page", page);
 
         return "history";
     }

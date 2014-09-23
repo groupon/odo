@@ -500,6 +500,7 @@
 			});
 		});
 
+		var selectRowUsed = false;
 		var historyList = jQuery("#historylist");
 		historyList
 				.jqGrid({
@@ -509,6 +510,7 @@
 					pgbuttons : true, // disable page control like next, back button
 					pgtext : null,
 					datatype : "json",
+					page : "${page}",
 					colNames : [ 'ID', 'Created At', 'Method', 'Query',
 							'Query Params', 'Response Code', 'Valid', 'Message', 'Modified' ],
 					colModel : [{
@@ -582,8 +584,13 @@
 									"ui-state-error");
 						}
 
-						jQuery("#historylist").setSelection(
-								$("#historylist").getDataIDs()[0], true);
+                        if("${historyID}" != -1 && !selectRowUsed) {
+                            jQuery("#historylist").setSelection("${historyID}", true);
+                            selectRowUsed = true;
+                        } else {
+						    jQuery("#historylist").setSelection(
+						        $("#historylist").getDataIDs()[0], true);
+						}
 					},
 					onSelectRow : function(id) {
 						var data = jQuery("#historylist").jqGrid('getRowData',
