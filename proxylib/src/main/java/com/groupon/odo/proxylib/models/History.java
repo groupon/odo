@@ -16,6 +16,8 @@
 package com.groupon.odo.proxylib.models;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+
+import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.ObjectWriter;
 import org.json.JSONObject;
@@ -146,14 +148,19 @@ public class History {
     }
     
     public void setFormattedResponseData(String data) throws Exception {
+        this.formattedResponseData = data;
+
         if(data!=null && !data.equals("") &&
-                responseContentType != null && responseContentType.toLowerCase().indexOf("application/json") != -1){
-            ObjectMapper objectMapper = new ObjectMapper();
-            ObjectWriter writer = objectMapper.defaultPrettyPrintingWriter();
-            Object json = objectMapper.readValue(data, Object.class);
-            this.formattedResponseData = writer.withView(ViewFilters.Default.class).writeValueAsString(json);
-        } else {
-            this.formattedResponseData = data;
+            responseContentType != null && responseContentType.toLowerCase().indexOf("application/json") != -1){
+            // try to format it
+            try {
+	            ObjectMapper objectMapper = new ObjectMapper();
+	            ObjectWriter writer = objectMapper.defaultPrettyPrintingWriter();
+	            Object json = objectMapper.readValue(data, Object.class);
+	            this.formattedResponseData = writer.withView(ViewFilters.Default.class).writeValueAsString(json);
+            } catch (JsonParseException jpe) {
+                // nothing to do here as this.formattedResponseData was already set to the appropriate data
+            }
         }
     }
 
@@ -298,14 +305,19 @@ public class History {
     }
     
     public void setFormattedOriginalResponseData(String originalResponseData) throws Exception {
+        this.formattedOriginalResponseData = originalResponseData;
+
         if(originalResponseData!=null && !originalResponseData.equals("") &&
-                originalResponseContentType != null && originalResponseContentType.toLowerCase().indexOf("application/json") != -1){
-            ObjectMapper objectMapper = new ObjectMapper();
-            ObjectWriter writer = objectMapper.defaultPrettyPrintingWriter();
-            Object json = objectMapper.readValue(originalResponseData, Object.class);
-            this.formattedOriginalResponseData = writer.withView(ViewFilters.Default.class).writeValueAsString(json);
-        } else {
-            this.formattedOriginalResponseData = originalResponseData;
+            originalResponseContentType != null && originalResponseContentType.toLowerCase().indexOf("application/json") != -1){
+            try {
+                // try to format it
+	            ObjectMapper objectMapper = new ObjectMapper();
+	            ObjectWriter writer = objectMapper.defaultPrettyPrintingWriter();
+	            Object json = objectMapper.readValue(originalResponseData, Object.class);
+	            this.formattedOriginalResponseData = writer.withView(ViewFilters.Default.class).writeValueAsString(json);
+	        } catch (JsonParseException jpe) {
+	            // nothing to do here as this.formattedResponseData was already set to the appropriate data
+	        }
         }
     }
 

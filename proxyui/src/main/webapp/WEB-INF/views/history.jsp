@@ -89,7 +89,7 @@
 							<button type="button" class="btn btn-default"
 								id="showRawResponseDataButton" onClick="showRawResponseData()">Raw</button>
 							<button type="button" class="btn btn-default"
-								id="showRawFormattedDataButton" onClick="showFormattedResponseData()">Formatted</button>
+								id="showRawFormattedDataButton" onClick="showFormattedResponseData(false)">Formatted</button>
 						</div>
 					</h3>
 					<h3 style="display: inline;">
@@ -260,7 +260,7 @@
 			        $("#originalResponseRaw").val(originalResponseRaw);
 			}else{
 			    if(historyData.history.formattedOriginalResponseData == ""){
-			        showFormattedResponseData();
+			        showFormattedResponseData(false);
 			    }else{
 			        $("#originalResponseRaw").val(historyData.history.formattedOriginalResponseData);
 			    }
@@ -280,19 +280,23 @@
 		function showChangedData(originalData, changedData, originalID, changedID, modifiedID){
 			var d = dmp.diff_main(originalData, changedData);
 			dmp.diff_cleanupSemantic(d);
-			var ds = dmp.diff_prettyHtml(d);
-			document.getElementById(changedID).innerHTML = ds.replace(/[^\x00-\x7F]/g, "");;
+			var ds = diff_prettyHtml(d);
+			//document.getElementById(changedID).innerHTML = ds.replace(/[^\x00-\x7F]/g, "");
+			document.getElementById(changedID).innerHTML = ds;
 			$("#"+originalID).hide();
 			$("#"+changedID).show();
 			$("#"+modifiedID).hide();
 		}
 		
 		function showChangedResponse(){
-			showChangedData(historyData.history.originalResponseHeaders, historyData.history.responseHeaders, "originalResponseHeaders", "originalResponseHeaderChange", "responseHeaders");
-			showChangedData(historyData.history.originalResponseData.replace(/[<]/g, '&lt;'), historyData.history.responseData.replace(/[<]/g, '&lt;'), "originalResponseRaw", "originalResponseChange", "responseRaw");
-			document.getElementById("showChangedResponseButton").className = "btn btn-primary";
-			document.getElementById("showOriginalResponseButton").className = "btn btn-default";
-			document.getElementById("showModifiedResponseButton").className = "btn btn-default";
+			showFormattedResponseData(true);
+		}
+
+		function showChangedResponsePostFormattedAJAX() {
+			showChangedData(historyData.history.formattedOriginalResponseData.replace(/[<]/g, '&lt;'), historyData.history.formattedResponseData.replace(/[<]/g, '&lt;'), "originalResponseRaw", "originalResponseChange", "responseRaw");
+            document.getElementById("showChangedResponseButton").className = "btn btn-primary";
+            document.getElementById("showOriginalResponseButton").className = "btn btn-default";
+            document.getElementById("showModifiedResponseButton").className = "btn btn-default";
 		}
 		
 		function showModifiedResponse(){
@@ -303,7 +307,7 @@
 			        $("#responseRaw").val(responseRaw);
 			}else{
 			    if(historyData.history.formattedResponseData == ""){
-			        showFormattedResponseData();
+			        showFormattedResponseData(false);
 			    }else{
 			        $("#responseRaw").val(historyData.history.formattedResponseData);
 			    }
@@ -320,7 +324,7 @@
 		}
 		
 		var responseRaw, originalResponseRaw;
-		function showFormattedResponseData() {
+		function showFormattedResponseData(forDiff) {
 		    $.ajax({
 		        type : "GET",
 		        url : '<c:url value="/api/history/${profile_id}/"/>'
@@ -328,11 +332,15 @@
 		        data : 'clientUUID=${clientUUID}&format=formattedAll',
 		        success : function(data) {
 		            historyData = data;
-		            $("#responseRaw").val(data.history.formattedResponseData);
-		            $("#originalResponseRaw").val(data.history.formattedOriginalResponseData);
-		            $.cookie("formatted", "true");
-		            document.getElementById("showRawFormattedDataButton").className = "btn btn-primary";
-		            document.getElementById("showRawResponseDataButton").className = "btn btn-default";
+		            if (forDiff == true) {
+		                showChangedResponsePostFormattedAJAX();
+		            } else {
+			            $("#responseRaw").val(data.history.formattedResponseData);
+			            $("#originalResponseRaw").val(data.history.formattedOriginalResponseData);
+			            $.cookie("formatted", "true");
+			            document.getElementById("showRawFormattedDataButton").className = "btn btn-primary";
+			            document.getElementById("showRawResponseDataButton").className = "btn btn-default";
+		            }
 		        }
 		    });
 		}
@@ -443,7 +451,7 @@
                                 	$("#showRawFormattedDataButton").attr("disabled", "disabled");
                             } else {
                             	if($.cookie("formatted") == "true") {
-                            		showFormattedResponseData();
+                                    showFormattedResponseData(false);
                             	}else{
                             		showRawResponseData();
                             		showModifiedResponse();
@@ -629,6 +637,40 @@
 			navigatePathTester();
 			pathTesterSubmit();
 		}
+
+		/**
+		This is adapted from https://code.google.com/p/google-diff-match-patch/ as instructed in the api documentation
+		*/
+		/**
+		 * Convert a diff array into a pretty HTML report.
+		 * @param {!Array.<!diff_match_patch.Diff>} diffs Array of diff tuples.
+		 * @return {string} HTML representation.
+		 */
+		diff_prettyHtml = function(diffs) {
+		  var html = [];
+		  var pattern_amp = /&/g;
+		  var pattern_lt = /</g;
+		  var pattern_gt = />/g;
+		  var pattern_para = /\n/g;
+		  for (var x = 0; x < diffs.length; x++) {
+		    var op = diffs[x][0];    // Operation (insert, delete, equal)
+		    var data = diffs[x][1];  // Text of change.
+		    var text = data.replace(pattern_amp, '&amp;').replace(pattern_lt, '&lt;')
+		        .replace(pattern_gt, '&gt;').replace(pattern_para, '<br>');
+		    switch (op) {
+		      case DIFF_INSERT:
+		        html[x] = '<ins style="background:#e6ffe6;">' + text + '</ins>';
+		        break;
+		      case DIFF_DELETE:
+		        html[x] = '<del style="background:#ffe6e6;">' + text + '</del>';
+		        break;
+		      case DIFF_EQUAL:
+		        html[x] = '<span>' + text + '</span>';
+		        break;
+		    }
+		  }
+		  return html.join('');
+		};
 	</script>
 </body>
 </html>
