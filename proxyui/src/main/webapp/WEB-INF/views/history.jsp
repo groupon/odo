@@ -294,9 +294,9 @@
 
 		function showChangedResponsePostFormattedAJAX() {
 			showChangedData(historyData.history.formattedOriginalResponseData.replace(/[<]/g, '&lt;'), historyData.history.formattedResponseData.replace(/[<]/g, '&lt;'), "originalResponseRaw", "originalResponseChange", "responseRaw");
-            document.getElementById("showChangedResponseButton").className = "btn btn-primary";
-            document.getElementById("showOriginalResponseButton").className = "btn btn-default";
-            document.getElementById("showModifiedResponseButton").className = "btn btn-default";
+			document.getElementById("showChangedResponseButton").className = "btn btn-primary";
+			document.getElementById("showOriginalResponseButton").className = "btn btn-default";
+			document.getElementById("showModifiedResponseButton").className = "btn btn-default";
 		}
 		
 		function showModifiedResponse(){
