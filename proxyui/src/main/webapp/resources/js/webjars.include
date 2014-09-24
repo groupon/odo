@@ -16,6 +16,8 @@
     type="text/javascript"></script>
 <script src="<c:url value="/webjars/select2/3.4.5/select2.min.js"/>"
     type="text/javascript"></script>
+<script type="text/javascript"
+    src="<c:url value="/webjars/jquery-cookie/1.4.1/jquery.cookie.js"/>"></script>
 <link rel="stylesheet" type="text/css" media="screen"
 	href="<c:url value="/webjars/select2/3.4.5/select2.css"/>" />
 <link rel="stylesheet" type="text/css" media="screen"

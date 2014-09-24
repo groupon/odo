@@ -229,6 +229,11 @@
             <artifactId>bootstrap</artifactId>
             <version>3.1.1</version>
         </dependency>
+        <dependency>
+            <groupId>org.webjars</groupId>
+            <artifactId>jquery-cookie</artifactId>
+            <version>1.4.1</version>
+        </dependency>
     </dependencies>
 
     <dependencyManagement>

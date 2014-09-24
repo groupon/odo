@@ -34,13 +34,24 @@ public class HistoryController {
     @RequestMapping(value = "/history/{profileIdentifier}", method = RequestMethod.GET)
     public String list(Model model, @PathVariable String profileIdentifier, @RequestParam(value = "offset", defaultValue = "0") Integer offset,
                        @RequestParam(value = "limit", defaultValue = "-1") Integer limit,
-                       @RequestParam(value = "clientUUID", defaultValue = Constants.PROFILE_CLIENT_DEFAULT_ID) String clientUUID) throws Exception {
+                       @RequestParam(value = "clientUUID", defaultValue = Constants.PROFILE_CLIENT_DEFAULT_ID) String clientUUID,
+                       @RequestParam(value = "historyID", defaultValue = "-1") Integer historyID) throws Exception {
         Integer profileId = ControllerUtils.convertProfileIdentifier(profileIdentifier);
 
         model.addAttribute("profile_id", profileId);
         model.addAttribute("limit", limit);
         model.addAttribute("offset", offset);
         model.addAttribute("clientUUID", clientUUID);
+        model.addAttribute("historyID", historyID);
+
+        Integer page = 1;
+        if (historyID != -1) {
+            HashMap<String, String[]> filters = new HashMap<String, String[]>();
+            History[] histories = HistoryService.getInstance().getHistory(profileId, clientUUID, offset, limit, false, filters);
+            Integer lastID = histories[0].getId();
+            page = 1 + (lastID - historyID) / 20;
+        }
+        model.addAttribute("page", page);
 
         return "history";
     }
@@ -117,19 +128,41 @@ public class HistoryController {
 
     /**
      * Retrieve history details for an entry
+     * Formatted string is optional
      *
      * @param mode
      * @param profileIdentifier
      * @param id
      * @return
      */
+
     @RequestMapping(value = "/api/history/{profileIdentifier}/{id}", method = RequestMethod.GET)
     public
     @ResponseBody
-    HashMap<String, Object> getHistoryForId(Model mode, @PathVariable String profileIdentifier, @PathVariable Integer id) {
+    HashMap<String, Object> getHistoryForId(Model mode, @PathVariable String profileIdentifier, @PathVariable Integer id,
+                                            @RequestParam(value = "format", required = false) String formatted) {
         HashMap<String, Object> returnData = new HashMap<String, Object>();
-        returnData.put("history", HistoryService.getInstance().getHistoryForID(id));
+        History history = HistoryService.getInstance().getHistoryForID(id);
+        if (formatted != null) {
+            try {
+                if (formatted.equals("formattedAll")) {
+                    history.setFormattedResponseData(history.getResponseData());
+                    history.setFormattedOriginalResponseData(history.getOriginalResponseData());
+                } else if (formatted.equals("formattedModified")) {
+                    history.setFormattedResponseData(history.getResponseData());
+                } else if (formatted.equals("formattedOriginal")) {
+                    history.setFormattedOriginalResponseData(history.getOriginalResponseData());
+                }
+                returnData.put("history", history);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        } else {
+            returnData = new HashMap<String, Object>();
+            returnData.put("history", HistoryService.getInstance().getHistoryForID(id));
+        }
 
         return returnData;
     }
+
 }

@@ -87,9 +87,9 @@
 					<h3 style="display: inline;">
 						<div class="btn-group btn-group-sm">
 							<button type="button" class="btn btn-default"
-								id="showRawResponseDataButton" onClick="showRawResponeData()">Raw</button>
+								id="showRawResponseDataButton" onClick="showRawResponseData()">Raw</button>
 							<button type="button" class="btn btn-default"
-								id="showRawFormattedDataButton" onClick="showFormattedResponeData()">Formatted</button>
+								id="showRawFormattedDataButton" onClick="showFormattedResponseData(false)">Formatted</button>
 						</div>
 					</h3>
 					<h3 style="display: inline;">
@@ -254,7 +254,17 @@
 		
 		function showOriginalResponse(){
 			$("#originalResponseHeaders").val(historyData.history.originalResponseHeaders);
-			$("#originalResponseRaw").val(originalResponseRaw);
+			if(historyData.history.responseContentType == null ||
+			    historyData.history.responseContentType.toLowerCase().indexOf("application/json") == -1 ||
+			    historyData.history.responseData == "" || $.cookie("formatted") == "false"){
+			        $("#originalResponseRaw").val(originalResponseRaw);
+			} else {
+			    if(historyData.history.formattedOriginalResponseData == "") {
+			        showFormattedResponseData(false);
+			    } else {
+			        $("#originalResponseRaw").val(historyData.history.formattedOriginalResponseData);
+			    }
+			}
 			$("#originalResponseHeaders").show();
 			$("#originalResponseRaw").show();
 			$("#originalResponseHeaderChange").hide();
@@ -270,16 +280,20 @@
 		function showChangedData(originalData, changedData, originalID, changedID, modifiedID){
 			var d = dmp.diff_main(originalData, changedData);
 			dmp.diff_cleanupSemantic(d);
-			var ds = dmp.diff_prettyHtml(d);
-			document.getElementById(changedID).innerHTML = ds.replace(/[^\x00-\x7F]/g, "");;
+			var ds = diff_prettyHtml(d);
+			//document.getElementById(changedID).innerHTML = ds.replace(/[^\x00-\x7F]/g, "");
+			document.getElementById(changedID).innerHTML = ds;
 			$("#"+originalID).hide();
 			$("#"+changedID).show();
 			$("#"+modifiedID).hide();
 		}
 		
 		function showChangedResponse(){
-			showChangedData(historyData.history.originalResponseHeaders, historyData.history.responseHeaders, "originalResponseHeaders", "originalResponseHeaderChange", "responseHeaders");
-			showChangedData(historyData.history.originalResponseData.replace(/[<]/g, '&lt;'), historyData.history.responseData.replace(/[<]/g, '&lt;'), "originalResponseRaw", "originalResponseChange", "responseRaw");
+			showFormattedResponseData(true);
+		}
+
+		function showChangedResponsePostFormattedAJAX() {
+			showChangedData(historyData.history.formattedOriginalResponseData.replace(/[<]/g, '&lt;'), historyData.history.formattedResponseData.replace(/[<]/g, '&lt;'), "originalResponseRaw", "originalResponseChange", "responseRaw");
 			document.getElementById("showChangedResponseButton").className = "btn btn-primary";
 			document.getElementById("showOriginalResponseButton").className = "btn btn-default";
 			document.getElementById("showModifiedResponseButton").className = "btn btn-default";
@@ -287,7 +301,17 @@
 		
 		function showModifiedResponse(){
 			$("#responseHeaders").val(historyData.history.responseHeaders);
-			$("#responseRaw").val(historyData.history.responseData);
+			if(historyData.history.responseContentType == null ||
+			    historyData.history.responseContentType.toLowerCase().indexOf("application/json") == -1 ||
+			    historyData.history.responseData == "" || $.cookie("formatted") == "false") {
+			        $("#responseRaw").val(responseRaw);
+			} else {
+			    if(historyData.history.formattedResponseData == "") {
+			        showFormattedResponseData(false);
+			    } else {
+			        $("#responseRaw").val(historyData.history.formattedResponseData);
+			    }
+			}
 			$("#responseHeaders").show();
 			$("#responseRaw").show();
 			$("#originalResponseHeaderChange").hide();
@@ -300,32 +324,33 @@
 		}
 		
 		var responseRaw, originalResponseRaw;
-		function showFormattedResponeData() {
-			try {
-				responseRaw = JSON.stringify(JSON.parse(historyData.history.responseData), null, 4);
-			} catch (err) {
-				// use original data
-				responseRaw = historyData.history.responseData;
-			}
-			
-			try {
-			originalResponseRaw = JSON.stringify(JSON.parse(historyData.history.originalResponseData), null, 4);
-			} catch (err) {
-				// use original data
-				originalResponseRaw = historyData.history.originalResponseData;
-			}
-			
-			$("#responseRaw").val(responseRaw);
-			$("#originalResponseRaw").val(originalResponseRaw);
-			document.getElementById("showRawFormattedDataButton").className = "btn btn-primary";
-			document.getElementById("showRawResponseDataButton").className = "btn btn-default";
+		function showFormattedResponseData(forDiff) {
+		    $.ajax({
+		        type : "GET",
+		        url : '<c:url value="/api/history/${profile_id}/"/>'
+		            + currentHistoryId,
+		        data : 'clientUUID=${clientUUID}&format=formattedAll',
+		        success : function(data) {
+		            historyData = data;
+		            if (forDiff == true) {
+		                showChangedResponsePostFormattedAJAX();
+		            } else {
+			            $("#responseRaw").val(data.history.formattedResponseData);
+			            $("#originalResponseRaw").val(data.history.formattedOriginalResponseData);
+			            $.cookie("formatted", "true");
+			            document.getElementById("showRawFormattedDataButton").className = "btn btn-primary";
+			            document.getElementById("showRawResponseDataButton").className = "btn btn-default";
+		            }
+		        }
+		    });
 		}
 
-		function showRawResponeData() {
+		function showRawResponseData() {
 			responseRaw = historyData.history.responseData.replace(/[<]/g, '&lt;');
 			originalResponseRaw = historyData.history.originalResponseData.replace(/[<]/g, '&lt;');
 			$("#responseRaw").val(responseRaw);
 			$("#originalResponseRaw").val(originalResponseRaw);
+			$.cookie("formatted", "false");
 			document.getElementById("showRawResponseDataButton").className = "btn btn-primary";
 			document.getElementById("showRawFormattedDataButton").className = "btn btn-default";
 		}
@@ -421,13 +446,19 @@
                             if (data.history.responseContentType == null
 							    || data.history.responseContentType.toLowerCase().indexOf(
                                 "application/json") == -1 || data.history.responseData == "") {
-                                $("#showRawFormattedDataButton").attr("disabled", "disabled");
+                                	showRawResponseData();
+                                	showModifiedResponse();
+                                	$("#showRawFormattedDataButton").attr("disabled", "disabled");
                             } else {
+                            	if($.cookie("formatted") == "true") {
+                                    showFormattedResponseData(false);
+                            	} else {
+                            		showRawResponseData();
+                            		showModifiedResponse();
+                            	}
                                 $("#showRawFormattedDataButton").removeAttr("disabled");
                             }
 
-                            showRawResponeData();
-                            showModifiedResponse();
                             showModifiedRequestData();
                             $("#responseHeaders").val(data.history.responseHeaders);
                             $("#originalResponseHeaders").val(data.history.originalResponseHeaders);
@@ -436,7 +467,7 @@
                             $("#requestParameters").val(data.history.requestParams);
                             $("#requestHeaders").val(data.history.requestHeaders);
                             $("#requestPOSTData").val(data.history.requestPostData);
-                            if(data.history.modified){
+                            if(data.history.modified) {
                                 $("#originalResponseHeaders").val(historyData.history.originalResponseHeaders);
                                 $("#originalRequestQuery").val(data.history.originalRequestURL);
                                 $("#originalRequestParameters").val(data.history.originalRequestParams);
@@ -446,7 +477,7 @@
                                 $("#requestButtons").show();
                                 document.getElementById("showModifiedResponseButton").className = "btn btn-primary";
                                 document.getElementById("showModifiedRequestButton").className = "btn btn-primary";
-                            } else{
+                            } else {
                                 // set the query back to the original query data
                                 $("#requestQuery").val(data.history.originalRequestURL);
 
@@ -477,6 +508,7 @@
 			});
 		});
 
+		var selectRowUsed = false;
 		var historyList = jQuery("#historylist");
 		historyList
 				.jqGrid({
@@ -486,6 +518,7 @@
 					pgbuttons : true, // disable page control like next, back button
 					pgtext : null,
 					datatype : "json",
+					page : "${page}",
 					colNames : [ 'ID', 'Created At', 'Method', 'Query',
 							'Query Params', 'Response Code', 'Valid', 'Message', 'Modified' ],
 					colModel : [{
@@ -554,50 +587,91 @@
 						repeatitems : false
 					},
 					gridComplete : function() {
-						for (var i = 0; i < invalidRows.length; i++) {
-							$("#" + invalidRows[i]).find("td").addClass(
-									"ui-state-error");
-						}
+					    for (var i = 0; i < invalidRows.length; i++) {
+					        $("#" + invalidRows[i]).find("td").addClass(
+					            "ui-state-error");
+					    }
 
-						jQuery("#historylist").setSelection(
-								$("#historylist").getDataIDs()[0], true);
-					},
-					onSelectRow : function(id) {
-						var data = jQuery("#historylist").jqGrid('getRowData',
-								id);
-						loadData(data.id);
-					},
-					rowList : [],
-					pager : '#historynavGrid',
-					sortname : 'id',
-					viewrecords : true,
-					sortorder : "desc",
-					caption : '<font size="5">History</font>'
-				});
-		historyList.jqGrid('navGrid', '#historynavGrid', {
-			edit : false,
-			add : false,
-			del : false
-		}, {}, {}, {});
-		
+                        if("${historyID}" != -1 && !selectRowUsed) {
+                            jQuery("#historylist").setSelection("${historyID}", true);
+                            selectRowUsed = true;
+                        } else {
+                            jQuery("#historylist").setSelection(
+                            $("#historylist").getDataIDs()[0], true);
+                        }
+                    },
+                    onSelectRow : function(id) {
+                        var data = jQuery("#historylist").jqGrid('getRowData',
+                            id);
+                        currentHistoryId = data.id;
+                        loadData(data.id);
+                    },
+                    rowList : [],
+                    pager : '#historynavGrid',
+                    sortname : 'id',
+                    viewrecords : true,
+                    sortorder : "desc",
+                    caption : '<font size="5">History</font>'
+                });
+
+                historyList.jqGrid('navGrid', '#historynavGrid', {
+                    edit : false,
+                    add : false,
+                    del : false
+                }, {}, {}, {});
+
 		function modifiedFormatter( cellvalue, options, rowObject ) {
-            var checkedValue = 0;
-            if (cellvalue == true) {
-                checkedValue = 1;
-            }
-            var newCellValue = '<input id="modified_' + rowObject.pathId + '"type="checkbox" offval="0" value="' + checkedValue + '"';
-            if (checkedValue == 1) {
-                newCellValue += 'checked="checked"';
-            }
-            newCellValue += ' disabled=true>';
-            return newCellValue;
-        }
+		    var checkedValue = 0;
+		    if (cellvalue == true) {
+		        checkedValue = 1;
+		    }
+		    var newCellValue = '<input id="modified_' + rowObject.pathId + '"type="checkbox" offval="0" value="' + checkedValue + '"';
+		    if (checkedValue == 1) {
+		        newCellValue += 'checked="checked"';
+		    }
+		    newCellValue += ' disabled=true>';
+		    return newCellValue;
+		}
 		
 		function showPathTester() {
 			$('#pathTesterURL').val($("#requestQuery").val() + "?" + $("#requestParameters").val());
 			navigatePathTester();
 			pathTesterSubmit();
 		}
+
+		/**
+		This is adapted from https://code.google.com/p/google-diff-match-patch/ as instructed in the api documentation
+		*/
+		/**
+		 * Convert a diff array into a pretty HTML report.
+		 * @param {!Array.<!diff_match_patch.Diff>} diffs Array of diff tuples.
+		 * @return {string} HTML representation.
+		 */
+		diff_prettyHtml = function(diffs) {
+		  var html = [];
+		  var pattern_amp = /&/g;
+		  var pattern_lt = /</g;
+		  var pattern_gt = />/g;
+		  var pattern_para = /\n/g;
+		  for (var x = 0; x < diffs.length; x++) {
+		    var op = diffs[x][0];    // Operation (insert, delete, equal)
+		    var data = diffs[x][1];  // Text of change.
+		    var text = data.replace(pattern_amp, '&amp;').replace(pattern_lt, '&lt;')
+		        .replace(pattern_gt, '&gt;').replace(pattern_para, '<br>');
+		    switch (op) {
+		      case DIFF_INSERT:
+		        html[x] = '<ins style="background:#e6ffe6;">' + text + '</ins>';
+		        break;
+		      case DIFF_DELETE:
+		        html[x] = '<del style="background:#ffe6e6;">' + text + '</del>';
+		        break;
+		      case DIFF_EQUAL:
+		        html[x] = '<span>' + text + '</span>';
+		        break;
+		    }
+		  }
+		  return html.join('');
+		};
 	</script>
 </body>
 </html>
