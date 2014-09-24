@@ -210,12 +210,12 @@ public class HttpUtilities {
         String headerString = "";
         Header[] headers = method.getRequestHeaders();
         for (Header header : headers) {
-        	String name = header.getName();
-        	if (name.equals(Constants.ODO_PROXY_HEADER)) {
-        		// skip.. don't want to log this
-        		continue;
-        	}
-        	
+            String name = header.getName();
+            if (name.equals(Constants.ODO_PROXY_HEADER)) {
+                // skip.. don't want to log this
+                continue;
+            }
+
             if (headerString.length() != 0)
                 headerString += "\n";
 
@@ -236,12 +236,12 @@ public class HttpUtilities {
         Enumeration<String> headerNames = request.getHeaderNames();
         
         while (headerNames.hasMoreElements()) {
-        	String name = headerNames.nextElement();
-        	if (name.equals(Constants.ODO_PROXY_HEADER)) {
-        		// skip.. don't want to log this
-        		continue;
-        	}
-            
+            String name = headerNames.nextElement();
+            if (name.equals(Constants.ODO_PROXY_HEADER)) {
+                // skip.. don't want to log this
+                continue;
+            }
+
             if (headerString.length() != 0)
                 headerString += "\n";
 
