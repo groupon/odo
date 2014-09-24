@@ -15,7 +15,9 @@
 */
 package com.groupon.odo;
 
+import com.groupon.odo.proxylib.Constants;
 import com.groupon.odo.proxylib.models.History;
+
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
@@ -34,6 +36,7 @@ import org.msgpack.unpacker.Unpacker;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.*;
@@ -207,6 +210,12 @@ public class HttpUtilities {
         String headerString = "";
         Header[] headers = method.getRequestHeaders();
         for (Header header : headers) {
+        	String name = header.getName();
+        	if (name.equals(Constants.ODO_PROXY_HEADER)) {
+        		// skip.. don't want to log this
+        		continue;
+        	}
+        	
             if (headerString.length() != 0)
                 headerString += "\n";
 
@@ -225,11 +234,17 @@ public class HttpUtilities {
     public static String getHeaders(HttpServletRequest request) {
         String headerString = "";
         Enumeration<String> headerNames = request.getHeaderNames();
+        
         while (headerNames.hasMoreElements()) {
+        	String name = headerNames.nextElement();
+        	if (name.equals(Constants.ODO_PROXY_HEADER)) {
+        		// skip.. don't want to log this
+        		continue;
+        	}
+            
             if (headerString.length() != 0)
                 headerString += "\n";
 
-            String name = headerNames.nextElement();
             headerString += name + ": " + request.getHeader(name);
         }
 
