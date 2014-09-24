@@ -45,11 +45,11 @@ public class HistoryController {
         model.addAttribute("historyID", historyID);
 
         Integer page = 1;
-        if(historyID != -1) {
+        if (historyID != -1) {
             HashMap<String, String[]> filters = new HashMap<String, String[]>();
             History[] histories = HistoryService.getInstance().getHistory(profileId, clientUUID, offset, limit, false, filters);
             Integer lastID = histories[0].getId();
-            page = 1 + (lastID - historyID)/20;
+            page = 1 + (lastID - historyID) / 20;
         }
         model.addAttribute("page", page);
 
@@ -140,25 +140,24 @@ public class HistoryController {
     public
     @ResponseBody
     HashMap<String, Object> getHistoryForId(Model mode, @PathVariable String profileIdentifier, @PathVariable Integer id,
-                                                     @RequestParam(value = "format", required = false) String formatted) {
+                                            @RequestParam(value = "format", required = false) String formatted) {
         HashMap<String, Object> returnData = new HashMap<String, Object>();
         History history = HistoryService.getInstance().getHistoryForID(id);
-        if(formatted != null) {
-        	try{
-        		if(formatted.equals("formattedAll")){
-        			history.setFormattedResponseData(history.getResponseData());
-        			history.setFormattedOriginalResponseData(history.getOriginalResponseData());
-        		}else if(formatted.equals("formattedModified")){
-        			history.setFormattedResponseData(history.getResponseData());
-        		}else if(formatted.equals("formattedOriginal")){
-        			history.setFormattedOriginalResponseData(history.getOriginalResponseData());
-        		}
+        if (formatted != null) {
+            try {
+                if (formatted.equals("formattedAll")) {
+                    history.setFormattedResponseData(history.getResponseData());
+                    history.setFormattedOriginalResponseData(history.getOriginalResponseData());
+                } else if (formatted.equals("formattedModified")) {
+                    history.setFormattedResponseData(history.getResponseData());
+                } else if (formatted.equals("formattedOriginal")) {
+                    history.setFormattedOriginalResponseData(history.getOriginalResponseData());
+                }
                 returnData.put("history", history);
             } catch (Exception e) {
                 e.printStackTrace();
             }
-        }
-        else{
+        } else {
             returnData = new HashMap<String, Object>();
             returnData.put("history", HistoryService.getInstance().getHistoryForID(id));
         }

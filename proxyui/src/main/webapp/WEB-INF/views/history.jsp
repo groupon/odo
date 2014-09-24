@@ -258,10 +258,10 @@
 			    historyData.history.responseContentType.toLowerCase().indexOf("application/json") == -1 ||
 			    historyData.history.responseData == "" || $.cookie("formatted") == "false"){
 			        $("#originalResponseRaw").val(originalResponseRaw);
-			}else{
-			    if(historyData.history.formattedOriginalResponseData == ""){
+			} else {
+			    if(historyData.history.formattedOriginalResponseData == "") {
 			        showFormattedResponseData(false);
-			    }else{
+			    } else {
 			        $("#originalResponseRaw").val(historyData.history.formattedOriginalResponseData);
 			    }
 			}
@@ -303,12 +303,12 @@
 			$("#responseHeaders").val(historyData.history.responseHeaders);
 			if(historyData.history.responseContentType == null ||
 			    historyData.history.responseContentType.toLowerCase().indexOf("application/json") == -1 ||
-			    historyData.history.responseData == "" || $.cookie("formatted") == "false"){
+			    historyData.history.responseData == "" || $.cookie("formatted") == "false") {
 			        $("#responseRaw").val(responseRaw);
-			}else{
-			    if(historyData.history.formattedResponseData == ""){
+			} else {
+			    if(historyData.history.formattedResponseData == "") {
 			        showFormattedResponseData(false);
-			    }else{
+			    } else {
 			        $("#responseRaw").val(historyData.history.formattedResponseData);
 			    }
 			}
@@ -445,14 +445,14 @@
                             // optionally turn off the Formatted button
                             if (data.history.responseContentType == null
 							    || data.history.responseContentType.toLowerCase().indexOf(
-                                "application/json") == -1 || data.history.responseData == ""){
+                                "application/json") == -1 || data.history.responseData == "") {
                                 	showRawResponseData();
                                 	showModifiedResponse();
                                 	$("#showRawFormattedDataButton").attr("disabled", "disabled");
                             } else {
                             	if($.cookie("formatted") == "true") {
                                     showFormattedResponseData(false);
-                            	}else{
+                            	} else {
                             		showRawResponseData();
                             		showModifiedResponse();
                             	}
@@ -467,7 +467,7 @@
                             $("#requestParameters").val(data.history.requestParams);
                             $("#requestHeaders").val(data.history.requestHeaders);
                             $("#requestPOSTData").val(data.history.requestPostData);
-                            if(data.history.modified){
+                            if(data.history.modified) {
                                 $("#originalResponseHeaders").val(historyData.history.originalResponseHeaders);
                                 $("#originalRequestQuery").val(data.history.originalRequestURL);
                                 $("#originalRequestParameters").val(data.history.originalRequestParams);
@@ -477,7 +477,7 @@
                                 $("#requestButtons").show();
                                 document.getElementById("showModifiedResponseButton").className = "btn btn-primary";
                                 document.getElementById("showModifiedRequestButton").className = "btn btn-primary";
-                            } else{
+                            } else {
                                 // set the query back to the original query data
                                 $("#requestQuery").val(data.history.originalRequestURL);
 
