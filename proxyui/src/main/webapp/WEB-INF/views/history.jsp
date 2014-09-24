@@ -587,50 +587,50 @@
 						repeatitems : false
 					},
 					gridComplete : function() {
-						for (var i = 0; i < invalidRows.length; i++) {
-							$("#" + invalidRows[i]).find("td").addClass(
-									"ui-state-error");
-						}
+					    for (var i = 0; i < invalidRows.length; i++) {
+					        $("#" + invalidRows[i]).find("td").addClass(
+					            "ui-state-error");
+					    }
 
                         if("${historyID}" != -1 && !selectRowUsed) {
                             jQuery("#historylist").setSelection("${historyID}", true);
                             selectRowUsed = true;
                         } else {
-						    jQuery("#historylist").setSelection(
-						        $("#historylist").getDataIDs()[0], true);
-						}
-					},
-					onSelectRow : function(id) {
-						var data = jQuery("#historylist").jqGrid('getRowData',
-								id);
-						currentHistoryId = data.id;
-						loadData(data.id);
-					},
-					rowList : [],
-					pager : '#historynavGrid',
-					sortname : 'id',
-					viewrecords : true,
-					sortorder : "desc",
-					caption : '<font size="5">History</font>'
-				});
-		historyList.jqGrid('navGrid', '#historynavGrid', {
-			edit : false,
-			add : false,
-			del : false
-		}, {}, {}, {});
-		
+                            jQuery("#historylist").setSelection(
+                            $("#historylist").getDataIDs()[0], true);
+                        }
+                    },
+                    onSelectRow : function(id) {
+                        var data = jQuery("#historylist").jqGrid('getRowData',
+                            id);
+                        currentHistoryId = data.id;
+                        loadData(data.id);
+                    },
+                    rowList : [],
+                    pager : '#historynavGrid',
+                    sortname : 'id',
+                    viewrecords : true,
+                    sortorder : "desc",
+                    caption : '<font size="5">History</font>'
+                });
+        historyList.jqGrid('navGrid', '#historynavGrid', {
+            edit : false,
+            add : false,
+            del : false
+        }, {}, {}, {});
+
 		function modifiedFormatter( cellvalue, options, rowObject ) {
-            var checkedValue = 0;
-            if (cellvalue == true) {
-                checkedValue = 1;
-            }
-            var newCellValue = '<input id="modified_' + rowObject.pathId + '"type="checkbox" offval="0" value="' + checkedValue + '"';
-            if (checkedValue == 1) {
-                newCellValue += 'checked="checked"';
-            }
-            newCellValue += ' disabled=true>';
-            return newCellValue;
-        }
+		    var checkedValue = 0;
+		    if (cellvalue == true) {
+		        checkedValue = 1;
+		    }
+		    var newCellValue = '<input id="modified_' + rowObject.pathId + '"type="checkbox" offval="0" value="' + checkedValue + '"';
+		    if (checkedValue == 1) {
+		        newCellValue += 'checked="checked"';
+		    }
+		    newCellValue += ' disabled=true>';
+		    return newCellValue;
+		}
 		
 		function showPathTester() {
 			$('#pathTesterURL').val($("#requestQuery").val() + "?" + $("#requestParameters").val());
