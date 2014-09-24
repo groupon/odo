@@ -613,11 +613,12 @@
                     sortorder : "desc",
                     caption : '<font size="5">History</font>'
                 });
-        historyList.jqGrid('navGrid', '#historynavGrid', {
-            edit : false,
-            add : false,
-            del : false
-        }, {}, {}, {});
+
+                historyList.jqGrid('navGrid', '#historynavGrid', {
+                    edit : false,
+                    add : false,
+                    del : false
+                }, {}, {}, {});
 
 		function modifiedFormatter( cellvalue, options, rowObject ) {
 		    var checkedValue = 0;
