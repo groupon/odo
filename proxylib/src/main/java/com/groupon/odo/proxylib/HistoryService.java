@@ -96,7 +96,7 @@ public class HistoryService {
     public void addHistory(History history) {
         PreparedStatement statement = null;
 
-        try (Connection sqlConnection = sqlService.getConnection())  {
+        try (Connection sqlConnection = sqlService.getConnection()) {
             statement = sqlConnection.prepareStatement("INSERT INTO " + Constants.DB_TABLE_HISTORY +
                     "(" + Constants.GENERIC_PROFILE_ID + "," + Constants.GENERIC_CLIENT_UUID + "," +
                     Constants.HISTORY_CREATED_AT + "," + Constants.GENERIC_REQUEST_TYPE + "," +

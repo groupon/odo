@@ -145,7 +145,7 @@ public class Constants {
     public static final String CLIENT_PROFILE_ID = "profile_id";
     public static final String CLIENT_FRIENDLY_NAME = "friendly_name";
     public static final String CLIENT_ACTIVESERVERGROUP = "active_server_group";
-    public static final int    CLIENT_CLIENTS_PER_PROFILE_LIMIT = 300;
+    public static final int CLIENT_CLIENTS_PER_PROFILE_LIMIT = 300;
 
     //server_redirect_db
     public static final String SERVER_REDIRECT_REGION = "region";

@@ -94,7 +94,7 @@ public class History {
         this.requestSent = requestSent;
         this.formattedOriginalResponseData = "";
         this.formattedResponseData = "";
-        
+
     }
 
     public void setId(int id) {
@@ -148,18 +148,18 @@ public class History {
     public void setResponseData(String data) {
         this.responseData = data;
     }
-    
+
     public void setFormattedResponseData(String data) throws Exception {
         this.formattedResponseData = data;
 
-        if(data!=null && !data.equals("") &&
-            responseContentType != null && responseContentType.toLowerCase().indexOf("application/json") != -1){
+        if (data != null && !data.equals("") &&
+                responseContentType != null && responseContentType.toLowerCase().indexOf("application/json") != -1) {
             // try to format it
             try {
-	            ObjectMapper objectMapper = new ObjectMapper();
-	            ObjectWriter writer = objectMapper.defaultPrettyPrintingWriter();
-	            Object json = objectMapper.readValue(data, Object.class);
-	            this.formattedResponseData = writer.withView(ViewFilters.Default.class).writeValueAsString(json);
+                ObjectMapper objectMapper = new ObjectMapper();
+                ObjectWriter writer = objectMapper.defaultPrettyPrintingWriter();
+                Object json = objectMapper.readValue(data, Object.class);
+                this.formattedResponseData = writer.withView(ViewFilters.Default.class).writeValueAsString(json);
             } catch (JsonParseException jpe) {
                 // nothing to do here as this.formattedResponseData was already set to the appropriate data
             }
@@ -209,8 +209,8 @@ public class History {
     public String getResponseData() {
         return this.responseData;
     }
-    
-    public String getFormattedResponseData(){
+
+    public String getFormattedResponseData() {
         return this.formattedResponseData;
     }
 
@@ -297,7 +297,7 @@ public class History {
     public String getOriginalResponseData() {
         return originalResponseData;
     }
-    
+
     public String getFormattedOriginalResponseData() {
         return this.formattedOriginalResponseData;
     }
@@ -305,21 +305,21 @@ public class History {
     public void setOriginalResponseData(String originalResponseData) {
         this.originalResponseData = originalResponseData;
     }
-    
+
     public void setFormattedOriginalResponseData(String originalResponseData) throws Exception {
         this.formattedOriginalResponseData = originalResponseData;
 
-        if(originalResponseData!=null && !originalResponseData.equals("") &&
-            originalResponseContentType != null && originalResponseContentType.toLowerCase().indexOf("application/json") != -1){
+        if (originalResponseData != null && !originalResponseData.equals("") &&
+                originalResponseContentType != null && originalResponseContentType.toLowerCase().indexOf("application/json") != -1) {
             try {
                 // try to format it
-	            ObjectMapper objectMapper = new ObjectMapper();
-	            ObjectWriter writer = objectMapper.defaultPrettyPrintingWriter();
-	            Object json = objectMapper.readValue(originalResponseData, Object.class);
-	            this.formattedOriginalResponseData = writer.withView(ViewFilters.Default.class).writeValueAsString(json);
-	        } catch (JsonParseException jpe) {
-	            // nothing to do here as this.formattedResponseData was already set to the appropriate data
-	        }
+                ObjectMapper objectMapper = new ObjectMapper();
+                ObjectWriter writer = objectMapper.defaultPrettyPrintingWriter();
+                Object json = objectMapper.readValue(originalResponseData, Object.class);
+                this.formattedOriginalResponseData = writer.withView(ViewFilters.Default.class).writeValueAsString(json);
+            } catch (JsonParseException jpe) {
+                // nothing to do here as this.formattedResponseData was already set to the appropriate data
+            }
         }
     }
 
