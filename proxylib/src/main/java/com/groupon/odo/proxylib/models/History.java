@@ -55,6 +55,7 @@ public class History {
     private boolean valid = true;
     private String validationMessage = "";
     private boolean modified = false;
+    private boolean requestSent = true;
 
     public History() {
     }
@@ -67,7 +68,7 @@ public class History {
                    String originalRequestParams, String originalRequestPostData,
                    String originalRequestHeaders, String originalResponseCode,
                    String originalResponseHeaders, String originalResponseContentType,
-                   String originalResponseData, boolean modified) {
+                   String originalResponseData, boolean modified, boolean requestSent) {
         super();
         this.profileId = profileId;
         this.clientUUID = clientUUID;
@@ -90,6 +91,7 @@ public class History {
         this.originalResponseContentType = originalResponseContentType;
         this.originalResponseData = originalResponseData;
         this.modified = modified;
+        this.requestSent = requestSent;
         this.formattedOriginalResponseData = "";
         this.formattedResponseData = "";
         
@@ -329,5 +331,12 @@ public class History {
         this.modified = modified;
     }
 
+    public boolean wasRequestSent() {
+        return requestSent;
+    }
+
+    public void setRequestSent(boolean requestSent) {
+        this.requestSent = requestSent;
+    }
 
 }

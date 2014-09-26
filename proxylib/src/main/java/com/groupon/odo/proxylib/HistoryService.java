@@ -108,8 +108,8 @@ public class HistoryService {
                     Constants.HISTORY_ORIGINAL_REQUEST_POST_DATA + "," + Constants.HISTORY_ORIGINAL_REQUEST_HEADERS + "," +
                     Constants.HISTORY_ORIGINAL_RESPONSE_CODE + "," + Constants.HISTORY_ORIGINAL_RESPONSE_HEADERS + "," +
                     Constants.HISTORY_ORIGINAL_RESPONSE_CONTENT_TYPE + "," + Constants.HISTORY_ORIGINAL_RESPONSE_DATA + "," +
-                    Constants.HISTORY_MODIFIED + ")" +
-                    " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);");
+                    Constants.HISTORY_MODIFIED + "," + Constants.HISTORY_REQUEST_SENT + ")" +
+                    " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);");
             statement.setInt(1, history.getProfileId());
             statement.setString(2, history.getClientUUID());
             statement.setString(3, history.getCreatedAt());
@@ -131,6 +131,7 @@ public class HistoryService {
             statement.setString(19, history.getOriginalResponseContentType());
             statement.setString(20, history.getOriginalResponseData());
             statement.setBoolean(21, history.isModified());
+            statement.setBoolean(22, history.wasRequestSent());
             statement.executeUpdate();
 
             // cull history
@@ -167,6 +168,7 @@ public class HistoryService {
         history.setOriginalResponseContentType(result.getString(Constants.HISTORY_ORIGINAL_RESPONSE_CONTENT_TYPE));
         history.setOriginalResponseHeaders(result.getString(Constants.HISTORY_ORIGINAL_RESPONSE_HEADERS));
         history.setModified(result.getBoolean(Constants.HISTORY_MODIFIED));
+        history.setRequestSent(result.getBoolean(Constants.HISTORY_REQUEST_SENT));
         if (withResponseData) {
             history.setResponseData(result.getString(Constants.HISTORY_RESPONSE_DATA));
             history.setOriginalResponseData(result.getString(Constants.HISTORY_ORIGINAL_RESPONSE_DATA));

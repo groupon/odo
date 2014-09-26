@@ -44,6 +44,7 @@ public class History {
 	private String originalResponseContentType = "";
 	private String originalResponseData = "";
 	private boolean modified = false;
+    private boolean requestSent = true;
 
 
 	public History() {
@@ -224,5 +225,13 @@ public class History {
 	public void setModified(boolean modified) {
 		this.modified = modified;
 	}
+
+    public boolean wasRequestSent() {
+        return requestSent;
+    }
+
+    public void setRequestSent(boolean requestSent) {
+        this.requestSent = requestSent;
+    }
 
 }

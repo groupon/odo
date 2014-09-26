@@ -798,11 +798,14 @@ public class Proxy extends HttpServlet {
                 logger.info("Sending request to server");
 
                 history.setModified(requestInfo.modified);
+                history.setRequestSent(true);
 
                 executeRequest(httpMethodProxyRequest,
                         httpServletRequest,
                         responseWrapper,
                         history);
+            } else {
+                history.setRequestSent(false);
             }
 
             logOriginalResponseHistory(responseWrapper, history);
