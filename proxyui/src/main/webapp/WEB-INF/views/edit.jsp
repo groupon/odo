@@ -1140,13 +1140,13 @@
 
                             // special case for custom responses
                             if (methodId == -1) {
-                                formData += '<dd><textarea id="args_' + x + '" ROWS=10 style="width:100%;">';
+                                formData += '<dd><textarea id="' + type + '_args_' + x + '" ROWS=10 style="width:100%;">';
                                 if (data.enabledEndpoint.arguments.length > i) {
                                     formData += data.enabledEndpoint.arguments[i];
                                 }
                                 formData += '</textarea></dd><br>';
                             } else {
-                                formData += '<dd>(' + el + ')<input id="args_' + x + '" style="width:60%;" type="text" value="';
+                                formData += '<dd>(' + el + ')<input id="' + type + '_args_' + x + '" style="width:60%;" type="text" value="';
                                 // fill in data if we have any
                                 if (data.enabledEndpoint.arguments.length > i) {
                                     formData += data.enabledEndpoint.arguments[i];
@@ -1213,7 +1213,7 @@
             function submitEndPointArgs(type, pathId, methodId, ordinal, numArgs) {
                 var args = new Array();
                 for (var x = 0; x < numArgs; x++) {
-                    var selector = "#args_" + x;
+                    var selector = "#" + type + "_args_" + x;
                     var value = $(selector).val();
                     args[x] = value;
                 }
