@@ -226,7 +226,7 @@ public class History {
         this.modified = modified;
     }
 
-    public boolean wasRequestSent() {
+    public boolean getRequestSent() {
         return requestSent;
     }
 
