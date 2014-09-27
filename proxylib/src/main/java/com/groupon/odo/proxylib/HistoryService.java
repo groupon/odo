@@ -131,7 +131,7 @@ public class HistoryService {
             statement.setString(19, history.getOriginalResponseContentType());
             statement.setString(20, history.getOriginalResponseData());
             statement.setBoolean(21, history.isModified());
-            statement.setBoolean(22, history.wasRequestSent());
+            statement.setBoolean(22, history.getRequestSent());
             statement.executeUpdate();
 
             // cull history
