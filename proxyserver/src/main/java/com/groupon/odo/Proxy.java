@@ -484,7 +484,7 @@ public class Proxy extends HttpServlet {
 
         String hostName = HttpUtilities.getHostNameFromURL(originalURL);
         int port = HttpUtilities.getPortFromURL(originalURL);
-        
+
         String origHostName = hostName;
         logger.info("original host name = {}", hostName);
 
@@ -499,7 +499,8 @@ public class Proxy extends HttpServlet {
 
         // if this can't be overridden we are going to finish the string and bail
         if (!requestInfo.handle) {
-            stringProxyURL = stringProxyURL + hostName + ":" + port;;
+            stringProxyURL = stringProxyURL + hostName + ":" + port;
+            ;
 
             // Handle the path given to the servlet
             stringProxyURL += httpServletRequest.getPathInfo();
@@ -710,13 +711,13 @@ public class Proxy extends HttpServlet {
                 }
 
                 // other built-in overrides
-                if(endpoint.getOverrideId() < 0) {
+                if (endpoint.getOverrideId() < 0) {
                     continue;
                 }
 
                 com.groupon.odo.proxylib.models.Method methodInfo =
                         PathOverrideService.getInstance().getMethodForEnabledId(endpoint.getOverrideId());
-                if(methodInfo.isBlockRequest()) {
+                if (methodInfo.isBlockRequest()) {
                     return true;
                 }
             }
@@ -778,14 +779,14 @@ public class Proxy extends HttpServlet {
             // Otherwise the hostname from the URL is used
             processVirtualHostName(httpMethodProxyRequest, httpServletRequest);
             cullDisabledPaths();
-            
+
             // check for existence of ODO_PROXY_HEADER
             // finding it indicates a bad loop back through the proxy
             if (httpServletRequest.getHeader(Constants.ODO_PROXY_HEADER) != null) {
-            	logger.error("Request has looped back into the proxy.  This will not be executed: {}", httpServletRequest.getRequestURL());
-            	return;
+                logger.error("Request has looped back into the proxy.  This will not be executed: {}", httpServletRequest.getRequestURL());
+                return;
             }
-            
+
             // set ODO_PROXY_HEADER
             httpMethodProxyRequest.addRequestHeader(Constants.ODO_PROXY_HEADER, "proxied");
 
@@ -798,11 +799,14 @@ public class Proxy extends HttpServlet {
                 logger.info("Sending request to server");
 
                 history.setModified(requestInfo.modified);
+                history.setRequestSent(true);
 
                 executeRequest(httpMethodProxyRequest,
                         httpServletRequest,
                         responseWrapper,
                         history);
+            } else {
+                history.setRequestSent(false);
             }
 
             logOriginalResponseHistory(responseWrapper, history);
@@ -810,7 +814,7 @@ public class Proxy extends HttpServlet {
             // store history
             history.setModified(requestInfo.modified);
             logRequestHistory(httpMethodProxyRequest, responseWrapper, history);
-            
+
             writeResponseOutput(responseWrapper, requestInfo.jsonpCallback);
         } catch (Exception e) {
             e.printStackTrace();
@@ -840,22 +844,22 @@ public class Proxy extends HttpServlet {
             httpClient.getParams().setSoTimeout(60000);
 
             httpServletRequest.setAttribute("com.groupon.odo.removeHeaders", headersToRemove);
-            
+
             // exception handling for httpclient
             HttpMethodRetryHandler noretryhandler = new HttpMethodRetryHandler() {
                 public boolean retryMethod(
-                		final HttpMethod method, 
-                        final IOException exception, 
+                        final HttpMethod method,
+                        final IOException exception,
                         int executionCount) {
                     return false;
                 }
             };
-            
+
             httpMethodProxyRequest.getParams().setParameter(HttpMethodParams.RETRY_HANDLER, noretryhandler);
-            
+
             intProxyResponseCode = httpClient.executeMethod(httpMethodProxyRequest);
         } catch (Exception e) {
-        	// Return a gateway timeout
+            // Return a gateway timeout
             httpServletResponse.setStatus(504);
             httpServletResponse.setHeader(Constants.HEADER_STATUS, "504");
             httpServletResponse.flushBuffer();
@@ -1038,7 +1042,7 @@ public class Proxy extends HttpServlet {
                     requestInfo.modified = true;
                     PluginHelper.writeResponseContent(httpServletResponse, response);
                 } else if (endpoint.getOverrideId() == Constants.PLUGIN_RESPONSE_HEADER_OVERRIDE_ADD) {
-                    httpServletResponse = (PluginResponse)HttpUtilities.addHeader(httpServletResponse, endpoint.getArguments());
+                    httpServletResponse = (PluginResponse) HttpUtilities.addHeader(httpServletResponse, endpoint.getArguments());
                     requestInfo.modified = true;
                 } else if (endpoint.getMethodInformation() != null &&
                         (endpoint.getMethodInformation().getMethodType().equals(Constants.PLUGIN_TYPE_RESPONSE_OVERRIDE) ||
@@ -1055,20 +1059,20 @@ public class Proxy extends HttpServlet {
 
 
                         // For v1 plugins - verify HTTP code is set correctly
-                        if(methodInfo.getOverrideVersion() == 1) {
-                        	logger.info("Running {}", methodInfo.getMethodName());
-                            String responseOutput = (String)PluginManager.getInstance().callFunction(methodInfo.getClassName(), methodInfo.getMethodName(),
+                        if (methodInfo.getOverrideVersion() == 1) {
+                            logger.info("Running {}", methodInfo.getMethodName());
+                            String responseOutput = (String) PluginManager.getInstance().callFunction(methodInfo.getClassName(), methodInfo.getMethodName(),
                                     httpServletResponse.getContentString(), endpoint.getArguments());
                             PluginHelper.writeResponseContent(httpServletResponse, responseOutput);
 
-                            if(methodInfo.getHttpCode() != httpServletResponse.getStatus()) {
+                            if (methodInfo.getHttpCode() != httpServletResponse.getStatus()) {
                                 logger.info("Setting HTTP Code to {}", methodInfo.getHttpCode());
                                 httpServletResponse.setStatus(methodInfo.getHttpCode());
                                 // the server might have set a "Status" header.. so let's reset this too
                                 httpServletResponse.setHeader(Constants.HEADER_STATUS,
-                                    Integer.toString(methodInfo.getHttpCode()));
+                                        Integer.toString(methodInfo.getHttpCode()));
                             }
-                        } else if (methodInfo.getOverrideVersion() == 2 ) {
+                        } else if (methodInfo.getOverrideVersion() == 2) {
                             PluginArguments pluginArgs = new PluginArguments(httpServletResponse, requestInfo.originalRequestInfo);
 
                             PluginManager.getInstance().callFunction(
@@ -1083,13 +1087,13 @@ public class Proxy extends HttpServlet {
                     }
                 }
             }
-            
-            
+
+
         }
 
         httpServletResponse.flushBuffer();
     }
-    
+
     /**
      * @param httpServletResponse
      * @param jsonpCallback
@@ -1106,11 +1110,11 @@ public class Proxy extends HttpServlet {
             httpServletResponse.setHeader(HttpUtilities.STRING_CONNECTION, HttpUtilities.STRING_CHUNKED);
             chunked = true;
         }
-        
+
         // reattach JSONP if needed
         if (httpServletResponse.getOutputStream() != null && jsonpCallback != null) {
-        	String outStr = jsonpCallback + "(" + httpServletResponse.getOutputStream().toString()  + ");";
-        	PluginHelper.writeResponseContent(httpServletResponse, outStr);
+            String outStr = jsonpCallback + "(" + httpServletResponse.getOutputStream().toString() + ");";
+            PluginHelper.writeResponseContent(httpServletResponse, outStr);
         }
 
         // don't do this if we got a HTTP 304 since there is no data to send back
@@ -1120,7 +1124,7 @@ public class Proxy extends HttpServlet {
             if (!chunked) {
                 // change the content length header to the new length
                 if (httpServletResponse.getOutputStream() != null) {
-                	logger.info("Content length: {}", httpServletResponse.getByteOutputStream().toByteArray().length);
+                    logger.info("Content length: {}", httpServletResponse.getByteOutputStream().toByteArray().length);
                     httpServletResponse.setContentLength(httpServletResponse.getByteOutputStream().toByteArray().length);
                 }
             }
@@ -1128,7 +1132,7 @@ public class Proxy extends HttpServlet {
             OutputStream outputStreamClientResponse = httpServletResponse.getOutputStream();
 
             outputStreamClientResponse.write(httpServletResponse.getByteOutputStream().toByteArray());
-            
+
             logger.info("Done writing");
         }
     }
@@ -1174,7 +1178,7 @@ public class Proxy extends HttpServlet {
     }
 
 
-    private String stripJSONPToOutstr(HttpServletRequest httpServletRequest, PluginResponse response) throws IOException{
+    private String stripJSONPToOutstr(HttpServletRequest httpServletRequest, PluginResponse response) throws IOException {
         String responseOutput = response.getContentString();
         RequestInformation requestInfo = requestInformation.get();
         // set outstr if we are overriding anything

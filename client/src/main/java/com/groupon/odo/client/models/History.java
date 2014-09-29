@@ -36,17 +36,18 @@ public class History {
     private String responseContentType = "";
     private String responseData = "";
     private String originalRequestURL = "";
-	private String originalRequestParams = "";
-	private String originalRequestPostData = "";
-	private String originalRequestHeaders = "";
-	private String originalResponseCode = "";
-	private String originalResponseHeaders = "";
-	private String originalResponseContentType = "";
-	private String originalResponseData = "";
-	private boolean modified = false;
+    private String originalRequestParams = "";
+    private String originalRequestPostData = "";
+    private String originalRequestHeaders = "";
+    private String originalResponseCode = "";
+    private String originalResponseHeaders = "";
+    private String originalResponseContentType = "";
+    private String originalResponseData = "";
+    private boolean modified = false;
+    private boolean requestSent = true;
 
 
-	public History() {
+    public History() {
     }
 
     public void setId(int id) {
@@ -154,75 +155,83 @@ public class History {
     }
 
     public String getOriginalRequestURL() {
-		return originalRequestURL;
-	}
+        return originalRequestURL;
+    }
 
-	public void setOriginalRequestURL(String originalRequestURL) {
-		this.originalRequestURL = originalRequestURL;
-	}
+    public void setOriginalRequestURL(String originalRequestURL) {
+        this.originalRequestURL = originalRequestURL;
+    }
 
-	public String getOriginalRequestParams() {
-		return originalRequestParams;
-	}
+    public String getOriginalRequestParams() {
+        return originalRequestParams;
+    }
 
-	public void setOriginalRequestParams(String originalRequestParams) {
-		this.originalRequestParams = originalRequestParams;
-	}
+    public void setOriginalRequestParams(String originalRequestParams) {
+        this.originalRequestParams = originalRequestParams;
+    }
 
-	public String getOriginalRequestPostData() {
-		return originalRequestPostData;
-	}
+    public String getOriginalRequestPostData() {
+        return originalRequestPostData;
+    }
 
-	public void setOriginalRequestPostData(String originalRequestPostData) {
-		this.originalRequestPostData = originalRequestPostData;
-	}
+    public void setOriginalRequestPostData(String originalRequestPostData) {
+        this.originalRequestPostData = originalRequestPostData;
+    }
 
-	public String getOriginalRequestHeaders() {
-		return originalRequestHeaders;
-	}
+    public String getOriginalRequestHeaders() {
+        return originalRequestHeaders;
+    }
 
-	public void setOriginalRequestHeaders(String originalRequestHeaders) {
-		this.originalRequestHeaders = originalRequestHeaders;
-	}
+    public void setOriginalRequestHeaders(String originalRequestHeaders) {
+        this.originalRequestHeaders = originalRequestHeaders;
+    }
 
-	public String getOriginalResponseCode() {
-		return originalResponseCode;
-	}
+    public String getOriginalResponseCode() {
+        return originalResponseCode;
+    }
 
-	public void setOriginalResponseCode(String originalResponseCode) {
-		this.originalResponseCode = originalResponseCode;
-	}
+    public void setOriginalResponseCode(String originalResponseCode) {
+        this.originalResponseCode = originalResponseCode;
+    }
 
-	public String getOriginalResponseHeaders() {
-		return originalResponseHeaders;
-	}
+    public String getOriginalResponseHeaders() {
+        return originalResponseHeaders;
+    }
 
-	public void setOriginalResponseHeaders(String originalResponseHeaders) {
-		this.originalResponseHeaders = originalResponseHeaders;
-	}
+    public void setOriginalResponseHeaders(String originalResponseHeaders) {
+        this.originalResponseHeaders = originalResponseHeaders;
+    }
 
-	public String getOriginalResponseContentType() {
-		return originalResponseContentType;
-	}
+    public String getOriginalResponseContentType() {
+        return originalResponseContentType;
+    }
 
-	public void setOriginalResponseContentType(String originalResponseContentType) {
-		this.originalResponseContentType = originalResponseContentType;
-	}
+    public void setOriginalResponseContentType(String originalResponseContentType) {
+        this.originalResponseContentType = originalResponseContentType;
+    }
 
-	public String getOriginalResponseData() {
-		return originalResponseData;
-	}
+    public String getOriginalResponseData() {
+        return originalResponseData;
+    }
 
-	public void setOriginalResponseData(String originalResponseData) {
-		this.originalResponseData = originalResponseData;
-	}
-	
+    public void setOriginalResponseData(String originalResponseData) {
+        this.originalResponseData = originalResponseData;
+    }
+
     public boolean isModified() {
-		return modified;
-	}
+        return modified;
+    }
 
-	public void setModified(boolean modified) {
-		this.modified = modified;
-	}
+    public void setModified(boolean modified) {
+        this.modified = modified;
+    }
+
+    public boolean getRequestSent() {
+        return requestSent;
+    }
+
+    public void setRequestSent(boolean requestSent) {
+        this.requestSent = requestSent;
+    }
 
 }

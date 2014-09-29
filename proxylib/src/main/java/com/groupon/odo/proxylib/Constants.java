@@ -35,7 +35,7 @@ public class Constants {
     public static final String ODO_PROXY_HEADER = "X-ODO-REQUEST";
 
     // DB constants
-    public static final int DB_CURRENT_SCHEMA_VERSION = 3;
+    public static final int DB_CURRENT_SCHEMA_VERSION = 4;
     public static final String DB_TABLE_CONFIGURATION = "configuration";
     public static final String DB_TABLE_HISTORY = "history";
     public static final String DB_TABLE_OVERRIDE = "override_db";
@@ -121,6 +121,7 @@ public class Constants {
     public static final String HISTORY_ORIGINAL_RESPONSE_CONTENT_TYPE = "original_response_content_type";
     public static final String HISTORY_ORIGINAL_RESPONSE_DATA = "original_response_data";
     public static final String HISTORY_MODIFIED = "modified";
+    public static final String HISTORY_REQUEST_SENT = "requestSent";
 
 
     // Client profile constants
@@ -144,7 +145,7 @@ public class Constants {
     public static final String CLIENT_PROFILE_ID = "profile_id";
     public static final String CLIENT_FRIENDLY_NAME = "friendly_name";
     public static final String CLIENT_ACTIVESERVERGROUP = "active_server_group";
-    public static final int    CLIENT_CLIENTS_PER_PROFILE_LIMIT = 300;
+    public static final int CLIENT_CLIENTS_PER_PROFILE_LIMIT = 300;
 
     //server_redirect_db
     public static final String SERVER_REDIRECT_REGION = "region";
