@@ -432,65 +432,71 @@
 
 		var historyData;
 		function loadData(historyId) {
-			$
-					.ajax({
-						type : "GET",
-						url : '<c:url value="/api/history/${profile_id}/"/>'
-								+ historyId,
-						data : 'clientUUID=${clientUUID}',
-						success : function(data) {
-							// populate data
-							historyData = data;
+			$.ajax({
+			    type : "GET",
+			    url : '<c:url value="/api/history/${profile_id}/"/>'
+			        + historyId,
+			    data : 'clientUUID=${clientUUID}',
+			    success : function(data) {
+			    // populate data
+			    historyData = data;
 
-                            // optionally turn off the Formatted button
-                            if (data.history.responseContentType == null
-							    || data.history.responseContentType.toLowerCase().indexOf(
-                                "application/json") == -1 || data.history.responseData == "") {
-                                	showRawResponseData();
-                                	showModifiedResponse();
-                                	$("#showRawFormattedDataButton").attr("disabled", "disabled");
-                            } else {
-                            	if($.cookie("formatted") == "true") {
-                                    showFormattedResponseData(false);
-                            	} else {
-                            		showRawResponseData();
-                            		showModifiedResponse();
-                            	}
-                                $("#showRawFormattedDataButton").removeAttr("disabled");
-                            }
+                // optionally turn off the Formatted button
+                if (data.history.responseContentType == null
+                    || data.history.responseContentType.toLowerCase().indexOf(
+                    "application/json") == -1 || data.history.responseData == "") {
+                        showRawResponseData();
+                        showModifiedResponse();
+                        $("#showRawFormattedDataButton").attr("disabled", "disabled");
+                } else {
+                    if($.cookie("formatted") == "true") {
+                        showFormattedResponseData(false);
+                    } else {
+                        showRawResponseData();
+                        showModifiedResponse();
+                    }
+                    $("#showRawFormattedDataButton").removeAttr("disabled");
+                }
 
-                            showModifiedRequestData();
-                            $("#responseHeaders").val(data.history.responseHeaders);
-                            $("#originalResponseHeaders").val(data.history.originalResponseHeaders);
-                            $("#responseTypeLabel").html(data.history.responseContentType);
-                            $("#requestQuery").val(data.history.requestURL);
-                            $("#requestParameters").val(data.history.requestParams);
-                            $("#requestHeaders").val(data.history.requestHeaders);
-                            $("#requestPOSTData").val(data.history.requestPostData);
-                            if(data.history.modified) {
-                                $("#originalResponseHeaders").val(historyData.history.originalResponseHeaders);
-                                $("#originalRequestQuery").val(data.history.originalRequestURL);
-                                $("#originalRequestParameters").val(data.history.originalRequestParams);
-                                $("#originalRequestHeaders").val(data.history.originalRequestHeaders);
-                                $("#originalRequestPOSTData").val(data.history.originalRequestPostData);
-                                $("#responseButtons").show();
-                                $("#requestButtons").show();
-                                document.getElementById("showModifiedResponseButton").className = "btn btn-primary";
-                                document.getElementById("showModifiedRequestButton").className = "btn btn-primary";
-                            } else {
-                                // set the query back to the original query data
-                                $("#requestQuery").val(data.history.originalRequestURL);
+                showModifiedRequestData();
+                $("#responseHeaders").val(data.history.responseHeaders);
+                $("#originalResponseHeaders").val(data.history.originalResponseHeaders);
+                $("#responseTypeLabel").html(data.history.responseContentType);
+                $("#requestQuery").val(data.history.requestURL);
+                $("#requestParameters").val(data.history.requestParams);
+                $("#requestHeaders").val(data.history.requestHeaders);
+                $("#requestPOSTData").val(data.history.requestPostData);
+                if(data.history.modified) {
+                    $("#originalResponseHeaders").val(historyData.history.originalResponseHeaders);
+                    $("#originalRequestQuery").val(data.history.originalRequestURL);
+                    $("#originalRequestParameters").val(data.history.originalRequestParams);
+                    $("#originalRequestHeaders").val(data.history.originalRequestHeaders);
+                    $("#originalRequestPOSTData").val(data.history.originalRequestPostData);
+                    $("#responseButtons").show();
+                    $("#requestButtons").show();
+                    document.getElementById("showModifiedResponseButton").className = "btn btn-primary";
+                    document.getElementById("showModifiedRequestButton").className = "btn btn-primary";
+                    } else {
+                        // set the query back to the original query data
+                        $("#requestQuery").val(data.history.originalRequestURL);
 
-                                $("#responseButtons").hide();
-                                $("#requestButtons").hide();
-                            }
+                        $("#responseButtons").hide();
+                        $("#requestButtons").hide();
+                    }
 
-                            showCurlCommand();
-                        }
-				    });
+                    showCurlCommand();
+                }
+            });
 		}
 
 		$(document).ready(function() {
+		    if ("${clientUUID}" == "-1" && $.cookie("UUID") != null) {
+		        var currentURL = document.location.href;
+		        currentURL = currentURL.replace('clientUUID=-1', 'clientUUID='+$.cookie("UUID"));
+		        document.location.href = currentURL;
+		    } else if ("${clientUUID}" != "-1") {
+		        $.cookie("UUID", "${clientUUID}", { expires: 10000, path: '/testproxy/' });
+		    }
 			$("#tabs").tabs();
 			$("#tabs").css("overflow", "scroll");
 			$("#radioset").buttonset();
