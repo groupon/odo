@@ -432,14 +432,14 @@
 
 		var historyData;
 		function loadData(historyId) {
-			$.ajax({
-			    type : "GET",
-			    url : '<c:url value="/api/history/${profile_id}/"/>'
-			        + historyId,
-			    data : 'clientUUID=${clientUUID}',
-			    success : function(data) {
-			    // populate data
-			    historyData = data;
+		$.ajax({
+		    type : "GET",
+		    url : '<c:url value="/api/history/${profile_id}/"/>'
+		        + historyId,
+		    data : 'clientUUID=${clientUUID}',
+		    success : function(data) {
+		    // populate data
+		    historyData = data;
 
                 // optionally turn off the Formatted button
                 if (data.history.responseContentType == null
