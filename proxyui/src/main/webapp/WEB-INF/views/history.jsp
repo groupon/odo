@@ -487,32 +487,32 @@
                     showCurlCommand();
                 }
             });
-		}
+        }
 
-		$(document).ready(function() {
-		    if ("${clientUUID}" == "-1" && $.cookie("UUID") != null) {
-		        var currentURL = document.location.href;
-		        currentURL = currentURL.replace('clientUUID=-1', 'clientUUID='+$.cookie("UUID"));
-		        document.location.href = currentURL;
-		    } else if ("${clientUUID}" != "-1") {
-		        $.cookie("UUID", "${clientUUID}", { expires: 10000, path: '/testproxy/' });
-		    }
-			$("#tabs").tabs();
-			$("#tabs").css("overflow", "scroll");
-			$("#radioset").buttonset();
+        $(document).ready(function() {
+            if ("${clientUUID}" == "-1" && $.cookie("UUID") != null) {
+                var currentURL = document.location.href;
+                currentURL = currentURL.replace('clientUUID=-1', 'clientUUID='+$.cookie("UUID"));
+                document.location.href = currentURL;
+            } else if ("${clientUUID}" != "-1") {
+                $.cookie("UUID", "${clientUUID}", { expires: 10000, path: '/testproxy/' });
+            }
+            $("#tabs").tabs();
+            $("#tabs").css("overflow", "scroll");
+            $("#radioset").buttonset();
 
-			$('#searchFilter').keydown(function(event) {
-				if (event.keyCode == 13) {
-					uriFilter();
-					return false;
-				}
-			});
-			
-			// bind window resize to fix grid width
-			$(window).bind('resize', function() {
-				$("#historylist").setGridWidth($("#historyGridDiv").width());
-			});
-		});
+            $('#searchFilter').keydown(function(event) {
+                if (event.keyCode == 13) {
+                    uriFilter();
+                    return false;
+                }
+            });
+
+            // bind window resize to fix grid width
+            $(window).bind('resize', function() {
+                $("#historylist").setGridWidth($("#historyGridDiv").width());
+            });
+        });
 
 		var selectRowUsed = false;
 		var historyList = jQuery("#historylist");
