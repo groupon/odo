@@ -189,6 +189,7 @@
             }
 
             function changeClientSubmit() {
+                $.removeCookie("UUID", { expires: 10000, path: '/testproxy/' });
                 var value = $('#switchClientName').val();
                 var url = '<c:url value="/edit/${profile_id}"/>?clientUUID=' + value;
                 window.location.href = url;
@@ -392,6 +393,12 @@
             }
 
             $(document).ready(function () {
+		    if ("${clientUUID}" == "-1" && $.cookie("UUID") != null) {
+                    document.location.href =  "http://" + document.location.hostname + ":" +  document.location.port + document.location.pathname +
+                        "?" + 'clientUUID='+$.cookie("UUID");
+                } else if ("${clientUUID}" != "-1") {
+                    $.cookie("UUID", "${clientUUID}", { expires: 10000, path: '/testproxy/' });
+                }
                 'use strict';
 
                 updateStatus();
