@@ -492,7 +492,7 @@
         $(document).ready(function() {
             if ("${clientUUID}" == "-1" && $.cookie("UUID") != null) {
                 var currentURL = document.location.href;
-                if (document.location.search.contains("clientUUID")) {
+                if (document.location.search.indexOf("clientUUID") != -1) {
                     currentURL = currentURL.replace('clientUUID=-1', 'clientUUID=' + $.cookie("UUID"));
                 } else {
                     if (document.location.search == "") {
