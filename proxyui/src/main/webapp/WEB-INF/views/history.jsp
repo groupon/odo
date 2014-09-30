@@ -492,7 +492,15 @@
         $(document).ready(function() {
             if ("${clientUUID}" == "-1" && $.cookie("UUID") != null) {
                 var currentURL = document.location.href;
-                currentURL = currentURL.replace('clientUUID=-1', 'clientUUID='+$.cookie("UUID"));
+                if (document.location.search.contains("clientUUID")) {
+                    currentURL = currentURL.replace('clientUUID=-1', 'clientUUID=' + $.cookie("UUID"));
+                } else {
+                    if (document.location.search == "") {
+                        currentURL = currentURL + "?clientUUID=" + $.cookie("UUID");
+                    } else {
+                        currentURL = currentURL + "&clientUUID=" + $.cookie("UUID");
+                    }
+                }
                 document.location.href = currentURL;
             } else if ("${clientUUID}" != "-1") {
                 $.cookie("UUID", "${clientUUID}", { expires: 10000, path: '/testproxy/' });
