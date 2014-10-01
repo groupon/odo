@@ -22,10 +22,9 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.StringTokenizer;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.util.*;
 
 public class Utils {
     // found this on a website, splits a string of ints "1,2,3,4,5" into an
@@ -145,5 +144,37 @@ public class Utils {
 
         String portStr = System.getenv(portIdentifier);
         return (portStr == null || portStr.isEmpty()) ? defaultPort : Integer.valueOf(portStr);
+    }
+
+    /**
+     * This function returns the first external IP address encountered
+     *
+     * @return IP address or null
+     * @throws Exception
+     */
+    public static String getPublicIPAddress() throws Exception {
+        final String IPV4_REGEX = "\\A(25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)(\\.(25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)){3}\\z";
+
+        String ipAddr = null;
+        Enumeration e = NetworkInterface.getNetworkInterfaces();
+        while(e.hasMoreElements())
+        {
+            NetworkInterface n = (NetworkInterface) e.nextElement();
+            Enumeration ee = n.getInetAddresses();
+            while (ee.hasMoreElements())
+            {
+                InetAddress i = (InetAddress) ee.nextElement();
+
+                // Pick the first non loop back address
+                if((!i.isLoopbackAddress() && i.isSiteLocalAddress()) ||
+                        i.getHostAddress().matches(IPV4_REGEX)){
+                    ipAddr = i.getHostAddress();
+                    break;
+                }
+            }
+            if(ipAddr != null) break;
+        }
+
+        return ipAddr;
     }
 }

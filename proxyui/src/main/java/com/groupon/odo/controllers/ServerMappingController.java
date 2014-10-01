@@ -31,6 +31,9 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
+import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.*;
 
 
@@ -364,6 +367,16 @@ public class ServerMappingController {
     }
 
     /**
+     * Returns a simple web page where certs can be downloaded.  This is meant for mobile device setup.
+     * @return
+     * @throws Exception
+     */
+    @RequestMapping(value = "/cert", method = {RequestMethod.GET, RequestMethod.HEAD})
+    public String certPage() throws Exception {
+        return "cert";
+    }
+
+    /**
      * Returns a X509 binary certificate for a given domain name if a certificate has been generated for it
      *
      * @param locale
@@ -376,16 +389,35 @@ public class ServerMappingController {
     public
     @ResponseBody
     void getCert(Locale locale, Model model, HttpServletResponse response, @PathVariable String hostname) throws Exception {
-        KeyStoreManager keyStoreManager = com.groupon.odo.bmp.Utils.getKeyStoreManager(hostname);
+        // special handling for hostname=="root"
+        // return the CyberVillians Root Cert in this case
+        if (hostname.equals("root")) {
+            hostname = "cybervilliansCA";
+        }
 
         // Set the appropriate headers so the browser thinks this is a file
         response.reset();
         response.setContentType("application/x-x509-ca-cert");
         response.setHeader("Content-Disposition", "attachment;filename=" + hostname + ".cer");
 
-        // return the cert for the appropriate alias
-        response.getOutputStream().write(keyStoreManager.getCertificateByAlias(hostname).getEncoded());
-        response.flushBuffer();
+        if (hostname.equals("root")) {
+            // get the cybervillians cert from resources
+            File root = new File("seleniumSslSupport");
+            com.groupon.odo.proxylib.Utils.copyResourceToLocalFile(hostname + ".cer", root.getAbsolutePath() + File.separator + hostname + ".cer");
+
+            // return the cert for the appropriate alias
+            Files.copy(new File(root.getAbsolutePath() + File.separator + "cybervillainsCA.cer").toPath(), response.getOutputStream());
+            response.flushBuffer();
+        } else {
+            // get the cert for the hostname
+            KeyStoreManager keyStoreManager = com.groupon.odo.bmp.Utils.getKeyStoreManager(hostname);
+
+            // return the cert for the appropriate alias
+            response.getOutputStream().write(keyStoreManager.getCertificateByAlias(hostname).getEncoded());
+            response.flushBuffer();
+        }
+
+
     }
 
     @ResponseStatus(value = HttpStatus.NOT_FOUND)
