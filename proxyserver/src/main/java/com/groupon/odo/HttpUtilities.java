@@ -24,14 +24,14 @@ import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpMethod;
-import org.apache.commons.httpclient.methods.ByteArrayRequestEntity;
-import org.apache.commons.httpclient.methods.EntityEnclosingMethod;
-import org.apache.commons.httpclient.methods.StringRequestEntity;
+import org.apache.commons.httpclient.methods.*;
 import org.apache.commons.httpclient.methods.multipart.*;
 import org.apache.commons.io.IOUtils;
 import org.msgpack.MessagePack;
 import org.msgpack.type.Value;
 import org.msgpack.unpacker.Unpacker;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -42,6 +42,7 @@ import java.io.InputStream;
 import java.util.*;
 
 public class HttpUtilities {
+    private static final Logger logger = LoggerFactory.getLogger(HttpUtilities.class);
 
     /**
      * Key for content type header.
@@ -312,57 +313,14 @@ public class HttpUtilities {
             HttpServletRequest httpServletRequest,
             DiskFileItemFactory diskFileItemFactory)
             throws ServletException {
-
-        // Create a new file upload handler
-        ServletFileUpload servletFileUpload = new ServletFileUpload(diskFileItemFactory);
-        // Parse the request
+        // TODO: this function doesn't set any history data
         try {
-            // Get the multipart items as a list
-            List<FileItem> listFileItems = (List<FileItem>) servletFileUpload.parseRequest(httpServletRequest);
-            // Create a list to hold all of the parts
-            List<Part> listParts = new ArrayList<Part>();
-            // Iterate the multipart items list
-            for (FileItem fileItemCurrent : listFileItems) {
-                // If the current item is a form field, then create a string
-                // part
-                if (fileItemCurrent.isFormField()) {
-                    StringPart stringPart = new StringPart(
-                            fileItemCurrent.getFieldName(), // The field name
-                            fileItemCurrent.getString() // The field value
-                    );
-                    // Add the part to the list
-                    listParts.add(stringPart);
-                } else {
-                    // The item is a file upload, so we create a FilePart
-                    FilePart filePart = new FilePart(
-                            fileItemCurrent.getFieldName(), // The field name
-                            new ByteArrayPartSource(fileItemCurrent.getName(), // The uploaded file name
-                                    fileItemCurrent.get() // The uploaded file contents
-                            )
-                    );
-                    // Add the part to the list
-                    listParts.add(filePart);
-                }
-            }
-            MultipartRequestEntity multipartRequestEntity = new MultipartRequestEntity(
-                    listParts.toArray(new Part[listParts.size()]),
-                    postMethodProxyRequest.getParams());
-
-            postMethodProxyRequest.setRequestEntity(multipartRequestEntity);
-
-            // The current content-type header (received from the client) IS of
-            // type "multipart/form-data", but the content-type header also
-            // contains the chunk boundary string of the chunks. Currently, this
-            // header is using the boundary of the client request, since we
-            // blindly copied all headers from the client request to the proxy
-            // request. However, we are creating a new request with a new chunk
-            // boundary string, so it is necessary that we re-set the
-            // content-type string to reflect the new chunk boundary string
-            postMethodProxyRequest.setRequestHeader(
-                    STRING_CONTENT_TYPE_HEADER_NAME,
-                    multipartRequestEntity.getContentType());
-        } catch (FileUploadException fileUploadException) {
-            throw new ServletException(fileUploadException);
+            // just pass back the binary data
+            InputStreamRequestEntity ire = new InputStreamRequestEntity(httpServletRequest.getInputStream());
+            postMethodProxyRequest.setRequestEntity(ire);
+            postMethodProxyRequest.setRequestHeader(STRING_CONTENT_TYPE_HEADER_NAME, httpServletRequest.getHeader(STRING_CONTENT_TYPE_HEADER_NAME));
+        } catch (Exception e) {
+            throw new ServletException(e);
         }
     }
 
@@ -385,10 +343,12 @@ public class HttpUtilities {
         // Create a new StringBuffer with the data to be passed
         StringBuilder requestBody = new StringBuilder();
         InputStream body = httpServletRequest.getInputStream();
-        java.util.Scanner s = new java.util.Scanner(body).useDelimiter("\\A");
+        RequestEntity requestEntity = null;
 
         if (httpServletRequest.getContentType() != null &&
-                httpServletRequest.getContentType().contains(STRING_CONTENT_TYPE_FORM_URLENCODED)) {
+                httpServletRequest.getContentType().contains(STRING_CONTENT_TYPE_FORM_URLENCODED)
+                && httpServletRequest.getHeader("content-encoding") == null) {
+            java.util.Scanner s = new java.util.Scanner(body).useDelimiter("\\A");
             // Get the client POST data as a Map if content type is: application/x-www-form-urlencoded
             // We do this manually since some data is not properly parseable by the servlet request
             Map<String, String[]> mapPostParameters = HttpUtilities.mapUrlEncodedParameters(httpServletRequest);
@@ -415,6 +375,11 @@ public class HttpUtilities {
                     }
                 }
             }
+
+            // Set the proxy request data
+            StringRequestEntity stringEntity = new StringRequestEntity(
+                    requestBody.toString(), null, null);
+            requestEntity = stringEntity;
         } else if (httpServletRequest.getContentType() != null &&
                 httpServletRequest.getContentType().contains(STRING_CONTENT_TYPE_MESSAGEPACK)) {
 
@@ -431,22 +396,30 @@ public class HttpUtilities {
                 deserialisedMessages += message;
                 deserialisedMessages += "\n";
             }
+        } else if (httpServletRequest.getHeader("content-encoding") != null) {
+            // this is binary.. just return it as is
+            InputStreamRequestEntity ire = new InputStreamRequestEntity(body);
+            requestEntity = ire;
+            requestBody.append("BINARY DATA");
         } else {
             // just set the request body to the POST body
+            java.util.Scanner s = new java.util.Scanner(body).useDelimiter("\\A");
             if (s.hasNext()) {
                 requestBody.append(s.next());
             }
+            // Set the proxy request data
+            StringRequestEntity stringEntity = new StringRequestEntity(
+                    requestBody.toString(), null, null);
+            requestEntity = stringEntity;
         }
-        // Set the proxy request data
-        StringRequestEntity stringEntity = new StringRequestEntity(
-                requestBody.toString(), null, null);
+
 
         // set post body in history object
         history.setRequestPostData(requestBody.toString());
 
 
         // set post body in proxy request object
-        methodProxyRequest.setRequestEntity(stringEntity);
+        methodProxyRequest.setRequestEntity(requestEntity);
 
         /**
          * Set the history to have decoded messagepack. Pass the byte data back to request
