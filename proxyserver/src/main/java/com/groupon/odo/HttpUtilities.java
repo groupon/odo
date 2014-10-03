@@ -15,6 +15,8 @@
 */
 package com.groupon.odo;
 
+import com.groupon.odo.plugin.PluginHelper;
+import com.groupon.odo.plugin.PluginResponse;
 import com.groupon.odo.proxylib.Constants;
 import com.groupon.odo.proxylib.models.History;
 
@@ -37,9 +39,10 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
+import java.io.*;
 import java.util.*;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.Inflater;
 
 public class HttpUtilities {
     private static final Logger logger = LoggerFactory.getLogger(HttpUtilities.class);
@@ -137,33 +140,49 @@ public class HttpUtilities {
     /**
      * Obtain collection of Parameters from request
      *
-     * @param httpServletRequest
+     * @param dataArray
      * @return
      * @throws Exception
      */
-    public static Map<String, String[]> mapUrlEncodedParameters(HttpServletRequest httpServletRequest) throws Exception {
-
-        InputStream body = httpServletRequest.getInputStream();
-        java.util.Scanner s = new java.util.Scanner(body).useDelimiter("\\A");
+    public static Map<String, String[]> mapUrlEncodedParameters(byte[] dataArray) throws Exception {
         Map<String, String[]> mapPostParameters = new HashMap<String, String[]>();
 
         try {
-            if (s.hasNext()) {
-                String requestData = s.next();
-                String[] splitRequestData = requestData.split("&");
-                for (String requestPart : splitRequestData) {
-                    String[] parts = requestPart.split("=");
+            ByteArrayOutputStream byteout = new ByteArrayOutputStream();
+            for (int x = 0; x < dataArray.length; x++) {
+                // split the data up by & to get the parts
+                if (dataArray[x] == '&') {
+                    // find '=' and split the data up into key value pairs
+                    int equalsPos = -1;
+                    ByteArrayOutputStream key = new ByteArrayOutputStream();
+                    ByteArrayOutputStream value = new ByteArrayOutputStream();
+                    byte[] byteArray = byteout.toByteArray();
+                    for (int xx = 0; xx < byteArray.length; xx++) {
+                        if (byteArray[xx] == '=') {
+                            equalsPos = xx;
+                        } else {
+                            if (equalsPos == -1) {
+                                key.write(byteArray[xx]);
+                            } else {
+                                value.write(byteArray[xx]);
+                            }
+                        }
+                    }
+
                     ArrayList<String> values = new ArrayList<String>();
-                    if (mapPostParameters.containsKey(parts[0])) {
-                        values = new ArrayList<String>(Arrays.asList(mapPostParameters.get(parts[0])));
-                        mapPostParameters.remove(parts[0]);
+
+                    if (mapPostParameters.containsKey(key.toString())) {
+                        values = new ArrayList<String>(Arrays.asList(mapPostParameters.get(key.toString())));
+                        mapPostParameters.remove(key.toString());
                     }
 
-                    if (parts.length > 1) {
-                        values.add(parts[1]);
-                    }
+                    values.add(value.toString());
 
-                    mapPostParameters.put(parts[0], values.toArray(new String[values.size()]));
+                    mapPostParameters.put(key.toString(), values.toArray(new String[values.size()]));
+
+                    byteout = new ByteArrayOutputStream();
+                } else {
+                    byteout.write(dataArray[x]);
                 }
             }
         } catch (Exception e) {
@@ -348,10 +367,14 @@ public class HttpUtilities {
         if (httpServletRequest.getContentType() != null &&
                 httpServletRequest.getContentType().contains(STRING_CONTENT_TYPE_FORM_URLENCODED)
                 && httpServletRequest.getHeader("content-encoding") == null) {
-            java.util.Scanner s = new java.util.Scanner(body).useDelimiter("\\A");
+            requestByteArray = IOUtils.toByteArray(body);
+
+            // this is binary.. just return it as is
+            requestEntity = new ByteArrayRequestEntity(requestByteArray);
+
             // Get the client POST data as a Map if content type is: application/x-www-form-urlencoded
             // We do this manually since some data is not properly parseable by the servlet request
-            Map<String, String[]> mapPostParameters = HttpUtilities.mapUrlEncodedParameters(httpServletRequest);
+            Map<String, String[]> mapPostParameters = HttpUtilities.mapUrlEncodedParameters(requestByteArray);
 
             // Iterate the parameter names
             for (String stringParameterName : mapPostParameters.keySet()) {
@@ -375,11 +398,6 @@ public class HttpUtilities {
                     }
                 }
             }
-
-            // Set the proxy request data
-            StringRequestEntity stringEntity = new StringRequestEntity(
-                    requestBody.toString(), null, null);
-            requestEntity = stringEntity;
         } else if (httpServletRequest.getContentType() != null &&
                 httpServletRequest.getContentType().contains(STRING_CONTENT_TYPE_MESSAGEPACK)) {
 
@@ -389,6 +407,7 @@ public class HttpUtilities {
              */
             MessagePack msgpack = new MessagePack();
             requestByteArray = IOUtils.toByteArray(body);
+            requestEntity = new ByteArrayRequestEntity(requestByteArray);
             ByteArrayInputStream byteArrayIS = new ByteArrayInputStream(requestByteArray);
             Unpacker unpacker = msgpack.createUnpacker(byteArrayIS);
 
@@ -396,27 +415,18 @@ public class HttpUtilities {
                 deserialisedMessages += message;
                 deserialisedMessages += "\n";
             }
-        } else if (httpServletRequest.getHeader("content-encoding") != null) {
-            // this is binary.. just return it as is
-            InputStreamRequestEntity ire = new InputStreamRequestEntity(body);
-            requestEntity = ire;
-            requestBody.append("BINARY DATA");
         } else {
-            // just set the request body to the POST body
-            java.util.Scanner s = new java.util.Scanner(body).useDelimiter("\\A");
-            if (s.hasNext()) {
-                requestBody.append(s.next());
-            }
-            // Set the proxy request data
-            StringRequestEntity stringEntity = new StringRequestEntity(
-                    requestBody.toString(), null, null);
-            requestEntity = stringEntity;
-        }
+            requestByteArray = IOUtils.toByteArray(body);
 
+            // this is binary.. just return it as is
+            requestEntity = new ByteArrayRequestEntity(requestByteArray);
+
+            // decode this for history if it is gzip
+            requestBody.append(PluginHelper.getByteArrayDataAsString(httpServletRequest.getHeader("content-encoding"), requestByteArray));
+        }
 
         // set post body in history object
         history.setRequestPostData(requestBody.toString());
-
 
         // set post body in proxy request object
         methodProxyRequest.setRequestEntity(requestEntity);

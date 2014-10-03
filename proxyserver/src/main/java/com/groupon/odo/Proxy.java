@@ -47,6 +47,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.zip.GZIPInputStream;
 
 /**
  * Servlet implementation class Proxy
@@ -226,6 +227,7 @@ public class Proxy extends HttpServlet {
                 DiskFileItemFactory diskFactory = createDiskFactory();
                 HttpUtilities.handleMultipartPost(postMethodProxyRequest, request, diskFactory);
             } else {
+
                 logger.info("POST:: Not Multipart");
                 HttpUtilities.handleStandardPost(postMethodProxyRequest, request, history);
             }
@@ -778,10 +780,6 @@ public class Proxy extends HttpServlet {
             RequestInformation requestInfo = requestInformation.get();
 
             // Execute the request
-            // removing accept headers so that the server doesn't encode anything
-            // TODO: make this handle things like gzip encoding
-            httpMethodProxyRequest.removeRequestHeader(Constants.HEADER_ACCEPT_ENCODING);
-            httpMethodProxyRequest.removeRequestHeader(Constants.HEADER_ACCEPT);
 
             // set virtual host so the server knows how to direct the request
             // If the host header exists then this uses that value
@@ -885,21 +883,18 @@ public class Proxy extends HttpServlet {
         // Pass response headers back to the client
         Header[] headerArrayResponse = httpMethodProxyRequest.getResponseHeaders();
         for (Header header : headerArrayResponse) {
+            // remove transfer-encoding header.  The http libraries will handle this encoding
+            if (header.getName().toLowerCase().equals("transfer-encoding"))
+                continue;
+
             httpServletResponse.setHeader(header.getName(), header.getValue());
         }
 
         // there is no data for a HTTP 304
         if (intProxyResponseCode != HttpServletResponse.SC_NOT_MODIFIED) {
             // Send the content to the client
-            InputStream inputStreamProxyResponse = httpMethodProxyRequest.getResponseBodyAsStream();
-            BufferedInputStream bufferedInputStream = new BufferedInputStream(inputStreamProxyResponse);
-
-            int intNextByte;
-            // Collect all of the server data and write it
             httpServletResponse.resetBuffer();
-            while ((intNextByte = bufferedInputStream.read()) != -1) {
-                httpServletResponse.getOutputStream().write(intNextByte);
-            }
+            httpServletResponse.getOutputStream().write(httpMethodProxyRequest.getResponseBody());
 
             // copy cookies to servlet response
             for (Cookie cookie: state.getCookies()) {

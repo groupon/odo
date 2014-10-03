@@ -671,7 +671,9 @@ public class BrowserMobProxyHandler extends SeleniumProxyHandler {
                 // do input thang!
                 InputStream in = request.getInputStream();
                 if (hasContent) {
-                    httpReq.setRequestInputStream(in, contentLength);
+                    // BEGIN ODO CHANGES
+                    httpReq.setRequestInputStream(in);
+                    // END ODO CHANGES
                 }
             } catch (Exception e) {
                 LOG.fine(e.getMessage(), e);

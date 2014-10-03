@@ -36,7 +36,6 @@ public class RemoveHeaderFilter implements Filter {
                 if (r1.getAttribute("com.groupon.odo.removeHeaders") != null)
                     removeHeaders = (ArrayList<String>) r1.getAttribute("com.groupon.odo.removeHeaders");
 
-                removeHeaders.add("transfer-encoding");
                 if (!removeHeaders.contains(name.toLowerCase())) {
                     super.setHeader(name, value);
                 }
