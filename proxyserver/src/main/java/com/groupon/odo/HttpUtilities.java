@@ -281,10 +281,13 @@ public class HttpUtilities {
         String headerString = "";
         Collection<String> headerNames = response.getHeaderNames();
         for (String headerName : headerNames) {
-            if (headerString.length() != 0)
-                headerString += "\n";
-
-            headerString += headerName + ": " + response.getHeader(headerName);
+            // there may be multiple headers per header name
+            for (String headerValue: response.getHeaders(headerName)) {
+                if (headerString.length() != 0)
+                    headerString += "\n";
+                
+                headerString += headerName + ": " + headerValue;
+            }
         }
 
         return headerString;
