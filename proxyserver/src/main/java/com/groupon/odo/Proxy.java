@@ -890,35 +890,36 @@ public class Proxy extends HttpServlet {
             httpServletResponse.setHeader(header.getName(), header.getValue());
         }
 
-        // there is no data for a HTTP 304
-        if (intProxyResponseCode != HttpServletResponse.SC_NOT_MODIFIED) {
+        // there is no data for a HTTP 304 or 204
+        if (intProxyResponseCode != HttpServletResponse.SC_NOT_MODIFIED &&
+                intProxyResponseCode != HttpServletResponse.SC_NO_CONTENT) {
             // Send the content to the client
             httpServletResponse.resetBuffer();
             httpServletResponse.getOutputStream().write(httpMethodProxyRequest.getResponseBody());
+        }
 
-            // copy cookies to servlet response
-            for (Cookie cookie: state.getCookies()) {
-                javax.servlet.http.Cookie servletCookie = new javax.servlet.http.Cookie(cookie.getName(), cookie.getValue());
+        // copy cookies to servlet response
+        for (Cookie cookie: state.getCookies()) {
+            javax.servlet.http.Cookie servletCookie = new javax.servlet.http.Cookie(cookie.getName(), cookie.getValue());
 
-                if (cookie.getPath() != null)
-                    servletCookie.setPath(cookie.getPath());
+            if (cookie.getPath() != null)
+                servletCookie.setPath(cookie.getPath());
 
-                if (cookie.getDomain() != null)
-                    servletCookie.setDomain(cookie.getDomain());
+            if (cookie.getDomain() != null)
+                servletCookie.setDomain(cookie.getDomain());
 
-                // convert expiry date to max age
-                if (cookie.getExpiryDate() != null)
-                    servletCookie.setMaxAge((int)((cookie.getExpiryDate().getTime() - System.currentTimeMillis()) / 1000));
+            // convert expiry date to max age
+            if (cookie.getExpiryDate() != null)
+                servletCookie.setMaxAge((int)((cookie.getExpiryDate().getTime() - System.currentTimeMillis()) / 1000));
 
-                servletCookie.setSecure(cookie.getSecure());
+            servletCookie.setSecure(cookie.getSecure());
 
-                servletCookie.setVersion(cookie.getVersion());
+            servletCookie.setVersion(cookie.getVersion());
 
-                if (cookie.getComment() != null)
-                    servletCookie.setComment(cookie.getComment());
+            if (cookie.getComment() != null)
+                servletCookie.setComment(cookie.getComment());
 
-                httpServletResponse.addCookie(servletCookie);
-            }
+            httpServletResponse.addCookie(servletCookie);
         }
     }
 
