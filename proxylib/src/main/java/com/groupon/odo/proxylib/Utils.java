@@ -157,17 +157,15 @@ public class Utils {
 
         String ipAddr = null;
         Enumeration e = NetworkInterface.getNetworkInterfaces();
-        while(e.hasMoreElements())
-        {
+        while(e.hasMoreElements()) {
             NetworkInterface n = (NetworkInterface) e.nextElement();
             Enumeration ee = n.getInetAddresses();
-            while (ee.hasMoreElements())
-            {
+            while (ee.hasMoreElements()) {
                 InetAddress i = (InetAddress) ee.nextElement();
 
                 // Pick the first non loop back address
                 if((!i.isLoopbackAddress() && i.isSiteLocalAddress()) ||
-                        i.getHostAddress().matches(IPV4_REGEX)){
+                        i.getHostAddress().matches(IPV4_REGEX)) {
                     ipAddr = i.getHostAddress();
                     break;
                 }

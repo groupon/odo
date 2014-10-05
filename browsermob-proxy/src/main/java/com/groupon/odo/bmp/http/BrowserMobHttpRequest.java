@@ -330,7 +330,7 @@ public class BrowserMobHttpRequest {
                 // just loop through and read everything
             }
         } catch (IOException ioe) {
-
+            LOG.warn("Error reading input stream", ioe);
         }
         copy = cis.getOutput();
 
