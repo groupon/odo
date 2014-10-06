@@ -31,13 +31,21 @@ public class RemoveHeaderFilter implements Filter {
         chain.doFilter(request, new HttpServletResponseWrapper((HttpServletResponse) response) {
             @SuppressWarnings("unchecked")
             public void setHeader(String name, String value) {
-                ArrayList<String> removeHeaders = new ArrayList<String>();
+                ArrayList<String> headersToRemove = new ArrayList<String>();
                 
                 if (r1.getAttribute("com.groupon.odo.removeHeaders") != null)
-                    removeHeaders = (ArrayList<String>) r1.getAttribute("com.groupon.odo.removeHeaders");
+                    headersToRemove = (ArrayList<String>) r1.getAttribute("com.groupon.odo.removeHeaders");
 
-                removeHeaders.add("transfer-encoding");
-                if (!removeHeaders.contains(name.toLowerCase())) {
+                boolean removeHeader = false;
+                // need to loop through removeHeaders to make things case insensitive
+                for (String headerToRemove : headersToRemove) {
+                    if (headerToRemove.toLowerCase().equals(name.toLowerCase())) {
+                        removeHeader = true;
+                        break;
+                    }
+                }
+
+                if (! removeHeader) {
                     super.setHeader(name, value);
                 }
             }

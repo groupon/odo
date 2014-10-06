@@ -29,6 +29,11 @@ import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.PutMethod;
 import org.apache.commons.httpclient.params.HttpMethodParams;
+import org.apache.http.client.CookieStore;
+import org.apache.http.client.protocol.ClientContext;
+import org.apache.http.impl.client.BasicCookieStore;
+import org.apache.http.protocol.BasicHttpContext;
+import org.apache.http.protocol.HttpContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,6 +47,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.zip.GZIPInputStream;
 
 /**
  * Servlet implementation class Proxy
@@ -157,6 +163,10 @@ public class Proxy extends HttpServlet {
                     printError(response, e.getMessage());
                 }
                 alreadyServed = true;
+            } else if (request.getPathInfo().toLowerCase().equals("/odo")) {
+                // redirect to certificate download page
+                response.sendRedirect("http://" + Utils.getPublicIPAddress() + ":" + Utils.GetSystemPort(Constants.SYS_API_PORT) + "/testproxy/cert");
+                alreadyServed = true;
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -217,6 +227,7 @@ public class Proxy extends HttpServlet {
                 DiskFileItemFactory diskFactory = createDiskFactory();
                 HttpUtilities.handleMultipartPost(postMethodProxyRequest, request, diskFactory);
             } else {
+
                 logger.info("POST:: Not Multipart");
                 HttpUtilities.handleStandardPost(postMethodProxyRequest, request, history);
             }
@@ -769,10 +780,6 @@ public class Proxy extends HttpServlet {
             RequestInformation requestInfo = requestInformation.get();
 
             // Execute the request
-            // removing accept headers so that the server doesn't encode anything
-            // TODO: make this handle things like gzip encoding
-            httpMethodProxyRequest.removeRequestHeader(Constants.HEADER_ACCEPT_ENCODING);
-            httpMethodProxyRequest.removeRequestHeader(Constants.HEADER_ACCEPT);
 
             // set virtual host so the server knows how to direct the request
             // If the host header exists then this uses that value
@@ -835,9 +842,11 @@ public class Proxy extends HttpServlet {
                                 PluginResponse httpServletResponse,
                                 History history) throws Exception {
         int intProxyResponseCode = 999;
+        // Create a default HttpClient
+        HttpClient httpClient = new HttpClient();
+        HttpState state = new HttpState();
+
         try {
-            // Create a default HttpClient
-            HttpClient httpClient = new HttpClient();
             httpMethodProxyRequest.setFollowRedirects(false);
             ArrayList<String> headersToRemove = getRemoveHeaders();
 
@@ -857,7 +866,7 @@ public class Proxy extends HttpServlet {
 
             httpMethodProxyRequest.getParams().setParameter(HttpMethodParams.RETRY_HANDLER, noretryhandler);
 
-            intProxyResponseCode = httpClient.executeMethod(httpMethodProxyRequest);
+            intProxyResponseCode = httpClient.executeMethod(httpMethodProxyRequest.getHostConfiguration(), httpMethodProxyRequest, state);
         } catch (Exception e) {
             // Return a gateway timeout
             httpServletResponse.setStatus(504);
@@ -867,34 +876,50 @@ public class Proxy extends HttpServlet {
         }
         logger.info("Response code: {}, {}", intProxyResponseCode,
                 HttpUtilities.getURL(httpMethodProxyRequest.getURI().toString()));
-        if (intProxyResponseCode >= HttpServletResponse.SC_MULTIPLE_CHOICES /* 300 */
-                && intProxyResponseCode < HttpServletResponse.SC_NOT_MODIFIED /* 304 */) {
 
-            String stringStatusCode = Integer.toString(intProxyResponseCode);
-            processRedirect(stringStatusCode, httpMethodProxyRequest, httpServletRequest, httpServletResponse);
-        } else {
-            // Pass the response code back to the client
-            httpServletResponse.setStatus(intProxyResponseCode);
+        // Pass the response code back to the client
+        httpServletResponse.setStatus(intProxyResponseCode);
 
-            // Pass response headers back to the client
-            Header[] headerArrayResponse = httpMethodProxyRequest.getResponseHeaders();
-            for (Header header : headerArrayResponse) {
-                httpServletResponse.setHeader(header.getName(), header.getValue());
-            }
+        // Pass response headers back to the client
+        Header[] headerArrayResponse = httpMethodProxyRequest.getResponseHeaders();
+        for (Header header : headerArrayResponse) {
+            // remove transfer-encoding header.  The http libraries will handle this encoding
+            if (header.getName().toLowerCase().equals("transfer-encoding"))
+                continue;
 
-            // there is no data for a HTTP 304
-            if (intProxyResponseCode != HttpServletResponse.SC_NOT_MODIFIED) {
-                // Send the content to the client
-                InputStream inputStreamProxyResponse = httpMethodProxyRequest.getResponseBodyAsStream();
-                BufferedInputStream bufferedInputStream = new BufferedInputStream(inputStreamProxyResponse);
+            httpServletResponse.setHeader(header.getName(), header.getValue());
+        }
 
-                int intNextByte;
-                // Collect all of the server data and write it
-                httpServletResponse.resetBuffer();
-                while ((intNextByte = bufferedInputStream.read()) != -1) {
-                    httpServletResponse.getOutputStream().write(intNextByte);
-                }
-            }
+        // there is no data for a HTTP 304 or 204
+        if (intProxyResponseCode != HttpServletResponse.SC_NOT_MODIFIED &&
+                intProxyResponseCode != HttpServletResponse.SC_NO_CONTENT) {
+            // Send the content to the client
+            httpServletResponse.resetBuffer();
+            httpServletResponse.getOutputStream().write(httpMethodProxyRequest.getResponseBody());
+        }
+
+        // copy cookies to servlet response
+        for (Cookie cookie: state.getCookies()) {
+            javax.servlet.http.Cookie servletCookie = new javax.servlet.http.Cookie(cookie.getName(), cookie.getValue());
+
+            if (cookie.getPath() != null)
+                servletCookie.setPath(cookie.getPath());
+
+            if (cookie.getDomain() != null)
+                servletCookie.setDomain(cookie.getDomain());
+
+            // convert expiry date to max age
+            if (cookie.getExpiryDate() != null)
+                servletCookie.setMaxAge((int)((cookie.getExpiryDate().getTime() - System.currentTimeMillis()) / 1000));
+
+            servletCookie.setSecure(cookie.getSecure());
+
+            servletCookie.setVersion(cookie.getVersion());
+
+            if (cookie.getComment() != null)
+                servletCookie.setComment(cookie.getComment());
+
+            httpServletResponse.addCookie(servletCookie);
         }
     }
 

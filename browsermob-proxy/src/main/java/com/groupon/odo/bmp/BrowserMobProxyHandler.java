@@ -586,6 +586,12 @@ public class BrowserMobProxyHandler extends SeleniumProxyHandler {
                 return super.proxyPlainTextRequest(url, pathInContext, pathParams, request, response);
             }
 
+            // BEGIN ODO CHANGES
+            if (urlStr.toLowerCase().startsWith(Constants.ODO_INTERNAL_WEBAPP_URL)) {
+                urlStr = "http://localhost:" + com.groupon.odo.proxylib.Utils.GetSystemPort(Constants.SYS_HTTP_PORT) +"/odo";
+            }
+            // END ODO CHANGES
+
             // we also don't URLs that Firefox always loads on startup showing up, or even wasting bandwidth.
             // so for these we just nuke them right on the spot!
             if (urlStr.startsWith("https://sb-ssl.google.com:443/safebrowsing")
@@ -665,7 +671,9 @@ public class BrowserMobProxyHandler extends SeleniumProxyHandler {
                 // do input thang!
                 InputStream in = request.getInputStream();
                 if (hasContent) {
-                    httpReq.setRequestInputStream(in, contentLength);
+                    // BEGIN ODO CHANGES
+                    httpReq.setRequestInputStream(in);
+                    // END ODO CHANGES
                 }
             } catch (Exception e) {
                 LOG.fine(e.getMessage(), e);

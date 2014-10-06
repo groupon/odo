@@ -33,6 +33,7 @@ public class Constants {
     public static final int DEFAULT_HTTP_PORT = 8082;
     public static final int DEFAULT_HTTPS_PORT = 8012;
     public static final String ODO_PROXY_HEADER = "X-ODO-REQUEST";
+    public static final String ODO_INTERNAL_WEBAPP_URL = "http://odo";
 
     // DB constants
     public static final int DB_CURRENT_SCHEMA_VERSION = 4;

@@ -243,10 +243,7 @@ import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.protocol.HTTP;
 
-import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -321,6 +318,32 @@ public class BrowserMobHttpRequest {
     public void setRequestBodyAsBase64EncodedBytes(String bodyBase64Encoded) {
         byteArrayEntity = new ByteArrayEntity(Base64.base64ToByteArray(bodyBase64Encoded));
     }
+
+    // BEGIN ODO CHANGES
+    // This is a version of setRequestInputStream that completely copies the stream
+    // The original version loses POST bodies that are chunked
+    public void setRequestInputStream(InputStream is) {
+        ClonedInputStream cis = new ClonedInputStream(is);
+        is = cis;
+        try {
+            while (cis.read() != -1) {
+                // just loop through and read everything
+            }
+        } catch (IOException ioe) {
+            LOG.warn("Error reading input stream", ioe);
+        }
+        copy = cis.getOutput();
+
+        int size = copy.size();
+        // we actually read 1 more byte than necessary if anything was read
+        // decrease size by 1 to deal with this
+        if (size != 0)
+            size--;
+
+        // set the inputStreamEntity to a copy of the input stream data
+        inputStreamEntity = new RepeatableInputStreamRequestEntity(new ByteArrayInputStream(copy.toByteArray()), size);
+    }
+    // END ODO CHANGES
 
     public void setRequestInputStream(InputStream is, long length) {
         if (collectAdditionalInfo) {

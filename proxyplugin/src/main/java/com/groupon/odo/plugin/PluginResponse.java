@@ -19,10 +19,9 @@ package com.groupon.odo.plugin;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpServletResponseWrapper;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.PrintWriter;
+import java.io.*;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.Inflater;
 
 public class PluginResponse extends HttpServletResponseWrapper{
     public PluginResponse(HttpServletResponse response) {
@@ -60,8 +59,7 @@ public class PluginResponse extends HttpServletResponseWrapper{
     }
 
     public String getContentString() {
-        String output = new String(outputStream.toByteArray());
-        return output;
+        return PluginHelper.getByteArrayDataAsString(getHeader("content-encoding"), outputStream.toByteArray());
     }
     
     public ByteArrayOutputStream getByteOutputStream() {
