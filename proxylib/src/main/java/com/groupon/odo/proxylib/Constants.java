@@ -36,7 +36,7 @@ public class Constants {
     public static final String ODO_INTERNAL_WEBAPP_URL = "http://odo";
 
     // DB constants
-    public static final int DB_CURRENT_SCHEMA_VERSION = 4;
+    public static final int DB_CURRENT_SCHEMA_VERSION = 5;
     public static final String DB_TABLE_CONFIGURATION = "configuration";
     public static final String DB_TABLE_HISTORY = "history";
     public static final String DB_TABLE_OVERRIDE = "override_db";
@@ -123,6 +123,8 @@ public class Constants {
     public static final String HISTORY_ORIGINAL_RESPONSE_DATA = "original_response_data";
     public static final String HISTORY_MODIFIED = "modified";
     public static final String HISTORY_REQUEST_SENT = "requestSent";
+    public static final String HISTORY_REQUEST_BODY_DECODED = "request_body_decoded";
+    public static final String HISTORY_RESPONSE_BODY_DECODED = "response_body_decoded";
 
 
     // Client profile constants

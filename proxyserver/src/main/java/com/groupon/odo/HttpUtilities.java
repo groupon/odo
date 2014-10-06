@@ -285,7 +285,7 @@ public class HttpUtilities {
             for (String headerValue: response.getHeaders(headerName)) {
                 if (headerString.length() != 0)
                     headerString += "\n";
-                
+
                 headerString += headerName + ": " + headerValue;
             }
         }
@@ -418,14 +418,21 @@ public class HttpUtilities {
                 deserialisedMessages += message;
                 deserialisedMessages += "\n";
             }
+
+            history.setRequestBodyDecoded(true);
         } else {
             requestByteArray = IOUtils.toByteArray(body);
 
             // this is binary.. just return it as is
             requestEntity = new ByteArrayRequestEntity(requestByteArray);
 
-            // decode this for history if it is gzip
-            requestBody.append(PluginHelper.getByteArrayDataAsString(httpServletRequest.getHeader("content-encoding"), requestByteArray));
+            // decode this for history if it is encoded
+            String requestBodyString = PluginHelper.getByteArrayDataAsString(httpServletRequest.getHeader("content-encoding"), requestByteArray);
+            requestBody.append(requestBodyString);
+
+            // mark in history if the body has been decoded
+            if (! requestBodyString.equals(new String(requestByteArray)))
+                history.setRequestBodyDecoded(true);
         }
 
         // set post body in history object

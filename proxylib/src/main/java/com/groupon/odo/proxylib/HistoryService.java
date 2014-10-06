@@ -108,8 +108,9 @@ public class HistoryService {
                     Constants.HISTORY_ORIGINAL_REQUEST_POST_DATA + "," + Constants.HISTORY_ORIGINAL_REQUEST_HEADERS + "," +
                     Constants.HISTORY_ORIGINAL_RESPONSE_CODE + "," + Constants.HISTORY_ORIGINAL_RESPONSE_HEADERS + "," +
                     Constants.HISTORY_ORIGINAL_RESPONSE_CONTENT_TYPE + "," + Constants.HISTORY_ORIGINAL_RESPONSE_DATA + "," +
-                    Constants.HISTORY_MODIFIED + "," + Constants.HISTORY_REQUEST_SENT + ")" +
-                    " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);");
+                    Constants.HISTORY_MODIFIED + "," + Constants.HISTORY_REQUEST_SENT + "," +
+                    Constants.HISTORY_REQUEST_BODY_DECODED + "," + Constants.HISTORY_RESPONSE_BODY_DECODED + ")" +
+                    " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);");
             statement.setInt(1, history.getProfileId());
             statement.setString(2, history.getClientUUID());
             statement.setString(3, history.getCreatedAt());
@@ -132,6 +133,8 @@ public class HistoryService {
             statement.setString(20, history.getOriginalResponseData());
             statement.setBoolean(21, history.isModified());
             statement.setBoolean(22, history.getRequestSent());
+            statement.setBoolean(23, history.getRequestBodyDecoded());
+            statement.setBoolean(24, history.getResponseBodyDecoded());
             statement.executeUpdate();
 
             // cull history
@@ -169,6 +172,9 @@ public class HistoryService {
         history.setOriginalResponseHeaders(result.getString(Constants.HISTORY_ORIGINAL_RESPONSE_HEADERS));
         history.setModified(result.getBoolean(Constants.HISTORY_MODIFIED));
         history.setRequestSent(result.getBoolean(Constants.HISTORY_REQUEST_SENT));
+        history.setRequestBodyDecoded(result.getBoolean(Constants.HISTORY_REQUEST_BODY_DECODED));
+        history.setResponseBodyDecoded(result.getBoolean(Constants.HISTORY_RESPONSE_BODY_DECODED));
+
         if (withResponseData) {
             history.setResponseData(result.getString(Constants.HISTORY_RESPONSE_DATA));
             history.setOriginalResponseData(result.getString(Constants.HISTORY_ORIGINAL_RESPONSE_DATA));
