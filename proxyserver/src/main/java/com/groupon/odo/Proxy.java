@@ -1023,6 +1023,7 @@ public class Proxy extends HttpServlet {
                 history.setResponseCode(Integer.toString(httpServletResponse.getStatus()));
                 history.setResponseContentType(httpServletResponse.getContentType());
                 history.setResponseData(httpServletResponse.getContentString());
+                history.setResponseBodyDecoded(httpServletResponse.isContentDecoded());
                 HistoryService.getInstance().addHistory(history);
                 logger.info("Done storing");
             }

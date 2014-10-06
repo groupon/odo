@@ -95,6 +95,9 @@
 					<h3 style="display: inline;">
 						<span class="label label-info" id="responseTypeLabel"></span>
 					</h3>
+					<h3 style="display: inline;">
+                        <span class="label label-info" id="responseDataDecodedLabel" style="background-color: #5b7fde"></span>
+                    </h3>
 					<textarea class="form-control" rows="20" style="width: 100%"
 						id="responseRaw"></textarea>
 					<textarea class="form-control" rows="20" style="width: 100%; display:none"
@@ -125,25 +128,20 @@
 					<textarea class="form-control" rows="1" style="width: 100%; display: none"
 						id="originalRequestQuery"></textarea>
 					<div class="form-control" id = "originalRequestQueryChange" style="width: 100%; height: 40px;overflow-y: scroll; resize:both; display: none"></div>
-					<div>
-					<div>
-						<h3>
-							<span class="label label-default">Parameters</span>
-						</h3>
-					</div>
+					<div style="clear: both"></div>
+                    <h3>
+                        <span class="label label-default">Parameters</span>
+                    </h3>
 					<textarea class="form-control" rows="1" style="width: 100%; float:left"
 						id="requestParameters"></textarea>
 					<textarea class="form-control" rows="1" style="width: 100%; float: left; display: none"
 						id="originalRequestParameters"></textarea>
 					<div class="form-control" style="width: 100%; height: 40px; float: left; display: none; overflow-y: scroll; resize:both"
 						id="originalRequestParametersChanged"></div>
-					</div>
 					<div style="clear: both"></div>
-					<div>
-						<h3>
-							<span class="label label-default">Headers</span>
-						</h3>
-					</div>
+                    <h3>
+                        <span class="label label-default">Headers</span>
+                    </h3>
 					<textarea class="form-control" rows="3" style="width: 100%; float:left"
 						id="requestHeaders"></textarea>
 					<textarea class="form-control" rows="3" style="width: 100%; float: left; display: none"
@@ -151,14 +149,17 @@
 					<div class="form-control" style="width: 100%; height: 80px; float: left; display: none; overflow-y: scroll; resize:both"
 						id="originalRequestHeadersChanged"></div>
 					<div style="clear: both"></div>
-					<div>
-						<h3>
-							<span class="label label-default">POST Data</span>
-						</h3>
-					</div>
-					<textarea class="form-control" rows="3" style="width: 100%; float:left"
+					<div style="padding-bottom: 10px; padding-top: 10px">
+                        <h3 style="display: inline;">
+                            <span class="label label-default">POST Data</span>
+                        </h3>
+                        <h3 style="display: inline;">
+                            <span class="label label-info" id="requestDataDecodedLabel" style="background-color: #5b7fde"></span>
+                        </h3>
+                    </div>
+					<textarea class="form-control" rows="10" style="width: 100%; float:left"
 						id="requestPOSTData"></textarea>
-					<textarea class="form-control" rows="3" style="width: 100%; float: left; display: none"
+					<textarea class="form-control" rows="10" style="width: 100%; float: left; display: none"
 						id="originalRequestPOSTData"></textarea>
 					<div class="form-control" style="width: 100%; height: 80px; float: left; display: none; overflow-y: scroll; resize:both"
 						id="originalRequestPOSTDataChanged"></div>
@@ -432,56 +433,84 @@
 
 		var historyData;
 		function loadData(historyId) {
-		$.ajax({
-		    type : "GET",
-		    url : '<c:url value="/api/history/${profile_id}/"/>'
-		        + historyId,
-		    data : 'clientUUID=${clientUUID}',
-		    success : function(data) {
-		    // populate data
-		    historyData = data;
+            $.ajax({
+                type : "GET",
+                url : '<c:url value="/api/history/${profile_id}/"/>'
+                    + historyId,
+                data : 'clientUUID=${clientUUID}',
+                success : function(data) {
+                    // populate data
+                    historyData = data;
 
-                // optionally turn off the Formatted button
-                if (data.history.responseContentType == null
-                    || data.history.responseContentType.toLowerCase().indexOf(
-                    "application/json") == -1 || data.history.responseData == "") {
-                        showRawResponseData();
-                        showModifiedResponse();
-                        $("#showRawFormattedDataButton").attr("disabled", "disabled");
-                } else {
-                    if($.cookie("formatted") == "true") {
-                        showFormattedResponseData(false);
+                    // optionally turn off the Formatted button
+                    if (data.history.responseContentType == null
+                        || data.history.responseContentType.toLowerCase().indexOf(
+                        "application/json") == -1 || data.history.responseData == "") {
+                            showRawResponseData();
+                            showModifiedResponse();
+                            $("#showRawFormattedDataButton").attr("disabled", "disabled");
                     } else {
-                        showRawResponseData();
-                        showModifiedResponse();
+                        if($.cookie("formatted") == "true") {
+                            showFormattedResponseData(false);
+                        } else {
+                            showRawResponseData();
+                            showModifiedResponse();
+                        }
+                        $("#showRawFormattedDataButton").removeAttr("disabled");
                     }
-                    $("#showRawFormattedDataButton").removeAttr("disabled");
-                }
 
-                showModifiedRequestData();
-                $("#responseHeaders").val(data.history.responseHeaders);
-                $("#originalResponseHeaders").val(data.history.originalResponseHeaders);
-                $("#responseTypeLabel").html(data.history.responseContentType);
-                $("#requestQuery").val(data.history.requestURL);
-                $("#requestParameters").val(data.history.requestParams);
-                $("#requestHeaders").val(data.history.requestHeaders);
-                $("#requestPOSTData").val(data.history.requestPostData);
-                if(data.history.modified) {
-                    $("#originalResponseHeaders").val(historyData.history.originalResponseHeaders);
-                    $("#originalRequestQuery").val(data.history.originalRequestURL);
-                    $("#originalRequestParameters").val(data.history.originalRequestParams);
-                    $("#originalRequestHeaders").val(data.history.originalRequestHeaders);
-                    $("#originalRequestPOSTData").val(data.history.originalRequestPostData);
-                    $("#responseButtons").show();
-                    $("#requestButtons").show();
-                    document.getElementById("showModifiedResponseButton").className = "btn btn-primary";
-                    document.getElementById("showModifiedRequestButton").className = "btn btn-primary";
+                    showModifiedRequestData();
+                    $("#responseHeaders").val(data.history.responseHeaders);
+                    $("#originalResponseHeaders").val(data.history.originalResponseHeaders);
+                    $("#responseTypeLabel").html(data.history.responseContentType);
+                    $("#requestQuery").val(data.history.requestURL);
+                    $("#requestParameters").val(data.history.requestParams);
+                    $("#requestHeaders").val(data.history.requestHeaders);
+                    $("#requestPOSTData").val(data.history.requestPostData);
+
+                    if(data.history.modified) {
+                        $("#originalResponseHeaders").val(historyData.history.originalResponseHeaders);
+                        $("#originalRequestQuery").val(data.history.originalRequestURL);
+                        $("#originalRequestParameters").val(data.history.originalRequestParams);
+                        $("#originalRequestHeaders").val(data.history.originalRequestHeaders);
+                        $("#originalRequestPOSTData").val(data.history.originalRequestPostData);
+                        $("#responseButtons").show();
+                        $("#requestButtons").show();
+                        document.getElementById("showModifiedResponseButton").className = "btn btn-primary";
+                        document.getElementById("showModifiedRequestButton").className = "btn btn-primary";
                     } else {
                         // set the query back to the original query data
                         $("#requestQuery").val(data.history.originalRequestURL);
 
                         $("#responseButtons").hide();
                         $("#requestButtons").hide();
+                    }
+
+                    // set response data decoded
+                    if(data.history.responseBodyDecoded) {
+                        // mark as decoded in the UI
+                        $("#responseDataDecodedLabel").html("decoded");
+
+                        // try to make the label more specific
+                        var headerParts = data.history.responseHeaders.split('\n');
+                        for (var x in headerParts) {
+                            var parts = headerParts[x].split(": ");
+                            console.log(parts[0].toLowerCase());
+                            if (parts[0].toLowerCase() === "content-encoding") {
+                                $("#responseDataDecodedLabel").html("decoded: " + parts[1]);
+                                break;
+                            }
+                        }
+                    } else {
+                        $("#responseDataDecodedLabel").html("");
+                    }
+
+                    // set request data decoded
+                    if(data.history.requestBodyDecoded) {
+                        // mark as decoded in the UI
+                        $("#requestDataDecodedLabel").html("decoded");
+                    } else {
+                        $("#requestDataDecodedLabel").html("");
                     }
 
                     showCurlCommand();

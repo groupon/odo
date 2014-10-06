@@ -56,6 +56,8 @@ public class History {
     private String validationMessage = "";
     private boolean modified = false;
     private boolean requestSent = true;
+    private boolean requestBodyDecoded = false;
+    private boolean responseBodyDecoded = false;
 
     public History() {
     }
@@ -68,7 +70,8 @@ public class History {
                    String originalRequestParams, String originalRequestPostData,
                    String originalRequestHeaders, String originalResponseCode,
                    String originalResponseHeaders, String originalResponseContentType,
-                   String originalResponseData, boolean modified, boolean requestSent) {
+                   String originalResponseData, boolean modified, boolean requestSent,
+                   boolean requestBodyDecoded, boolean responseBodyDecoded) {
         super();
         this.profileId = profileId;
         this.clientUUID = clientUUID;
@@ -94,6 +97,8 @@ public class History {
         this.requestSent = requestSent;
         this.formattedOriginalResponseData = "";
         this.formattedResponseData = "";
+        this.requestBodyDecoded = requestBodyDecoded;
+        this.responseBodyDecoded = responseBodyDecoded;
 
     }
 
@@ -339,4 +344,19 @@ public class History {
         this.requestSent = requestSent;
     }
 
+    public boolean getRequestBodyDecoded() {
+        return requestBodyDecoded;
+    }
+
+    public void setRequestBodyDecoded(boolean requestBodyDecoded) {
+        this.requestBodyDecoded = requestBodyDecoded;
+    }
+
+    public boolean getResponseBodyDecoded() {
+        return responseBodyDecoded;
+    }
+
+    public void setResponseBodyDecoded(boolean responseBodyDecoded) {
+        this.responseBodyDecoded = responseBodyDecoded;
+    }
 }

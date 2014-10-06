@@ -61,6 +61,14 @@ public class PluginResponse extends HttpServletResponseWrapper{
     public String getContentString() {
         return PluginHelper.getByteArrayDataAsString(getHeader("content-encoding"), outputStream.toByteArray());
     }
+
+    public Boolean isContentDecoded() {
+        // getContentString and a string made of the byte array will be equal if the content was decoded
+        if (! getContentString().equals(new String(outputStream.toByteArray())))
+            return true;
+
+        return false;
+    }
     
     public ByteArrayOutputStream getByteOutputStream() {
     	return outputStream;
