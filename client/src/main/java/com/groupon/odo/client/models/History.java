@@ -45,7 +45,8 @@ public class History {
     private String originalResponseData = "";
     private boolean modified = false;
     private boolean requestSent = true;
-
+    private boolean requestBodyDecoded = false;
+    private boolean responseBodyDecoded = false;
 
     public History() {
     }
@@ -234,4 +235,19 @@ public class History {
         this.requestSent = requestSent;
     }
 
+    public boolean getRequestBodyDecoded() {
+        return requestBodyDecoded;
+    }
+
+    public void setRequestBodyDecoded(boolean requestBodyDecoded) {
+        this.requestBodyDecoded = requestBodyDecoded;
+    }
+
+    public boolean getResponseBodyDecoded() {
+        return responseBodyDecoded;
+    }
+
+    public void setResponseBodyDecoded(boolean responseBodyDecoded) {
+        this.responseBodyDecoded = responseBodyDecoded;
+    }
 }

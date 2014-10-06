@@ -223,6 +223,10 @@ public class Client {
                     history[i].setResponseContentType(jsonHistory.getString("originalResponseContentType"));
                 if (!jsonHistory.isNull("modified"))
                     history[i].setModified(jsonHistory.getBoolean("modified"));
+                if (!jsonHistory.isNull("requestBodyDecoded"))
+                    history[i].setRequestBodyDecoded(jsonHistory.getBoolean("requestBodyDecoded"));
+                if (!jsonHistory.isNull("responseBodyDecoded"))
+                    history[i].setResponseBodyDecoded(jsonHistory.getBoolean("responseBodyDecoded"));
                 /**
                  * To get the json responseData make a call specifically using the id
                  */
