@@ -31,6 +31,7 @@ import java.sql.SQLException;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 /**
  * This class has methods to help with adding/updating/deleting paths, overrides and groups
@@ -1464,34 +1465,39 @@ public class PathOverrideService {
                 continue;
 
             // first see if we get a match
-            Pattern pattern = Pattern.compile(path.getPath());
-            Matcher matcher = pattern.matcher(uri);
+            try {
+                Pattern pattern = Pattern.compile(path.getPath());
+                Matcher matcher = pattern.matcher(uri);
 
-            // we won't select the path if there aren't any enabled endpoints in it
-            // this works since the paths are returned in priority order
-            if (matcher.find()) {
-                // now see if this path has anything enabled in it
-                // Only go into the if:
-                // 1. There are enabled items in this path
-                // 2. Caller was looking for ResponseOverride and Response is enabled OR looking for RequestOverride
-            	// 3. If pathTest is true then the rest of the conditions are not evaluated.  The path tester ignores enabled states so everything is returned.
-                // and request is enabled
-                if (pathTest || 
-                		(path.getEnabledEndpoints().size() > 0 &&
-                        ((overrideType == Constants.OVERRIDE_TYPE_RESPONSE && path.getResponseEnabled()) ||
-                                (overrideType == Constants.OVERRIDE_TYPE_REQUEST && path.getRequestEnabled())))) {
-                    // if we haven't already seen a non global path
-                    // or if this is a global path
-                    // then add it to the list
-                    if (!foundRealPath || path.getGlobal())
-                        selectPaths.add(path);
-                }
+                // we won't select the path if there aren't any enabled endpoints in it
+                // this works since the paths are returned in priority order
+                if (matcher.find()) {
+                    // now see if this path has anything enabled in it
+                    // Only go into the if:
+                    // 1. There are enabled items in this path
+                    // 2. Caller was looking for ResponseOverride and Response is enabled OR looking for RequestOverride
+                    // 3. If pathTest is true then the rest of the conditions are not evaluated.  The path tester ignores enabled states so everything is returned.
+                    // and request is enabled
+                    if (pathTest ||
+                            (path.getEnabledEndpoints().size() > 0 &&
+                                    ((overrideType == Constants.OVERRIDE_TYPE_RESPONSE && path.getResponseEnabled()) ||
+                                            (overrideType == Constants.OVERRIDE_TYPE_REQUEST && path.getRequestEnabled())))) {
+                        // if we haven't already seen a non global path
+                        // or if this is a global path
+                        // then add it to the list
+                        if (!foundRealPath || path.getGlobal())
+                            selectPaths.add(path);
+                    }
 
-                // we set this no matter what if a path matched and it was not the global path
-                // this stops us from adding further non global matches to the list
-                if (!path.getGlobal()) {
-                    foundRealPath = true;
+                    // we set this no matter what if a path matched and it was not the global path
+                    // this stops us from adding further non global matches to the list
+                    if (!path.getGlobal()) {
+                        foundRealPath = true;
+                    }
                 }
+            } catch (PatternSyntaxException pse) {
+                // nothing to do but keep iterating over the list
+                // this indicates an invalid regex
             }
         }
 

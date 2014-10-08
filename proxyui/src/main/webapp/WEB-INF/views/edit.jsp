@@ -694,8 +694,12 @@
                         reloadAfterSubmit: false,
                         width: 460,
                         closeAfterAdd: true,
-                        afterSubmit: function () {
-                            window.location.reload();
+                        errorTextFormat: function (data) {
+                            console.log(data);
+                            return data.responseText;
+                        },
+                        afterComplete: function(data) {
+                            reloadGrid("#packages");
                         }
                      },
                     {
@@ -834,6 +838,10 @@
                             populateEnabledOverrides();
                             changeResponseOverrideDiv();
                             changeRequestOverrideDiv();
+
+                            // reset informational divs
+                            $('#applyPathChangeSuccessDiv').css('display', 'none');
+                            $('#applyPathChangeAlertDiv').css('display', 'none');
                         }
                     });
                 }
@@ -1185,12 +1193,21 @@
                 var groups = $("#groupSelect").val();
                 var groupArray = new Array(groups);
 
+                // reset informational divs
+                $('#applyPathChangeSuccessDiv').css('display', 'none');
+                $('#applyPathChangeAlertDiv').css('display', 'none');
+
                 $.ajax({
                     type:"POST",
                     async: false,
                     url: '<c:url value="/api/path/"/>' + currentPathId,
                     data: ({clientUUID: "${clientUUID}", pathName: pathName, path: path, bodyFilter: bodyFilter, contentType: contentType, repeatNumber: repeat, requestType: requestType, global: global, 'groups[]': groupArray}),
-                    success: function(){
+                    success: function() {
+                        $('#applyPathChangeSuccessDiv').css('display', '');
+                    },
+                    error: function(jqXHR) {
+                        $('#applyPathChangeAlertDiv').css('display', '');
+                        $('#applyPathChangeAlertTextDiv').html(jqXHR.responseText);
                     }
                 });
             }
@@ -1631,7 +1648,25 @@
                                 </select>
                             </dd>
                             <dd>
-                                <button class="btn btn-primary" onclick="applyGeneralPathChanges();">Apply</button>
+                                <table>
+                                    <tr>
+                                    <td><button class="btn btn-primary" onclick="applyGeneralPathChanges();">Apply</button></td>
+                                    <td>
+                                        <div class="ui-widget" style="display:none;" id="applyPathChangeAlertDiv">
+                                            <div class="ui-state-error ui-corner-all" style="padding: 0 .7em;">
+                                                <p><span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span>
+                                                <strong>Alert: </strong><span id="applyPathChangeAlertTextDiv"/></p>
+                                            </div>
+                                        </div>
+                                        <div class="ui-widget" style="display:none;" id="applyPathChangeSuccessDiv">
+                                        	<div class="ui-state-highlight ui-corner-all" style="padding: 0 .7em;">
+                                        		<p><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
+                                        		<strong>Success: </strong>Configuration saved.</p>
+                                        	</div>
+                                        </div>
+                                    </td>
+                                    </tr>
+                                </table>
                             </dd>
                         </dl>
                     </div>
