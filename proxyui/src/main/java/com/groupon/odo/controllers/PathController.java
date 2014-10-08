@@ -42,6 +42,8 @@ import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 @Controller
 public class PathController {
@@ -96,6 +98,14 @@ public class PathController {
         if (pathName.contains("/")) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             return "Cannot add path.  Path names cannot contain \"/\"";
+        }
+
+        // test regex parsing of the path
+        try {
+            Pattern pattern = Pattern.compile(path);
+        } catch (PatternSyntaxException pse) {
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            return "Cannot add path.  Path regular expression is not valid.";
         }
 
         int pathId = pathOverrideService.addPathnameToProfile(profileId, pathName, path);
@@ -289,6 +299,14 @@ public class PathController {
 
         // update the actual path
         if (path != null) {
+            // test regex parsing of the path
+            try {
+                Pattern.compile(path);
+            } catch (PatternSyntaxException pse) {
+                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                return "Cannot add path.  Path regular expression is not valid.";
+            }
+
             PathOverrideService.getInstance().setPath(pathId, path);
         }
 
