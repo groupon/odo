@@ -130,12 +130,13 @@ public class PathController {
     }
     
     @RequestMapping(value = "/api/path/test", method = RequestMethod.GET)
-    public @ResponseBody String testPath(@RequestParam String url, @RequestParam String profileIdentifier) throws Exception {
+    public @ResponseBody String testPath(@RequestParam String url, @RequestParam String profileIdentifier,
+                                         @RequestParam Integer requestType) throws Exception {
         int profileId = ControllerUtils.convertProfileIdentifier(profileIdentifier);
 
         List<EndpointOverride> trySelectedRequestPaths = PathOverrideService.getInstance().getSelectedPaths(Constants.OVERRIDE_TYPE_REQUEST, 
                 ClientService.getInstance().findClient("-1", profileId),
-                ProfileService.getInstance().findProfile(profileId), url, -1, true);
+                ProfileService.getInstance().findProfile(profileId), url, requestType, true);
     	
         HashMap<String, Object> jqReturn = Utils.getJQGridJSON(trySelectedRequestPaths, "paths");
 
@@ -243,6 +244,7 @@ public class PathController {
                              @RequestParam(required = false) String contentType,
                              @RequestParam(required = false) Integer repeatNumber,
                              @RequestParam(required = false) Boolean global,
+                             @RequestParam(required = false) Integer requestType,
                              @RequestParam(value = "groups[]", required = false) Integer[] groups,
                              HttpServletResponse response
     ) throws Exception {
@@ -348,6 +350,11 @@ public class PathController {
         // sets repeat number
         if (repeatNumber != null) {
             EditService.getInstance().updateRepeatNumber(repeatNumber, pathId, clientUUID);
+        }
+
+        // sets request type
+        if (requestType != null) {
+            PathOverrideService.getInstance().setRequestType(pathId, requestType);
         }
 
         // sets groups

@@ -6,12 +6,13 @@
 <script type="text/javascript">
 function pathTesterSubmit() {
 	var url = $('#pathTesterURL').val();
+	var requestType = $('#pathTesterRequestType').val();
 	var encoded = encodeURIComponent(url);
 	
 	$.ajax({
         type:"GET",
         url: '<c:url value="/api/path/test"/>',
-        data: 'profileIdentifier=${profile_id}&url=' + encoded,
+        data: 'profileIdentifier=${profile_id}&requestType=' + requestType + '&url=' + encoded,
         success: function(data) {
             // build up grid
             // $("#friendlyNameError").html(json.error.message);
@@ -43,7 +44,7 @@ function pathTesterSubmit() {
 function navigatePathTester() {
 	$("#pathTesterDialog").dialog({
         title: "Path Tester",
-        width: 650,
+        width: 750,
         modal: true,
         position:['top',20],
         buttons: {
@@ -57,8 +58,20 @@ function navigatePathTester() {
 
 <!-- Hidden div for path tester -->
 <div id="pathTesterDialog" style="display:none;">
-    URL to Test: <input id="pathTesterURL" size=45/>
-    <button class="btn btn-primary" onclick="pathTesterSubmit()">Test</button>
+    <table>
+    <tr><td>
+        URL to Test: <input id="pathTesterURL" size=45/>&nbsp;
+    </td><td>
+        <select id="pathTesterRequestType" class="form-control" style="width:auto;">
+            <option value="0">ALL</option>
+            <option value="1">GET</option>
+            <option value="2">PUT</option>
+            <option value="3">POST</option>
+            <option value="4">DELETE</option>
+        </select>
+    </td><td>
+        <button class="btn btn-primary" onclick="pathTesterSubmit()">Test</button>
+    </td></table>
     <div class="ui-widget">
 		<div class="ui-state-highlight ui-corner-all">
 			<p><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
