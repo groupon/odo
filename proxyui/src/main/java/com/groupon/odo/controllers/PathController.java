@@ -244,6 +244,7 @@ public class PathController {
                              @RequestParam(required = false) String contentType,
                              @RequestParam(required = false) Integer repeatNumber,
                              @RequestParam(required = false) Boolean global,
+                             @RequestParam(required = false) Integer requestType,
                              @RequestParam(value = "groups[]", required = false) Integer[] groups,
                              HttpServletResponse response
     ) throws Exception {
@@ -349,6 +350,11 @@ public class PathController {
         // sets repeat number
         if (repeatNumber != null) {
             EditService.getInstance().updateRepeatNumber(repeatNumber, pathId, clientUUID);
+        }
+
+        // sets request type
+        if (requestType != null) {
+            PathOverrideService.getInstance().setRequestType(pathId, requestType);
         }
 
         // sets groups
