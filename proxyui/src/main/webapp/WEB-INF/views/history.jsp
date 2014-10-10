@@ -677,6 +677,27 @@
         }
         
         function showPathTester() {
+            // map request type
+            console.log(historyData);
+            console.log(historyData.history.requestType);
+            switch(historyData.history.requestType) {
+                case 'ALL':
+                    $('#pathTesterRequestType').val(0);
+                    break;
+                case 'GET':
+                    $('#pathTesterRequestType').val(1);
+                    break;
+                case 'PUT':
+                    $('#pathTesterRequestType').val(2);
+                    break;
+                case 'POST':
+                    $('#pathTesterRequestType').val(3);
+                    break;
+                case 'DELETE':
+                    $('#pathTesterRequestType').val(4);
+                    break;
+            }
+
             $('#pathTesterURL').val($("#requestQuery").val() + "?" + $("#requestParameters").val());
             navigatePathTester();
             pathTesterSubmit();
