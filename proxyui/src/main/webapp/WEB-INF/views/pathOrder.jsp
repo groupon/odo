@@ -15,6 +15,7 @@
 	#sortable { list-style-type: none; margin: 1px; padding: 1px; width: 60%; }
 	#sortable li { margin: 0 3px 3px 3px; padding: 0.4em; padding-left: 1.5em; font-size: 1.4em; height: 18px; }
 	#sortable li span { position: absolute; margin-left: -1.3em; }
+	.ui-state-highlight { height: 1.5em; line-height: 1.2em; }
   </style>
   
   <script>
@@ -32,7 +33,8 @@
 			    	$('#info').fadeOut(1).delay(50).fadeIn(150);
 				}
 			});
-		}
+		},
+		placeholder: "ui-state-highlight"
     });
   });
   </script>
@@ -40,12 +42,15 @@
 
 <body>
 
+<%@ include file="pathtester_part.jsp" %>
+
 <nav class="navbar navbar-default" role="navigation">
     <div class="container-fluid">
         <div class="collapse navbar-collapse">
             <ul id="status2" class="nav navbar-nav">
                 <li><a href="#" onClick="window.location='<c:url value = '/profiles' />'">All Profiles</a></li>
                 <li><a href="#" onClick="window.location='<c:url value = '/edit/${profile_id}' />'">${profile_name}</a></li>
+                <li><a href="#" onClick="navigatePathTester()">Path Tester</a></li>
             </ul>
         </div>
     </div>
