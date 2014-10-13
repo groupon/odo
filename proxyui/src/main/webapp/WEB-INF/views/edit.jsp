@@ -690,6 +690,7 @@
                     { add: true, edit: false, del: true, search: false },
                     {},
                     {
+                        // Add path
                         url: '<c:url value="/api/path"/>?profileIdentifier=${profile_id}',
                         reloadAfterSubmit: false,
                         width: 460,
@@ -700,9 +701,15 @@
                         },
                         afterComplete: function(data) {
                             reloadGrid("#packages");
+                            $("#statusNotificationText").html("Path added.  Don't forget to adjust <a href=\"#\" onClick=\"navigatePathPriority()\" style=\"color: blue\">Path Priorities</a>!");
+                            $("#statusNotificationDiv").fadeIn();
+                        },
+                        beforeShowForm: function(data) {
+                            $("#statusNotificationDiv").fadeOut();
                         }
-                     },
+                    },
                     {
+                        // Delete path
                         mtype: 'DELETE',
                         reloadAfterSubmit: true,
                         onclickSubmit: function(rp_ge, postdata) {
@@ -1426,6 +1433,10 @@
                     $("#groupSelect").val(ids);
                 }
             }
+
+            function dismissStatusNotificationDiv() {
+                $("#statusNotificationDiv").fadeOut();
+            }
         </script>
     </head>
     <body>
@@ -1448,7 +1459,7 @@
                     <ul id="status2"  class="nav navbar-nav navbar-left">
                         <li><a href="#" onClick="navigateProfiles()">Profiles</a> </li>
                         <li><a href="#" onClick="navigateRequestHistory()">Request History</a></li>
-                        <li><a href="#" onClick="navigatePathPriority()">Path Priority</a></li>
+                        <li id="navbarPathPriority"><a href="#" onClick="navigatePathPriority()">Path Priority</a></li>
                         <li><a href="#" onClick="navigatePathTester()">Path Tester</a></li>
                         <li><a href="#" onClick="navigateEditGroups()">Edit Groups</a></li>
                     </ul>
@@ -1464,6 +1475,15 @@
                 <table id="serverlist"></table>
                 <div id="servernavGrid"></div>
             </div>
+
+            <!-- div for top bar notice -->
+            <div class="ui-widget" id="statusNotificationDiv" style="display: none;" onClick="dismissStatusNotificationDiv()">
+                <div class="ui-state-highlight ui-corner-all" style="margin-top: 10px;  margin-bottom: 10px; padding: 0 .7em;">
+                    <p style="margin-top: 10px; margin-bottom:10px;"><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
+                    <span id="statusNotificationText"/></p>
+                </div>
+            </div>
+
             <div>
                 <table id="packages">
                     <tr><td></td></tr>
