@@ -68,6 +68,14 @@ Included in the examples directory is a sample configuration backup. The sample 
 
 You can then import the backup.json data and view a sample Odo configuration.
 
+Via Odo UI:
+1. Navigate to the profile screen: http://localhost:8090/testproxy
+2. Click the **Options** menu
+3. Click the **Import Configuration** item
+4. Select your json file to import(backup.json in this case)
+5. Press **Submit**
+
+Via API:
 ```
 curl -X POST -F fileData=@backup.json http://localhost:8090/testproxy/api/backup
 ```
@@ -96,4 +104,4 @@ Each of these ports can be configured by setting an environment variable with th
 
 ## Odo Details
 
-For more detailed information on Odo and developing with Odo, visit the [Odo Wiki](https://github.com/groupon/odo/wiki) 
+For more detailed information on Odo and developing with Odo, visit the [Odo Wiki](https://github.com/groupon/odo/wiki)
