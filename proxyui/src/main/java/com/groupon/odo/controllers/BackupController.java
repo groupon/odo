@@ -30,6 +30,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -53,7 +54,10 @@ public class BackupController {
     @RequestMapping(value = "/api/backup", method = RequestMethod.GET)
     public
     @ResponseBody
-    String getBackup(Model model) throws Exception {
+    String getBackup(Model model, HttpServletResponse response) throws Exception {
+        response.addHeader("Content-Disposition", "attachment; filename=backup.json");
+        response.setContentType("application/json");
+
         Backup backup = BackupService.getInstance().getBackupData();
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectWriter writer = objectMapper.defaultPrettyPrintingWriter();

@@ -113,7 +113,7 @@
                 sortname : 'id',
                 viewrecords : true,
                 sortorder : "desc",
-                caption : '<font size="5">Profiles</font>'
+                caption : 'Profiles'
             });
             profileList.jqGrid('navGrid', '#profilenavGrid', {
                 edit : false,
@@ -141,16 +141,107 @@
             });
         });
 
-        </script>
+        function exportConfiguration() {
+            downloadFile('<c:url value="/api/backup"/>');
+        }
 
+        function importConfiguration() {
+            $("#configurationUploadDialog").dialog({
+                title: "Upload New Configuration",
+                modal: true,
+                position:['top',20],
+                buttons: {
+                  "Submit": function() {
+                    // submit form
+                    $("#configurationUploadFileButton").click();
+                  },
+                  "Cancel": function() {
+                      $("#configurationUploadDialog").dialog("close");
+                  }
+                }
+            });
+        }
+
+        window.onload = function () {
+            // Adapted from: http://blog.teamtreehouse.com/uploading-files-ajax
+            document.getElementById('configurationUploadForm').onsubmit = function(event) {
+                event.preventDefault();
+
+                var file = document.getElementById('configurationUploadFile').files[0];
+                var formData = new FormData();
+                formData.append('fileData', file, file.name);
+                var xhr = new XMLHttpRequest();
+                xhr.open('POST', '<c:url value="/api/backup"/>', true);
+                xhr.onload = function () {
+                  if (xhr.status === 200) {
+                    location.reload();
+                  } else {
+                    $("#statusNotificationStateDiv").removeClass("ui-state-highlight");
+                    $("#statusNotificationStateDiv").addClass("ui-state-error");
+                    $("#statusNotificationText").html("An error occured while uploading configuration...");
+
+                    // enable form buttons
+                    $(":button:contains('Submit')").prop("disabled", false).removeClass("ui-state-disabled");
+                    $(":button:contains('Cancel')").prop("disabled", false).removeClass("ui-state-disabled");
+                  }
+                };
+
+                $("#statusNotificationText").html("Uploading configuration...");
+                $("#statusNotificationStateDiv").removeClass("ui-state-error");
+                $("#statusNotificationStateDiv").addClass("ui-state-highlight");
+                $("#statusNotificationDiv").fadeIn();
+
+                // disable form buttons
+                $(":button:contains('Submit')").prop("disabled", true).addClass("ui-state-disabled");
+                $(":button:contains('Cancel')").prop("disabled", true).addClass("ui-state-disabled");
+
+                xhr.send(formData);
+            }
+        }
+
+
+        </script>
     </head>
 
     <body>
+        <!-- Hidden div for configuration file upload -->
+        <div id="configurationUploadDialog" style="display:none;">
+            <form id="configurationUploadForm" action="<c:url value="/api/backup"/>" method="POST">
+                <input id="configurationUploadFile" type="file" name="fileData" />
+                <button id="configurationUploadFileButton" type="submit" style="display: none;"></button>
+            </form>
+
+            <!-- div for status notice -->
+            <div class="ui-widget" id="statusNotificationDiv" style="display: none;">
+                <div class="ui-state-highlight ui-corner-all" id="statusNotificationStateDiv" style="margin-top: 10px;  margin-bottom: 10px; padding: 0 .7em;">
+                    <p style="margin-top: 10px; margin-bottom:10px;"><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
+                    <span id="statusNotificationText"/>gfdgfd</p>
+                </div>
+            </div>
+        </div>
+
+        <nav class="navbar navbar-default" role="navigation">
+            <div class="container-fluid">
+                <div class="collapse navbar-collapse">
+                    <ul class="nav navbar-nav navbar-left">
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">Options <b class="caret"></b></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="#" onclick='exportConfiguration()'>Export Configuration</a></li>
+                                <li><a href="#" onclick='importConfiguration()'>Import Configuration</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                    <ul class="nav navbar-nav navbar-right">
+                        <li>
+                            <p class="navbar-text">Odo Version: <c:out value = "${version}"/></p>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
 
         <div style="width:400px;">
-            <div  class="ui-widget-content ui-corner-all" >
-                Odo Version: <c:out value = "${version}"/><br>
-            </div>
             <table id="profilelist"></table>
             <div id="profilenavGrid"></div>
         </div>
