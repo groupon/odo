@@ -151,7 +151,10 @@ public class HttpUtilities {
             ByteArrayOutputStream byteout = new ByteArrayOutputStream();
             for (int x = 0; x < dataArray.length; x++) {
                 // split the data up by & to get the parts
-                if (dataArray[x] == '&') {
+                if (dataArray[x] == '&' || x == (dataArray.length - 1)) {
+                    if (x == (dataArray.length - 1)) {
+                        byteout.write(dataArray[x]);
+                    }
                     // find '=' and split the data up into key value pairs
                     int equalsPos = -1;
                     ByteArrayOutputStream key = new ByteArrayOutputStream();
