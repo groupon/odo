@@ -2,6 +2,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
+    <groupId>com.groupon.odo</groupId>
     <artifactId>proxyplugin</artifactId>
     <name>proxyplugin</name>
     <version>1.0.0-beta.4-SNAPSHOT</version>
@@ -21,7 +22,7 @@
 
     <properties>
         <org.springframework-version>4.0.1.RELEASE</org.springframework-version>
-        <java-version>1.6</java-version>
+        <java-version>1.7</java-version>
         <org.slf4j-version>1.5.10</org.slf4j-version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>

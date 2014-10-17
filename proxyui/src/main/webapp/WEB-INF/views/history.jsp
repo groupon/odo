@@ -519,21 +519,6 @@
         }
 
         $(document).ready(function() {
-            if ("${clientUUID}" == "-1" && $.cookie("UUID") != null) {
-                var currentURL = document.location.href;
-                if (document.location.search.indexOf("clientUUID") != -1) {
-                    currentURL = currentURL.replace('clientUUID=-1', 'clientUUID=' + $.cookie("UUID"));
-                } else {
-                    if (document.location.search == "") {
-                        currentURL = currentURL + "?clientUUID=" + $.cookie("UUID");
-                    } else {
-                        currentURL = currentURL + "&clientUUID=" + $.cookie("UUID");
-                    }
-                }
-                document.location.href = currentURL;
-            } else if ("${clientUUID}" != "-1") {
-                $.cookie("UUID", "${clientUUID}", { expires: 10000, path: '/testproxy/' });
-            }
             $("#tabs").tabs();
             $("#tabs").css("overflow", "scroll");
             $("#radioset").buttonset();
