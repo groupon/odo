@@ -206,6 +206,26 @@
                 });
             }
 
+            function resetProfile(){
+                var active = ${isActive};
+
+                $.ajax({
+                    type:"POST",
+                    url: '<c:url value="/api/profile/${profile_id}/clients/${clientUUID}"/>',
+                    data: {reset: true},
+                    success: function(){
+                        // set the profile to active if it was active previously
+                        // reset deactivates it
+                        if (active === true) {
+                            changeActive(true);
+                        } else {
+                            // just reload
+                            window.location.reload();
+                        }
+                    }
+                });
+            }
+
             function deleteServer(id) {
                 $.ajax({
                     type: 'POST',
@@ -393,6 +413,9 @@
             }
 
             $(document).ready(function () {
+            // turn on tooltips
+            $("#resetProfileButton").tooltip()
+
 		    if ("${clientUUID}" == "-1" && $.cookie("UUID") != null) {
                     document.location.href =  "http://" + document.location.hostname + ":" +  document.location.port + document.location.pathname +
                         "?" + 'clientUUID='+$.cookie("UUID");
@@ -1463,6 +1486,10 @@
                         <li><a href="#" onClick="navigatePathTester()">Path Tester</a></li>
                         <li><a href="#" onClick="navigateEditGroups()">Edit Groups</a></li>
                     </ul>
+                    <div class="form-group navbar-form navbar-left">
+                        <button id="resetProfileButton" class="btn btn-danger" onclick="resetProfile()"
+                                data-toggle="tooltip" data-placement="bottom" title="Click here to reset all path settings in this profile.">Reset Profile</button>
+                    </div>
                     <div id="status" class="form-group navbar-form navbar-left" ></div>
                     <ul id="clientInfo" class="nav navbar-nav navbar-right">
                     </ul>
