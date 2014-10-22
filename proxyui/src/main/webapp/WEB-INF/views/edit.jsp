@@ -429,397 +429,397 @@
                             } else if ("${clientUUID}" != "-1") {
                                 $.cookie("UUID", "${clientUUID}", { expires: 10000, path: '/testproxy/' });
                             }
-                            'use strict';
-
-                            updateStatus();
-                            $("#responseOverrideSelect").select2({dropdownAutoWidth : true});
-                            $("#requestOverrideSelect").select2({dropdownAutoWidth : true});
-
-                            var serverList = jQuery("#serverlist");
-                            serverList.jqGrid({
-                                autowidth : false,
-                                caption : 'API Servers',
-                                cellEdit : true,
-                                cellurl : '/testproxy/api/edit/server',
-                                colNames : [ 'Cert', 'ID', 'Enabled', 'Source Hostname/IP',
-                                        'Destination Hostname/IP', 'Host Header (optional)' ],
-                                colModel : [ {
-                                    name : 'cert',
-                                    index: 'cert',
-                                    width: 35,
-                                    formatter: certDownloadButtonFormatter,
-                                    editable: false
-                                }, {
-                                    name : 'id',
-                                    index : 'id',
-                                    width : 15,
-                                    hidden : true,
-                                    formatter: serverIdFormatter
-                                }, {
-                                    name: 'hostsEntry.enabled',
-                                    path: 'hostsEntry.enabled',
-                                    width: 50,
-                                    editable: true,
-                                    align: 'center',
-                                    edittype: 'checkbox',
-                                    formatter: serverEnabledFormatter,
-                                    formatoptions: {disabled : false}
-                                }, {
-                                    name : 'srcUrl',
-                                    index : 'srcUrl',
-                                    width : 160,
-                                    editable : true
-                                }, {
-                                    name : 'destUrl',
-                                    index : 'destUrl',
-                                    width : 160,
-                                    editable : true,
-                                    formatter : destinationHostFormatter,
-                                    unformat : destinationHostUnFormatter
-                                }, {
-                                    name : 'hostHeader',
-                                    index : 'hostHeader',
-                                    width : 175,
-                                    editable : true
-                                 }],
-                                jsonReader : {
-                                    page : "page",
-                                    total : "total",
-                                    records : "records",
-                                    root : 'servers',
-                                    repeatitems : false
-                                },
-                                afterEditCell : function(rowid, cellname, value, iRow, iCol) {
-                                    if (cellname == "srcUrl") {
-                                        serverList.setGridParam({
-                                            cellurl : '<c:url value="/api/edit/server/"/>' + rowid
-                                                    + '/src'
-                                        });
-                                    } else if (cellname == "destUrl") {
-                                        serverList.setGridParam({
-                                            cellurl : '<c:url value="/api/edit/server/"/>' + rowid
-                                                    + '/dest'
-                                        });
-                                    } else if (cellname == "hostHeader") {
-                                        serverList.setGridParam({
-                                            cellurl : '<c:url value="/api/edit/server/"/>' + rowid
-                                                    + '/host'
-                                        });
-                                    }
-                                },
-                                afterSaveCell : function() {
-                                    serverList.trigger("reloadGrid");
-                                },
-                                loadComplete: function(data) {
-                                    // hide host enable/disable if host editor is not available
-                                    if (data.hostEditor == false) {
-                                        serverList.hideCol("hostsEntry.enabled");
-                                    }
-                                },
-                                datatype : "json",
-                                height: "100%",
-                                hiddengrid: false,
-                                loadonce: true,
-                                pager : '#servernavGrid',
-                                pgbuttons : false,
-                                pgtext : null,
-                                rowNum: 10000,
-                                rowList : [],
-                                sortname : 'srcUrl',
-                                sortorder : "asc",
-                                url : '<c:url value="/api/edit/server?profileId=${profile_id}&clientUUID=${clientUUID}"/>',
-                                viewrecords : true
-                            });
-                            serverList.jqGrid('navGrid', '#servernavGrid', {
-                                edit : false,
-                                add : true,
-                                del : true,
-                                search: false
-                            },
-                            {},
-                            {
-                                url: '<c:url value="/api/edit/server"/>?profileId=${profile_id}&clientUUID=${clientUUID}',
-                                reloadAfterSubmit: false,
-                                width: 400,
-                                afterSubmit: function () {
-                                    reloadGrid("#serverlist");
-                                    return [true];
-                                }
-                            },
-                            {
-                                mtype: 'DELETE',
-                                url: '<c:url value="/api/edit/server"/>',
-                                reloadAfterSubmit: false,
-                                afterSubmit: function () {
-                                    reloadGrid("#serverlist");
-                                    return [true];
-                                }
-                            });
-
-                            var serverGroupList = jQuery("#serverGroupList");
-                            serverGroupList.jqGrid({
-                                autowidth : false,
-                                cellEdit : true,
-                                colNames : [ 'ID', 'Name'],
-                                colModel : [ {
-                                    name : 'id',
-                                    index : 'id',
-                                    width : 55,
-                                    hidden : true
-                                }, {
-                                    name: 'name',
-                                    path: 'name',
-                                    width: 300,
-                                    editable: true,
-                                    align: 'left',
-                                    formatoptions: {disabled : false}
-                                }],
-                                jsonReader : {
-                                    page : "page",
-                                    total : "total",
-                                    records : "records",
-                                    root : 'servergroups',
-                                    repeatitems : false
-                                },
-                                afterEditCell : function(rowid, cellname, value, iRow, iCol) {
-                                    if (cellname == "name") {
-                                        editServerGroupId = rowid;
-                                        serverGroupList.setGridParam({
-                                            cellurl : '<c:url value="/api/servergroup/"/>' + rowid + "?profileId=${profile_id}"
-                                        });
-                                    }
-                                },
-                                datatype : "json",
-                                height: "auto",
-                                loadonce: true,
-                                pager : '#serverGroupNavGrid',
-                                pgbuttons : false,
-                                pgtext : null,
-                                rowNum: 10000,
-                                rowList : [],
-                                sortname : 'name',
-                                sortorder : "desc",
-                                url : '<c:url value="/api/servergroup?profileId=${profile_id}"/>',
-                                viewrecords : true
-                            });
-
-                            serverGroupList.jqGrid('navGrid', '#serverGroupNavGrid', {
-                                edit : false,
-                                add : true,
-                                del : true,
-                                search: false
-                            },
-                            {},
-                            {
-                                url: '<c:url value="/api/servergroup"/>?profileId=${profile_id}&clientUUID=${clientUUID}',
-                                 reloadAfterSubmit: false,
-                                 closeAfterAdd: true,
-                                 afterSubmit: function () {
-                                     reloadGrid("#serverGroupList");
-                                     return [true];
-                                 }
-                            },
-                            {
-                                mtype: 'DELETE',
-                                reloadAfterSubmit: false,
-                                afterSubmit: function () {
-                                    reloadGrid("#serverGroupList");
-                                    return [true];
-                                },
-                                onclickSubmit: function(rp_ge, postdata) {
-                                    rp_ge.url = '<c:url value="/api/servergroup/" />' + editServerGroupId + "?profileId=${profile_id}";
-                                    return [true];
-                                }
-                            },
-                            {});
-
-                            var grid = $("#packages");
-                            grid.jqGrid({
-                                autowidth: false,
-                                caption: "Paths",
-                                cellurl : '<c:url value="/api/path?profileIdentifier=${profile_id}&clientUUID=${clientUUID}"/>',
-                                colModel: [
-                                    { name: 'pathId', index: 'pathId', width: "20", hidden: true},
-                                    {
-                                        name: 'pathName',
-                                        index: 'pathName',
-                                        width: "330",
-                                        editrules: {
-                                            required: true
-                                        },
-                                        editable: true
-                                    },
-                                    {
-                                        name: 'path',
-                                        index: 'path',
-                                        hidden: true,
-                                        editrules: {
-                                            required: true,
-                                            edithidden: true
-                                        },
-                                        editable: true,
-                                    },
-                                    { name: 'requestType',
-                                      index: 'requestType',
-                                      align: 'center',
-                                      width: 80,
-                                      editable: true,
-                                      edittype: 'select',
-                                      editoptions: {defaultValue: 0, value: getRequestTypes()},
-                                                    editrules: {edithidden: true},
-                                      formatter: requestTypeFormatter
-                                     }, {
-                                      name: 'responseEnabled',
-                                      index: 'responseEnabled',
-                                      width: "60",
-                                      editable: false,
-                                      edittype: 'checkbox',
-                                      align: 'center',
-                                      editoptions: { value:"True:False" },
-                                      formatter: responseEnabledFormatter,
-                                      formatoptions: {disabled: false}
-                                    }, {
-                                      name: 'requestEnabled',
-                                      index: 'requestEnabled',
-                                      width: "60",
-                                      editable: false,
-                                      edittype: 'checkbox',
-                                      align: 'center',
-                                      editoptions: { value:"True:False" },
-                                      formatter: requestEnabledFormatter,
-                                      formatoptions: {disabled: false} }
-                                ],
-                                colNames: ['ID', 'Path Name', 'Path', 'Type', 'Response', 'Request'],
-                                datatype: "json",
-                                editUrl: '<c:url value="/api/path?profileIdentifier=${profile_id}"/>',
-                                jsonReader : {
-                                    page : "page",
-                                    total : "total",
-                                    records : "records",
-                                    root : 'paths',
-                                    repeatitems : false
-                                },
-                                height: "100%",
-                                ignoreCase: true,
-                                loadonce: true,
-                                onSelectRow: function (id) {
-                                    var data = jQuery("#packages").jqGrid('getRowData',id);
-                                    currentPathId = data.pathId;
-                                    loadPath(data.pathId);
-                                },
-                                pager: '#packagePager',
-                                pgbuttons: false,
-                                rowList : [],
-                                rowNum: 10000,
-                                sortname : 'id',
-                                sortorder : "desc",
-                                url : '<c:url value="/api/path?profileIdentifier=${profile_id}&clientUUID=${clientUUID}"/>',
-                                viewrecords: true,
-                            });
-                            grid.jqGrid('navGrid', '#packagePager',
-                                { add: true, edit: false, del: true, search: false },
-                                {},
-                                {
-                                    // Add path
-                                    url: '<c:url value="/api/path"/>?profileIdentifier=${profile_id}',
-                                    reloadAfterSubmit: false,
-                                    width: 460,
-                                    closeAfterAdd: true,
-                                    errorTextFormat: function (data) {
-                                        console.log(data);
-                                        return data.responseText;
-                                    },
-                                    afterComplete: function(data) {
-                                        reloadGrid("#packages");
-                                        $("#statusNotificationText").html("Path added.  Don't forget to adjust <a href=\"#\" onClick=\"navigatePathPriority()\" style=\"color: blue\">Path Priorities</a>!");
-                                        $("#statusNotificationDiv").fadeIn();
-                                    },
-                                    beforeShowForm: function(data) {
-                                        $("#statusNotificationDiv").fadeOut();
-                                    }
-                                },
-                                {
-                                    // Delete path
-                                    mtype: 'DELETE',
-                                    reloadAfterSubmit: true,
-                                    onclickSubmit: function(rp_ge, postdata) {
-                                     rp_ge.url = '<c:url value="/api/path/" />' + currentPathId + "?clientUUID=" + clientUUID;
-                                    }},
-                                {});
-                            grid.jqGrid('filterToolbar', { defaultSearch: 'cn', stringResult: true });
-                            $("#tabs").tabs();
-                            $("#tabs").css("overflow", "auto");
-                            $("#sel1").select2();
-
-                            var currentHTML = $("#gview_serverlist > .ui-jqgrid-titlebar > span").html();
-                            var dropDown = "&nbsp;&nbsp;&nbsp;<input id='serverGroupSelection' style='width:360px%'></input>&nbsp;&nbsp;<button id='editServerGroups' type='button' class='btn btn-xs' onClick='toggleServerGroupEdit()'><span class='glyphicon glyphicon-cog'></span></button>";
-                            $("#gview_serverlist > .ui-jqgrid-titlebar > span").html(currentHTML + dropDown);
-
-                            $("#serverGroupSelection").select2({
-                                initSelection: function(element, callback){
-                                        $.ajax('<c:url value="/api/profile/${profile_id}/clients/${clientUUID}"/>').done(function(data) {
-                                            $.ajax('<c:url value="/api/servergroup"/>' + '/' + data.client.activeServerGroup +'?profileId=${profile_id}'
-                                            ).done(function(data2) {
-                                                callback({id: data.client.activeServerGroup, text: data2.name});
-                                            });
-                                        });
-                                },
-                                ajax: {
-                                    url: '<c:url value="/api/servergroup"/>' + '?profileId=${profile_id}',
-                                    dataType: "json",
-                                    data: function (term, page) {
-                                        return {search: term};
-                                    },
-                                    results: function(data){
-                                        var myResults = [];
-                                        myResults.push({id: 0, text: "Default"});
-                                        jQuery.each(data.servergroups, function(index, value){
-                                            myResults.push({
-                                                id: value.id,
-                                                text: value.name
-                                            });
-                                        });
-                                        return {
-                                            results: myResults
-                                        };
-                                    }
-                                },
-                                createSearchChoice: function(term, data) {
-                                    if ($(data).filter(function() {
-                                        return this.text.localeCompare(term)===0;
-                                    }).length===0) {
-                                        return {id:term, text:term, isNew:true};
-                                    }
-                                },
-                                formatResult: function(term) {
-                                    if (term.isNew) {
-                                        return 'create "' + term.text + '"';
-                                    }
-                                    else {
-                                        return term.text;
-                                    }
-                                }
-                            });
-                            $("#serverGroupSelection").on("change", function(e) {
-                                if(e.added.isNew) {
-                                    $.ajax({
-                                        type: "POST",
-                                        url: '<c:url value="/api/servergroup" />',
-                                        data: ({name : e.added.id, profileId: "${profile_id}"}),
-                                        success: function(data){
-                                            setActiveServerGroup(data.id);
-                                            reloadGrid("#serverGroupList");
-                                        }
-                                    });
-                                }
-                                else {
-                                    setActiveServerGroup(e.added.id);
-                                }
-                            });
-                            populateGroups();
                         }
                     }
                 });
+                'use strict';
+
+                updateStatus();
+                $("#responseOverrideSelect").select2({dropdownAutoWidth : true});
+                $("#requestOverrideSelect").select2({dropdownAutoWidth : true});
+
+                var serverList = jQuery("#serverlist");
+                serverList.jqGrid({
+                    autowidth : false,
+                    caption : 'API Servers',
+                    cellEdit : true,
+                    cellurl : '/testproxy/api/edit/server',
+                    colNames : [ 'Cert', 'ID', 'Enabled', 'Source Hostname/IP',
+                            'Destination Hostname/IP', 'Host Header (optional)' ],
+                    colModel : [ {
+                        name : 'cert',
+                        index: 'cert',
+                        width: 35,
+                        formatter: certDownloadButtonFormatter,
+                        editable: false
+                    }, {
+                        name : 'id',
+                        index : 'id',
+                        width : 15,
+                        hidden : true,
+                        formatter: serverIdFormatter
+                    }, {
+                        name: 'hostsEntry.enabled',
+                        path: 'hostsEntry.enabled',
+                        width: 50,
+                        editable: true,
+                        align: 'center',
+                        edittype: 'checkbox',
+                        formatter: serverEnabledFormatter,
+                        formatoptions: {disabled : false}
+                    }, {
+                        name : 'srcUrl',
+                        index : 'srcUrl',
+                        width : 160,
+                        editable : true
+                    }, {
+                        name : 'destUrl',
+                        index : 'destUrl',
+                        width : 160,
+                        editable : true,
+                        formatter : destinationHostFormatter,
+                        unformat : destinationHostUnFormatter
+                    }, {
+                        name : 'hostHeader',
+                        index : 'hostHeader',
+                        width : 175,
+                        editable : true
+                     }],
+                    jsonReader : {
+                        page : "page",
+                        total : "total",
+                        records : "records",
+                        root : 'servers',
+                        repeatitems : false
+                    },
+                    afterEditCell : function(rowid, cellname, value, iRow, iCol) {
+                        if (cellname == "srcUrl") {
+                            serverList.setGridParam({
+                                cellurl : '<c:url value="/api/edit/server/"/>' + rowid
+                                        + '/src'
+                            });
+                        } else if (cellname == "destUrl") {
+                            serverList.setGridParam({
+                                cellurl : '<c:url value="/api/edit/server/"/>' + rowid
+                                        + '/dest'
+                            });
+                        } else if (cellname == "hostHeader") {
+                            serverList.setGridParam({
+                                cellurl : '<c:url value="/api/edit/server/"/>' + rowid
+                                        + '/host'
+                            });
+                        }
+                    },
+                    afterSaveCell : function() {
+                        serverList.trigger("reloadGrid");
+                    },
+                    loadComplete: function(data) {
+                        // hide host enable/disable if host editor is not available
+                        if (data.hostEditor == false) {
+                            serverList.hideCol("hostsEntry.enabled");
+                        }
+                    },
+                    datatype : "json",
+                    height: "100%",
+                    hiddengrid: false,
+                    loadonce: true,
+                    pager : '#servernavGrid',
+                    pgbuttons : false,
+                    pgtext : null,
+                    rowNum: 10000,
+                    rowList : [],
+                    sortname : 'srcUrl',
+                    sortorder : "asc",
+                    url : '<c:url value="/api/edit/server?profileId=${profile_id}&clientUUID=${clientUUID}"/>',
+                    viewrecords : true
+                });
+                serverList.jqGrid('navGrid', '#servernavGrid', {
+                    edit : false,
+                    add : true,
+                    del : true,
+                    search: false
+                },
+                {},
+                {
+                    url: '<c:url value="/api/edit/server"/>?profileId=${profile_id}&clientUUID=${clientUUID}',
+                    reloadAfterSubmit: false,
+                    width: 400,
+                    afterSubmit: function () {
+                        reloadGrid("#serverlist");
+                        return [true];
+                    }
+                },
+                {
+                    mtype: 'DELETE',
+                    url: '<c:url value="/api/edit/server"/>',
+                    reloadAfterSubmit: false,
+                    afterSubmit: function () {
+                        reloadGrid("#serverlist");
+                        return [true];
+                    }
+                });
+
+                var serverGroupList = jQuery("#serverGroupList");
+                serverGroupList.jqGrid({
+                    autowidth : false,
+                    cellEdit : true,
+                    colNames : [ 'ID', 'Name'],
+                    colModel : [ {
+                        name : 'id',
+                        index : 'id',
+                        width : 55,
+                        hidden : true
+                    }, {
+                        name: 'name',
+                        path: 'name',
+                        width: 300,
+                        editable: true,
+                        align: 'left',
+                        formatoptions: {disabled : false}
+                    }],
+                    jsonReader : {
+                        page : "page",
+                        total : "total",
+                        records : "records",
+                        root : 'servergroups',
+                        repeatitems : false
+                    },
+                    afterEditCell : function(rowid, cellname, value, iRow, iCol) {
+                        if (cellname == "name") {
+                            editServerGroupId = rowid;
+                            serverGroupList.setGridParam({
+                                cellurl : '<c:url value="/api/servergroup/"/>' + rowid + "?profileId=${profile_id}"
+                            });
+                        }
+                    },
+                    datatype : "json",
+                    height: "auto",
+                    loadonce: true,
+                    pager : '#serverGroupNavGrid',
+                    pgbuttons : false,
+                    pgtext : null,
+                    rowNum: 10000,
+                    rowList : [],
+                    sortname : 'name',
+                    sortorder : "desc",
+                    url : '<c:url value="/api/servergroup?profileId=${profile_id}"/>',
+                    viewrecords : true
+                });
+
+                serverGroupList.jqGrid('navGrid', '#serverGroupNavGrid', {
+                    edit : false,
+                    add : true,
+                    del : true,
+                    search: false
+                },
+                {},
+                {
+                    url: '<c:url value="/api/servergroup"/>?profileId=${profile_id}&clientUUID=${clientUUID}',
+                     reloadAfterSubmit: false,
+                     closeAfterAdd: true,
+                     afterSubmit: function () {
+                         reloadGrid("#serverGroupList");
+                         return [true];
+                     }
+                },
+                {
+                    mtype: 'DELETE',
+                    reloadAfterSubmit: false,
+                    afterSubmit: function () {
+                        reloadGrid("#serverGroupList");
+                        return [true];
+                    },
+                    onclickSubmit: function(rp_ge, postdata) {
+                        rp_ge.url = '<c:url value="/api/servergroup/" />' + editServerGroupId + "?profileId=${profile_id}";
+                        return [true];
+                    }
+                },
+                {});
+
+                var grid = $("#packages");
+                grid.jqGrid({
+                    autowidth: false,
+                    caption: "Paths",
+                    cellurl : '<c:url value="/api/path?profileIdentifier=${profile_id}&clientUUID=${clientUUID}"/>',
+                    colModel: [
+                        { name: 'pathId', index: 'pathId', width: "20", hidden: true},
+                        {
+                            name: 'pathName',
+                            index: 'pathName',
+                            width: "330",
+                            editrules: {
+                                required: true
+                            },
+                            editable: true
+                        },
+                        {
+                            name: 'path',
+                            index: 'path',
+                            hidden: true,
+                            editrules: {
+                                required: true,
+                                edithidden: true
+                            },
+                            editable: true,
+                        },
+                        { name: 'requestType',
+                          index: 'requestType',
+                          align: 'center',
+                          width: 80,
+                          editable: true,
+                          edittype: 'select',
+                          editoptions: {defaultValue: 0, value: getRequestTypes()},
+                                        editrules: {edithidden: true},
+                          formatter: requestTypeFormatter
+                         }, {
+                          name: 'responseEnabled',
+                          index: 'responseEnabled',
+                          width: "60",
+                          editable: false,
+                          edittype: 'checkbox',
+                          align: 'center',
+                          editoptions: { value:"True:False" },
+                          formatter: responseEnabledFormatter,
+                          formatoptions: {disabled: false}
+                        }, {
+                          name: 'requestEnabled',
+                          index: 'requestEnabled',
+                          width: "60",
+                          editable: false,
+                          edittype: 'checkbox',
+                          align: 'center',
+                          editoptions: { value:"True:False" },
+                          formatter: requestEnabledFormatter,
+                          formatoptions: {disabled: false} }
+                    ],
+                    colNames: ['ID', 'Path Name', 'Path', 'Type', 'Response', 'Request'],
+                    datatype: "json",
+                    editUrl: '<c:url value="/api/path?profileIdentifier=${profile_id}"/>',
+                    jsonReader : {
+                        page : "page",
+                        total : "total",
+                        records : "records",
+                        root : 'paths',
+                        repeatitems : false
+                    },
+                    height: "100%",
+                    ignoreCase: true,
+                    loadonce: true,
+                    onSelectRow: function (id) {
+                        var data = jQuery("#packages").jqGrid('getRowData',id);
+                        currentPathId = data.pathId;
+                        loadPath(data.pathId);
+                    },
+                    pager: '#packagePager',
+                    pgbuttons: false,
+                    rowList : [],
+                    rowNum: 10000,
+                    sortname : 'id',
+                    sortorder : "desc",
+                    url : '<c:url value="/api/path?profileIdentifier=${profile_id}&clientUUID=${clientUUID}"/>',
+                    viewrecords: true,
+                });
+                grid.jqGrid('navGrid', '#packagePager',
+                    { add: true, edit: false, del: true, search: false },
+                    {},
+                    {
+                        // Add path
+                        url: '<c:url value="/api/path"/>?profileIdentifier=${profile_id}',
+                        reloadAfterSubmit: false,
+                        width: 460,
+                        closeAfterAdd: true,
+                        errorTextFormat: function (data) {
+                            console.log(data);
+                            return data.responseText;
+                        },
+                        afterComplete: function(data) {
+                            reloadGrid("#packages");
+                            $("#statusNotificationText").html("Path added.  Don't forget to adjust <a href=\"#\" onClick=\"navigatePathPriority()\" style=\"color: blue\">Path Priorities</a>!");
+                            $("#statusNotificationDiv").fadeIn();
+                        },
+                        beforeShowForm: function(data) {
+                            $("#statusNotificationDiv").fadeOut();
+                        }
+                    },
+                    {
+                        // Delete path
+                        mtype: 'DELETE',
+                        reloadAfterSubmit: true,
+                        onclickSubmit: function(rp_ge, postdata) {
+                         rp_ge.url = '<c:url value="/api/path/" />' + currentPathId + "?clientUUID=" + clientUUID;
+                        }},
+                    {});
+                grid.jqGrid('filterToolbar', { defaultSearch: 'cn', stringResult: true });
+                $("#tabs").tabs();
+                $("#tabs").css("overflow", "auto");
+                $("#sel1").select2();
+
+                var currentHTML = $("#gview_serverlist > .ui-jqgrid-titlebar > span").html();
+                var dropDown = "&nbsp;&nbsp;&nbsp;<input id='serverGroupSelection' style='width:360px%'></input>&nbsp;&nbsp;<button id='editServerGroups' type='button' class='btn btn-xs' onClick='toggleServerGroupEdit()'><span class='glyphicon glyphicon-cog'></span></button>";
+                $("#gview_serverlist > .ui-jqgrid-titlebar > span").html(currentHTML + dropDown);
+
+                $("#serverGroupSelection").select2({
+                    initSelection: function(element, callback){
+                            $.ajax('<c:url value="/api/profile/${profile_id}/clients/${clientUUID}"/>').done(function(data) {
+                                $.ajax('<c:url value="/api/servergroup"/>' + '/' + data.client.activeServerGroup +'?profileId=${profile_id}'
+                                ).done(function(data2) {
+                                    callback({id: data.client.activeServerGroup, text: data2.name});
+                                });
+                            });
+                    },
+                    ajax: {
+                        url: '<c:url value="/api/servergroup"/>' + '?profileId=${profile_id}',
+                        dataType: "json",
+                        data: function (term, page) {
+                            return {search: term};
+                        },
+                        results: function(data){
+                            var myResults = [];
+                            myResults.push({id: 0, text: "Default"});
+                            jQuery.each(data.servergroups, function(index, value){
+                                myResults.push({
+                                    id: value.id,
+                                    text: value.name
+                                });
+                            });
+                            return {
+                                results: myResults
+                            };
+                        }
+                    },
+                    createSearchChoice: function(term, data) {
+                        if ($(data).filter(function() {
+                            return this.text.localeCompare(term)===0;
+                        }).length===0) {
+                            return {id:term, text:term, isNew:true};
+                        }
+                    },
+                    formatResult: function(term) {
+                        if (term.isNew) {
+                            return 'create "' + term.text + '"';
+                        }
+                        else {
+                            return term.text;
+                        }
+                    }
+                });
+                $("#serverGroupSelection").on("change", function(e) {
+                    if(e.added.isNew) {
+                        $.ajax({
+                            type: "POST",
+                            url: '<c:url value="/api/servergroup" />',
+                            data: ({name : e.added.id, profileId: "${profile_id}"}),
+                            success: function(data){
+                                setActiveServerGroup(data.id);
+                                reloadGrid("#serverGroupList");
+                            }
+                        });
+                    }
+                    else {
+                        setActiveServerGroup(e.added.id);
+                    }
+                });
+                populateGroups();
 
             });
             jQuery("#packages").jqGrid('navGrid','#packages',{
