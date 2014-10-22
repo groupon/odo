@@ -413,15 +413,25 @@
             }
 
             $(document).ready(function () {
-            // turn on tooltips
-            $("#resetProfileButton").tooltip()
-
-		    if ("${clientUUID}" == "-1" && $.cookie("UUID") != null) {
-                    document.location.href =  "http://" + document.location.hostname + ":" +  document.location.port + document.location.pathname +
-                        "?" + 'clientUUID='+$.cookie("UUID");
-                } else if ("${clientUUID}" != "-1") {
-                    $.cookie("UUID", "${clientUUID}", { expires: 10000, path: '/testproxy/' });
-                }
+                // turn on tooltips
+                $("#resetProfileButton").tooltip()
+                $.ajax({
+                    type : "GET",
+                    url : '<c:url value="/api/profile/${profile_id}/clients/"/>' + $.cookie("UUID"),
+                    success : function(data) {
+                        if (data.client == null || (data.client.uuid == -1 && $.cookie("UUID") != null)) {
+                            $.removeCookie("UUID", { expires: 10000, path: '/testproxy/' });
+                            document.location.href =  "http://" + document.location.hostname + ":" +  document.location.port + document.location.pathname;
+                        } else {
+                            if ("${clientUUID}" == "-1" && $.cookie("UUID") != null) {
+                                document.location.href =  "http://" + document.location.hostname + ":" +  document.location.port + document.location.pathname +
+                                    "?" + 'clientUUID='+$.cookie("UUID");
+                            } else if ("${clientUUID}" != "-1") {
+                                $.cookie("UUID", "${clientUUID}", { expires: 10000, path: '/testproxy/' });
+                            }
+                        }
+                    }
+                });
                 'use strict';
 
                 updateStatus();
@@ -659,7 +669,7 @@
                           editable: true,
                           edittype: 'select',
                           editoptions: {defaultValue: 0, value: getRequestTypes()},
-                          				editrules: {edithidden: true},
+                                        editrules: {edithidden: true},
                           formatter: requestTypeFormatter
                          }, {
                           name: 'responseEnabled',
@@ -743,7 +753,7 @@
                 $("#tabs").tabs();
                 $("#tabs").css("overflow", "auto");
                 $("#sel1").select2();
-                
+
                 var currentHTML = $("#gview_serverlist > .ui-jqgrid-titlebar > span").html();
                 var dropDown = "&nbsp;&nbsp;&nbsp;<input id='serverGroupSelection' style='width:360px%'></input>&nbsp;&nbsp;<button id='editServerGroups' type='button' class='btn btn-xs' onClick='toggleServerGroupEdit()'><span class='glyphicon glyphicon-cog'></span></button>";
                 $("#gview_serverlist > .ui-jqgrid-titlebar > span").html(currentHTML + dropDown);
@@ -810,8 +820,6 @@
                     }
                 });
                 populateGroups();
-
-
 
             });
             jQuery("#packages").jqGrid('navGrid','#packages',{
