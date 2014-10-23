@@ -319,19 +319,20 @@ public class PathOverrideService {
      * @return
      */
     public Integer addGroup(String nameOfGroup) {
+        PreparedStatement queryStatement = null;
         ResultSet results = null;
 
         try (Connection sqlConnection = sqlService.getConnection()) {
-            PreparedStatement statement = sqlConnection.prepareStatement(
+            queryStatement = sqlConnection.prepareStatement(
                     "INSERT INTO " + Constants.DB_TABLE_GROUPS
                             + "(" + Constants.GROUPS_GROUP_NAME + ")"
                             + " VALUES (?)", PreparedStatement.RETURN_GENERATED_KEYS
             );
-            statement.setString(1, nameOfGroup);
-            statement.executeUpdate();
+            queryStatement.setString(1, nameOfGroup);
+            queryStatement.executeUpdate();
 
             // execute statement and get resultSet which will have the generated path ID as the first field
-            results = statement.getGeneratedKeys();
+            results = queryStatement.getGeneratedKeys();
             int groupId = -1;
             if (results.next()) {
                 groupId = results.getInt(1);
@@ -344,7 +345,15 @@ public class PathOverrideService {
             e.printStackTrace();
         } finally {
             try {
-                if (results != null) results.close();
+                if (results != null) {
+                    results.close();
+                }
+            } catch (Exception e) {
+            }
+            try {
+                if (queryStatement != null) {
+                    queryStatement.close();
+                }
             } catch (Exception e) {
             }
         }
