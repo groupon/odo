@@ -15,14 +15,11 @@
 */
 package com.groupon.odo.proxylib.models;
 
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.groupon.odo.proxylib.Constants;
 
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.ObjectWriter;
-import org.json.JSONObject;
-
-import com.groupon.odo.proxylib.Constants;
 
 /**
  * Represents a single history object

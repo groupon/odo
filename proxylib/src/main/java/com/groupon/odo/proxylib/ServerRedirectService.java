@@ -64,8 +64,6 @@ public class ServerRedirectService {
      */
     public List<ServerRedirect> tableServers(int clientId) {
         List<ServerRedirect> servers = new ArrayList<ServerRedirect>();
-        PreparedStatement queryStatement = null;
-        ResultSet results = null;
 
         try {
             Client client = ClientService.getInstance().getClient(clientId);
@@ -74,15 +72,6 @@ public class ServerRedirectService {
             e.printStackTrace();
         } catch (Exception e) {
             e.printStackTrace();
-        } finally {
-            try {
-                if (results != null) results.close();
-            } catch (Exception e) {
-            }
-            try {
-                if (queryStatement != null) queryStatement.close();
-            } catch (Exception e) {
-            }
         }
         return servers;
     }

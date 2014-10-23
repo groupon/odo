@@ -15,9 +15,15 @@
 */
 package com.groupon.odo.proxylib;
 
-import com.groupon.odo.proxylib.models.*;
+import com.groupon.odo.proxylib.models.EndpointOverride;
+import com.groupon.odo.proxylib.models.Group;
+import com.groupon.odo.proxylib.models.Method;
+import com.groupon.odo.proxylib.models.Script;
+import com.groupon.odo.proxylib.models.ServerGroup;
+import com.groupon.odo.proxylib.models.ServerRedirect;
 import com.groupon.odo.proxylib.models.backup.Backup;
 import com.groupon.odo.proxylib.models.backup.Profile;
+
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
@@ -27,15 +33,20 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.management.MBeanServer;
-import javax.management.MBeanServerFactory;
-import javax.management.ObjectName;
-import javax.net.ssl.HostnameVerifier;
 import java.io.InputStream;
 import java.net.InetAddress;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
+
+import javax.management.MBeanServer;
+import javax.management.MBeanServerFactory;
+import javax.management.ObjectName;
+import javax.net.ssl.HostnameVerifier;
 
 @SuppressWarnings("deprecation")
 public class BackupService {
@@ -327,7 +338,7 @@ public class BackupService {
             MBeanServer mbeanServer = null;
             final ObjectName objectNameQuery = new ObjectName(name + ":type=Service,*");
 
-            for (final MBeanServer server : (List<MBeanServer>) MBeanServerFactory.findMBeanServer(null)) {
+            for (final MBeanServer server : MBeanServerFactory.findMBeanServer(null)) {
                 if (server.queryNames(objectNameQuery, null).size() > 0) {
                     mbeanServer = server;
                     // we found it, bail out

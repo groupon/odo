@@ -323,16 +323,16 @@ public class PathOverrideService {
         ResultSet results = null;
 
         try (Connection sqlConnection = sqlService.getConnection()) {
-            PreparedStatement statement = sqlConnection.prepareStatement(
+            queryStatement = sqlConnection.prepareStatement(
                     "INSERT INTO " + Constants.DB_TABLE_GROUPS
                             + "(" + Constants.GROUPS_GROUP_NAME + ")"
                             + " VALUES (?)", PreparedStatement.RETURN_GENERATED_KEYS
             );
-            statement.setString(1, nameOfGroup);
-            statement.executeUpdate();
+            queryStatement.setString(1, nameOfGroup);
+            queryStatement.executeUpdate();
 
             // execute statement and get resultSet which will have the generated path ID as the first field
-            results = statement.getGeneratedKeys();
+            results = queryStatement.getGeneratedKeys();
             int groupId = -1;
             if (results.next()) {
                 groupId = results.getInt(1);
@@ -345,11 +345,15 @@ public class PathOverrideService {
             e.printStackTrace();
         } finally {
             try {
-                if (results != null) results.close();
+                if (results != null) {
+                    results.close();
+                }
             } catch (Exception e) {
             }
             try {
-                if (queryStatement != null) queryStatement.close();
+                if (queryStatement != null) {
+                    queryStatement.close();
+                }
             } catch (Exception e) {
             }
         }
@@ -790,7 +794,7 @@ public class PathOverrideService {
         // with all the groups in the profile
         for (int j = 0; j < allGroups.size(); j++) {
             for (int i = 0; i < groupIds.length; i++) {
-                if (((Integer) allGroups.get(j).getId() == groupIds[i]))
+                if (allGroups.get(j).getId() == groupIds[i])
                     groupsInProfile.add(allGroups.get(j));
             }
         }
@@ -816,7 +820,7 @@ public class PathOverrideService {
         for (int j = 0; j < allGroups.size(); j++) {
             boolean add = true;
             for (int i = 0; i < groupIds.length; i++) {
-                if (((Integer) allGroups.get(j).getId() == groupIds[i])) {
+                if (allGroups.get(j).getId() == groupIds[i]) {
                     add = false;
                 }
             }

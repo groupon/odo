@@ -58,7 +58,7 @@ public class Utils {
 	
 	private static File getKeyStoreRoot(String hostname) throws Exception {
 		File root = new File("seleniumSslSupport" + File.separator, hostname);
-		if (! root.exists()) {
+		if (!root.exists()) {
     		// create it and get the root cert
     		root.delete();
         	root.mkdirs();
