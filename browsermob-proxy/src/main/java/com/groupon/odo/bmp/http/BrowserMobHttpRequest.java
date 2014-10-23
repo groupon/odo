@@ -324,7 +324,6 @@ public class BrowserMobHttpRequest {
     // The original version loses POST bodies that are chunked
     public void setRequestInputStream(InputStream is) {
         ClonedInputStream cis = new ClonedInputStream(is);
-        is = cis;
         try {
             while (cis.read() != -1) {
                 // just loop through and read everything

@@ -16,12 +16,14 @@
 package com.groupon.odo.plugin;
 
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.PrintWriter;
+
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpServletResponseWrapper;
-import java.io.*;
-import java.util.zip.GZIPInputStream;
-import java.util.zip.Inflater;
 
 public class PluginResponse extends HttpServletResponseWrapper{
     public PluginResponse(HttpServletResponse response) {

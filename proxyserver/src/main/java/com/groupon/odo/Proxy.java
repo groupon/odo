@@ -19,35 +19,57 @@ import com.groupon.odo.plugin.HttpRequestInfo;
 import com.groupon.odo.plugin.PluginArguments;
 import com.groupon.odo.plugin.PluginHelper;
 import com.groupon.odo.plugin.PluginResponse;
-import com.groupon.odo.proxylib.*;
-import com.groupon.odo.proxylib.models.*;
+import com.groupon.odo.proxylib.ClientService;
+import com.groupon.odo.proxylib.Constants;
+import com.groupon.odo.proxylib.HistoryService;
+import com.groupon.odo.proxylib.OverrideService;
+import com.groupon.odo.proxylib.PathOverrideService;
+import com.groupon.odo.proxylib.PluginManager;
+import com.groupon.odo.proxylib.ServerRedirectService;
+import com.groupon.odo.proxylib.Utils;
+import com.groupon.odo.proxylib.models.Client;
+import com.groupon.odo.proxylib.models.EnabledEndpoint;
+import com.groupon.odo.proxylib.models.EndpointOverride;
+import com.groupon.odo.proxylib.models.History;
+import com.groupon.odo.proxylib.models.Profile;
+import com.groupon.odo.proxylib.models.ServerRedirect;
+
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
-import org.apache.commons.httpclient.*;
+import org.apache.commons.httpclient.Cookie;
+import org.apache.commons.httpclient.Header;
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.HttpMethod;
+import org.apache.commons.httpclient.HttpMethodRetryHandler;
+import org.apache.commons.httpclient.HttpState;
+import org.apache.commons.httpclient.URIException;
 import org.apache.commons.httpclient.methods.DeleteMethod;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.PutMethod;
 import org.apache.commons.httpclient.params.HttpMethodParams;
-import org.apache.http.client.CookieStore;
-import org.apache.http.client.protocol.ClientContext;
-import org.apache.http.impl.client.BasicCookieStore;
-import org.apache.http.protocol.BasicHttpContext;
-import org.apache.http.protocol.HttpContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.List;
+import java.util.SimpleTimeZone;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.*;
-import java.text.SimpleDateFormat;
-import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.zip.GZIPInputStream;
 
 /**
  * Servlet implementation class Proxy
@@ -511,7 +533,7 @@ public class Proxy extends HttpServlet {
         // if this can't be overridden we are going to finish the string and bail
         if (!requestInfo.handle) {
             stringProxyURL = stringProxyURL + hostName + ":" + port;
-            ;
+
 
             // Handle the path given to the servlet
             stringProxyURL += httpServletRequest.getPathInfo();
@@ -753,8 +775,7 @@ public class Proxy extends HttpServlet {
                 if (endpoint.getRepeatNumber() == 0)
                     continue;
 
-                if (endpoint.getOverrideId() == Constants.PLUGIN_RESPONSE_HEADER_OVERRIDE_REMOVE &&
-                        endpoint.getRepeatNumber() != 0) {
+                if (endpoint.getOverrideId() == Constants.PLUGIN_RESPONSE_HEADER_OVERRIDE_REMOVE) {
                     // add to remove headers array
                     headersToRemove.add(endpoint.getArguments()[0].toString());
                     endpoint.decrementRepeatNumber();

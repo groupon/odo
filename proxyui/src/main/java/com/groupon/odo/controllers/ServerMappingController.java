@@ -22,19 +22,30 @@ import com.groupon.odo.proxylib.Utils;
 import com.groupon.odo.proxylib.hostsedit.rmi.Client;
 import com.groupon.odo.proxylib.models.ServerGroup;
 import com.groupon.odo.proxylib.models.ServerRedirect;
+
 import net.lightbody.bmp.proxy.selenium.KeyStoreManager;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
-import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
+
+import javax.servlet.http.HttpServletResponse;
 
 
 @Controller
@@ -65,7 +76,7 @@ public class ServerMappingController {
         if (profileId == null && profileIdentifier == null) {
             throw new Exception("profileId required");
         }
-        if (profileId == null && profileIdentifier != null) {
+        if (profileId == null) {
             profileId = ProfileService.getInstance().getIdFromName(profileIdentifier);
         }
 
@@ -94,7 +105,7 @@ public class ServerMappingController {
         if (profileId == null && profileIdentifier == null) {
             throw new Exception("profileId required");
         }
-        if (profileId == null && profileIdentifier != null) {
+        if (profileId == null) {
             profileId = ProfileService.getInstance().getIdFromName(profileIdentifier);
         }
         int clientId = ClientService.getInstance().findClient(clientUUID, profileId).getId();
@@ -122,7 +133,7 @@ public class ServerMappingController {
         if (profileId == null && profileIdentifier == null) {
             throw new Exception("profileId required");
         }
-        if (profileId == null && profileIdentifier != null) {
+        if (profileId == null) {
             profileId = ProfileService.getInstance().getIdFromName(profileIdentifier);
         }
 
@@ -159,7 +170,7 @@ public class ServerMappingController {
         if (profileId == null && profileIdentifier == null) {
             throw new Exception("profileId required");
         }
-        if (profileId == null && profileIdentifier != null) {
+        if (profileId == null) {
             profileId = ProfileService.getInstance().getIdFromName(profileIdentifier);
         }
 
@@ -184,7 +195,7 @@ public class ServerMappingController {
         if (profileId == null && profileIdentifier == null) {
             throw new Exception("profileId required");
         }
-        if (profileId == null && profileIdentifier != null) {
+        if (profileId == null) {
             profileId = ProfileService.getInstance().getIdFromName(profileIdentifier);
         }
         int groupId = ServerRedirectService.getInstance().addServerGroup(name, profileId);
@@ -240,7 +251,7 @@ public class ServerMappingController {
         if (profileId == null && profileIdentifier == null) {
             throw new Exception("profileId required");
         }
-        if (profileId == null && profileIdentifier != null) {
+        if (profileId == null) {
             profileId = ProfileService.getInstance().getIdFromName(profileIdentifier);
         }
         if (name != null) {
@@ -254,7 +265,7 @@ public class ServerMappingController {
 
             int clientId = ClientService.getInstance().findClient(clientUUID, profileId).getId();
 
-            if (activate == true) {
+            if (activate) {
                 ServerRedirectService.getInstance().activateServerGroup(id, clientId);
             } else {
                 ServerRedirectService.getInstance().activateServerGroup(0, clientId);
@@ -355,7 +366,7 @@ public class ServerMappingController {
         if (profileId == null && profileIdentifier == null) {
             throw new Exception("profileId required");
         }
-        if (profileId == null && profileIdentifier != null) {
+        if (profileId == null) {
             profileId = ProfileService.getInstance().getIdFromName(profileIdentifier);
         }
 

@@ -319,7 +319,6 @@ public class PathOverrideService {
      * @return
      */
     public Integer addGroup(String nameOfGroup) {
-        PreparedStatement queryStatement = null;
         ResultSet results = null;
 
         try (Connection sqlConnection = sqlService.getConnection()) {
@@ -346,10 +345,6 @@ public class PathOverrideService {
         } finally {
             try {
                 if (results != null) results.close();
-            } catch (Exception e) {
-            }
-            try {
-                if (queryStatement != null) queryStatement.close();
             } catch (Exception e) {
             }
         }
@@ -790,7 +785,7 @@ public class PathOverrideService {
         // with all the groups in the profile
         for (int j = 0; j < allGroups.size(); j++) {
             for (int i = 0; i < groupIds.length; i++) {
-                if (((Integer) allGroups.get(j).getId() == groupIds[i]))
+                if (allGroups.get(j).getId() == groupIds[i])
                     groupsInProfile.add(allGroups.get(j));
             }
         }
@@ -816,7 +811,7 @@ public class PathOverrideService {
         for (int j = 0; j < allGroups.size(); j++) {
             boolean add = true;
             for (int i = 0; i < groupIds.length; i++) {
-                if (((Integer) allGroups.get(j).getId() == groupIds[i])) {
+                if (allGroups.get(j).getId() == groupIds[i]) {
                     add = false;
                 }
             }

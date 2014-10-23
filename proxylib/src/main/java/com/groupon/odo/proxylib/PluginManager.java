@@ -19,19 +19,28 @@ import com.groupon.odo.plugin.PluginArguments;
 import com.groupon.odo.plugin.ResponseOverride;
 import com.groupon.odo.proxylib.models.Configuration;
 import com.groupon.odo.proxylib.models.Plugin;
+
 import javassist.ClassPool;
-import javassist.CtClass;
-import javassist.CtMethod;
 import javassist.NotFoundException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
+import java.io.DataInputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 
@@ -291,7 +300,7 @@ public class PluginManager {
                 if (((String) type).endsWith("Integer")) {
                     newArgs.add(Integer.parseInt((String) args[x]));
                 } else if (((String) type).endsWith("String")) {
-                    newArgs.add((String) args[x]);
+                    newArgs.add(args[x]);
                 } else if (((String) type).endsWith("Boolean")) {
                     newArgs.add(Boolean.valueOf((String) args[x]));
                 }
@@ -345,7 +354,7 @@ public class PluginManager {
             // load method information
             Method[] methods = gottenClass.getDeclaredMethods();
             for (Method method : methods) {
-                if (method.getName().toString().compareTo(methodName) != 0)
+                if (method.getName().compareTo(methodName) != 0)
                     continue;
 
                 try {

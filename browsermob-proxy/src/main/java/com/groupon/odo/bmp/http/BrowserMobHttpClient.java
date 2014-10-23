@@ -238,6 +238,8 @@ import net.lightbody.bmp.proxy.util.*;
 import net.sf.uadetector.ReadableUserAgent;
 import net.sf.uadetector.UserAgentStringParser;
 import net.sf.uadetector.service.UADetectorServiceFactory;
+
+import org.apache.commons.lang.StringUtils;
 import org.apache.http.*;
 import org.apache.http.auth.*;
 import org.apache.http.client.CredentialsProvider;
@@ -748,7 +750,6 @@ public class BrowserMobHttpClient {
         if (verificationText != null) {
             contentMatched = false;
         }
-        Date start = new Date();
 
         // link the object up now, before we make the request, so that if we get cut off (ie: favicon.ico request and browser shuts down)
         // we still have the attempt associated, even if we never got a response
@@ -1099,14 +1100,18 @@ public class BrowserMobHttpClient {
         return new BrowserMobHttpResponse(entry, method, response, contentMatched, verificationText, errorMessage, responseBody, contentType, charSet);
     }
 
-	private boolean hasTextualContent(String contentType) {
-		return contentType != null && contentType.startsWith("text/") ||
-				contentType.startsWith("application/x-javascript") ||
-				contentType.startsWith("application/javascript")  ||
-				contentType.startsWith("application/json")  ||
-				contentType.startsWith("application/xml")  ||
-				contentType.startsWith("application/xhtml+xml");
-	}
+        private boolean hasTextualContent(String contentType) {
+                if (StringUtils.isNotBlank(contentType)) {
+                    return contentType.startsWith("text/") ||
+                           contentType.startsWith("application/x-javascript") ||
+                           contentType.startsWith("application/javascript") ||
+                           contentType.startsWith("application/json") ||
+                           contentType.startsWith("application/xml") ||
+                           contentType.startsWith("application/xhtml+xml");
+                }
+
+                return false;
+        }
 
 	private void setBinaryContentOfEntry(HarEntry entry,
 			ByteArrayOutputStream copy) {
