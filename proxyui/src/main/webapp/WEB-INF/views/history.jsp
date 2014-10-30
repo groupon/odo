@@ -98,6 +98,12 @@
                     <h3 style="display: inline;">
                         <span class="label label-info" id="responseDataDecodedLabel" style="background-color: #5b7fde"></span>
                     </h3>
+                    <h3 style="display: inline;">
+                        <div class="btn-group btn-group-sm">
+                            <button type="button" class="btn btn-default"
+                                id="downloadResponseDataButton" onClick="downloadResponseData()">Export Response</button>
+                        </div>
+                    </h3>
                     <textarea class="form-control" rows="20" style="width: 100%"
                         id="responseRaw"></textarea>
                     <textarea class="form-control" rows="20" style="width: 100%; display:none"
@@ -252,8 +258,11 @@
             }
             return cellvalue;
         }
-        
+
+        var originalResponseFlag = 0;
+
         function showOriginalResponse(){
+            originalResponseFlag = 1;
             $("#originalResponseHeaders").val(historyData.history.originalResponseHeaders);
             if(historyData.history.responseContentType == null ||
                 historyData.history.responseContentType.toLowerCase().indexOf("application/json") == -1 ||
@@ -301,6 +310,7 @@
         }
         
         function showModifiedResponse(){
+            originalResponseFlag = 0;
             $("#responseHeaders").val(historyData.history.responseHeaders);
             if(historyData.history.responseContentType == null ||
                 historyData.history.responseContentType.toLowerCase().indexOf("application/json") == -1 ||
@@ -431,6 +441,19 @@
             $("#curlCommand").val(commandLine);
         }
 
+        //http://stackoverflow.com/questions/17564103/using-javascript-to-download-file-as-a-csv-file
+        function downloadResponseData() {
+            responseDownload=document.createElement('a');
+            responseDownload.download="response";
+            if (originalResponseFlag == 1) {
+                responseDownload.href='data:text/json;charset=utf-8,' + historyData.history.originalResponseData;
+            } else {
+                responseDownload.href='data:text/json;charset=utf-8,' + historyData.history.responseData;
+            }
+            document.body.appendChild(responseDownload);
+            responseDownload.click();
+        }
+
         var historyData;
         function loadData(historyId) {
             $.ajax({
@@ -458,6 +481,13 @@
                         }
                         $("#showRawFormattedDataButton").removeAttr("disabled");
                     }
+
+                    if (data.history.responseData == "") {
+                        $("#downloadResponseDataButton").hide();
+                    } else {
+                        $("#downloadResponseDataButton").show();
+                    }
+
 
                     showModifiedRequestData();
                     $("#responseHeaders").val(data.history.responseHeaders);
