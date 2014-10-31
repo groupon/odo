@@ -20,10 +20,23 @@
     
     .has-switch {height: 30px}
 
+    .altRowClass { background: #EEEEEE; }
+
      </style>
 </head>
 <body>
 <%@ include file="pathtester_part.jsp" %>
+
+<!-- Hidden div for grid options -->
+<div id="gridOptionsDialog" style="display:none;">
+    <table>
+    <tr><td>
+        Number of Rows:
+    </td><td>
+        <input id="numberOfRows" size=5/>
+    </td></tr>
+    </table>
+</div>
 
 <nav class="navbar navbar-default" role="navigation">
     <div class="container-fluid">
@@ -40,6 +53,7 @@
               <ul class="dropdown-menu">
                 <li><a href="#" onclick='clearHistory()'>Clear History</a></li>
                 <li ><a href="#" onclick='navigateScripts()'>Edit Scripts</a></li>
+                <li ><a href="#" onclick='openGridOptions()'>Grid Options</a></li>
               </ul>
             </li>
           </ul>
@@ -186,6 +200,39 @@
     </div>
     <script>
         var clientUUID = '${clientUUID}';
+
+        function openGridOptions() {
+            $("#gridOptionsDialog").dialog({
+                title: "Grid Options",
+                width: 750,
+                modal: true,
+                position:['top',20],
+                buttons: {
+                  "Save": function() {
+                      if (! isNaN($("#numberOfRows").val())) {
+                          $.cookie("historyGridRows", $("#numberOfRows").val(), { expires: 10000, path: '/testproxy/history' });
+                      }
+                      $("#gridOptionsDialog").dialog("close");
+                      location.reload();
+                  },
+                  "Close": function() {
+                      $("#gridOptionsDialog").dialog("close");
+                  }
+                },
+                open: function( event, ui ) {
+                    $("#numberOfRows").val(getNumberOfRows());
+                }
+            });
+        }
+
+        function getNumberOfRows() {
+            var numRows = 10;
+            if ($.cookie("historyGridRows") != null) {
+                numRows = $.cookie("historyGridRows");
+            }
+
+            return numRows;
+        }
 
         function navigateScripts() {
             window.open('<c:url value = '/scripts' />');
@@ -568,17 +615,20 @@
 
         var selectRowUsed = false;
         var historyList = jQuery("#historylist");
+
         historyList
                 .jqGrid({
                     url : '<c:url value="/api/history/${profile_id}"/>?clientUUID=${clientUUID}',
-                    height : 300,
                     autowidth : true,
                     pgbuttons : true, // disable page control like next, back button
                     pgtext : null,
                     datatype : "json",
                     page : "${page}",
+                    rowNum: getNumberOfRows(),
+                    altRows: true,
+                    altclass: 'altRowClass',
                     colNames : [ 'ID', 'Created At', 'Method', 'Query',
-                            'Query Params', 'Response Code', 'Valid', 'Message', 'Modified' ],
+                            'Query Params', 'Code', 'Valid', 'Message', 'Modified' ],
                     colModel : [{
                         name : 'id',
                         index : 'id',
@@ -588,31 +638,37 @@
                     }, {
                         name : 'createdAt',
                         index : 'createdAt',
-                        width : 250,
+                        width : 150,
                         editable : false,
                         align : 'center'
                     }, {
                         name : 'requestType',
                         index : 'requestType',
-                        width : 90,
+                        width : 50,
                         editable : false,
                         align : 'center'
                     }, {
                         name : 'originalRequestURL',
                         index : 'originalRequestURL',
-                        width : 300,
+                        width : 375,
                         editable : false,
-                        formatter : scrollableFormatter
+                        formatter : scrollableFormatter,
+                        cellattr: function (rowId, tv, rawObject, cm, rdata) {
+                            return 'style="white-space: normal;'
+                        }
                     }, {
                         name : 'requestParams',
                         index : 'requestParams',
                         width : 300,
                         editable : false,
-                        formatter : scrollableFormatter
+                        formatter : scrollableFormatter,
+                        cellattr: function (rowId, tv, rawObject, cm, rdata) {
+                            return 'style="white-space: normal;'
+                        }
                     }, {
                         name : 'responseCode',
                         index : 'responseCode',
-                        width : 140,
+                        width : 50,
                         editable : false,
                         align : 'center'
                     }, {
@@ -624,12 +680,15 @@
                     }, {
                         name : 'validationMessage',
                         index : 'validationMessage',
-                        width : 300,
-                        hidden : false
+                        width : 200,
+                        hidden : false,
+                        cellattr: function (rowId, tv, rawObject, cm, rdata) {
+                            return 'style="white-space: normal;'
+                        }
                     }, {
                         name : 'modified',
                         index : 'modified',
-                        width : 80,
+                        width : 50,
                         editable: false,
                         edittype: 'checkbox',
                         align: 'center',
@@ -656,6 +715,33 @@
                         } else {
                             jQuery("#historylist").setSelection(
                             $("#historylist").getDataIDs()[0], true);
+                        }
+                    },
+                    loadComplete : function() {
+                        // this gets/sets a cookie for grid height and makes the grid resizable
+                        var initialGridSize = 300;
+                        if($.cookie("historyGridHeight") != null) {
+                            initialGridSize = $.cookie("historyGridHeight");
+                        }
+
+                        jQuery("#historylist").jqGrid('setGridHeight', initialGridSize);
+
+                        // allow grid resize
+                        jQuery("#historylist").jqGrid('gridResize',
+                        {
+                            minHeight:300,
+                            maxHeight:1000,
+                            stop: function( event, ui ) {
+                                console.log(ui.size.height);
+                                $.cookie("historyGridHeight", ui.size.height, { expires: 10000, path: '/testproxy/history' });
+                            }
+                        });
+
+                        // set row height to be a little larger
+                        var grid = $("#historylist");
+                        var ids = grid.getDataIDs();
+                        for (var i = 0; i < ids.length; i++) {
+                            grid.setRowData ( ids[i], false, {height: 20+i*2} );
                         }
                     },
                     onSelectRow : function(id) {
