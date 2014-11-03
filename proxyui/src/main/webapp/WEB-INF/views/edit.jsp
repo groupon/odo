@@ -58,6 +58,25 @@
                 width: 60%;
                 display:none;
             }
+
+            /* This changes the color of the active pill */
+            .nav-pills>li.active>a, .nav-pills>li.active>a:hover, .nav-pills>li.active>a:focus {
+                background-color:#e9e9e9 !important;
+                color: black !important;
+            }
+
+            /* This changes the color of the inactive pills */
+            .nav-pills>li>a {
+                background-color:#767676 !important;
+                color: black !important;
+            }
+
+            /* This changes the color of the inactive pills */
+            .nav-pills>li>a:hover, .nav-pills>li>a:focus {
+                background-color:#696969 !important;
+                color: black !important;
+            }
+
         </style>
 
         <script type="text/javascript">
@@ -262,6 +281,74 @@
                 }
             }
 
+            // Keeps the list of pills updated
+            function updateDetailPills() {
+                var pathToLoad = currentPathId;
+
+                // first get the data of all of the existing pills
+                // this will be used to mark which pills are kept/deleted
+                var existingPills = [];
+                $(".nav-pills>li").each( function( index, element ) {
+                    // use $(this)
+                    var id = $(this).attr("id");
+                    existingPills[existingPills.length] = id;
+                });
+
+                // look through the overrides list to see which are enabled/active
+                var ids = jQuery("#packages").jqGrid('getDataIDs');
+                for (var i = 0; i < ids.length; i++) {
+                    var rowdata = $("#packages").getRowData(ids[i]);
+
+                    // check to see if response or request is enabled
+                    // or if this is the currently selected row
+                    if ($("#request_enabled_" + rowdata.pathId).prop("checked") === true ||
+                        $("#response_enabled_" + rowdata.pathId).prop("checked") === true ||
+                        rowdata.pathId === currentPathId) {
+
+                        if (pathToLoad === -1) {
+                            pathToLoad = rowdata.pathId;
+                        }
+
+                        if ($.inArray(rowdata.pathId, existingPills) !== -1) {
+                            // mark as seen in the existingpills array
+                            // since it exists we don't need to add it
+                            existingPills[$.inArray(rowdata.pathId, existingPills)] = -1;
+                        } else {
+                            // add it to the <ul> pill nav
+                            $('<li id="' + rowdata.pathId + '"><a href="#tab'+rowdata.pathId+'" data-toggle="tab">' + rowdata.pathName + '</a></li>').appendTo('#nav');
+                        }
+                    }
+                }
+
+                // remove tabs that should no longer exist
+                // at this poing the existingPills list is just the pills that need to be removed
+                for (var x = 0; x < existingPills.length; x++) {
+                    if (existingPills[x] !== -1) {
+                        //console.log(existingPills[x]);
+                        $("#nav").find("#" + existingPills[x]).remove();
+
+                        // reset pathToLoad if it is equal to the removed path
+                        if (pathToLoad === existingPills[x]) {
+                            pathToLoad = -1;
+                        }
+                    }
+                }
+
+                // make all pills non-active
+                $(".nav-pills>li").removeClass("active")
+
+                // make the currently selected pill active
+                $("#nav").find("#" + pathToLoad).addClass("active");
+
+                // register click events on all of the nav pills to load the appropriate detail data
+                $('.nav-pills > li > a').click( function() {
+                    loadPath($(this).parent().attr("id"));
+                });
+
+                // load the currently selected path data
+                loadPath(pathToLoad);
+            }
+
             // common function for grid reload
             function reloadGrid(gridId) {
                 jQuery(gridId).setGridParam({datatype:'json', page:1}).trigger("reloadGrid");
@@ -298,6 +385,9 @@
                     data: 'responseEnabled=' + enabled + '&clientUUID=' + clientUUID,
                     error: function() {
                         alert("Could not properly set value");
+                    },
+                    success: function() {
+                        updateDetailPills();
                     }
                 });
             }
@@ -333,6 +423,9 @@
                     data: 'requestEnabled=' + enabled + '&clientUUID=' + clientUUID,
                     error: function() {
                         alert("Could not properly set value");
+                    },
+                    success: function() {
+                        updateDetailPills();
                     }
                 });
             }
@@ -708,7 +801,11 @@
                     onSelectRow: function (id) {
                         var data = jQuery("#packages").jqGrid('getRowData',id);
                         currentPathId = data.pathId;
-                        loadPath(data.pathId);
+
+                        updateDetailPills();
+                    },
+                    loadComplete: function() {
+                        updateDetailPills();
                     },
                     pager: '#packagePager',
                     pgbuttons: false,
@@ -1541,7 +1638,8 @@
 
             <div class="detailsView" id="editDiv">
                 <div>
-                    <h2><span id="title" class="label label-default" /></h2>
+                    <ul class="nav nav-pills" id="nav">
+                    </ul>
                 </div>
                 <div id="tabs">
                     <ul>
