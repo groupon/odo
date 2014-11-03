@@ -1639,7 +1639,7 @@
             <div class="detailsView" id="editDiv">
                 <div>
                     <ul class="nav nav-pills" id="nav">
-                	</ul>
+                    </ul>
                 </div>
                 <div id="tabs">
                     <ul>
