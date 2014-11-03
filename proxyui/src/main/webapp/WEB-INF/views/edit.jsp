@@ -325,7 +325,7 @@
                 for (var x = 0; x < existingPills.length; x++) {
                     if (existingPills[x] !== -1) {
                         //console.log(existingPills[x]);
-                        $("#" + existingPills[x]).remove();
+                        $("#nav").find("#" + existingPills[x]).remove();
 
                         // reset pathToLoad if it is equal to the removed path
                         if (pathToLoad === existingPills[x]) {
@@ -338,7 +338,7 @@
                 $(".nav-pills>li").removeClass("active")
 
                 // make the currently selected pill active
-                $("#" + pathToLoad).addClass("active");
+                $("#nav").find("#" + pathToLoad).addClass("active");
 
                 // register click events on all of the nav pills to load the appropriate detail data
                 $('.nav-pills > li > a').click( function() {
