@@ -27,6 +27,7 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.protocol.HTTP;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -60,7 +61,7 @@ public class Client {
     protected String _profileName = null;
     protected int _profileId;
     protected String _clientId = null;
-
+    protected int _timeout = 60000;
 
     protected static int REQUEST_TYPE_ALL = 0;
     protected static int REQUEST_TYPE_GET = 1;
@@ -101,6 +102,22 @@ public class Client {
             // some sort of error
             throw new Exception("Could not delete a proxy client");
         }
+    }
+
+    /**
+     * Get the connection timeout value in ms
+     * @return
+     */
+    public int getTimeout() {
+        return _timeout;
+    }
+
+    /**
+     * Set the connection timeout value in ms
+     * @param timeout
+     */
+    public void setTimeout(int timeout) {
+        _timeout = timeout;
     }
 
     protected void createNewClientId() throws Exception {
@@ -772,7 +789,7 @@ public class Client {
     protected static JSONObject getDefaultProfile() throws Exception {
         String uri = DEFAULT_BASE_URL + BASE_PROFILE;
         try {
-            JSONObject response = new JSONObject(doGet(uri));
+            JSONObject response = new JSONObject(doGet(uri, 60000));
             JSONArray profiles = response.getJSONArray("profiles");
 
             if (profiles.length() > 0) {
@@ -1212,10 +1229,12 @@ public class Client {
         return -1;
     }
 
-    protected static String doGet(String fullUrl) throws Exception {
+    protected static String doGet(String fullUrl, int timeout) throws Exception {
         HttpGet get = new HttpGet(fullUrl);
 
         HttpClient client = new DefaultHttpClient();
+        HttpConnectionParams.setConnectionTimeout(client.getParams(), timeout);
+        HttpConnectionParams.setSoTimeout(client.getParams(), timeout);
 
         HttpResponse response = client.execute(get);
 
@@ -1254,6 +1273,8 @@ public class Client {
         HttpGet get = new HttpGet(fullUrl);
 
         HttpClient client = new DefaultHttpClient();
+        HttpConnectionParams.setConnectionTimeout(client.getParams(), _timeout);
+        HttpConnectionParams.setSoTimeout(client.getParams(), _timeout);
 
         HttpResponse response = client.execute(get);
 
@@ -1292,6 +1313,8 @@ public class Client {
         HttpDelete get = new HttpDelete(fullUrl);
 
         HttpClient client = new DefaultHttpClient();
+        HttpConnectionParams.setConnectionTimeout(client.getParams(), _timeout);
+        HttpConnectionParams.setSoTimeout(client.getParams(), _timeout);
 
         HttpResponse response = client.execute(get);
 
@@ -1328,6 +1351,8 @@ public class Client {
         }
 
         HttpClient client = new DefaultHttpClient();
+        HttpConnectionParams.setConnectionTimeout(client.getParams(), _timeout);
+        HttpConnectionParams.setSoTimeout(client.getParams(), _timeout);
 
         HttpResponse response = client.execute(post);
         BufferedReader rd = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
