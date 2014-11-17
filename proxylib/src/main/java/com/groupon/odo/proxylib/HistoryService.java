@@ -35,9 +35,10 @@ public class HistoryService {
 
     private static HistoryService _instance = null;
     private SQLService sqlService = null;
+    private int maxHistorySize = 30000;
 
     public HistoryService() {
-
+        maxHistorySize = Integer.parseInt(System.getProperty("historySize", "30000"));
     }
 
     public static HistoryService getInstance() {
@@ -138,7 +139,13 @@ public class HistoryService {
             statement.executeUpdate();
 
             // cull history
-            cullHistory(history.getProfileId(), history.getClientUUID(), 1000);
+            PreparedStatement countStatement = sqlConnection.prepareStatement("SELECT COUNT(" + Constants.GENERIC_CLIENT_UUID + ") FROM " + Constants.DB_TABLE_HISTORY);
+            ResultSet resultSet = countStatement.executeQuery();
+            if (resultSet.next()) {
+                if (resultSet.getInt("COUNT(CLIENT_UUID)") > (maxHistorySize + 10000)) {
+                    cullHistory(history.getProfileId(), history.getClientUUID(), maxHistorySize);
+                }
+            }
         } catch (Exception e) {
             logger.info(e.getMessage());
         } finally {
