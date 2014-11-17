@@ -66,7 +66,7 @@ public class HistoryService {
         PreparedStatement statement = null;
 
         try (Connection sqlConnection = sqlService.getConnection()) {
-            statement = sqlConnection.prepareStatement("DELETE FROM " + Constants.DB_TABLE_HISTORY +
+            /*statement = sqlConnection.prepareStatement("DELETE FROM " + Constants.DB_TABLE_HISTORY +
                     " WHERE " + Constants.GENERIC_ID + " NOT IN (SELECT TOP " + limit + " " + Constants.GENERIC_ID +
                     " FROM " + Constants.DB_TABLE_HISTORY +
                     " WHERE " + Constants.CLIENT_CLIENT_UUID + " = ? " +
@@ -77,8 +77,24 @@ public class HistoryService {
             statement.setString(1, clientUUID);
             statement.setInt(2, profileId);
             statement.setString(3, clientUUID);
-            statement.setInt(4, profileId);
-            statement.executeUpdate();
+            statement.setInt(4, profileId);*/
+
+            statement = sqlConnection.prepareStatement("SELECT " + Constants.GENERIC_ID + " FROM " + Constants.DB_TABLE_HISTORY +
+                    " WHERE " + Constants.CLIENT_CLIENT_UUID + " = \'" + clientUUID + "\'" +
+                    " AND " + Constants.CLIENT_PROFILE_ID + " = " + profileId  +
+                    " LIMIT 1 OFFSET 10000");
+
+            //statement.executeUpdate();
+            ResultSet resultSet = statement.executeQuery();
+            if (resultSet.next()) {
+                int id = resultSet.getInt(Constants.GENERIC_ID);
+                PreparedStatement deleteStatement = sqlConnection.prepareStatement("DELETE FROM " + Constants.DB_TABLE_HISTORY +
+                        " WHERE " + Constants.CLIENT_CLIENT_UUID + " = \'" + clientUUID + "\'" +
+                        " AND " + Constants.CLIENT_PROFILE_ID + " = " + profileId  +
+                        " AND " + Constants.GENERIC_ID + " < " + id);
+                deleteStatement.executeUpdate();
+            }
+
         } catch (Exception e) {
             throw e;
         } finally {
@@ -139,10 +155,22 @@ public class HistoryService {
             statement.executeUpdate();
 
             // cull history
-            PreparedStatement countStatement = sqlConnection.prepareStatement("SELECT COUNT(" + Constants.GENERIC_CLIENT_UUID + ") FROM " + Constants.DB_TABLE_HISTORY);
-            ResultSet resultSet = countStatement.executeQuery();
+            String sqlQuery = "SELECT COUNT(" + Constants.GENERIC_ID + ") FROM " + Constants.DB_TABLE_HISTORY + " ";
+
+            // see if profileId is set or not (-1)
+            if (history.getProfileId() != -1) {
+                sqlQuery += "WHERE " + Constants.GENERIC_PROFILE_ID + "=" + history.getProfileId() + " ";
+            }
+
+            if (history.getClientUUID() != null && history.getClientUUID().compareTo("") != 0) {
+                sqlQuery += "AND " + Constants.GENERIC_CLIENT_UUID + "='" + history.getClientUUID() + "' ";
+            }
+            sqlQuery += ";";
+
+            Statement query = sqlConnection.createStatement();
+            ResultSet resultSet = query.executeQuery(sqlQuery);
             if (resultSet.next()) {
-                if (resultSet.getInt("COUNT(CLIENT_UUID)") > (maxHistorySize + 10000)) {
+                if (resultSet.getInt("COUNT(" + Constants.GENERIC_ID + ")") > (maxHistorySize + 10000)) {
                     cullHistory(history.getProfileId(), history.getClientUUID(), maxHistorySize);
                 }
             }
