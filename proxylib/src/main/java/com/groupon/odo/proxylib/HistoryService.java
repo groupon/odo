@@ -81,7 +81,7 @@ public class HistoryService {
             Statement query = sqlConnection.createStatement();
             ResultSet results = query.executeQuery(sqlQuery);
             if (results.next()) {
-                if (results.getInt("COUNT(" + Constants.GENERIC_ID + ")") < (maxHistorySize + 10000)) {
+                if (results.getInt("COUNT(" + Constants.GENERIC_ID + ")") < (limit + 10000)) {
                     return;
                 }
             }
