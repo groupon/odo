@@ -467,6 +467,9 @@
 
             var commandLine = "curl --insecure -X " + requestType;
             for ( var x in headers) {
+                if(headers[x].lastIndexOf("Content-Length",0) === 0) {
+                    continue;
+                }
                 commandLine += " -H '" + headers[x].replace("'", "\\u0027") + "'";
             }
 
