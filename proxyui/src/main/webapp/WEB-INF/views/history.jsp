@@ -465,25 +465,25 @@
             var headers = historyData.history.requestHeaders.split('\n');
             var requestType = historyData.history.requestType;
 
-            var commandLine = "curl --insecure --proxy " + window.location.hostname + ":9090 -X " + requestType;
+            var commandLine = "curl --insecure -X " + requestType;
             for ( var x in headers) {
-                commandLine += " --header \"" + headers[x] + "\"";
+                commandLine += " -H '" + headers[x].replace("'", "\\u0027") + "'";
             }
 
             if (historyData.history.requestPostData != null
                     && historyData.history.requestPostData !== "") {
-                commandLine += " -d \"" + historyData.history.requestPostData
-                        + "\"";
+                commandLine += " -d '" + historyData.history.requestPostData.replace("'", "\\u0027")
+                        + "'";
             }
 
-            commandLine += " \"" + historyData.history.originalRequestURL;
+            commandLine += " '" + historyData.history.originalRequestURL;
 
             if (historyData.history.originalRequestParams != null
                     && historyData.history.originalRequestParams !== "") {
                 commandLine += "?" + historyData.history.originalRequestParams;
             }
 
-            commandLine += "\"";
+            commandLine += "'";
 
             $("#curlCommand").val(commandLine);
         }
