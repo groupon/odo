@@ -58,7 +58,7 @@ public class HistoryTests extends TestBase {
 
     @Test
     public void getHistory() throws Exception {
-        History[] histories = HistoryService.getInstance().getHistory(newProfile.getId(), "-1", 0, 100, true, null);
+        History[] histories = HistoryService.getInstance().getHistory(newProfile.getId(), "-1", 0, 100, true, null, false);
         History latest = histories[histories.length - 1];
         assertTrue(latest.getOriginalRequestHeaders().equals("originalRequestHeaders"));
         assertTrue(latest.getOriginalRequestParams().equals("originalRequestParams"));
