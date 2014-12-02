@@ -88,7 +88,7 @@ public class Client {
     public String getlastAccessedFormatted() throws Exception {
         if (this.lastAccessedFormatted == null) {
             History[] history;
-            history = HistoryService.getInstance().getHistory(this.profile.getId(), this.uuid, 0, 1, false, null);
+            history = HistoryService.getInstance().getHistory(this.profile.getId(), this.uuid, 0, 1, false, null, false);
 
             if (history.length != 0)
                 this.lastAccessedFormatted = history[0].getCreatedAt();

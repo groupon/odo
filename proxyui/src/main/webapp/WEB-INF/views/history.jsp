@@ -45,6 +45,7 @@
              <input type="text" class="form-control" placeholder="Search" id="searchFilter">
              <button class="btn btn-default" onclick='uriFilter()'>Apply Filter</button>
              <button class="btn btn-default" onclick='clearFilter()'>Clear Filters</button>
+             <button class="btn btn-default" onclick='showWarnings()'>Show Invalid Entries</button>
            </div>
           
           <ul class="nav navbar-nav navbar-right">
@@ -270,6 +271,16 @@
                                 page : 1
                             }).trigger("reloadGrid");
             $("#searchFilter").val("");
+        }
+
+        function showWarnings() {
+            jQuery("#historylist")
+                .jqGrid(
+                    'setGridParam',
+                    {
+                        url : '<c:url value="/api/history/${profile_id}"/>?clientUUID=${clientUUID}&onlyInvalid=true',
+                        page : 1
+                    }).trigger("reloadGrid");
         }
 
         function clearFilter() {
