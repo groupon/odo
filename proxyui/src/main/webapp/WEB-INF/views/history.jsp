@@ -46,6 +46,15 @@
              <button class="btn btn-default" onclick='uriFilter()'>Apply Filter</button>
              <button class="btn btn-default" onclick='clearFilter()'>Clear Filters</button>
            </div>
+
+           <ul class="nav navbar-nav">
+             <li class="dropdown">
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown">Filter By <b class="caret"></b></a>
+                <ul class="dropdown-menu">
+                    <li><a href="#" onclick='showItemsWithMessages()'>Items With Messages</a></li>
+                </ul>
+             </li>
+           </ul>
           
           <ul class="nav navbar-nav navbar-right">
             <li class="dropdown">
@@ -270,6 +279,16 @@
                                 page : 1
                             }).trigger("reloadGrid");
             $("#searchFilter").val("");
+        }
+
+        function showItemsWithMessages() {
+            jQuery("#historylist")
+                .jqGrid(
+                    'setGridParam',
+                    {
+                        url : '<c:url value="/api/history/${profile_id}"/>?clientUUID=${clientUUID}&hasMessage=true',
+                        page : 1
+                    }).trigger("reloadGrid");
         }
 
         function clearFilter() {

@@ -35,7 +35,8 @@ public class HistoryController {
     public String list(Model model, @PathVariable String profileIdentifier, @RequestParam(value = "offset", defaultValue = "0") Integer offset,
                        @RequestParam(value = "limit", defaultValue = "-1") Integer limit,
                        @RequestParam(value = "clientUUID", defaultValue = Constants.PROFILE_CLIENT_DEFAULT_ID) String clientUUID,
-                       @RequestParam(value = "historyID", defaultValue = "-1") Integer historyID) throws Exception {
+                       @RequestParam(value = "historyID", defaultValue = "-1") Integer historyID,
+                       @RequestParam(value = "hasMessage", defaultValue = "false") boolean hasMessage) throws Exception {
         Integer profileId = ControllerUtils.convertProfileIdentifier(profileIdentifier);
 
         model.addAttribute("profile_id", profileId);
@@ -47,7 +48,7 @@ public class HistoryController {
         Integer page = 1;
         if (historyID != -1) {
             HashMap<String, String[]> filters = new HashMap<String, String[]>();
-            History[] histories = HistoryService.getInstance().getHistory(profileId, clientUUID, offset, limit, false, filters);
+            History[] histories = HistoryService.getInstance().getHistory(profileId, clientUUID, offset, limit, false, filters, hasMessage);
             Integer lastID = histories[0].getId();
             page = 1 + (lastID - historyID) / 20;
         }
@@ -79,7 +80,8 @@ public class HistoryController {
                                        @RequestParam(value = "limit", defaultValue = "-1") int limit,
                                        @RequestParam(value = "source_uri[]", required = false) String[] sourceURIFilters,
                                        @RequestParam(value = "page", defaultValue = "1") int page,
-                                       @RequestParam(value = "rows", defaultValue = "-1") int rows) throws Exception {
+                                       @RequestParam(value = "rows", defaultValue = "-1") int rows,
+                                       @RequestParam(value = "hasMessage", defaultValue = "false") boolean hasMessage) throws Exception {
         Integer profileId = ControllerUtils.convertProfileIdentifier(profileIdentifier);
         HashMap<String, String[]> filters = new HashMap<String, String[]>();
         if (sourceURIFilters != null) {
@@ -95,7 +97,7 @@ public class HistoryController {
         // offset id # of page(-1) * rows
         offset = (page - 1) * rows;
 
-        History[] histories = HistoryService.getInstance().getHistory(profileId, clientUUID, offset, limit, false, filters);
+        History[] histories = HistoryService.getInstance().getHistory(profileId, clientUUID, offset, limit, false, filters, hasMessage);
         int totalRows = HistoryService.getInstance().getHistoryCount(profileId, clientUUID, filters);
         HashMap<String, Object> returnJSON = Utils.getJQGridJSON(histories, "history", offset, totalRows, limit);
 

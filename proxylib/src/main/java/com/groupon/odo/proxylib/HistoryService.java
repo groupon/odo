@@ -283,7 +283,7 @@ public class HistoryService {
      * @param searchFilter     - HashMap of search filters.  This is a string(search type)/strings(regex) pair to search based on.  Search types are defined in Constants
      * @return
      */
-    public History[] getHistory(int profileId, String clientUUID, int offset, int limit, boolean withResponseData, HashMap<String, String[]> searchFilter) throws Exception {
+    public History[] getHistory(int profileId, String clientUUID, int offset, int limit, boolean withResponseData, HashMap<String, String[]> searchFilter, boolean hasMessage) throws Exception {
         ArrayList<History> returnData = new ArrayList<History>();
         Statement query = null;
         ResultSet results = null;
@@ -317,6 +317,8 @@ public class HistoryService {
             query = sqlConnection.createStatement();
             results = query.executeQuery(sqlQuery);
             while (results.next()) {
+                if (hasMessage && historyFromSQLResult(results, withResponseData, scripts).getValid())
+                    continue;
                 if (searchFilter != null) {
                     // iterate over searchFilter and try to match the source URI
                     if (searchFilter.containsKey(Constants.HISTORY_FILTER_SOURCE_URI)) {
