@@ -36,6 +36,7 @@ public class HistoryService {
     private static HistoryService _instance = null;
     private SQLService sqlService = null;
     private int maxHistorySize = 30000;
+    private boolean threadActive = false;
 
     public HistoryService() {
         maxHistorySize = Integer.parseInt(System.getProperty("historySize", "30000"));
@@ -62,52 +63,67 @@ public class HistoryService {
      * @param clientUUID
      * @param limit
      */
-    public void cullHistory(int profileId, String clientUUID, int limit) throws Exception {
-        PreparedStatement statement = null;
+    public void cullHistory(final int profileId, final String clientUUID, final int limit) throws Exception {
+//        while (threadActive) {
+//            Thread.sleep(1000);
+//        }
 
-        try (Connection sqlConnection = sqlService.getConnection()) {
-            String sqlQuery = "SELECT COUNT(" + Constants.GENERIC_ID + ") FROM " + Constants.DB_TABLE_HISTORY + " ";
+        threadActive = true;
+        Thread t1 = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                PreparedStatement statement = null;
 
-            // see if profileId is set or not (-1)
-            if (profileId != -1) {
-                sqlQuery += "WHERE " + Constants.GENERIC_PROFILE_ID + "=" + profileId + " ";
-            }
+                try (Connection sqlConnection = sqlService.getConnection()) {
+                    String sqlQuery = "SELECT COUNT(" + Constants.GENERIC_ID + ") FROM " + Constants.DB_TABLE_HISTORY + " ";
 
-            if (clientUUID != null && clientUUID.compareTo("") != 0) {
-                sqlQuery += "AND " + Constants.GENERIC_CLIENT_UUID + "='" + clientUUID + "' ";
-            }
-            sqlQuery += ";";
+                    // see if profileId is set or not (-1)
+                    if (profileId != -1) {
+                        sqlQuery += "WHERE " + Constants.GENERIC_PROFILE_ID + "=" + profileId + " ";
+                    }
 
-            Statement query = sqlConnection.createStatement();
-            ResultSet results = query.executeQuery(sqlQuery);
-            if (results.next()) {
-                if (results.getInt("COUNT(" + Constants.GENERIC_ID + ")") < (limit + 10000)) {
-                    return;
+                    if (clientUUID != null && clientUUID.compareTo("") != 0) {
+                        sqlQuery += "AND " + Constants.GENERIC_CLIENT_UUID + "='" + clientUUID + "' ";
+                    }
+                    sqlQuery += ";";
+
+                    Statement query = sqlConnection.createStatement();
+                    ResultSet results = query.executeQuery(sqlQuery);
+                    if (results.next()) {
+                        if (results.getInt("COUNT(" + Constants.GENERIC_ID + ")") < (limit + 10000)) {
+                            return;
+                        }
+                    }
+                    statement = sqlConnection.prepareStatement("SELECT " + Constants.GENERIC_ID + " FROM " + Constants.DB_TABLE_HISTORY +
+                            " WHERE " + Constants.CLIENT_CLIENT_UUID + " = \'" + clientUUID + "\'" +
+                            " AND " + Constants.CLIENT_PROFILE_ID + " = " + profileId  +
+                            " LIMIT 1 OFFSET 10000");
+
+                    ResultSet resultSet = statement.executeQuery();
+                    if (resultSet.next()) {
+                        int id = resultSet.getInt(Constants.GENERIC_ID);
+                        PreparedStatement deleteStatement = sqlConnection.prepareStatement("DELETE FROM " + Constants.DB_TABLE_HISTORY +
+                                " WHERE " + Constants.CLIENT_CLIENT_UUID + " = \'" + clientUUID + "\'" +
+                                " AND " + Constants.CLIENT_PROFILE_ID + " = " + profileId  +
+                                " AND " + Constants.GENERIC_ID + " < " + id);
+                        deleteStatement.executeUpdate();
+                    }
+
+                    threadActive = false;
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                } finally {
+                    try {
+                        if (statement != null) statement.close();
+                    } catch (Exception e) {
+                    }
                 }
             }
-            statement = sqlConnection.prepareStatement("SELECT " + Constants.GENERIC_ID + " FROM " + Constants.DB_TABLE_HISTORY +
-                    " WHERE " + Constants.CLIENT_CLIENT_UUID + " = \'" + clientUUID + "\'" +
-                    " AND " + Constants.CLIENT_PROFILE_ID + " = " + profileId  +
-                    " LIMIT 1 OFFSET 10000");
+        });
 
-            ResultSet resultSet = statement.executeQuery();
-            if (resultSet.next()) {
-                int id = resultSet.getInt(Constants.GENERIC_ID);
-                PreparedStatement deleteStatement = sqlConnection.prepareStatement("DELETE FROM " + Constants.DB_TABLE_HISTORY +
-                        " WHERE " + Constants.CLIENT_CLIENT_UUID + " = \'" + clientUUID + "\'" +
-                        " AND " + Constants.CLIENT_PROFILE_ID + " = " + profileId  +
-                        " AND " + Constants.GENERIC_ID + " < " + id);
-                deleteStatement.executeUpdate();
-            }
+        t1.start();
 
-        } catch (Exception e) {
-            throw e;
-        } finally {
-            try {
-                if (statement != null) statement.close();
-            } catch (Exception e) {
-            }
-        }
     }
 
     /**
