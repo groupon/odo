@@ -45,8 +45,16 @@
              <input type="text" class="form-control" placeholder="Search" id="searchFilter">
              <button class="btn btn-default" onclick='uriFilter()'>Apply Filter</button>
              <button class="btn btn-default" onclick='clearFilter()'>Clear Filters</button>
-             <button class="btn btn-default" onclick='showWarnings()'>Show Invalid Entries</button>
            </div>
+
+           <ul class="nav navbar-nav">
+             <li class="dropdown">
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown">Filter By <b class="caret"></b></a>
+                <ul class="dropdown-menu">
+                    <li><a href="#" onclick='showItemsWithMessages()'>Items With Messages</a></li>
+                </ul>
+             </li>
+           </ul>
           
           <ul class="nav navbar-nav navbar-right">
             <li class="dropdown">
@@ -273,12 +281,12 @@
             $("#searchFilter").val("");
         }
 
-        function showWarnings() {
+        function showItemsWithMessages() {
             jQuery("#historylist")
                 .jqGrid(
                     'setGridParam',
                     {
-                        url : '<c:url value="/api/history/${profile_id}"/>?clientUUID=${clientUUID}&onlyInvalid=true',
+                        url : '<c:url value="/api/history/${profile_id}"/>?clientUUID=${clientUUID}&hasMessage=true',
                         page : 1
                     }).trigger("reloadGrid");
         }

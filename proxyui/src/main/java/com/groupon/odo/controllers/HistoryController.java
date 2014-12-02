@@ -36,7 +36,7 @@ public class HistoryController {
                        @RequestParam(value = "limit", defaultValue = "-1") Integer limit,
                        @RequestParam(value = "clientUUID", defaultValue = Constants.PROFILE_CLIENT_DEFAULT_ID) String clientUUID,
                        @RequestParam(value = "historyID", defaultValue = "-1") Integer historyID,
-                       @RequestParam(value = "onlyInvalid", defaultValue = "false") boolean onlyInvalid) throws Exception {
+                       @RequestParam(value = "hasMessage", defaultValue = "false") boolean hasMessage) throws Exception {
         Integer profileId = ControllerUtils.convertProfileIdentifier(profileIdentifier);
 
         model.addAttribute("profile_id", profileId);
@@ -48,7 +48,7 @@ public class HistoryController {
         Integer page = 1;
         if (historyID != -1) {
             HashMap<String, String[]> filters = new HashMap<String, String[]>();
-            History[] histories = HistoryService.getInstance().getHistory(profileId, clientUUID, offset, limit, false, filters, onlyInvalid);
+            History[] histories = HistoryService.getInstance().getHistory(profileId, clientUUID, offset, limit, false, filters, hasMessage);
             Integer lastID = histories[0].getId();
             page = 1 + (lastID - historyID) / 20;
         }
@@ -81,7 +81,7 @@ public class HistoryController {
                                        @RequestParam(value = "source_uri[]", required = false) String[] sourceURIFilters,
                                        @RequestParam(value = "page", defaultValue = "1") int page,
                                        @RequestParam(value = "rows", defaultValue = "-1") int rows,
-                                       @RequestParam(value = "onlyInvalid", defaultValue = "false") boolean onlyInvalid) throws Exception {
+                                       @RequestParam(value = "hasMessage", defaultValue = "false") boolean hasMessage) throws Exception {
         Integer profileId = ControllerUtils.convertProfileIdentifier(profileIdentifier);
         HashMap<String, String[]> filters = new HashMap<String, String[]>();
         if (sourceURIFilters != null) {
@@ -97,7 +97,7 @@ public class HistoryController {
         // offset id # of page(-1) * rows
         offset = (page - 1) * rows;
 
-        History[] histories = HistoryService.getInstance().getHistory(profileId, clientUUID, offset, limit, false, filters, onlyInvalid);
+        History[] histories = HistoryService.getInstance().getHistory(profileId, clientUUID, offset, limit, false, filters, hasMessage);
         int totalRows = HistoryService.getInstance().getHistoryCount(profileId, clientUUID, filters);
         HashMap<String, Object> returnJSON = Utils.getJQGridJSON(histories, "history", offset, totalRows, limit);
 
