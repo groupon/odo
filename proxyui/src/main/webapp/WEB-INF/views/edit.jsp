@@ -1300,6 +1300,10 @@
                                 // fill in data if we have any
                                 if (data.enabledEndpoint.arguments.length > i) {
                                     formData += data.enabledEndpoint.arguments[i];
+                                } else {
+                                    if (data.enabledEndpoint.methodInformation.methodDefaultArguments[i] != null) {
+                                        formData += data.enabledEndpoint.methodInformation.methodDefaultArguments[i];
+                                    }
                                 }
                                 formData += '"/></dd>';
                             }

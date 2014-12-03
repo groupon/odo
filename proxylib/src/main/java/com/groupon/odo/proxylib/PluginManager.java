@@ -368,6 +368,7 @@ public class PluginManager {
                         newMethod.setMethodType(annotation.annotationType().toString());
 
                         String[] argNames = null;
+                        String[] defaultArgs = null;
                         String description = null;
 
                         // Convert to the right type and get annotation information
@@ -376,12 +377,14 @@ public class PluginManager {
                             newMethod.setHttpCode(roAnnotation.httpCode());
                             description = roAnnotation.description();
                             argNames = roAnnotation.parameters();
+                            defaultArgs = new String[0];
                             newMethod.setOverrideVersion(1);
                         }
                         else if(annotation.annotationType().toString().endsWith(Constants.PLUGIN_RESPONSE_OVERRIDE_V2_CLASS)) {
                             com.groupon.odo.plugin.v2.ResponseOverride roAnnotation = (com.groupon.odo.plugin.v2.ResponseOverride) annotation;
                             description = roAnnotation.description();
                             argNames = roAnnotation.parameters();
+                            defaultArgs = roAnnotation.argDefaults();
                             newMethod.setBlockRequest(roAnnotation.blockRequest());
                             newMethod.setOverrideVersion(2);
                         }
@@ -398,6 +401,7 @@ public class PluginManager {
                         }
                         newMethod.setMethodArguments(params.toArray(new Object[0]));
                         newMethod.setMethodArgumentNames(argNames);
+                        newMethod.setMethodDefaultArguments(defaultArgs);
                         newMethod.setDescription(description);
                         newMethod.setIdString(className + "." + methodName);
 

@@ -28,6 +28,7 @@ public class Method {
     private String methodType = null;
     private Object[] methodArguments = new Object[0];
     private String[] methodArgumentNames = new String[0];
+    private String[] methodDefaultArguments = new String[0];
     private java.lang.reflect.Method method = null;
     private boolean blockRequest = false;
     private int overrideVersion;
@@ -106,9 +107,17 @@ public class Method {
         this.methodArgumentNames = argNames;
     }
 
+    public void setMethodDefaultArguments(String[] defaultArguments) {
+        this.methodDefaultArguments = defaultArguments;
+    }
+
     @JsonView(ViewFilters.BackupIgnore.class)
     public String[] getMethodArgumentNames() {
         return this.methodArgumentNames;
+    }
+
+    public String[] getMethodDefaultArguments() {
+        return this.methodDefaultArguments;
     }
 
     public void setMethod(java.lang.reflect.Method method) {
