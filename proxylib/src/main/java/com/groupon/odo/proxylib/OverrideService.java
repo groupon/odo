@@ -16,6 +16,7 @@
 package com.groupon.odo.proxylib;
 
 import com.groupon.odo.proxylib.models.EnabledEndpoint;
+import flexjson.JSONSerializer;
 import org.json.JSONArray;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,6 +26,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -77,6 +79,23 @@ public class OverrideService {
         PreparedStatement statement = null;
         try (Connection sqlConnection = sqlService.getConnection()) {
 
+            PreparedStatement query = null;
+            ResultSet results = null;
+            SQLService sqlService = SQLService.getInstance();
+            com.groupon.odo.proxylib.models.Method method = null;
+            query = sqlConnection.prepareStatement(
+                    "SELECT * FROM " + Constants.DB_TABLE_OVERRIDE +
+                            " WHERE " + Constants.GENERIC_ID + " = ?"
+            );
+            query.setString(1, String.valueOf(overrideId));
+            results = query.executeQuery();
+            JSONSerializer serializer = new JSONSerializer();
+            if (results.next()) {
+                String className = results.getString(Constants.OVERRIDE_CLASS_NAME);
+                String methodName = results.getString(Constants.OVERRIDE_METHOD_NAME);
+                method = PluginManager.getInstance().getMethod(className, methodName);
+            }
+
             statement = sqlConnection.prepareStatement(
                     "INSERT INTO " + Constants.DB_TABLE_ENABLED_OVERRIDE +
                             "(" + Constants.GENERIC_PROFILE_ID + "," + Constants.GENERIC_CLIENT_UUID + "," +
@@ -89,7 +108,20 @@ public class OverrideService {
             statement.setInt(3, pathId);
             statement.setInt(4, overrideId);
             statement.setInt(5, newPriority);
-            statement.setString(6, "");
+            if (method == null) {
+                statement.setString(6, "");
+            } else {
+                ArrayList<String> argDefaults = new ArrayList<String>();
+                for (int i = 0; i < method.getMethodArguments().length; i++)
+                {
+                    if (i < method.getMethodDefaultArguments().length && method.getMethodDefaultArguments()[i] != null) {
+                        argDefaults.add(String.valueOf(method.getMethodDefaultArguments()[i]));
+                    } else {
+                        argDefaults.add("");
+                    }
+                }
+                statement.setString(6, serializer.serialize(argDefaults));
+            }
             statement.executeUpdate();
         } catch (Exception e) {
             e.printStackTrace();
@@ -110,7 +142,7 @@ public class OverrideService {
      * @param arguments  - Object array of arguments
      * @param clientUUID - clientUUID
      */
-    public void updateArguments(int overrideId, int pathId, Integer ordinal, String arguments, String clientUUID) {
+    public void  updateArguments(int overrideId, int pathId, Integer ordinal, String arguments, String clientUUID) {
         if (ordinal == null)
             ordinal = 1;
 
