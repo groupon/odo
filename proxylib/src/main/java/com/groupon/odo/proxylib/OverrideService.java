@@ -26,7 +26,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -142,7 +141,7 @@ public class OverrideService {
      * @param arguments  - Object array of arguments
      * @param clientUUID - clientUUID
      */
-    public void  updateArguments(int overrideId, int pathId, Integer ordinal, String arguments, String clientUUID) {
+    public void updateArguments(int overrideId, int pathId, Integer ordinal, String arguments, String clientUUID) {
         if (ordinal == null)
             ordinal = 1;
 
