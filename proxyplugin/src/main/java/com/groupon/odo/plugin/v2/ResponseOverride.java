@@ -28,4 +28,6 @@ public @interface ResponseOverride {
     public String[] parameters() default {};
 
     public boolean blockRequest() default false;
+
+    public String[] argDefaults() default {};
 }

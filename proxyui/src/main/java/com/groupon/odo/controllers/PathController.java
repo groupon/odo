@@ -275,6 +275,7 @@ public class PathController {
         // add an override
         if (addOverride != null) {
             OverrideService.getInstance().enableOverride(addOverride, pathId, clientUUID);
+            OverrideService.getInstance().updateArguments(overrideId, identifiers.getPathId(), ordinal, serializer.serialize(httpRequest.getParameterValues("arguments[]")), clientUUID);
         }
 
         // move priority of an enabled override up
