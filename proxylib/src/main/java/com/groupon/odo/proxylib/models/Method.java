@@ -116,6 +116,7 @@ public class Method {
         return this.methodArgumentNames;
     }
 
+    @JsonView(ViewFilters.BackupIgnore.class)
     public String[] getMethodDefaultArguments() {
         return this.methodDefaultArguments;
     }
