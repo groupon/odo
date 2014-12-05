@@ -100,7 +100,7 @@ public class HistoryService {
                     statement = sqlConnection.prepareStatement("SELECT " + Constants.GENERIC_ID + " FROM " + Constants.DB_TABLE_HISTORY +
                             " WHERE " + Constants.CLIENT_CLIENT_UUID + " = \'" + clientUUID + "\'" +
                             " AND " + Constants.CLIENT_PROFILE_ID + " = " + profileId  +
-                            " LIMIT 1");
+                            " ORDER BY " + Constants.GENERIC_ID + " ASC LIMIT 1");
 
                     ResultSet resultSet = statement.executeQuery();
                     if (resultSet.next()) {
