@@ -35,9 +35,11 @@ public class HistoryService {
 
     private static HistoryService _instance = null;
     private SQLService sqlService = null;
+    private int maxHistorySize = 30000;
+    private boolean threadActive = false;
 
     public HistoryService() {
-
+        maxHistorySize = Integer.parseInt(System.getProperty("historySize", "30000"));
     }
 
     public static HistoryService getInstance() {
@@ -61,31 +63,75 @@ public class HistoryService {
      * @param clientUUID
      * @param limit
      */
-    public void cullHistory(int profileId, String clientUUID, int limit) throws Exception {
-        PreparedStatement statement = null;
+    public void cullHistory(final int profileId, final String clientUUID, final int limit) throws Exception {
 
-        try (Connection sqlConnection = sqlService.getConnection()) {
-            statement = sqlConnection.prepareStatement("DELETE FROM " + Constants.DB_TABLE_HISTORY +
-                    " WHERE " + Constants.GENERIC_ID + " NOT IN (SELECT TOP " + limit + " " + Constants.GENERIC_ID +
-                    " FROM " + Constants.DB_TABLE_HISTORY +
-                    " WHERE " + Constants.CLIENT_CLIENT_UUID + " = ? " +
-                    " AND " + Constants.CLIENT_PROFILE_ID + " = ? " +
-                    " ORDER BY " + Constants.GENERIC_ID + " DESC)" +
-                    " AND " + Constants.CLIENT_CLIENT_UUID + " = ? " +
-                    " AND " + Constants.CLIENT_PROFILE_ID + " = ?");
-            statement.setString(1, clientUUID);
-            statement.setInt(2, profileId);
-            statement.setString(3, clientUUID);
-            statement.setInt(4, profileId);
-            statement.executeUpdate();
-        } catch (Exception e) {
-            throw e;
-        } finally {
-            try {
-                if (statement != null) statement.close();
-            } catch (Exception e) {
+        //Allow only 1 delete thread to run
+        if (threadActive)
+            return;
+
+        threadActive = true;
+        //Create a thread so proxy will continue to work during long delete
+        Thread t1 = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                PreparedStatement statement = null;
+
+                try (Connection sqlConnection = sqlService.getConnection()) {
+                    String sqlQuery = "SELECT COUNT(" + Constants.GENERIC_ID + ") FROM " + Constants.DB_TABLE_HISTORY + " ";
+
+                    // see if profileId is set or not (-1)
+                    if (profileId != -1) {
+                        sqlQuery += "WHERE " + Constants.GENERIC_PROFILE_ID + "=" + profileId + " ";
+                    }
+
+                    if (clientUUID != null && clientUUID.compareTo("") != 0) {
+                        sqlQuery += "AND " + Constants.GENERIC_CLIENT_UUID + "='" + clientUUID + "' ";
+                    }
+                    sqlQuery += ";";
+
+                    Statement query = sqlConnection.createStatement();
+                    ResultSet results = query.executeQuery(sqlQuery);
+                    if (results.next()) {
+                        if (results.getInt("COUNT(" + Constants.GENERIC_ID + ")") < (limit + 10000)) {
+                            return;
+                        }
+                    }
+                    //Find the last item in the table
+                    statement = sqlConnection.prepareStatement("SELECT " + Constants.GENERIC_ID + " FROM " + Constants.DB_TABLE_HISTORY +
+                            " WHERE " + Constants.CLIENT_CLIENT_UUID + " = \'" + clientUUID + "\'" +
+                            " AND " + Constants.CLIENT_PROFILE_ID + " = " + profileId  +
+                            " ORDER BY " + Constants.GENERIC_ID + " ASC LIMIT 1");
+
+                    ResultSet resultSet = statement.executeQuery();
+                    if (resultSet.next()) {
+                        int currentSpot = resultSet.getInt(Constants.GENERIC_ID) + 100;
+                        int finalDelete = currentSpot + 10000;
+                        //Delete 100 items at a time until 10000 are deleted
+                        //Do this so table is unlocked frequently to allow other proxy items to access it
+                        while (currentSpot < finalDelete) {
+                            PreparedStatement deleteStatement = sqlConnection.prepareStatement("DELETE FROM " + Constants.DB_TABLE_HISTORY +
+                                    " WHERE " + Constants.CLIENT_CLIENT_UUID + " = \'" + clientUUID + "\'" +
+                                    " AND " + Constants.CLIENT_PROFILE_ID + " = " + profileId +
+                                    " AND " + Constants.GENERIC_ID + " < " + currentSpot);
+                            deleteStatement.executeUpdate();
+                            currentSpot += 100;
+                        }
+                    }
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                } finally {
+                    try {
+                        threadActive = false;
+                        if (statement != null) statement.close();
+                    } catch (Exception e) {
+                    }
+                }
             }
-        }
+        });
+
+        t1.start();
+
     }
 
     /**
@@ -138,7 +184,8 @@ public class HistoryService {
             statement.executeUpdate();
 
             // cull history
-            cullHistory(history.getProfileId(), history.getClientUUID(), 1000);
+            cullHistory(history.getProfileId(), history.getClientUUID(), maxHistorySize);
+
         } catch (Exception e) {
             logger.info(e.getMessage());
         } finally {
