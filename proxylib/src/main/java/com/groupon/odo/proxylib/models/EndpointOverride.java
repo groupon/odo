@@ -15,8 +15,8 @@
 */
 package com.groupon.odo.proxylib.models;
 
+import com.fasterxml.jackson.annotation.JsonView;
 import com.groupon.odo.proxylib.*;
-import org.codehaus.jackson.map.annotate.JsonView;
 
 import java.util.ArrayList;
 import java.util.List;

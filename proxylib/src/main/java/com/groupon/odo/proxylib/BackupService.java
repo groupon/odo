@@ -15,6 +15,7 @@
 */
 package com.groupon.odo.proxylib;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.groupon.odo.proxylib.models.EndpointOverride;
 import com.groupon.odo.proxylib.models.Group;
 import com.groupon.odo.proxylib.models.Method;
@@ -29,7 +30,6 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.conn.ssl.TrustStrategy;
 import org.apache.http.conn.ssl.X509HostnameVerifier;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
