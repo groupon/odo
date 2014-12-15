@@ -1230,7 +1230,7 @@
                 jQuery.each(classHash, function(hashKey, hashValue) {
                     content += '<optgroup label="' + hashKey + '">';
                     jQuery.each(hashValue, function(arrayKey, arrayValue) {
-                        content += '<option value="' + arrayValue.id + '">' + arrayValue.methodName + "(" + arrayValue.description + ")" + '</option>';
+                        content += '<option value="' + arrayValue.id + '">' + arrayValue.methodName + " (" + arrayValue.description + ")" + '</option>';
                     });
                     content += '</optgroup>';
                 });

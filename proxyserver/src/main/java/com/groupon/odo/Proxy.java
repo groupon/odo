@@ -838,7 +838,7 @@ public class Proxy extends HttpServlet {
             }
 
             logOriginalResponseHistory(responseWrapper, history);
-            applyResponseOverrides(responseWrapper, httpServletRequest, history);
+            applyResponseOverrides(responseWrapper, httpServletRequest, httpMethodProxyRequest, history);
             // store history
             history.setModified(requestInfo.modified);
             logRequestHistory(httpMethodProxyRequest, responseWrapper, history);
@@ -1061,7 +1061,7 @@ public class Proxy extends HttpServlet {
      * @throws Exception
      */
     private void applyResponseOverrides(PluginResponse httpServletResponse,
-                                        HttpServletRequest httpServletRequest, History history) throws Exception {
+                                        HttpServletRequest httpServletRequest, HttpMethod httpMethodProxyRequest, History history) throws Exception {
         RequestInformation requestInfo = requestInformation.get();
 
         for (EndpointOverride selectedPath : requestInfo.selectedResponsePaths) {
@@ -1120,7 +1120,7 @@ public class Proxy extends HttpServlet {
                                         Integer.toString(methodInfo.getHttpCode()));
                             }
                         } else if (methodInfo.getOverrideVersion() == 2) {
-                            PluginArguments pluginArgs = new PluginArguments(httpServletResponse, requestInfo.originalRequestInfo);
+                            PluginArguments pluginArgs = new PluginArguments(httpServletResponse, requestInfo.originalRequestInfo, httpMethodProxyRequest);
 
                             PluginManager.getInstance().callFunction(
                                     methodInfo.getClassName(), methodInfo.getMethodName(),
