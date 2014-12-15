@@ -338,6 +338,8 @@ public class HistoryService {
         Script[] scripts = ScriptService.getInstance().getScripts(Constants.SCRIPT_TYPE_HISTORY);
         String sqlQuery = "SELECT * FROM " + Constants.DB_TABLE_HISTORY + " ";
 
+        int totalSearchLimit = -1;
+
         // see if profileId is set or not (-1)
         if (profileId != -1) {
             sqlQuery += "WHERE " + Constants.GENERIC_PROFILE_ID + "=" + profileId + " ";
@@ -354,6 +356,10 @@ public class HistoryService {
             sqlQuery += "OFFSET " + offset;
         }
 
+        if (hasMessage) {
+            totalSearchLimit = 1000;
+        }
+
         sqlQuery += ";";
 
         logger.info("Query: {}", sqlQuery);
@@ -363,7 +369,9 @@ public class HistoryService {
             // loop through all of the results, process filters and build an array of the results to return
             query = sqlConnection.createStatement();
             results = query.executeQuery(sqlQuery);
-            while (results.next()) {
+            int itemsViewed = 0;
+            while (results.next() && (itemsViewed < totalSearchLimit || totalSearchLimit == -1)) {
+                itemsViewed++;
                 if (hasMessage && historyFromSQLResult(results, withResponseData, scripts).getValid())
                     continue;
                 if (searchFilter != null) {
