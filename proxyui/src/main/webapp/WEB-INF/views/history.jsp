@@ -369,7 +369,7 @@
         }
 
         function showChangedResponsePostFormattedAJAX() {
-            showChangedData(historyData.history.formattedOriginalResponseData.replace(/[<]/g, '&lt;'), historyData.history.formattedResponseData.replace(/[<]/g, '&lt;'), "originalResponseRaw", "originalResponseChange", "responseRaw");
+            showChangedData(historyData.history.formattedOriginalResponseData, historyData.history.formattedResponseData, "originalResponseRaw", "originalResponseChange", "responseRaw");
             document.getElementById("showChangedResponseButton").className = "btn btn-primary";
             document.getElementById("showOriginalResponseButton").className = "btn btn-default";
             document.getElementById("showModifiedResponseButton").className = "btn btn-default";
@@ -423,8 +423,8 @@
         }
 
         function showRawResponseData() {
-            responseRaw = historyData.history.responseData.replace(/[<]/g, '&lt;');
-            originalResponseRaw = historyData.history.originalResponseData.replace(/[<]/g, '&lt;');
+            responseRaw = historyData.history.responseData;
+            originalResponseRaw = historyData.history.originalResponseData;
             $("#responseRaw").val(responseRaw);
             $("#originalResponseRaw").val(originalResponseRaw);
             $.cookie("formatted", "false");
