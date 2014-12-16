@@ -16,7 +16,7 @@
 package com.groupon.odo.proxylib.models;
 
 import com.groupon.odo.proxylib.HistoryService;
-import org.codehaus.jackson.map.annotate.JsonView;
+import com.fasterxml.jackson.annotation.JsonView;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;

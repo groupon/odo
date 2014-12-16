@@ -16,8 +16,8 @@
 package com.groupon.odo.proxylib.models;
 
 import com.groupon.odo.proxylib.hostsedit.HostsFileUtils;
-import org.codehaus.jackson.annotate.JsonIgnore;
-import org.codehaus.jackson.map.annotate.JsonView;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonView;
 
 
 public class ServerRedirect {

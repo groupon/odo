@@ -15,7 +15,7 @@
 */
 package com.groupon.odo.proxylib.models;
 
-import org.codehaus.jackson.map.annotate.JsonView;
+import com.fasterxml.jackson.annotation.JsonView;
 
 public class Script {
     private int id;

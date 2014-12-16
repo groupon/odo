@@ -15,11 +15,10 @@
 */
 package com.groupon.odo.proxylib.models;
 
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
 import com.groupon.odo.proxylib.Constants;
-
-import org.codehaus.jackson.JsonParseException;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.map.ObjectWriter;
 
 /**
  * Represents a single history object
@@ -159,7 +158,7 @@ public class History {
             // try to format it
             try {
                 ObjectMapper objectMapper = new ObjectMapper();
-                ObjectWriter writer = objectMapper.defaultPrettyPrintingWriter();
+                ObjectWriter writer = objectMapper.writerWithDefaultPrettyPrinter();
                 Object json = objectMapper.readValue(data, Object.class);
                 this.formattedResponseData = writer.withView(ViewFilters.Default.class).writeValueAsString(json);
             } catch (JsonParseException jpe) {
@@ -316,7 +315,7 @@ public class History {
             try {
                 // try to format it
                 ObjectMapper objectMapper = new ObjectMapper();
-                ObjectWriter writer = objectMapper.defaultPrettyPrintingWriter();
+                ObjectWriter writer = objectMapper.writerWithDefaultPrettyPrinter();
                 Object json = objectMapper.readValue(originalResponseData, Object.class);
                 this.formattedOriginalResponseData = writer.withView(ViewFilters.Default.class).writeValueAsString(json);
             } catch (JsonParseException jpe) {

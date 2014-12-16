@@ -344,7 +344,12 @@ public class PluginManager {
             for (int i = 0; i < urls.length; i++) {
                 try {
                     // insert all classpaths into the javassist classpool
-                    classPool.insertClassPath(urls[i].getFile());
+                    File f1 = new File(urls[i].getFile());
+
+                    if (f1.exists()) {
+                        // only add if file exists to avoid an uncatchable exception in Java 8
+                        classPool.insertClassPath(urls[i].getFile());
+                    }
                 } catch (NotFoundException e) {
                     e.printStackTrace();
                 }
