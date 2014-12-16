@@ -20,7 +20,7 @@ import com.groupon.odo.proxylib.PathOverrideService;
 import com.groupon.odo.proxylib.PluginManager;
 import com.groupon.odo.proxylib.Utils;
 import com.groupon.odo.proxylib.models.Group;
-import org.codehaus.jackson.map.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
