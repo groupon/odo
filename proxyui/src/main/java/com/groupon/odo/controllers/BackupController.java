@@ -18,8 +18,8 @@ package com.groupon.odo.controllers;
 import com.groupon.odo.proxylib.BackupService;
 import com.groupon.odo.proxylib.models.ViewFilters;
 import com.groupon.odo.proxylib.models.backup.Backup;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.map.ObjectWriter;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
@@ -60,7 +60,7 @@ public class BackupController {
 
         Backup backup = BackupService.getInstance().getBackupData();
         ObjectMapper objectMapper = new ObjectMapper();
-        ObjectWriter writer = objectMapper.defaultPrettyPrintingWriter();
+        ObjectWriter writer = objectMapper.writerWithDefaultPrettyPrinter();
 
         return writer.withView(ViewFilters.Default.class).writeValueAsString(backup);
     }
