@@ -77,14 +77,26 @@ public class Client {
      * @param useClient   - create a new client id(false means use the default client)
      * @throws Exception
      */
-    public Client(String profileName, boolean useClient) throws Exception {
+    public Client(String profileName, boolean createNewClient) throws Exception {
         this._profileName = profileName;
 
-        if (useClient) {
+        if (createNewClient) {
             this.createNewClientId();
         } else {
             this._clientId = "-1";
         }
+    }
+
+    /**
+     * Create a client for a clientId that already exists in Odo
+     *
+     * @param profileName
+     * @param clientId - clientId of existing Odo client
+     * @throws Exception
+     */
+    public Client(String profileName, String clientId) throws Exception {
+        this._profileName = profileName;
+        this._clientId = clientId;
     }
 
     /**
@@ -303,6 +315,10 @@ public class Client {
         } catch (Exception e) {
             throw new Exception("Could not delete proxy history");
         }
+    }
+
+    public void setClientUUID(String clientId) {
+        _clientId = clientId;
     }
 
     public String getClientUUID() {
