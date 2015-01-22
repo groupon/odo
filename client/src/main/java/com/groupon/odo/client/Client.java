@@ -74,7 +74,7 @@ public class Client {
      * Create a new client instance
      *
      * @param profileName
-     * @param useClient   - create a new client id(false means use the default client)
+     * @param createNewClient   - create a new client id(false means use the default client)
      * @throws Exception
      */
     public Client(String profileName, boolean createNewClient) throws Exception {
@@ -583,12 +583,12 @@ public class Client {
         try {
             String methodId = getOverrideIdForMethodName(methodName).toString();
             BasicNameValuePair[] params = {
-                    new BasicNameValuePair("profileIdentifier", uriEncode(this._profileName)),
+                    new BasicNameValuePair("profileIdentifier", this._profileName),
                     new BasicNameValuePair("ordinal", ordinal.toString()),
                     new BasicNameValuePair("repeatNumber", repeatCount.toString())
             };
 
-            JSONObject response = new JSONObject(doPost(BASE_PATH + uriEncode(pathName), params));
+            JSONObject response = new JSONObject(doPost(BASE_PATH + uriEncode(pathName) + "/" + methodId, params));
             return true;
         } catch (Exception e) {
             e.printStackTrace();
