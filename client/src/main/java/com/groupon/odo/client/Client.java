@@ -554,7 +554,7 @@ public class Client {
             // now post to path api to add this is a selected override
             BasicNameValuePair[] params = {
                     new BasicNameValuePair("addOverride", overrideId.toString()),
-                    new BasicNameValuePair("profileIdentifier", uriEncode(this._profileName))
+                    new BasicNameValuePair("profileIdentifier", this._profileName)
             };
             JSONObject response = new JSONObject(doPost(BASE_PATH + uriEncode(pathName), params));
             // check enabled endpoints array to see if this overrideID exists
