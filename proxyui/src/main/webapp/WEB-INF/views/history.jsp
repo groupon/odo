@@ -161,11 +161,11 @@
                     <h3>
                         <span class="label label-default">Parameters</span>
                     </h3>
-                    <textarea class="form-control" rows="1" style="width: 100%; float:left"
+                    <textarea class="form-control" rows="1" style="width: 100%; height: 120px; float:left"
                         id="requestParameters"></textarea>
-                    <textarea class="form-control" rows="1" style="width: 100%; float: left; display: none"
+                    <textarea class="form-control" rows="1" style="width: 100%; height: 120px; float: left; display: none"
                         id="originalRequestParameters"></textarea>
-                    <div class="form-control" style="width: 100%; height: 40px; float: left; display: none; overflow-y: scroll; resize:both"
+                    <div class="form-control" style="width: 100%; height: 120px; float: left; display: none; overflow-y: scroll; resize:both"
                         id="originalRequestParametersChanged"></div>
                     <div style="clear: both"></div>
                     <h3>
