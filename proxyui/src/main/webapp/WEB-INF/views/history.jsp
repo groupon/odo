@@ -165,7 +165,7 @@
                         id="requestParameters"></textarea>
                     <textarea class="form-control" rows="1" style="width: 100%; float: left; display: none"
                         id="originalRequestParameters"></textarea>
-                    <div class="form-control" style="width: 100%; height: 40px; float: left; display: none; overflow-y: scroll; resize:both"
+                    <div class="form-control" style="width: 100%; float: left; display: none; overflow-y: scroll; resize:both"
                         id="originalRequestParametersChanged"></div>
                     <div style="clear: both"></div>
                     <h3>
@@ -431,13 +431,24 @@
             document.getElementById("showRawResponseDataButton").className = "btn btn-primary";
             document.getElementById("showRawFormattedDataButton").className = "btn btn-default";
         }
-        
-        
+
+        //http://stackoverflow.com/questions/3938270/jquery-ui-tabs-javascript-click-function-not-working
+        $(function() {
+            $("#tabs").tabs();
+
+            $("a[href=#tabs-2]").click(function() {
+                $("#requestParameters").css("height" , "");
+                $("#requestParameters").height($("#requestParameters")[0].scrollHeight + "px");
+            });
+         });
+
         function showOriginalRequestData(){
             $("#originalRequestQuery").show();
             $("#originalRequestQueryChange").hide();
             $("#requestQuery").hide();
             $("#originalRequestParameters").show();
+            $("#originalRequestParameters").css("height" , "");
+            $("#originalRequestParameters").height($("#originalRequestParameters")[0].scrollHeight + "px");
             $("#originalRequestParametersChanged").hide();
             $("#requestParameters").hide();
             $("#originalRequestHeaders").show();
@@ -468,6 +479,8 @@
             $("#originalRequestParameters").hide();
             $("#originalRequestParametersChanged").hide();
             $("#requestParameters").show();
+            $("#requestParameters").css("height" , "");
+            $("#requestParameters").height($("#requestParameters")[0].scrollHeight + "px");
             $("#originalRequestHeaders").hide();
             $("#originalRequestHeadersChanged").hide();
             $("#requestHeaders").show();
@@ -558,7 +571,6 @@
                     }
 
 
-                    showModifiedRequestData();
                     $("#responseHeaders").val(data.history.responseHeaders);
                     $("#originalResponseHeaders").val(data.history.originalResponseHeaders);
                     $("#responseTypeLabel").html(data.history.responseContentType);
@@ -612,6 +624,7 @@
                         $("#requestDataDecodedLabel").html("");
                     }
 
+                    showModifiedRequestData();
                     showCurlCommand();
                 }
             });
