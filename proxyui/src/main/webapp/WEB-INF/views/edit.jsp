@@ -997,19 +997,17 @@
                 if(e.keyCode == 46 || e.keyCode == 8) {
                     var active = $("#tabs").tabs("option", "active");
                     if (active == 0) {
-                        var selector = "select#" + "response" + "OverrideEnabled" + " option:selected";
-                        var selection = $(selector);
-                        if (selection.length > 0) {
-                            e.preventDefault();
-                            overrideRemove('response');
-                        }
+                        var type = "response"
                     } else if (active == 1) {
-                        var selector = "select#" + "request" + "OverrideEnabled" + " option:selected";
-                        var selection = $(selector);
-                        if (selection.length > 0) {
-                            e.preventDefault();
-                            overrideRemove('request');
-                        }
+                        var type = "request";
+                    } else {
+                        return;
+                    }
+                    var selector = "select#" + type + "OverrideEnabled" + " option:selected";
+                    var selection = $(selector);
+                    if (selection.length > 0) {
+                        e.preventDefault();
+                        overrideRemove(type);
                     }
                 }
             });
