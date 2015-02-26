@@ -992,6 +992,26 @@
                 }
             }
 
+            // http://stackoverflow.com/questions/11112127/prevent-backspace-from-navigating-back-with-jquery-like-googles-homepage
+            $(document).on("keydown", function (e){
+                if(e.keyCode == 46 || e.keyCode == 8) {
+                    var active = $("#tabs").tabs("option", "active");
+                    if (document.activeElement.id == "responseOverrideEnabled") {
+                        var type = "response"
+                    } else if (document.activeElement.id == "requestOverrideEnabled") {
+                        var type = "request";
+                    } else {
+                        return;
+                    }
+                    var selector = "select#" + type + "OverrideEnabled" + " option:selected";
+                    var selection = $(selector);
+                    if (selection.length > 0) {
+                        e.preventDefault();
+                        overrideRemove(type);
+                    }
+                }
+            });
+
             function overrideRemove(type) {
                 var id = currentPathId;
                 var selector = "select#" + type + "OverrideEnabled" + " option:selected";
