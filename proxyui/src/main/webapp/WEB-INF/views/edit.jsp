@@ -996,9 +996,9 @@
             $(document).on("keydown", function (e){
                 if(e.keyCode == 46 || e.keyCode == 8) {
                     var active = $("#tabs").tabs("option", "active");
-                    if (active == 0) {
+                    if (document.activeElement.id == "responseOverrideEnabled") {
                         var type = "response"
-                    } else if (active == 1) {
+                    } else if (document.activeElement.id == "requestOverrideEnabled") {
                         var type = "request";
                     } else {
                         return;
