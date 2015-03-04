@@ -1300,7 +1300,6 @@
                             return;
                         }
 
-
                         formData += '<div class="bg-info">' + data.enabledEndpoint.methodInformation.className + " " + data.enabledEndpoint.methodInformation.methodName + '</div><dl>';
                         var x = 0;
                         $.each(data.enabledEndpoint.methodInformation.methodArguments, function(i, el) {
@@ -1316,24 +1315,30 @@
                                 }
                                 formData += '</textarea></dd><br>';
                             } else {
-                                formData += '<dd>(' + el + ')<input id="' + type + '_args_' + x + '" style="width:60%;" type="text" value="';
-                                // fill in data if we have any
-                                if (data.enabledEndpoint.arguments.length > i) {
-                                    formData += data.enabledEndpoint.arguments[i];
-                                } else {
-                                    if (data.enabledEndpoint.methodInformation.methodDefaultArguments[i] != null) {
-                                        formData += data.enabledEndpoint.methodInformation.methodDefaultArguments[i];
-                                    }
-                                }
-                                formData += '"/></dd>';
+                                formData += '<dd>(' + el + ')<input id="' + type + '_args_' + x + '" style="width:60%;" type="text" value=""/></dd>';
                             }
                             x++;
                         });
 
                         formData += '<dt>Repeat Count</dt> <dd><input id="setRepeatNumber" type="text" value="' + data.enabledEndpoint.repeatNumber + '"/></dd><br>';
                         formData += '<button class="btn btn-primary" onClick="submitOverrideData(&quot;' + type + '&quot;,' + pathId + ',' + methodId + ',' + ordinal + ',' + x  + ')">Apply</button>';
-
                         $("#"+type+"OverrideParameters").html(formData);
+
+                        x = 0;
+                        $.each(data.enabledEndpoint.methodInformation.methodArguments, function(i, el) {
+                            // populate the override parameters
+                            if (methodId != -1) {
+                                if (data.enabledEndpoint.arguments.length > i) {
+                                    $("#"+type+"_args_"+x).val(data.enabledEndpoint.arguments[i]);
+                                } else {
+                                    if (data.enabledEndpoint.methodInformation.methodDefaultArguments[i] != null) {
+                                        $("#"+type+"_args_"+x).val(data.enabledEndpoint.methodInformation.methodDefaultArguments[i]);
+                                    }
+                                }
+                            }
+                            x++;
+                        });
+
                         $("#"+type+"OverrideDetails").show();
                     }
                 });
