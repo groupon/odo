@@ -17,9 +17,6 @@ package com.groupon.odo.proxylib;
 
 import com.groupon.odo.proxylib.models.History;
 import com.groupon.odo.proxylib.models.Script;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -29,6 +26,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class HistoryService {
     private static final Logger logger = LoggerFactory.getLogger(HistoryService.class);
@@ -37,6 +36,7 @@ public class HistoryService {
     private SQLService sqlService = null;
     private int maxHistorySize = 30000;
     private boolean threadActive = false;
+    private boolean disableHistoryWrite = false;
 
     public HistoryService() {
         maxHistorySize = Integer.parseInt(System.getProperty("historySize", "30000"));
@@ -57,6 +57,20 @@ public class HistoryService {
     }
 
     /**
+     * Disable request history logging
+     */
+    public void disableHistory() {
+        disableHistoryWrite = true;
+    }
+
+    /**
+     * Enable request history logging
+     */
+    public void enableHistory() {
+        disableHistoryWrite = false;
+    }
+
+    /**
      * Removes old entries in the history table for the given profile and client UUID
      *
      * @param profileId
@@ -66,8 +80,9 @@ public class HistoryService {
     public void cullHistory(final int profileId, final String clientUUID, final int limit) throws Exception {
 
         //Allow only 1 delete thread to run
-        if (threadActive)
+        if (threadActive) {
             return;
+        }
 
         threadActive = true;
         //Create a thread so proxy will continue to work during long delete
@@ -98,9 +113,9 @@ public class HistoryService {
                     }
                     //Find the last item in the table
                     statement = sqlConnection.prepareStatement("SELECT " + Constants.GENERIC_ID + " FROM " + Constants.DB_TABLE_HISTORY +
-                            " WHERE " + Constants.CLIENT_CLIENT_UUID + " = \'" + clientUUID + "\'" +
-                            " AND " + Constants.CLIENT_PROFILE_ID + " = " + profileId  +
-                            " ORDER BY " + Constants.GENERIC_ID + " ASC LIMIT 1");
+                                                                   " WHERE " + Constants.CLIENT_CLIENT_UUID + " = \'" + clientUUID + "\'" +
+                                                                   " AND " + Constants.CLIENT_PROFILE_ID + " = " + profileId +
+                                                                   " ORDER BY " + Constants.GENERIC_ID + " ASC LIMIT 1");
 
                     ResultSet resultSet = statement.executeQuery();
                     if (resultSet.next()) {
@@ -110,20 +125,21 @@ public class HistoryService {
                         //Do this so table is unlocked frequently to allow other proxy items to access it
                         while (currentSpot < finalDelete) {
                             PreparedStatement deleteStatement = sqlConnection.prepareStatement("DELETE FROM " + Constants.DB_TABLE_HISTORY +
-                                    " WHERE " + Constants.CLIENT_CLIENT_UUID + " = \'" + clientUUID + "\'" +
-                                    " AND " + Constants.CLIENT_PROFILE_ID + " = " + profileId +
-                                    " AND " + Constants.GENERIC_ID + " < " + currentSpot);
+                                                                                                   " WHERE " + Constants.CLIENT_CLIENT_UUID + " = \'" + clientUUID + "\'" +
+                                                                                                   " AND " + Constants.CLIENT_PROFILE_ID + " = " + profileId +
+                                                                                                   " AND " + Constants.GENERIC_ID + " < " + currentSpot);
                             deleteStatement.executeUpdate();
                             currentSpot += 100;
                         }
                     }
-
                 } catch (Exception e) {
                     e.printStackTrace();
                 } finally {
                     try {
                         threadActive = false;
-                        if (statement != null) statement.close();
+                        if (statement != null) {
+                            statement.close();
+                        }
                     } catch (Exception e) {
                     }
                 }
@@ -131,7 +147,6 @@ public class HistoryService {
         });
 
         t1.start();
-
     }
 
     /**
@@ -140,23 +155,26 @@ public class HistoryService {
      * @param history - History object to add
      */
     public void addHistory(History history) {
+        if (disableHistoryWrite) {
+            return;
+        }
         PreparedStatement statement = null;
 
         try (Connection sqlConnection = sqlService.getConnection()) {
             statement = sqlConnection.prepareStatement("INSERT INTO " + Constants.DB_TABLE_HISTORY +
-                    "(" + Constants.GENERIC_PROFILE_ID + "," + Constants.GENERIC_CLIENT_UUID + "," +
-                    Constants.HISTORY_CREATED_AT + "," + Constants.GENERIC_REQUEST_TYPE + "," +
-                    Constants.HISTORY_REQUEST_URL + "," + Constants.HISTORY_REQUEST_PARAMS + "," +
-                    Constants.HISTORY_REQUEST_POST_DATA + "," + Constants.HISTORY_REQUEST_HEADERS + "," +
-                    Constants.HISTORY_RESPONSE_CODE + "," + Constants.HISTORY_RESPONSE_HEADERS + "," +
-                    Constants.HISTORY_RESPONSE_CONTENT_TYPE + "," + Constants.HISTORY_RESPONSE_DATA + "," +
-                    Constants.HISTORY_ORIGINAL_REQUEST_URL + "," + Constants.HISTORY_ORIGINAL_REQUEST_PARAMS + "," +
-                    Constants.HISTORY_ORIGINAL_REQUEST_POST_DATA + "," + Constants.HISTORY_ORIGINAL_REQUEST_HEADERS + "," +
-                    Constants.HISTORY_ORIGINAL_RESPONSE_CODE + "," + Constants.HISTORY_ORIGINAL_RESPONSE_HEADERS + "," +
-                    Constants.HISTORY_ORIGINAL_RESPONSE_CONTENT_TYPE + "," + Constants.HISTORY_ORIGINAL_RESPONSE_DATA + "," +
-                    Constants.HISTORY_MODIFIED + "," + Constants.HISTORY_REQUEST_SENT + "," +
-                    Constants.HISTORY_REQUEST_BODY_DECODED + "," + Constants.HISTORY_RESPONSE_BODY_DECODED + ")" +
-                    " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);");
+                                                           "(" + Constants.GENERIC_PROFILE_ID + "," + Constants.GENERIC_CLIENT_UUID + "," +
+                                                           Constants.HISTORY_CREATED_AT + "," + Constants.GENERIC_REQUEST_TYPE + "," +
+                                                           Constants.HISTORY_REQUEST_URL + "," + Constants.HISTORY_REQUEST_PARAMS + "," +
+                                                           Constants.HISTORY_REQUEST_POST_DATA + "," + Constants.HISTORY_REQUEST_HEADERS + "," +
+                                                           Constants.HISTORY_RESPONSE_CODE + "," + Constants.HISTORY_RESPONSE_HEADERS + "," +
+                                                           Constants.HISTORY_RESPONSE_CONTENT_TYPE + "," + Constants.HISTORY_RESPONSE_DATA + "," +
+                                                           Constants.HISTORY_ORIGINAL_REQUEST_URL + "," + Constants.HISTORY_ORIGINAL_REQUEST_PARAMS + "," +
+                                                           Constants.HISTORY_ORIGINAL_REQUEST_POST_DATA + "," + Constants.HISTORY_ORIGINAL_REQUEST_HEADERS + "," +
+                                                           Constants.HISTORY_ORIGINAL_RESPONSE_CODE + "," + Constants.HISTORY_ORIGINAL_RESPONSE_HEADERS + "," +
+                                                           Constants.HISTORY_ORIGINAL_RESPONSE_CONTENT_TYPE + "," + Constants.HISTORY_ORIGINAL_RESPONSE_DATA + "," +
+                                                           Constants.HISTORY_MODIFIED + "," + Constants.HISTORY_REQUEST_SENT + "," +
+                                                           Constants.HISTORY_REQUEST_BODY_DECODED + "," + Constants.HISTORY_RESPONSE_BODY_DECODED + ")" +
+                                                           " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);");
             statement.setInt(1, history.getProfileId());
             statement.setString(2, history.getClientUUID());
             statement.setString(3, history.getCreatedAt());
@@ -185,12 +203,13 @@ public class HistoryService {
 
             // cull history
             cullHistory(history.getProfileId(), history.getClientUUID(), maxHistorySize);
-
         } catch (Exception e) {
             logger.info(e.getMessage());
         } finally {
             try {
-                if (statement != null) statement.close();
+                if (statement != null) {
+                    statement.close();
+                }
             } catch (Exception e) {
             }
         }
@@ -230,26 +249,25 @@ public class HistoryService {
             history.setOriginalResponseData(null);
         }
 
-
         // evaluate all scripts
         for (Script script : scripts) {
             try {
                 List<?> gresult = GroovyService.getInstance().runGroovy(script.getScript(), history.getRequestType(),
-                        history.getRequestURL(),
-                        history.getRequestParams(),
-                        history.getRequestPostData(),
-                        history.getRequestHeaders(),
-                        history.getResponseCode(),
-                        history.getResponseContentType(),
-                        history.getResponseHeaders(),
-                        history.getOriginalRequestURL(),
-                        history.getOriginalRequestParams(),
-                        history.getOriginalRequestPostData(),
-                        history.getOriginalRequestHeaders(),
-                        history.getOriginalResponseData(),
-                        history.getOriginalResponseContentType(),
-                        history.getOriginalResponseHeaders(),
-                        history.isModified());
+                                                                        history.getRequestURL(),
+                                                                        history.getRequestParams(),
+                                                                        history.getRequestPostData(),
+                                                                        history.getRequestHeaders(),
+                                                                        history.getResponseCode(),
+                                                                        history.getResponseContentType(),
+                                                                        history.getResponseHeaders(),
+                                                                        history.getOriginalRequestURL(),
+                                                                        history.getOriginalRequestParams(),
+                                                                        history.getOriginalRequestPostData(),
+                                                                        history.getOriginalRequestHeaders(),
+                                                                        history.getOriginalResponseData(),
+                                                                        history.getOriginalResponseContentType(),
+                                                                        history.getOriginalResponseHeaders(),
+                                                                        history.isModified());
 
                 // this returns a list where [0] is the status
                 // and the rest is messages
@@ -259,8 +277,9 @@ public class HistoryService {
                     String validString = history.getValidationMessage();
 
                     for (int x = 1; x < gresult.size(); x++) {
-                        if (!validString.equals(""))
+                        if (!validString.equals("")) {
                             validString += "\n";
+                        }
 
                         validString += gresult.get(x);
                     }
@@ -307,11 +326,15 @@ public class HistoryService {
 
         } finally {
             try {
-                if (results != null) results.close();
+                if (results != null) {
+                    results.close();
+                }
             } catch (Exception e) {
             }
             try {
-                if (query != null) query.close();
+                if (query != null) {
+                    query.close();
+                }
             } catch (Exception e) {
             }
         }
@@ -322,12 +345,12 @@ public class HistoryService {
     /**
      * Returns a set of history data ordered by most recent first
      *
-     * @param profileId        - UUID of the profile we want history from(null for all)
-     * @param clientUUID       - UUID of the client we want history from(null for all)
-     * @param offset           - offset of the history data being looked for(0 for no offset), must be combined with a limit setting
-     * @param limit            - limit of the amount of data(-1 for all data)
+     * @param profileId - UUID of the profile we want history from(null for all)
+     * @param clientUUID - UUID of the client we want history from(null for all)
+     * @param offset - offset of the history data being looked for(0 for no offset), must be combined with a limit setting
+     * @param limit - limit of the amount of data(-1 for all data)
      * @param withResponseData - false if you want returnData to be null, true otherwise
-     * @param searchFilter     - HashMap of search filters.  This is a string(search type)/strings(regex) pair to search based on.  Search types are defined in Constants
+     * @param searchFilter - HashMap of search filters.  This is a string(search type)/strings(regex) pair to search based on.  Search types are defined in Constants
      * @return
      */
     public History[] getHistory(int profileId, String clientUUID, int offset, int limit, boolean withResponseData, HashMap<String, String[]> searchFilter, boolean hasMessage) throws Exception {
@@ -372,8 +395,9 @@ public class HistoryService {
             int itemsViewed = 0;
             while (results.next() && (itemsViewed < totalSearchLimit || totalSearchLimit == -1)) {
                 itemsViewed++;
-                if (hasMessage && historyFromSQLResult(results, withResponseData, scripts).getValid())
+                if (hasMessage && historyFromSQLResult(results, withResponseData, scripts).getValid()) {
                     continue;
+                }
                 if (searchFilter != null) {
                     // iterate over searchFilter and try to match the source URI
                     if (searchFilter.containsKey(Constants.HISTORY_FILTER_SOURCE_URI)) {
@@ -386,7 +410,7 @@ public class HistoryService {
                         for (String uriFilter : sourceURIFilters) {
                             Pattern pattern = Pattern.compile(uriFilter);
                             Matcher matcher = pattern.matcher(results.getString(Constants.HISTORY_REQUEST_URL) +
-                                    "?" + results.getString(Constants.HISTORY_REQUEST_PARAMS));
+                                                                  "?" + results.getString(Constants.HISTORY_REQUEST_PARAMS));
 
                             if (matcher.find()) {
                                 numMatches++;
@@ -409,16 +433,19 @@ public class HistoryService {
                     }
                 }
             }
-
         } catch (Exception e) {
             throw e;
         } finally {
             try {
-                if (results != null) results.close();
+                if (results != null) {
+                    results.close();
+                }
             } catch (Exception e) {
             }
             try {
-                if (query != null) query.close();
+                if (query != null) {
+                    query.close();
+                }
             } catch (Exception e) {
             }
         }
@@ -439,7 +466,7 @@ public class HistoryService {
 
         try (Connection sqlConnection = sqlService.getConnection()) {
             query = sqlConnection.prepareStatement("SELECT * FROM " + Constants.DB_TABLE_HISTORY +
-                    " WHERE " + Constants.GENERIC_ID + "=?");
+                                                       " WHERE " + Constants.GENERIC_ID + "=?");
             query.setInt(1, id);
 
             logger.info("Query: {}", query.toString());
@@ -451,11 +478,15 @@ public class HistoryService {
         } catch (Exception e) {
         } finally {
             try {
-                if (results != null) results.close();
+                if (results != null) {
+                    results.close();
+                }
             } catch (Exception e) {
             }
             try {
-                if (query != null) query.close();
+                if (query != null) {
+                    query.close();
+                }
             } catch (Exception e) {
             }
         }
@@ -486,7 +517,9 @@ public class HistoryService {
         } catch (Exception e) {
         } finally {
             try {
-                if (query != null) query.close();
+                if (query != null) {
+                    query.close();
+                }
             } catch (Exception e) {
             }
         }
