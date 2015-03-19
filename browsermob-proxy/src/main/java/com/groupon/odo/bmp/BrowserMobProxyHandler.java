@@ -224,33 +224,18 @@ GROUPON LICENSE:
 
 package com.groupon.odo.bmp;
 
-import com.groupon.odo.proxylib.Constants;
-import net.lightbody.bmp.proxy.FirefoxErrorConstants;
-import net.lightbody.bmp.proxy.FirefoxErrorContent;
-import net.lightbody.bmp.proxy.http.BadURIException;
-import net.lightbody.bmp.proxy.http.BrowserMobHttpResponse;
-import net.lightbody.bmp.proxy.http.RequestCallback;
-import net.lightbody.bmp.proxy.jetty.http.*;
-import net.lightbody.bmp.proxy.jetty.jetty.Server;
-import net.lightbody.bmp.proxy.jetty.util.InetAddrPort;
-import net.lightbody.bmp.proxy.jetty.util.URI;
-import net.lightbody.bmp.proxy.selenium.KeyStoreManager;
-import net.lightbody.bmp.proxy.selenium.LauncherUtils;
-import net.lightbody.bmp.proxy.selenium.SeleniumProxyHandler;
-import net.lightbody.bmp.proxy.util.Log;
-
-import org.apache.http.Header;
-import org.apache.http.NoHttpResponseException;
-import org.apache.http.StatusLine;
-import org.apache.http.conn.ConnectTimeoutException;
-
 import com.groupon.odo.bmp.http.BrowserMobHttpClient;
 import com.groupon.odo.bmp.http.BrowserMobHttpRequest;
-
+import com.groupon.odo.proxylib.Constants;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.*;
+import java.net.BindException;
+import java.net.ConnectException;
+import java.net.InetAddress;
+import java.net.Socket;
+import java.net.URL;
+import java.net.UnknownHostException;
 import java.security.cert.X509Certificate;
 import java.util.Date;
 import java.util.Enumeration;
@@ -259,6 +244,34 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import net.lightbody.bmp.proxy.FirefoxErrorConstants;
+import net.lightbody.bmp.proxy.FirefoxErrorContent;
+import net.lightbody.bmp.proxy.http.BadURIException;
+import net.lightbody.bmp.proxy.http.BrowserMobHttpResponse;
+import net.lightbody.bmp.proxy.http.RequestCallback;
+import net.lightbody.bmp.proxy.jetty.http.EOFException;
+import net.lightbody.bmp.proxy.jetty.http.HttpConnection;
+import net.lightbody.bmp.proxy.jetty.http.HttpException;
+import net.lightbody.bmp.proxy.jetty.http.HttpFields;
+import net.lightbody.bmp.proxy.jetty.http.HttpListener;
+import net.lightbody.bmp.proxy.jetty.http.HttpMessage;
+import net.lightbody.bmp.proxy.jetty.http.HttpRequest;
+import net.lightbody.bmp.proxy.jetty.http.HttpResponse;
+import net.lightbody.bmp.proxy.jetty.http.HttpServer;
+import net.lightbody.bmp.proxy.jetty.http.HttpTunnel;
+import net.lightbody.bmp.proxy.jetty.http.SocketListener;
+import net.lightbody.bmp.proxy.jetty.http.SslListener;
+import net.lightbody.bmp.proxy.jetty.jetty.Server;
+import net.lightbody.bmp.proxy.jetty.util.InetAddrPort;
+import net.lightbody.bmp.proxy.jetty.util.URI;
+import net.lightbody.bmp.proxy.selenium.KeyStoreManager;
+import net.lightbody.bmp.proxy.selenium.LauncherUtils;
+import net.lightbody.bmp.proxy.selenium.SeleniumProxyHandler;
+import net.lightbody.bmp.proxy.util.Log;
+import org.apache.http.Header;
+import org.apache.http.NoHttpResponseException;
+import org.apache.http.StatusLine;
+import org.apache.http.conn.ConnectTimeoutException;
 
 public class BrowserMobProxyHandler extends SeleniumProxyHandler {
     private static final Log LOG = new Log();
@@ -298,7 +311,7 @@ public class BrowserMobProxyHandler extends SeleniumProxyHandler {
         // going to try something like 5 minutes for now.
         setTunnelTimeoutMs(300000);
     }
-    
+
     // BEGIN ODO CHANGES
     private static final ThreadLocal<String> requestOriginalHostName = new ThreadLocal<String>();
     private static final ThreadLocal<URI> requestOriginalURI = new ThreadLocal<URI>();
@@ -306,7 +319,7 @@ public class BrowserMobProxyHandler extends SeleniumProxyHandler {
     @Override
     /**
      * This is the original handleConnect from BrowserMobProxyHandler with the following changes:
-     * 
+     *
      * 1. Store the original URI in a ThreadLocal so that we can determine the host addr later
      * 2. Store the original hostname in a ThreadLocal so we don't need to do the same string processing again later
      * 2. Set the URI to 127.0.0.1 to pass into Odo
@@ -323,18 +336,18 @@ public class BrowserMobProxyHandler extends SeleniumProxyHandler {
             host = original.substring(0, colon);
             port = original.substring(colon + 1);
         }
-        
+
         // store the original host name
         requestOriginalHostName.set(host);
-        
+
         // make a copy of the URI(have to create a new URI otherwise things are copied by reference and get changed)
         URI realURI = new URI(request.getURI());
         requestOriginalURI.set(realURI);
-        
-    	// send requests to Odo HTTPS port
-        int httpsPort = com.groupon.odo.proxylib.Utils.GetSystemPort(Constants.SYS_HTTPS_PORT);
-    	uri.setURI("127.0.0.1:" + httpsPort);
-    	uri.setPort(httpsPort);
+
+        // send requests to Odo HTTPS port
+        int httpsPort = com.groupon.odo.proxylib.Utils.getSystemPort(Constants.SYS_HTTPS_PORT);
+        uri.setURI("127.0.0.1:" + httpsPort);
+        uri.setPort(httpsPort);
 
         String altHost = httpClient.remappedHost(host);
         if (altHost != null) {
@@ -348,12 +361,14 @@ public class BrowserMobProxyHandler extends SeleniumProxyHandler {
         handleConnectOriginal(pathInContext, pathParams, request, response);
     }
     // END ODO CHANGES
-    
+
     // BEGIN ODO CHANGES
+
     /**
      * Copied from original SeleniumProxyHandler
      * Changed SslRelay to SslListener and getSslRelayOrCreateNew to getSslRelayOrCreateNewOdo
      * No other changes to the function
+     *
      * @param pathInContext
      * @param pathParams
      * @param request
@@ -416,8 +431,7 @@ public class BrowserMobProxyHandler extends SeleniumProxyHandler {
                 }
                 request.setHandled(true);
             }
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             LOG.fine("error during handleConnect", e);
             response.sendError(HttpResponse.__500_Internal_Server_Error, e.toString());
         }
@@ -425,8 +439,10 @@ public class BrowserMobProxyHandler extends SeleniumProxyHandler {
     // END ODO CHANGES
 
     // BEGIN ODO CHANGES
+
     /**
      * This function wires up a SSL Listener with the cyber villians root CA and cert with the correct CNAME for the request
+     *
      * @param host
      * @param listener
      */
@@ -442,20 +458,19 @@ public class BrowserMobProxyHandler extends SeleniumProxyHandler {
                 host = "*" + first.substring(first.indexOf('.'));
             }
         }
-        
+
         host = requestOriginalHostName.get();
 
-        
         // Add cybervillians CA(from browsermob)
         try {
-        	// see https://github.com/webmetrics/browsermob-proxy/issues/105
+            // see https://github.com/webmetrics/browsermob-proxy/issues/105
             String escapedHost = host.replace('*', '_');
-            
+
             KeyStoreManager keyStoreManager = Utils.getKeyStoreManager(escapedHost);
             keyStoreManager.getKeyStore().deleteEntry(KeyStoreManager._caPrivKeyAlias);
             keyStoreManager.persist();
             listener.setKeystore(new File("seleniumSslSupport" + File.separator + escapedHost + File.separator + "cybervillainsCA.jks").getAbsolutePath());
-            
+
             return keyStoreManager.getCertificateByAlias(escapedHost);
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -463,50 +478,50 @@ public class BrowserMobProxyHandler extends SeleniumProxyHandler {
     }
 
     private SslRelayOdo getSslRelayOrCreateNewOdo(URI uri, InetAddrPort addrPort, HttpServer server) throws Exception {
-    	URI realURI = requestOriginalURI.get();
-    	InetAddrPort realPort = new InetAddrPort(realURI.toString());
-    	LOG.info("GETSSLRELAY: {}, {}", realURI, realPort);
-    	String host = new URL("https://" + realURI.toString()).getHost();
-    	
-    	// create a host and port string so the listener sslMap can be keyed off the combination
-    	String hostAndPort = host.concat(String.valueOf(realPort.getPort()));
-    	LOG.info("getSSLRelay host: {}", hostAndPort);
-    	SslRelayOdo listener = null;
-    	
-    	synchronized(_sslMap) {
-    		listener = _sslMap.get(hostAndPort);
-    		
-    		// check the certificate expiration to see if we need to reload it
-    		if (listener != null) {
-    			Date exprDate = _certExpirationMap.get(hostAndPort);
-    			if (exprDate.before(new Date())) {
-    				// destroy the listener
-    				if (listener.getHttpServer() != null && listener.isStarted()) {
-    					listener.getHttpServer().removeListener(listener);
+        URI realURI = requestOriginalURI.get();
+        InetAddrPort realPort = new InetAddrPort(realURI.toString());
+        LOG.info("GETSSLRELAY: {}, {}", realURI, realPort);
+        String host = new URL("https://" + realURI.toString()).getHost();
+
+        // create a host and port string so the listener sslMap can be keyed off the combination
+        String hostAndPort = host.concat(String.valueOf(realPort.getPort()));
+        LOG.info("getSSLRelay host: {}", hostAndPort);
+        SslRelayOdo listener = null;
+
+        synchronized (_sslMap) {
+            listener = _sslMap.get(hostAndPort);
+
+            // check the certificate expiration to see if we need to reload it
+            if (listener != null) {
+                Date exprDate = _certExpirationMap.get(hostAndPort);
+                if (exprDate.before(new Date())) {
+                    // destroy the listener
+                    if (listener.getHttpServer() != null && listener.isStarted()) {
+                        listener.getHttpServer().removeListener(listener);
                     }
-    				listener = null;
-    			}
-    		}
-    		
-    		// create the listener if it didn't exist
-    		if (listener == null) {
-    			listener = new SslRelayOdo(addrPort);
-    	        listener.setNukeDirOrFile(null);
-    	        
-    	        _certExpirationMap.put(hostAndPort, wireUpSslWithCyberVilliansCAOdo(host, listener).getNotAfter());
-    	        
-    	        listener.setPassword("password");
-    	        listener.setKeyPassword("password");
+                    listener = null;
+                }
+            }
 
-    	        if (!listener.isStarted()) {
-    	            server.addListener(listener);
+            // create the listener if it didn't exist
+            if (listener == null) {
+                listener = new SslRelayOdo(addrPort);
+                listener.setNukeDirOrFile(null);
 
-    	            startRelayWithPortTollerance(server, listener, 1);
-    	        }
-    	        
-    	        _sslMap.put(hostAndPort,  listener);
-    		}
-    	}
+                _certExpirationMap.put(hostAndPort, wireUpSslWithCyberVilliansCAOdo(host, listener).getNotAfter());
+
+                listener.setPassword("password");
+                listener.setKeyPassword("password");
+
+                if (!listener.isStarted()) {
+                    server.addListener(listener);
+
+                    startRelayWithPortTollerance(server, listener, 1);
+                }
+
+                _sslMap.put(hostAndPort, listener);
+            }
+        }
         return listener;
     }
     // END ODO CHANGES
@@ -588,17 +603,17 @@ public class BrowserMobProxyHandler extends SeleniumProxyHandler {
 
             // BEGIN ODO CHANGES
             if (urlStr.toLowerCase().startsWith(Constants.ODO_INTERNAL_WEBAPP_URL)) {
-                urlStr = "http://localhost:" + com.groupon.odo.proxylib.Utils.GetSystemPort(Constants.SYS_HTTP_PORT) +"/odo";
+                urlStr = "http://localhost:" + com.groupon.odo.proxylib.Utils.getSystemPort(Constants.SYS_HTTP_PORT) + "/odo";
             }
             // END ODO CHANGES
 
             // we also don't URLs that Firefox always loads on startup showing up, or even wasting bandwidth.
             // so for these we just nuke them right on the spot!
             if (urlStr.startsWith("https://sb-ssl.google.com:443/safebrowsing")
-                    || urlStr.startsWith("http://en-us.fxfeeds.mozilla.com/en-US/firefox/headlines.xml")
-                    || urlStr.startsWith("http://fxfeeds.mozilla.com/firefox/headlines.xml")
-                    || urlStr.startsWith("http://fxfeeds.mozilla.com/en-US/firefox/headlines.xml")
-                    || urlStr.startsWith("http://newsrss.bbc.co.uk/rss/newsonline_world_edition/front_page/rss.xml")) {
+                || urlStr.startsWith("http://en-us.fxfeeds.mozilla.com/en-US/firefox/headlines.xml")
+                || urlStr.startsWith("http://fxfeeds.mozilla.com/firefox/headlines.xml")
+                || urlStr.startsWith("http://fxfeeds.mozilla.com/en-US/firefox/headlines.xml")
+                || urlStr.startsWith("http://newsrss.bbc.co.uk/rss/newsonline_world_edition/front_page/rss.xml")) {
                 // don't even xfer these!
                 request.setHandled(true);
                 return -1;
@@ -740,15 +755,14 @@ public class BrowserMobProxyHandler extends SeleniumProxyHandler {
             error = FirefoxErrorContent.NET_RESET;
         } else if (e instanceof EOFException) {
             error = FirefoxErrorContent.NET_INTERRUPT;
-        } else if (e instanceof IllegalArgumentException && e.getMessage().startsWith("Host name may not be null")){
+        } else if (e instanceof IllegalArgumentException && e.getMessage().startsWith("Host name may not be null")) {
             error = FirefoxErrorContent.DNS_NOT_FOUND;
-        } else if (e instanceof BadURIException){
+        } else if (e instanceof BadURIException) {
             error = FirefoxErrorContent.MALFORMED_URI;
         }
 
         String shortDesc = String.format(error.getShortDesc(), url.getHost());
         String text = String.format(FirefoxErrorConstants.ERROR_PAGE, error.getTitle(), shortDesc, error.getLongDesc());
-
 
         try {
             response.setStatus(HttpResponse.__502_Bad_Gateway);
@@ -814,6 +828,7 @@ public class BrowserMobProxyHandler extends SeleniumProxyHandler {
     }
 
     // BEGIN ODO CHANGES
+
     /**
      * Cleanup function to remove all allocated listeners
      */
@@ -843,28 +858,25 @@ public class BrowserMobProxyHandler extends SeleniumProxyHandler {
         }
     }
     */
-    
+
     // BEGIN ODO CHANGES
     // Copied from SeleniumProxyHandler(renamed to SslRelayOdo from SslRelay; no other changes)
-    public static class SslRelayOdo extends SslListener
-    {
+    public static class SslRelayOdo extends SslListener {
         InetAddrPort _addr;
         File nukeDirOrFile;
         private static final long serialVersionUID = 1L;
 
-        SslRelayOdo(InetAddrPort addr)
-        {
-            _addr=addr;
+        SslRelayOdo(InetAddrPort addr) {
+            _addr = addr;
         }
 
         public void setNukeDirOrFile(File nukeDirOrFile) {
             this.nukeDirOrFile = nukeDirOrFile;
         }
 
-        protected void customizeRequest(Socket socket, HttpRequest request)
-        {
-            super.customizeRequest(socket,request);
-            URI uri=request.getURI();
+        protected void customizeRequest(Socket socket, HttpRequest request) {
+            super.customizeRequest(socket, request);
+            URI uri = request.getURI();
 
             // Convert the URI to a proxy URL
             //

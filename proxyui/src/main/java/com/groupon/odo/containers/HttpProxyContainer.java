@@ -18,7 +18,11 @@ package com.groupon.odo.containers;
 import com.groupon.odo.proxylib.Constants;
 import com.groupon.odo.proxylib.Utils;
 import com.groupon.transparentproxy.TransparentProxy;
-
+import java.io.File;
+import java.io.IOException;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
+import javax.servlet.ServletContext;
 import org.apache.catalina.Context;
 import org.apache.catalina.connector.Connector;
 import org.apache.coyote.http11.Http11NioProtocol;
@@ -30,19 +34,12 @@ import org.springframework.boot.context.embedded.tomcat.TomcatEmbeddedServletCon
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
-
-import javax.servlet.ServletContext;
-
 @Configuration
 public class HttpProxyContainer extends GenericProxyContainer {
     @Bean
     public EmbeddedServletContainerFactory servletContainer() {
         TomcatEmbeddedServletContainerFactory factory = new TomcatEmbeddedServletContainerFactory();
-        int httpPort = Utils.GetSystemPort(Constants.SYS_HTTP_PORT);
+        int httpPort = Utils.getSystemPort(Constants.SYS_HTTP_PORT);
         factory.setPort(httpPort);
         factory.setSessionTimeout(10, TimeUnit.MINUTES);
         factory.addAdditionalTomcatConnectors(createSslConnector());
@@ -58,35 +55,34 @@ public class HttpProxyContainer extends GenericProxyContainer {
                 context.setJarScanner(jarScanner);
             }
         });
-        
+
         try {
             TransparentProxy.getInstance();
         } catch (Exception e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-        
+
         return factory;
     }
-    
+
     private Connector createSslConnector() {
         Connector connector = new Connector("org.apache.coyote.http11.Http11NioProtocol");
         Http11NioProtocol protocol = (Http11NioProtocol) connector.getProtocolHandler();
-        final int httpsPort = Utils.GetSystemPort(Constants.SYS_HTTPS_PORT);
+        final int httpsPort = Utils.getSystemPort(Constants.SYS_HTTPS_PORT);
         try {
-	        File keyStore = com.groupon.odo.proxylib.Utils.copyResourceToLocalFile("tomcat.ks", "tomcat.ks");
-	        connector.setScheme("https");
-	        connector.setSecure(true);
-	        connector.setPort(httpsPort);
-	        protocol.setSSLEnabled(true);
-	        protocol.setSslProtocol("TLS");
-	        protocol.setKeystoreFile(keyStore.getAbsolutePath());
-	        protocol.setKeystorePass("changeit");
-	        return connector;
-        }
-        catch (IOException ex) {
+            File keyStore = com.groupon.odo.proxylib.Utils.copyResourceToLocalFile("tomcat.ks", "tomcat.ks");
+            connector.setScheme("https");
+            connector.setSecure(true);
+            connector.setPort(httpsPort);
+            protocol.setSSLEnabled(true);
+            protocol.setSslProtocol("TLS");
+            protocol.setKeystoreFile(keyStore.getAbsolutePath());
+            protocol.setKeystorePass("changeit");
+            return connector;
+        } catch (IOException ex) {
             throw new IllegalStateException("can't access keystore: [" + "keystore"
-                    + "] or truststore: [" + "keystore" + "]", ex);
+                                                + "] or truststore: [" + "keystore" + "]", ex);
         } catch (Exception e) {
             e.printStackTrace();
         }

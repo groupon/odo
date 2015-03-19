@@ -15,6 +15,16 @@
 */
 package com.groupon.odo.proxylib;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.sql.Clob;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.HashMap;
 import org.apache.tomcat.jdbc.pool.DataSource;
 import org.apache.tomcat.jdbc.pool.PoolProperties;
 import org.h2.tools.Server;
@@ -23,18 +33,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.sql.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-
 /**
  * This class manages the SQL life cycle
  */
 public class SQLService {
     private static final Logger logger = LoggerFactory
-            .getLogger(SQLService.class);
+        .getLogger(SQLService.class);
     private Server server = null;
     private static SQLService _instance = null;
     private String databaseName = "h2proxydb";
@@ -58,7 +62,7 @@ public class SQLService {
     public void startServer() throws Exception {
         if (!externalDatabaseHost) {
             try {
-                this.port = Utils.GetSystemPort(Constants.SYS_DB_PORT);
+                this.port = Utils.getSystemPort(Constants.SYS_DB_PORT);
                 server = Server.createTcpServer("-tcpPort", String.valueOf(port), "-tcpAllowOthers").start();
             } catch (SQLException e) {
                 if (e.toString().contains("java.net.UnknownHostException")) {
@@ -103,7 +107,7 @@ public class SQLService {
             // initialize connection pool
             PoolProperties p = new PoolProperties();
             String connectString = "jdbc:h2:tcp://" + _instance.databaseHost + ":" + String.valueOf(_instance.port) + "/" +
-                    _instance.databaseName + "/proxydb;MULTI_THREADED=true;AUTO_RECONNECT=TRUE;AUTOCOMMIT=ON";
+                _instance.databaseName + "/proxydb;MULTI_THREADED=true;AUTO_RECONNECT=TRUE;AUTOCOMMIT=ON";
             p.setUrl(connectString);
             p.setDriverClassName("org.h2.Driver");
             p.setUsername("sa");
@@ -123,7 +127,7 @@ public class SQLService {
             p.setLogAbandoned(true);
             p.setRemoveAbandoned(true);
             _instance.datasource = new DataSource();
-            _instance.datasource.setPoolProperties(p); 
+            _instance.datasource.setPoolProperties(p);
         }
         return _instance;
     }
@@ -177,22 +181,22 @@ public class SQLService {
 
             // first check the current schema version
             HashMap<String, Object> configuration = getFirstResult("SELECT * FROM " + Constants.DB_TABLE_CONFIGURATION +
-                    " WHERE " + Constants.DB_TABLE_CONFIGURATION_NAME + " = \'" + Constants.DB_TABLE_CONFIGURATION_DATABASE_VERSION + "\'");
+                                                                       " WHERE " + Constants.DB_TABLE_CONFIGURATION_NAME + " = \'" + Constants.DB_TABLE_CONFIGURATION_DATABASE_VERSION + "\'");
 
             if (configuration == null) {
                 logger.info("Creating configuration table..");
                 // create configuration table
                 executeUpdate("CREATE TABLE "
-                        + Constants.DB_TABLE_CONFIGURATION
-                        + " (" + Constants.GENERIC_ID + " INTEGER IDENTITY,"
-                        + Constants.DB_TABLE_CONFIGURATION_NAME + " VARCHAR(256),"
-                        + Constants.DB_TABLE_CONFIGURATION_VALUE + " VARCHAR(1024));");
+                                  + Constants.DB_TABLE_CONFIGURATION
+                                  + " (" + Constants.GENERIC_ID + " INTEGER IDENTITY,"
+                                  + Constants.DB_TABLE_CONFIGURATION_NAME + " VARCHAR(256),"
+                                  + Constants.DB_TABLE_CONFIGURATION_VALUE + " VARCHAR(1024));");
 
                 executeUpdate("INSERT INTO " + Constants.DB_TABLE_CONFIGURATION
-                        + "(" + Constants.DB_TABLE_CONFIGURATION_NAME + "," + Constants.DB_TABLE_CONFIGURATION_VALUE + ")"
-                        + " VALUES (\'"
-                        + Constants.DB_TABLE_CONFIGURATION_DATABASE_VERSION
-                        + "\', '0');");
+                                  + "(" + Constants.DB_TABLE_CONFIGURATION_NAME + "," + Constants.DB_TABLE_CONFIGURATION_VALUE + ")"
+                                  + " VALUES (\'"
+                                  + Constants.DB_TABLE_CONFIGURATION_DATABASE_VERSION
+                                  + "\', '0');");
             } else {
                 logger.info("Getting current schema version..");
                 // get current version
@@ -207,25 +211,26 @@ public class SQLService {
                 // look for a schema file for this version
                 logger.info("Updating to schema version {}", current_version);
                 String currentFile = migrationPath + "/schema."
-                        + current_version;
+                    + current_version;
                 Resource migFile = new ClassPathResource(currentFile);
                 BufferedReader in = new BufferedReader(new InputStreamReader(
-                        migFile.getInputStream()));
+                    migFile.getInputStream()));
 
                 String str;
                 while ((str = in.readLine()) != null) {
                     // execute each line
-                    if (str.length() > 0)
+                    if (str.length() > 0) {
                         executeUpdate(str);
+                    }
                 }
                 in.close();
             }
 
             // update the configuration table with the correct version
             executeUpdate("UPDATE " + Constants.DB_TABLE_CONFIGURATION
-                    + " SET " + Constants.DB_TABLE_CONFIGURATION_VALUE + "='" + current_version
-                    + "' WHERE " + Constants.DB_TABLE_CONFIGURATION_NAME + "='"
-                    + Constants.DB_TABLE_CONFIGURATION_DATABASE_VERSION + "';");
+                              + " SET " + Constants.DB_TABLE_CONFIGURATION_VALUE + "='" + current_version
+                              + "' WHERE " + Constants.DB_TABLE_CONFIGURATION_NAME + "='"
+                              + Constants.DB_TABLE_CONFIGURATION_DATABASE_VERSION + "';");
         } catch (Exception e) {
             logger.info("Error in executeUpdate");
             e.printStackTrace();
@@ -249,7 +254,9 @@ public class SQLService {
         } catch (Exception e) {
         } finally {
             try {
-                if (queryStatement != null) queryStatement.close();
+                if (queryStatement != null) {
+                    queryStatement.close();
+                }
             } catch (Exception e) {
             }
         }
@@ -264,7 +271,7 @@ public class SQLService {
      * @return result or NULL
      */
     public HashMap<String, Object> getFirstResult(String query)
-            throws Exception {
+        throws Exception {
         HashMap<String, Object> result = null;
 
         Statement queryStatement = null;
@@ -284,11 +291,15 @@ public class SQLService {
 
         } finally {
             try {
-                if (results != null) results.close();
+                if (results != null) {
+                    results.close();
+                }
             } catch (Exception e) {
             }
             try {
-                if (queryStatement != null) queryStatement.close();
+                if (queryStatement != null) {
+                    queryStatement.close();
+                }
             } catch (Exception e) {
             }
         }
@@ -339,10 +350,10 @@ public class SQLService {
     }
 
     /**
-     * @param getColumn  , the data that will be returned comes from this column
+     * @param getColumn , the data that will be returned comes from this column
      * @param fromColumn , we search on this column
-     * @param fromData   , searching for this specified data
-     * @param tableName  , using this table
+     * @param fromData , searching for this specified data
+     * @param tableName , using this table
      * @return the Object of the getColumn we return Used for methods such as
      * 'getPathnameFromId' or 'getUUIDfromId'
      */
@@ -352,7 +363,7 @@ public class SQLService {
         try (Connection sqlConnection = getConnection()) {
             query = sqlConnection.createStatement();
             results = query.executeQuery("SELECT * FROM " + tableName
-                    + " WHERE " + fromColumn + "='" + fromData + "';");
+                                             + " WHERE " + fromColumn + "='" + fromData + "';");
             if (results.next()) {
                 Object toReturn = results.getObject(getColumn);
                 query.close();
@@ -363,11 +374,15 @@ public class SQLService {
             e.printStackTrace();
         } finally {
             try {
-                if (results != null) results.close();
+                if (results != null) {
+                    results.close();
+                }
             } catch (Exception e) {
             }
             try {
-                if (query != null) query.close();
+                if (query != null) {
+                    query.close();
+                }
             } catch (Exception e) {
             }
         }
