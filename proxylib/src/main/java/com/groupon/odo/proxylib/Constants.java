@@ -27,6 +27,7 @@ public class Constants {
     public static final String SYS_FWD_PORT = "ODO_FWD_PORT";
     public static final String SYS_HTTP_PORT = "ODO_HTTP_PORT";
     public static final String SYS_HTTPS_PORT = "ODO_HTTPS_PORT";
+    public static final String SYS_LOGGING_DISABLED = "ODO_DISABLE_HISTORY";
     public static final int DEFAULT_API_PORT = 8090;
     public static final int DEFAULT_DB_PORT = 9092;
     public static final int DEFAULT_FWD_PORT = 9090;
@@ -125,7 +126,6 @@ public class Constants {
     public static final String HISTORY_REQUEST_SENT = "requestSent";
     public static final String HISTORY_REQUEST_BODY_DECODED = "request_body_decoded";
     public static final String HISTORY_RESPONSE_BODY_DECODED = "response_body_decoded";
-
 
     // Client profile constants
     public static final String PROFILE_CLIENT_DEFAULT_ID = "-1";

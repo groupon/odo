@@ -15,16 +15,19 @@
 */
 package com.groupon.odo.proxylib;
 
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.Resource;
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.List;
+import java.util.StringTokenizer;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 
 public class Utils {
     // found this on a website, splits a string of ints "1,2,3,4,5" into an
@@ -66,13 +69,13 @@ public class Utils {
         returnVal.put(rowName, rows);
         return returnVal;
     }
-    
+
     public static HashMap<String, Object> getJQGridJSON(List<?> rows, String rowName) {
-    	return getJQGridJSON(rows.toArray(), rowName);
+        return getJQGridJSON(rows.toArray(), rowName);
     }
-    
+
     public static HashMap<String, Object> getJQGridJSON(ArrayList<?> rows, String rowName) {
-    	return getJQGridJSON(rows.toArray(), rowName);
+        return getJQGridJSON(rows.toArray(), rowName);
     }
 
     public static HashMap<String, Object> getJQGridJSON(Object[] rows, String rowName, int offset, int totalRows, int requestedRows) {
@@ -117,33 +120,38 @@ public class Utils {
 
     /**
      * Returns the port as configured by teh system variables, fallback is the default port value
+     *
      * @param portIdentifier - SYS_*_PORT defined in Constants
      * @return
      */
-    public static int GetSystemPort(String portIdentifier) {
+    public static int getSystemPort(String portIdentifier) {
         int defaultPort = 0;
 
-        if(portIdentifier.compareTo(Constants.SYS_API_PORT) == 0) {
+        if (portIdentifier.compareTo(Constants.SYS_API_PORT) == 0) {
             defaultPort = Constants.DEFAULT_API_PORT;
-        }
-        else if(portIdentifier.compareTo(Constants.SYS_DB_PORT) == 0) {
+        } else if (portIdentifier.compareTo(Constants.SYS_DB_PORT) == 0) {
             defaultPort = Constants.DEFAULT_DB_PORT;
-        }
-        else if(portIdentifier.compareTo(Constants.SYS_FWD_PORT) == 0) {
+        } else if (portIdentifier.compareTo(Constants.SYS_FWD_PORT) == 0) {
             defaultPort = Constants.DEFAULT_FWD_PORT;
-        }
-        else if(portIdentifier.compareTo(Constants.SYS_HTTP_PORT) == 0) {
+        } else if (portIdentifier.compareTo(Constants.SYS_HTTP_PORT) == 0) {
             defaultPort = Constants.DEFAULT_HTTP_PORT;
-        }
-        else if(portIdentifier.compareTo(Constants.SYS_HTTPS_PORT) == 0) {
+        } else if (portIdentifier.compareTo(Constants.SYS_HTTPS_PORT) == 0) {
             defaultPort = Constants.DEFAULT_HTTPS_PORT;
-        }
-        else {
+        } else {
             return defaultPort;
         }
 
         String portStr = System.getenv(portIdentifier);
         return (portStr == null || portStr.isEmpty()) ? defaultPort : Integer.valueOf(portStr);
+    }
+
+    /**
+     * Returns the port as configured by teh system variables, fallback is the default port value
+     *
+     * @return
+     */
+    public static String getEnvironmentOptionValue(String option) {
+        return System.getenv(option);
     }
 
     /**
@@ -157,20 +165,22 @@ public class Utils {
 
         String ipAddr = null;
         Enumeration e = NetworkInterface.getNetworkInterfaces();
-        while(e.hasMoreElements()) {
+        while (e.hasMoreElements()) {
             NetworkInterface n = (NetworkInterface) e.nextElement();
             Enumeration ee = n.getInetAddresses();
             while (ee.hasMoreElements()) {
                 InetAddress i = (InetAddress) ee.nextElement();
 
                 // Pick the first non loop back address
-                if((!i.isLoopbackAddress() && i.isSiteLocalAddress()) ||
-                        i.getHostAddress().matches(IPV4_REGEX)) {
+                if ((!i.isLoopbackAddress() && i.isSiteLocalAddress()) ||
+                    i.getHostAddress().matches(IPV4_REGEX)) {
                     ipAddr = i.getHostAddress();
                     break;
                 }
             }
-            if(ipAddr != null) break;
+            if (ipAddr != null) {
+                break;
+            }
         }
 
         return ipAddr;

@@ -17,8 +17,14 @@ package com.groupon.odo.controllers;
 
 import com.groupon.odo.containers.HttpProxyContainer;
 import com.groupon.odo.proxylib.Constants;
+import com.groupon.odo.proxylib.HistoryService;
 import com.groupon.odo.proxylib.SQLService;
 import com.groupon.odo.proxylib.Utils;
+import java.util.Locale;
+import java.util.concurrent.TimeUnit;
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import javax.servlet.MultipartConfigElement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
@@ -26,17 +32,15 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.web.EmbeddedServletContainerAutoConfiguration;
 import org.springframework.boot.context.embedded.EmbeddedServletContainerFactory;
 import org.springframework.boot.context.embedded.tomcat.TomcatEmbeddedServletContainerFactory;
-import org.springframework.context.annotation.*;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.FilterType;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.context.annotation.PropertySources;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-import javax.servlet.MultipartConfigElement;
-import java.util.Locale;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Handles requests for the application home page.
@@ -44,7 +48,8 @@ import java.util.concurrent.TimeUnit;
 @Controller
 @PropertySources(value = {@PropertySource("classpath:application.properties")})
 @ComponentScan(basePackages = {"com.groupon.odo.controllers"}, excludeFilters = {
-        @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = HttpProxyContainer.class)})
+    @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = HttpProxyContainer.class)
+})
 
 @EnableAutoConfiguration(exclude = {EmbeddedServletContainerAutoConfiguration.class})
 public class HomeController {
@@ -84,18 +89,20 @@ public class HomeController {
     public EmbeddedServletContainerFactory servletContainer() {
         TomcatEmbeddedServletContainerFactory factory = new TomcatEmbeddedServletContainerFactory();
 
-        int apiPort = Utils.GetSystemPort(Constants.SYS_API_PORT);
+        int apiPort = Utils.getSystemPort(Constants.SYS_API_PORT);
         factory.setPort(apiPort);
         factory.setSessionTimeout(10, TimeUnit.MINUTES);
         factory.setContextPath("/testproxy");
+
+        if (Utils.getEnvironmentOptionValue(Constants.SYS_LOGGING_DISABLED) != null) {
+            HistoryService.getInstance().disableHistory();
+        }
         return factory;
     }
 
-    @Bean
-    MultipartConfigElement multipartConfigElement() {
+    @Bean MultipartConfigElement multipartConfigElement() {
         return new MultipartConfigElement("");
     }
-
 
     public static void main(String[] args) {
         SpringApplication.run(HomeController.class, args);
