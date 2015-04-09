@@ -224,7 +224,41 @@ GROUPON LICENSE:
 
 package com.groupon.odo.bmp.http;
 
-import net.lightbody.bmp.core.har.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Scanner;
+import java.util.Set;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.zip.GZIPInputStream;
+import net.lightbody.bmp.core.har.Har;
+import net.lightbody.bmp.core.har.HarCookie;
+import net.lightbody.bmp.core.har.HarEntry;
+import net.lightbody.bmp.core.har.HarNameValuePair;
+import net.lightbody.bmp.core.har.HarNameVersion;
+import net.lightbody.bmp.core.har.HarPostData;
+import net.lightbody.bmp.core.har.HarPostDataParam;
+import net.lightbody.bmp.core.har.HarRequest;
+import net.lightbody.bmp.core.har.HarResponse;
+import net.lightbody.bmp.core.har.HarTimings;
 import net.lightbody.bmp.proxy.http.AllowAllHostnameVerifier;
 import net.lightbody.bmp.proxy.http.BadURIException;
 import net.lightbody.bmp.proxy.http.BlankCookieStore;
@@ -234,16 +268,45 @@ import net.lightbody.bmp.proxy.http.RequestCallback;
 import net.lightbody.bmp.proxy.http.RequestInfo;
 import net.lightbody.bmp.proxy.http.ResponseInterceptor;
 import net.lightbody.bmp.proxy.http.WildcardMatchingCredentialsProvider;
-import net.lightbody.bmp.proxy.util.*;
+import net.lightbody.bmp.proxy.util.Base64;
+import net.lightbody.bmp.proxy.util.CappedByteArrayOutputStream;
+import net.lightbody.bmp.proxy.util.ClonedOutputStream;
+import net.lightbody.bmp.proxy.util.IOUtils;
+import net.lightbody.bmp.proxy.util.Log;
 import net.sf.uadetector.ReadableUserAgent;
 import net.sf.uadetector.UserAgentStringParser;
 import net.sf.uadetector.service.UADetectorServiceFactory;
-
 import org.apache.commons.lang.StringUtils;
-import org.apache.http.*;
-import org.apache.http.auth.*;
+import org.apache.http.Header;
+import org.apache.http.HeaderElement;
+import org.apache.http.HttpClientConnection;
+import org.apache.http.HttpConnection;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpException;
+import org.apache.http.HttpHost;
+import org.apache.http.HttpRequest;
+import org.apache.http.HttpRequestInterceptor;
+import org.apache.http.HttpResponse;
+import org.apache.http.HttpResponseInterceptor;
+import org.apache.http.HttpVersion;
+import org.apache.http.NameValuePair;
+import org.apache.http.ParseException;
+import org.apache.http.ProtocolVersion;
+import org.apache.http.StatusLine;
+import org.apache.http.auth.AuthScheme;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.AuthState;
+import org.apache.http.auth.Credentials;
+import org.apache.http.auth.NTCredentials;
+import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CredentialsProvider;
-import org.apache.http.client.methods.*;
+import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpHead;
+import org.apache.http.client.methods.HttpOptions;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpPut;
+import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.client.params.ClientPNames;
 import org.apache.http.client.params.CookiePolicy;
 import org.apache.http.client.protocol.ClientContext;
@@ -255,7 +318,11 @@ import org.apache.http.conn.params.ConnRoutePNames;
 import org.apache.http.conn.routing.HttpRoute;
 import org.apache.http.conn.scheme.Scheme;
 import org.apache.http.conn.scheme.SchemeRegistry;
-import org.apache.http.cookie.*;
+import org.apache.http.cookie.Cookie;
+import org.apache.http.cookie.CookieOrigin;
+import org.apache.http.cookie.CookieSpec;
+import org.apache.http.cookie.CookieSpecFactory;
+import org.apache.http.cookie.MalformedCookieException;
 import org.apache.http.cookie.params.CookieSpecPNames;
 import org.apache.http.entity.ContentType;
 import org.apache.http.impl.auth.BasicScheme;
@@ -276,19 +343,6 @@ import org.eclipse.jetty.util.UrlEncoded;
 import org.java_bandwidthlimiter.StreamManager;
 import org.xbill.DNS.Cache;
 import org.xbill.DNS.DClass;
-
-import java.io.*;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.nio.charset.Charset;
-import java.util.*;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.zip.GZIPInputStream;
 
 @SuppressWarnings("deprecation")
 public class BrowserMobHttpClient {
@@ -376,14 +430,14 @@ public class BrowserMobHttpClient {
                 return new HttpRequestExecutor() {
                     @Override
                     protected HttpResponse doSendRequest(HttpRequest request, HttpClientConnection conn, HttpContext context) throws IOException, HttpException {
-						long requestHeadersSize = request.getRequestLine().toString().length() + 4;
-						long requestBodySize = 0;
-						for (Header header : request.getAllHeaders()) {
-							requestHeadersSize += header.toString().length() + 2;
-							if (header.getName().equals("Content-Length")) {
-								requestBodySize += Integer.valueOf(header.getValue());
-							}
-						}
+                        long requestHeadersSize = request.getRequestLine().toString().length() + 4;
+                        long requestBodySize = 0;
+                        for (Header header : request.getAllHeaders()) {
+                            requestHeadersSize += header.toString().length() + 2;
+                            if (header.getName().equals("Content-Length")) {
+                                requestBodySize += Integer.valueOf(header.getValue());
+                            }
+                        }
 
                         HarEntry entry = RequestInfo.get().getEntry();
                         if (entry != null) {
@@ -401,15 +455,15 @@ public class BrowserMobHttpClient {
                     protected HttpResponse doReceiveResponse(HttpRequest request, HttpClientConnection conn, HttpContext context) throws HttpException, IOException {
                         Date start = new Date();
                         HttpResponse response = super.doReceiveResponse(request, conn, context);
-						long responseHeadersSize = response.getStatusLine().toString().length() + 4;
-						for (Header header : response.getAllHeaders()) {
-							responseHeadersSize += header.toString().length() + 2;
-						}
+                        long responseHeadersSize = response.getStatusLine().toString().length() + 4;
+                        for (Header header : response.getAllHeaders()) {
+                            responseHeadersSize += header.toString().length() + 2;
+                        }
 
                         HarEntry entry = RequestInfo.get().getEntry();
                         if (entry != null) {
-							entry.getResponse().setHeadersSize(responseHeadersSize);
-						}
+                            entry.getResponse().setHeadersSize(responseHeadersSize);
+                        }
 
                         RequestInfo.get().wait(start, new Date());
                         return response;
@@ -487,11 +541,11 @@ public class BrowserMobHttpClient {
 
     public Cookie getCookie(String name, String domain, String path) {
         for (Cookie cookie : httpClient.getCookieStore().getCookies()) {
-            if(cookie.getName().equals(name)) {
-                if(domain != null && !domain.equals(cookie.getDomain())) {
+            if (cookie.getName().equals(name)) {
+                if (domain != null && !domain.equals(cookie.getDomain())) {
                     continue;
                 }
-                if(path != null && !path.equals(cookie.getPath())) {
+                if (path != null && !path.equals(cookie.getPath())) {
                     continue;
                 }
 
@@ -580,7 +634,7 @@ public class BrowserMobHttpClient {
         // would include a value such as "yahoo.com:80" rather than "yahoo.com". Not sure why this happens but we don't
         // want it to, and rewriting the URI solves it
         if ((uri.getPort() == 80 && "http".equals(uri.getScheme()))
-                || (uri.getPort() == 443 && "https".equals(uri.getScheme()))) {
+            || (uri.getPort() == 443 && "https".equals(uri.getScheme()))) {
             // we rewrite the URL with a StringBuilder (vs passing in the components of the URI) because if we were
             // to pass in these components using the URI's 7-arg constructor query parameters get double escaped (bad!)
             StringBuilder sb = new StringBuilder(uri.getScheme()).append("://");
@@ -673,7 +727,7 @@ public class BrowserMobHttpClient {
                     String version = uai.getVersionNumber().toVersionString();
                     har.getLog().setBrowser(new HarNameVersion(browser, version));
                 } catch (Exception e) {
-                	LOG.warn("Failed to parse user agent string", e);
+                    LOG.warn("Failed to parse user agent string", e);
                 }
             }
         }
@@ -734,7 +788,6 @@ public class BrowserMobHttpClient {
             }
         }
 
-
         String charSet = "UTF-8";
         String responseBody = null;
 
@@ -764,15 +817,15 @@ public class BrowserMobHttpClient {
             har.getLog().addEntry(entry);
         }
 
-    	String query = method.getURI().getRawQuery();
-    	if (query != null) {
-	        MultiMap<String> params = new MultiMap<String>();
-	        UrlEncoded.decodeTo(query, params, "UTF-8");
-	        for (String k : params.keySet()) {
-	        	for (Object v : params.getValues(k)) {
-	        		entry.getRequest().getQueryString().add(new HarNameValuePair(k, (String) v));
-	        	}
-	        }
+        String query = method.getURI().getRawQuery();
+        if (query != null) {
+            MultiMap<String> params = new MultiMap<String>();
+            UrlEncoded.decodeTo(query, params, "UTF-8");
+            for (String k : params.keySet()) {
+                for (Object v : params.getValues(k)) {
+                    entry.getRequest().getQueryString().add(new HarNameValuePair(k, (String) v));
+                }
+            }
         }
 
         String errorMessage = null;
@@ -805,40 +858,40 @@ public class BrowserMobHttpClient {
                 statusCode = mockResponseCode;
 
                 // TODO: HACKY!!
-                callback.handleHeaders(new Header[]{
-                        new Header(){
-                            @Override
-                            public String getName() {
-                                return "Content-Type";
-                            }
-
-                            @Override
-                            public String getValue() {
-                                return "text/plain";
-                            }
-
-                            @Override
-                            public HeaderElement[] getElements() throws ParseException {
-                                return new HeaderElement[0];
-                            }
+                callback.handleHeaders(new Header[] {
+                    new Header() {
+                        @Override
+                        public String getName() {
+                            return "Content-Type";
                         }
+
+                        @Override
+                        public String getValue() {
+                            return "text/plain";
+                        }
+
+                        @Override
+                        public HeaderElement[] getElements() throws ParseException {
+                            return new HeaderElement[0];
+                        }
+                    }
                 });
                 // Make sure we set the status line here too.
                 // Use the version number from the request
                 ProtocolVersion version = null;
                 int reqDotVersion = req.getProxyRequest().getDotVersion();
                 if (reqDotVersion == -1) {
-                	version = new HttpVersion(0, 9);
+                    version = new HttpVersion(0, 9);
                 } else if (reqDotVersion == 0) {
-                	version = new HttpVersion(1, 0);
+                    version = new HttpVersion(1, 0);
                 } else if (reqDotVersion == 1) {
-                   	version = new HttpVersion(1, 1);
+                    version = new HttpVersion(1, 1);
                 }
                 // and if not any of these, trust that a Null version will
                 // cause an appropriate error
-				callback.handleStatusLine(new BasicStatusLine(version, statusCode, "Status set by browsermob-proxy"));
-				// No mechanism to look up the response text by status code,
-				// so include a notification that this is a synthetic error code.
+                callback.handleStatusLine(new BasicStatusLine(version, statusCode, "Status set by browsermob-proxy"));
+                // No mechanism to look up the response text by status code,
+                // so include a notification that this is a synthetic error code.
             } else {
                 response = httpClient.execute(method, ctx);
                 statusLine = response.getStatusLine();
@@ -868,7 +921,6 @@ public class BrowserMobHttpClient {
                     if (captureContent) {
                         // todo - something here?
                         os = new ClonedOutputStream(os);
-
                     }
 
                     bytes = copyWithStats(is, os);
@@ -1002,12 +1054,11 @@ public class BrowserMobHttpClient {
                         }
 
                         if (hasTextualContent(contentType)) {
-                        	setTextOfEntry(entry, copy, contentType);
-                        } else if(captureBinaryContent){
+                            setTextOfEntry(entry, copy, contentType);
+                        } else if (captureBinaryContent) {
                             setBinaryContentOfEntry(entry, copy);
                         }
                     }
-
 
                     NameValuePair nvp = contentTypeHdr.getElements()[0].getParameterByName("charset");
 
@@ -1062,7 +1113,7 @@ public class BrowserMobHttpClient {
             if (expectedStatusCode != statusCode) {
                 if (isRedirect) {
                     throw new RuntimeException("Expected status code of " + expectedStatusCode + " but saw " + statusCode
-                            + " redirecting to: " + location);
+                                                   + " redirecting to: " + location);
                 } else {
                     throw new RuntimeException("Expected status code of " + expectedStatusCode + " but saw " + statusCode);
                 }
@@ -1096,40 +1147,38 @@ public class BrowserMobHttpClient {
             }
         }
 
-
         return new BrowserMobHttpResponse(entry, method, response, contentMatched, verificationText, errorMessage, responseBody, contentType, charSet);
     }
 
-        private boolean hasTextualContent(String contentType) {
-                if (StringUtils.isNotBlank(contentType)) {
-                    return contentType.startsWith("text/") ||
-                           contentType.startsWith("application/x-javascript") ||
-                           contentType.startsWith("application/javascript") ||
-                           contentType.startsWith("application/json") ||
-                           contentType.startsWith("application/xml") ||
-                           contentType.startsWith("application/xhtml+xml");
-                }
-
-                return false;
+    private boolean hasTextualContent(String contentType) {
+        if (StringUtils.isNotBlank(contentType)) {
+            return contentType.startsWith("text/") ||
+                contentType.startsWith("application/x-javascript") ||
+                contentType.startsWith("application/javascript") ||
+                contentType.startsWith("application/json") ||
+                contentType.startsWith("application/xml") ||
+                contentType.startsWith("application/xhtml+xml");
         }
 
-	private void setBinaryContentOfEntry(HarEntry entry,
-			ByteArrayOutputStream copy) {
-		entry.getResponse().getContent().setText(Base64.byteArrayToBase64(copy.toByteArray()));
-	}
+        return false;
+    }
 
-	private void setTextOfEntry(HarEntry entry,
-			ByteArrayOutputStream copy, String contentType) {
-		ContentType contentTypeCharset = ContentType.parse(contentType);
-		Charset charset = contentTypeCharset.getCharset();
-		if (charset != null) {
-			entry.getResponse().getContent().setText(new String(copy.toByteArray(), charset));
-		} else {
-			entry.getResponse().getContent().setText(new String(copy.toByteArray()));
-		}
-	}
+    private void setBinaryContentOfEntry(HarEntry entry,
+                                         ByteArrayOutputStream copy) {
+        entry.getResponse().getContent().setText(Base64.byteArrayToBase64(copy.toByteArray()));
+    }
 
-    
+    private void setTextOfEntry(HarEntry entry,
+                                ByteArrayOutputStream copy, String contentType) {
+        ContentType contentTypeCharset = ContentType.parse(contentType);
+        Charset charset = contentTypeCharset.getCharset();
+        if (charset != null) {
+            entry.getResponse().getContent().setText(new String(copy.toByteArray(), charset));
+        } else {
+            entry.getResponse().getContent().setText(new String(copy.toByteArray()));
+        }
+    }
+
     public void shutdown() {
         shutdown = true;
         abortActiveRequests();
@@ -1173,7 +1222,6 @@ public class BrowserMobHttpClient {
 
     public void setFollowRedirects(boolean followRedirects) {
         this.followRedirects = followRedirects;
-
     }
 
     public boolean isFollowRedirects() {
@@ -1183,15 +1231,15 @@ public class BrowserMobHttpClient {
     public void autoBasicAuthorization(String domain, String username, String password) {
         authType = AuthType.BASIC;
         httpClient.getCredentialsProvider().setCredentials(
-                new AuthScope(domain, -1),
-                new UsernamePasswordCredentials(username, password));
+            new AuthScope(domain, -1),
+            new UsernamePasswordCredentials(username, password));
     }
 
     public void autoNTLMAuthorization(String domain, String username, String password) {
         authType = AuthType.NTLM;
         httpClient.getCredentialsProvider().setCredentials(
-                new AuthScope(domain, -1),
-                new NTCredentials(username, password, "workstation", domain));
+            new AuthScope(domain, -1),
+            new NTCredentials(username, password, "workstation", domain));
     }
 
     public void rewriteUrl(String match, String replace) {
@@ -1199,7 +1247,7 @@ public class BrowserMobHttpClient {
     }
 
     public void clearRewriteRules() {
-    	rewriteRules.clear();
+        rewriteRules.clear();
     }
 
     // this method is provided for backwards compatibility before we renamed it to
@@ -1213,19 +1261,19 @@ public class BrowserMobHttpClient {
     }
 
     public void clearBlacklist() {
-    	blacklistEntries.clear();
+        blacklistEntries.clear();
     }
 
     public synchronized void whitelistRequests(String[] patterns, int responseCode) {
-    	// synchronized to guard against concurrent modification
+        // synchronized to guard against concurrent modification
         whitelistEntry = new WhitelistEntry(patterns, responseCode);
     }
 
     public synchronized void clearWhitelist() {
-    	// synchronized to guard against concurrent modification
-    	whitelistEntry = null;
+        // synchronized to guard against concurrent modification
+        whitelistEntry = null;
     }
-    
+
     public void addHeader(String name, String value) {
         additionalHeaders.put(name, value);
     }
@@ -1277,30 +1325,30 @@ public class BrowserMobHttpClient {
         String host = httpProxy.split(":")[0];
         Integer port = Integer.parseInt(httpProxy.split(":")[1]);
         HttpHost proxy = new HttpHost(host, port);
-        httpClient.getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY,proxy);
+        httpClient.getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY, proxy);
     }
 
     static class PreemptiveAuth implements HttpRequestInterceptor {
         public void process(
-                final HttpRequest request,
-                final HttpContext context) throws HttpException, IOException {
+            final HttpRequest request,
+            final HttpContext context) throws HttpException, IOException {
 
             AuthState authState = (AuthState) context.getAttribute(
-                    ClientContext.TARGET_AUTH_STATE);
+                ClientContext.TARGET_AUTH_STATE);
 
             // If no auth scheme avaialble yet, try to initialize it preemptively
             if (authState.getAuthScheme() == null) {
                 AuthScheme authScheme = (AuthScheme) context.getAttribute(
-                        "preemptive-auth");
+                    "preemptive-auth");
                 CredentialsProvider credsProvider = (CredentialsProvider) context.getAttribute(
-                        ClientContext.CREDS_PROVIDER);
+                    ClientContext.CREDS_PROVIDER);
                 HttpHost targetHost = (HttpHost) context.getAttribute(
-                        ExecutionContext.HTTP_TARGET_HOST);
+                    ExecutionContext.HTTP_TARGET_HOST);
                 if (authScheme != null) {
                     Credentials creds = credsProvider.getCredentials(
-                            new AuthScope(
-                                    targetHost.getHostName(),
-                                    targetHost.getPort()));
+                        new AuthScope(
+                            targetHost.getHostName(),
+                            targetHost.getPort()));
                     if (creds != null) {
                         authState.setAuthScheme(authScheme);
                         authState.setCredentials(creds);
