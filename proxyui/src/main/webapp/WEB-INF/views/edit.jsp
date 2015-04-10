@@ -1334,10 +1334,8 @@
                         });
 
                         $("#"+type+"OverrideDetails").show();
-
                     }
                 });
-
             }
 
             function applyGeneralPathChanges() {
