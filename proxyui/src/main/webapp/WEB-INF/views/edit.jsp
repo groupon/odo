@@ -1309,11 +1309,7 @@
 
                             // special case for custom responses
                             if (methodId == -1) {
-                                formData += '<dd><textarea id="' + type + '_args_' + x + '" ROWS=10 style="width:100%;">';
-                                if (data.enabledEndpoint.arguments.length > i) {
-                                    formData += data.enabledEndpoint.arguments[i];
-                                }
-                                formData += '</textarea></dd><br>';
+                                formData += '<dd><textarea id="' + type + '_args_' + x + '" ROWS=10 style="width:100%;">' + '</textarea></dd><br>';
                             } else {
                                 formData += '<dd>(' + el + ')<input id="' + type + '_args_' + x + '" style="width:60%;" type="text" value=""/></dd>';
                             }
@@ -1327,21 +1323,21 @@
                         x = 0;
                         $.each(data.enabledEndpoint.methodInformation.methodArguments, function(i, el) {
                             // populate the override parameters
-                            if (methodId != -1) {
-                                if (data.enabledEndpoint.arguments.length > i) {
-                                    $("#"+type+"_args_"+x).val(data.enabledEndpoint.arguments[i]);
-                                } else {
-                                    if (data.enabledEndpoint.methodInformation.methodDefaultArguments[i] != null) {
-                                        $("#"+type+"_args_"+x).val(data.enabledEndpoint.methodInformation.methodDefaultArguments[i]);
-                                    }
+                            if (data.enabledEndpoint.arguments.length > i) {
+                                $("#"+type+"_args_"+x).val(data.enabledEndpoint.arguments[i]);
+                            } else {
+                                if (data.enabledEndpoint.methodInformation.methodDefaultArguments[i] != null) {
+                                    $("#"+type+"_args_"+x).val(data.enabledEndpoint.methodInformation.methodDefaultArguments[i]);
                                 }
                             }
                             x++;
                         });
 
                         $("#"+type+"OverrideDetails").show();
+
                     }
                 });
+
             }
 
             function applyGeneralPathChanges() {
