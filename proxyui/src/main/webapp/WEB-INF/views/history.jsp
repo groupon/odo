@@ -793,11 +793,23 @@
                     caption : '<font size="5">History</font>'
                 });
 
-                historyList.jqGrid('navGrid', '#historynavGrid', {
+        historyList
+                .jqGrid('navGrid', '#historynavGrid', {
                     edit : false,
                     add : false,
-                    del : false
-                }, {}, {}, {});
+                    del : true
+                },
+                {},
+                {},
+                {
+                    url : '<c:url value="/api/history/${profile_id}"/>',
+                    mtype : 'DELETE',
+                    reloadAfterSubmit : true,
+                    //http://stackoverflow.com/questions/6913618/jqgrid-custom-delete-dialog-message
+                    beforeShowForm: function ($form) {
+                        $("td.delmsg", $form[0]).html("Delete All History?");
+                    }
+                });
 
         function modifiedFormatter( cellvalue, options, rowObject ) {
             var checkedValue = 0;
