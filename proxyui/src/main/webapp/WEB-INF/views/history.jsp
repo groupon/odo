@@ -793,11 +793,11 @@
                     caption : '<font size="5">History</font>'
                 });
 
-                historyList.jqGrid('navGrid', '#historynavGrid', {
-                    edit : false,
-                    add : false,
-                    del : false
-                }, {}, {}, {});
+        historyList.jqGrid('navGrid', '#historynavGrid', {
+            edit : false,
+            add : false,
+            del : false
+        }, {}, {}, {});
 
         function modifiedFormatter( cellvalue, options, rowObject ) {
             var checkedValue = 0;
@@ -838,6 +838,22 @@
             navigatePathTester();
             pathTesterSubmit();
         }
+
+        //http://stackoverflow.com/questions/10655202/detect-multiple-keys-on-single-keypress-event-on-jquery
+        //17 = CTRL, 8 = DEL, 46 = Backspace
+        var map = {17: false, 8: false, 46: false};
+        $(document).keydown(function(e) {
+            if (e.keyCode in map) {
+                map[e.keyCode] = true;
+                if (map[17] && (map[8] || map[46])) {
+                    clearHistory();
+                }
+            }
+        }).keyup(function(e) {
+            if (e.keyCode in map) {
+                map[e.keyCode] = false;
+            }
+        });
 
         /**
         This is adapted from https://code.google.com/p/google-diff-match-patch/ as instructed in the api documentation
