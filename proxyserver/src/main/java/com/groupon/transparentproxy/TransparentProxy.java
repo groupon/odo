@@ -52,8 +52,4 @@ public class TransparentProxy {
             e.printStackTrace();
         }
     }
-
-    public void remapHost(String host, String altHost) {
-        _proxyserver.remapHost(host, altHost);
-    }
 }
