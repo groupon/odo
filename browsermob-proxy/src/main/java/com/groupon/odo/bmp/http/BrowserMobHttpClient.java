@@ -428,6 +428,7 @@ public class BrowserMobHttpClient {
             @Override
             protected HttpRequestExecutor createRequestExecutor() {
                 return new HttpRequestExecutor() {
+                    /*
                     @Override
                     protected HttpResponse doSendRequest(HttpRequest request, HttpClientConnection conn, HttpContext context) throws IOException, HttpException {
                         long requestHeadersSize = request.getRequestLine().toString().length() + 4;
@@ -468,6 +469,7 @@ public class BrowserMobHttpClient {
                         RequestInfo.get().wait(start, new Date());
                         return response;
                     }
+                    */
                 };
             }
         };
