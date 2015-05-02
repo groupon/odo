@@ -225,33 +225,31 @@ GROUPON LICENSE:
 package com.groupon.odo.bmp;
 
 import com.groupon.odo.proxylib.Constants;
+
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.BindException;
 import java.net.ConnectException;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.URL;
 import java.net.UnknownHostException;
-import java.nio.charset.Charset;
-import java.security.GeneralSecurityException;
 import java.security.cert.X509Certificate;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.squareup.okhttp.*;
+import com.squareup.okhttp.OkHttpClient;
+import com.squareup.okhttp.Request;
+import com.squareup.okhttp.Response;
+import com.squareup.okhttp.RequestBody;
+import com.squareup.okhttp.MediaType;
 import net.lightbody.bmp.proxy.FirefoxErrorConstants;
 import net.lightbody.bmp.proxy.FirefoxErrorContent;
 import net.lightbody.bmp.proxy.http.BadURIException;
-import net.lightbody.bmp.proxy.http.BrowserMobHttpResponse;
-import net.lightbody.bmp.proxy.http.RequestCallback;
 import net.lightbody.bmp.proxy.jetty.http.EOFException;
 import net.lightbody.bmp.proxy.jetty.http.HttpConnection;
 import net.lightbody.bmp.proxy.jetty.http.HttpException;
@@ -270,18 +268,20 @@ import net.lightbody.bmp.proxy.jetty.util.URI;
 import net.lightbody.bmp.proxy.selenium.KeyStoreManager;
 import net.lightbody.bmp.proxy.selenium.LauncherUtils;
 import net.lightbody.bmp.proxy.selenium.SeleniumProxyHandler;
-import net.lightbody.bmp.proxy.util.ClonedOutputStream;
 import net.lightbody.bmp.proxy.util.Log;
-import okio.*;
+import okio.BufferedSink;
 import org.apache.commons.io.IOUtils;
-import org.apache.http.Header;
 import org.apache.http.NoHttpResponseException;
-import org.apache.http.StatusLine;
 import org.apache.http.conn.ConnectTimeoutException;
 
-import javax.net.ssl.*;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.SSLProtocolException;
 import java.security.cert.CertificateException;
-import java.util.zip.GZIPInputStream;
 
 public class BrowserMobProxyHandler extends SeleniumProxyHandler {
     private static final Log LOG = new Log();
@@ -339,11 +339,9 @@ public class BrowserMobProxyHandler extends SeleniumProxyHandler {
         String original = uri.toString();
         LOG.info("Hostname: " + original);
         String host = original;
-        String port = null;
         int colon = original.indexOf(':');
         if (colon != -1) {
             host = original.substring(0, colon);
-            port = original.substring(colon + 1);
         }
 
         // store the original host name
