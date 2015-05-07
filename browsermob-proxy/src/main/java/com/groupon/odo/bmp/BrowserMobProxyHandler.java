@@ -224,12 +224,10 @@ GROUPON LICENSE:
 
 package com.groupon.odo.bmp;
 
-import com.groupon.odo.bmp.http.BrowserMobHttpClient;
-import com.groupon.odo.bmp.http.BrowserMobHttpRequest;
 import com.groupon.odo.proxylib.Constants;
+
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.BindException;
 import java.net.ConnectException;
 import java.net.InetAddress;
@@ -241,14 +239,17 @@ import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import com.squareup.okhttp.OkHttpClient;
+import com.squareup.okhttp.Request;
+import com.squareup.okhttp.Response;
+import com.squareup.okhttp.RequestBody;
+import com.squareup.okhttp.MediaType;
 import net.lightbody.bmp.proxy.FirefoxErrorConstants;
 import net.lightbody.bmp.proxy.FirefoxErrorContent;
 import net.lightbody.bmp.proxy.http.BadURIException;
-import net.lightbody.bmp.proxy.http.BrowserMobHttpResponse;
-import net.lightbody.bmp.proxy.http.RequestCallback;
 import net.lightbody.bmp.proxy.jetty.http.EOFException;
 import net.lightbody.bmp.proxy.jetty.http.HttpConnection;
 import net.lightbody.bmp.proxy.jetty.http.HttpException;
@@ -268,10 +269,19 @@ import net.lightbody.bmp.proxy.selenium.KeyStoreManager;
 import net.lightbody.bmp.proxy.selenium.LauncherUtils;
 import net.lightbody.bmp.proxy.selenium.SeleniumProxyHandler;
 import net.lightbody.bmp.proxy.util.Log;
-import org.apache.http.Header;
+import okio.BufferedSink;
+import org.apache.commons.io.IOUtils;
 import org.apache.http.NoHttpResponseException;
-import org.apache.http.StatusLine;
 import org.apache.http.conn.ConnectTimeoutException;
+
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.SSLProtocolException;
+import java.security.cert.CertificateException;
 
 public class BrowserMobProxyHandler extends SeleniumProxyHandler {
     private static final Log LOG = new Log();
@@ -281,7 +291,6 @@ public class BrowserMobProxyHandler extends SeleniumProxyHandler {
 
     private Server jettyServer;
     private int headerBufferMultiplier = HEADER_BUFFER_DEFAULT;
-    private BrowserMobHttpClient httpClient;
     protected final Set<SslRelay> sslRelays = new HashSet<SslRelay>();
     // BEGIN ODO CHANGES
     // Map to hold onto listeners per hostname
@@ -330,11 +339,9 @@ public class BrowserMobProxyHandler extends SeleniumProxyHandler {
         String original = uri.toString();
         LOG.info("Hostname: " + original);
         String host = original;
-        String port = null;
         int colon = original.indexOf(':');
         if (colon != -1) {
             host = original.substring(0, colon);
-            port = original.substring(colon + 1);
         }
 
         // store the original host name
@@ -348,15 +355,6 @@ public class BrowserMobProxyHandler extends SeleniumProxyHandler {
         int httpsPort = com.groupon.odo.proxylib.Utils.getSystemPort(Constants.SYS_HTTPS_PORT);
         uri.setURI("127.0.0.1:" + httpsPort);
         uri.setPort(httpsPort);
-
-        String altHost = httpClient.remappedHost(host);
-        if (altHost != null) {
-            if (port != null) {
-                uri.setURI(altHost + ":" + port);
-            } else {
-                uri.setURI(altHost);
-            }
-        }
 
         handleConnectOriginal(pathInContext, pathParams, request, response);
     }
@@ -447,18 +445,6 @@ public class BrowserMobProxyHandler extends SeleniumProxyHandler {
      * @param listener
      */
     protected X509Certificate wireUpSslWithCyberVilliansCAOdo(String host, SslListener listener) {
-        List<String> originalHosts = httpClient.originalHosts(host);
-        if (originalHosts != null && !originalHosts.isEmpty()) {
-            if (originalHosts.size() == 1) {
-                host = originalHosts.get(0);
-            } else {
-                // Warning: this is NASTY, but people rarely even run across this and those that do are solved by this
-                // ok, this really isn't legal in real SSL land, but we'll make an exception and just pretend it's a wildcard
-                String first = originalHosts.get(0);
-                host = "*" + first.substring(first.indexOf('.'));
-            }
-        }
-
         host = requestOriginalHostName.get();
 
         // Add cybervillians CA(from browsermob)
@@ -490,7 +476,6 @@ public class BrowserMobProxyHandler extends SeleniumProxyHandler {
 
         synchronized (_sslMap) {
             listener = _sslMap.get(hostAndPort);
-
             // check the certificate expiration to see if we need to reload it
             if (listener != null) {
                 Date exprDate = _certExpirationMap.get(hostAndPort);
@@ -525,42 +510,6 @@ public class BrowserMobProxyHandler extends SeleniumProxyHandler {
         return listener;
     }
     // END ODO CHANGES
-    
-    /* Commenting out original implementations
-    @Override
-    protected void wireUpSslWithCyberVilliansCA(String host, SeleniumProxyHandler.SslRelay listener) {
-        List<String> originalHosts = httpClient.originalHosts(host);
-        if (originalHosts != null && !originalHosts.isEmpty()) {
-            if (originalHosts.size() == 1) {
-                host = originalHosts.get(0);
-            } else {
-                // Warning: this is NASTY, but people rarely even run across this and those that do are solved by this
-                // ok, this really isn't legal in real SSL land, but we'll make an exception and just pretend it's a wildcard
-                String first = originalHosts.get(0);
-                host = "*" + first.substring(first.indexOf('.'));
-            }
-        }
-        super.wireUpSslWithCyberVilliansCA(host, listener);
-    }
-    
-    @Override
-    protected SslRelay getSslRelayOrCreateNew(URI uri, InetAddrPort addrPort, HttpServer server) throws Exception {
-        SslRelay relay = super.getSslRelayOrCreateNew(uri, addrPort, server);
-        relay.setNukeDirOrFile(null);
-
-        synchronized (sslRelays) {
-            sslRelays.add(relay);
-        }
-
-        if (!relay.isStarted()) {
-            server.addListener(relay);
-
-            startRelayWithPortTollerance(server, relay, 1);
-        }
-
-        return relay;
-    }
-    */
 
     // BEGIN ODO CHANGES
     // Changed method signature from SslRelay to SslListener
@@ -591,70 +540,74 @@ public class BrowserMobProxyHandler extends SeleniumProxyHandler {
         return super.newHttpTunnel(httpRequest, httpResponse, inetAddress, i, i1);
     }
 
-    @SuppressWarnings({"unchecked"})
+    /**
+     * Returns a OkHttpClient that ignores SSL cert errors
+     * @return
+     */
+    private static OkHttpClient getUnsafeOkHttpClient() {
+        try {
+            // Create a trust manager that does not validate certificate chains
+            final TrustManager[] trustAllCerts = new TrustManager[] {
+                    new X509TrustManager() {
+                        @Override
+                        public void checkClientTrusted(java.security.cert.X509Certificate[] chain, String authType) throws CertificateException {
+                        }
+
+                        @Override
+                        public void checkServerTrusted(java.security.cert.X509Certificate[] chain, String authType) throws CertificateException {
+                        }
+
+                        @Override
+                        public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+                            return null;
+                        }
+                    }
+            };
+
+            // Install the all-trusting trust manager
+            final SSLContext sslContext = SSLContext.getInstance("SSL");
+            sslContext.init(null, trustAllCerts, new java.security.SecureRandom());
+            // Create an ssl socket factory with our all-trusting manager
+            final SSLSocketFactory sslSocketFactory = sslContext.getSocketFactory();
+
+            OkHttpClient okHttpClient = new OkHttpClient();
+            okHttpClient.setSslSocketFactory(sslSocketFactory);
+            okHttpClient.setHostnameVerifier(new HostnameVerifier() {
+                @Override
+                public boolean verify(String hostname, SSLSession session) {
+                    return true;
+                }
+            });
+
+            return okHttpClient;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    // ODO VERSION
     protected long proxyPlainTextRequest(final URL url, String pathInContext, String pathParams, HttpRequest request, final HttpResponse response) throws IOException {
         try {
             String urlStr = url.toString();
 
-            // We don't want selenium-related showing up in the detailed transaction logs
-            if (urlStr.contains("/selenium-server/")) {
-                return super.proxyPlainTextRequest(url, pathInContext, pathParams, request, response);
-            }
-
-            // BEGIN ODO CHANGES
             if (urlStr.toLowerCase().startsWith(Constants.ODO_INTERNAL_WEBAPP_URL)) {
                 urlStr = "http://localhost:" + com.groupon.odo.proxylib.Utils.getSystemPort(Constants.SYS_HTTP_PORT) + "/odo";
             }
-            // END ODO CHANGES
 
-            // we also don't URLs that Firefox always loads on startup showing up, or even wasting bandwidth.
-            // so for these we just nuke them right on the spot!
-            if (urlStr.startsWith("https://sb-ssl.google.com:443/safebrowsing")
-                || urlStr.startsWith("http://en-us.fxfeeds.mozilla.com/en-US/firefox/headlines.xml")
-                || urlStr.startsWith("http://fxfeeds.mozilla.com/firefox/headlines.xml")
-                || urlStr.startsWith("http://fxfeeds.mozilla.com/en-US/firefox/headlines.xml")
-                || urlStr.startsWith("http://newsrss.bbc.co.uk/rss/newsonline_world_edition/front_page/rss.xml")) {
-                // don't even xfer these!
-                request.setHandled(true);
-                return -1;
-            }
+            // setup okhttp to ignore ssl issues
+            OkHttpClient okHttpClient = getUnsafeOkHttpClient();
+            okHttpClient.setFollowRedirects(false);
+            okHttpClient.setFollowSslRedirects(false);
 
-            // this request must have come in just as we were shutting down, since there is no more associted http client
-            // so let's just handle it like we do any other request we don't know what to do with :)
-            if (httpClient == null) {
-                // don't even xfer these!
-                request.setHandled(true);
-                return -1;
+            Request.Builder okRequestBuilder = new Request.Builder();
 
-                // for debugging purposes, NOT to be used in product!
-                // httpClient = new BrowserMobHttpClient(Integer.MAX_VALUE);
-                // httpClient.setDecompress(false);
-                // httpClient.setFollowRedirects(false);
-            }
-
-            BrowserMobHttpRequest httpReq = null;
-            if ("GET".equals(request.getMethod())) {
-                httpReq = httpClient.newGet(urlStr, request);
-            } else if ("POST".equals(request.getMethod())) {
-                httpReq = httpClient.newPost(urlStr, request);
-            } else if ("PUT".equals(request.getMethod())) {
-                httpReq = httpClient.newPut(urlStr, request);
-            } else if ("DELETE".equals(request.getMethod())) {
-                httpReq = httpClient.newDelete(urlStr, request);
-            } else if ("OPTIONS".equals(request.getMethod())) {
-                httpReq = httpClient.newOptions(urlStr, request);
-            } else if ("HEAD".equals(request.getMethod())) {
-                httpReq = httpClient.newHead(urlStr, request);
-            } else {
-                LOG.warn("Unexpected request method %s, giving up", request.getMethod());
-                request.setHandled(true);
-                return -1;
-            }
+            okRequestBuilder = okRequestBuilder.url(urlStr);
 
             // copy request headers
+            Enumeration<?> enm = request.getFieldNames();
             boolean isGet = "GET".equals(request.getMethod());
             boolean hasContent = false;
-            Enumeration<?> enm = request.getFieldNames();
+            boolean usedContentLength = false;
             long contentLength = 0;
             while (enm.hasMoreElements()) {
                 String hdr = (String) enm.nextElement();
@@ -664,7 +617,7 @@ public class BrowserMobProxyHandler extends SeleniumProxyHandler {
                 }
                 if (!isGet && HttpFields.__ContentLength.equals(hdr)) {
                     contentLength = Long.parseLong(request.getField(hdr));
-                    continue;
+                    usedContentLength = true;
                 }
 
                 Enumeration<?> vals = request.getFieldValues(hdr);
@@ -676,69 +629,93 @@ public class BrowserMobProxyHandler extends SeleniumProxyHandler {
                         }
 
                         if (!_DontProxyHeaders.containsKey(hdr)) {
-                            httpReq.addRequestHeader(hdr, val);
+                            okRequestBuilder = okRequestBuilder.addHeader(hdr, val);
+                            //httpReq.addRequestHeader(hdr, val);
                         }
                     }
                 }
             }
 
-            try {
-                // do input thang!
-                InputStream in = request.getInputStream();
+            if ("GET".equals(request.getMethod())) {
+                // don't need to do anything else
+            } else if ("POST".equals(request.getMethod()) ||
+                       "PUT".equals(request.getMethod()) ||
+                       "DELETE".equals(request.getMethod())) {
+                RequestBody okRequestBody = null;
                 if (hasContent) {
-                    // BEGIN ODO CHANGES
-                    httpReq.setRequestInputStream(in);
-                    // END ODO CHANGES
+                    final String contentType = request.getContentType();
+                    final byte[] bytes = IOUtils.toByteArray(request.getInputStream());
+
+                    okRequestBody = new RequestBody() {
+                        @Override
+                        public MediaType contentType() {
+                            MediaType.parse(contentType);
+                            return null;
+                        }
+
+                        @Override
+                        public void writeTo(BufferedSink bufferedSink) throws IOException {
+                            bufferedSink.write(bytes);
+                        }
+                    };
+
+                    // we need to add some ODO specific headers to give ODO a hint for content-length vs transfer-encoding
+                    // since okHTTP will automatically chunk even if the request was not chunked
+                    // this allows Odo to set the appropriate headers when the server request is made
+                    if (usedContentLength) {
+                        okRequestBuilder = okRequestBuilder.addHeader("ODO-POST-TYPE", "content-length:" + contentLength);
+                    }
+                } else {
+                    okRequestBody = RequestBody.create(null, new byte[0]);
                 }
-            } catch (Exception e) {
-                LOG.fine(e.getMessage(), e);
+
+                if ("POST".equals(request.getMethod())) {
+                    okRequestBuilder = okRequestBuilder.post(okRequestBody);
+                } else if ("PUT".equals(request.getMethod())) {
+                    okRequestBuilder = okRequestBuilder.put(okRequestBody);
+                } else if ("DELETE".equals(request.getMethod())) {
+                    okRequestBuilder = okRequestBuilder.delete(okRequestBody);
+                }
+            } else if ("OPTIONS".equals(request.getMethod())) {
+                // NOT SUPPORTED
+            } else if ("HEAD".equals(request.getMethod())) {
+                okRequestBuilder = okRequestBuilder.head();
+            } else {
+                LOG.warn("Unexpected request method %s, giving up", request.getMethod());
+                request.setHandled(true);
+                return -1;
             }
 
-            // execute the request
-            httpReq.setOutputStream(response.getOutputStream());
-            httpReq.setRequestCallback(new RequestCallback() {
-                @Override
-                public void handleStatusLine(StatusLine statusLine) {
-                    response.setStatus(statusLine.getStatusCode());
-                    response.setReason(statusLine.getReasonPhrase());
+            Request okRequest = okRequestBuilder.build();
+            Response okResponse = okHttpClient.newCall(okRequest).execute();
+
+            // Set status and response message
+            response.setStatus(okResponse.code());
+            response.setReason(okResponse.message());
+
+            // copy response headers
+            for (int headerNum = 0; headerNum < okResponse.headers().size(); headerNum++) {
+                String headerName = okResponse.headers().name(headerNum);
+                if (!_DontProxyHeaders.containsKey(headerName) && !_ProxyAuthHeaders.containsKey(headerName)) {
+                    response.addField(headerName, okResponse.headers().value(headerNum));
                 }
+            }
 
-                @Override
-                public void handleHeaders(Header[] headers) {
-                    for (Header header : headers) {
-                        if (reportHeader(header)) {
-                            response.addField(header.getName(), header.getValue());
-                        }
-                    }
-                }
+            // write output to response output stream
+            try {
+                IOUtils.copy(okResponse.body().byteStream(), response.getOutputStream());
+            } catch (Exception e) {
+                // ignoring this until we refactor the proxy
+                // The copy occasionally fails due to an issue where okResponse has more data in the body than it's supposed to
+                // The client still gets all of the data it was expecting
+            }
 
-                @Override
-                public boolean reportHeader(Header header) {
-                    // don't pass in things like Transfer-Encoding and other headers that are being masked by the underlying HttpClient impl
-                    return !_DontProxyHeaders.containsKey(header.getName()) && !_ProxyAuthHeaders.containsKey(header.getName());
-                }
-
-                @Override
-                public void reportError(Exception e) {
-                    BrowserMobProxyHandler.reportError(e, url, response);
-                }
-            });
-
-            BrowserMobHttpResponse httpRes = httpReq.execute();
-
-            // ALWAYS mark the request as handled if we actually handled it. Otherwise, Jetty will think non 2xx responses
-            // mean it wasn't actually handled, resulting in totally valid 304 Not Modified requests turning in to 404 responses
-            // from Jetty. NOT good :(
             request.setHandled(true);
-            return httpRes.getEntry().getResponse().getBodySize();
-        } catch (BadURIException e) {
-            // this is a known error case (see MOB-93)
-            LOG.info(e.getMessage());
-            BrowserMobProxyHandler.reportError(e, url, response);
-            return -1;
+            return okResponse.body().contentLength();
         } catch (Exception e) {
-            LOG.info("Exception while proxying " + url, e);
-            BrowserMobProxyHandler.reportError(e, url, response);
+            LOG.warn("Caught exception proxying: ", e);
+            reportError(e, url, response);
+            request.setHandled(true);
             return -1;
         }
     }
@@ -759,6 +736,8 @@ public class BrowserMobProxyHandler extends SeleniumProxyHandler {
             error = FirefoxErrorContent.DNS_NOT_FOUND;
         } else if (e instanceof BadURIException) {
             error = FirefoxErrorContent.MALFORMED_URI;
+        } else if (e instanceof SSLProtocolException) {
+            return;
         }
 
         String shortDesc = String.format(error.getShortDesc(), url.getHost());
@@ -773,35 +752,8 @@ public class BrowserMobProxyHandler extends SeleniumProxyHandler {
         }
     }
 
-    public void autoBasicAuthorization(String domain, String username, String password) {
-        httpClient.autoBasicAuthorization(domain, username, password);
-    }
-
-    public void rewriteUrl(String match, String replace) {
-        httpClient.rewriteUrl(match, replace);
-    }
-
-    public void remapHost(String source, String target) {
-        httpClient.remapHost(source, target);
-    }
-
     public void setJettyServer(Server jettyServer) {
         this.jettyServer = jettyServer;
-    }
-
-    public void adjustListenerBuffers(int headerBufferMultiplier) {
-        // limit to 10 so there can't be any out of control memory consumption by a rogue script
-        if (headerBufferMultiplier > 10) {
-            headerBufferMultiplier = 10;
-        }
-
-        this.headerBufferMultiplier = headerBufferMultiplier;
-        adjustListenerBuffers();
-    }
-
-    public void resetListenerBuffers() {
-        this.headerBufferMultiplier = HEADER_BUFFER_DEFAULT;
-        adjustListenerBuffers();
     }
 
     public void adjustListenerBuffers() {
@@ -823,10 +775,6 @@ public class BrowserMobProxyHandler extends SeleniumProxyHandler {
         }
     }
 
-    public void setHttpClient(BrowserMobHttpClient httpClient) {
-        this.httpClient = httpClient;
-    }
-
     // BEGIN ODO CHANGES
 
     /**
@@ -844,20 +792,6 @@ public class BrowserMobProxyHandler extends SeleniumProxyHandler {
         }
     }
     // END ODO CHANGES
-    
-    /* Commenting out replaced code
-    public void cleanup() {
-        synchronized (sslRelays) {
-            for (SslRelay relay : sslRelays) {
-                if (relay.getHttpServer() != null && relay.isStarted()) {
-                    relay.getHttpServer().removeListener(relay);
-                }
-            }
-
-            sslRelays.clear();
-        }
-    }
-    */
 
     // BEGIN ODO CHANGES
     // Copied from SeleniumProxyHandler(renamed to SslRelayOdo from SslRelay; no other changes)

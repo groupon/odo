@@ -235,7 +235,7 @@ public class Proxy extends HttpServlet {
 
         try {
             PostMethod postMethodProxyRequest = new PostMethod(this.getProxyURL(
-                request, history, Constants.REQUEST_TYPE_POST));
+                    request, history, Constants.REQUEST_TYPE_POST));
             // Forward the request headers
             setProxyRequestHeaders(request, postMethodProxyRequest);
 
@@ -255,7 +255,7 @@ public class Proxy extends HttpServlet {
             requestInfo.originalRequestInfo = new HttpRequestInfo(request, history.getOriginalRequestPostData());
             // Execute the proxy request
             this.executeProxyRequest(postMethodProxyRequest, request, response,
-                                     history);
+                    history);
         } catch (Exception e) {
             // TODO log to history
             logger.info("ERROR: cannot execute request: {}", e.getMessage());
@@ -277,7 +277,7 @@ public class Proxy extends HttpServlet {
 
         try {
             PutMethod putMethodProxyRequest = new PutMethod(this.getProxyURL(
-                request, history, Constants.REQUEST_TYPE_PUT));
+                    request, history, Constants.REQUEST_TYPE_PUT));
             // Forward the request headers
             setProxyRequestHeaders(request, putMethodProxyRequest);
             // Check if this is a multipart (file upload) POST
@@ -296,7 +296,7 @@ public class Proxy extends HttpServlet {
 
             // Execute the proxy request
             this.executeProxyRequest(putMethodProxyRequest, request, response,
-                                     history);
+                    history);
         } catch (Exception e) {
             // TODO log to history
             logger.info("ERROR: cannot execute request: {}", e.getMessage());
@@ -379,11 +379,19 @@ public class Proxy extends HttpServlet {
         RequestInformation requestInfo = requestInformation.get();
         String hostName = HttpUtilities.getHostNameFromURL(httpServletRequest.getRequestURL().toString());
         // Get an Enumeration of all of the header names sent by the client
+        Boolean stripTransferEncoding = false;
         Enumeration<String> enumerationOfHeaderNames = httpServletRequest.getHeaderNames();
         while (enumerationOfHeaderNames.hasMoreElements()) {
             String stringHeaderName = enumerationOfHeaderNames.nextElement();
             if (stringHeaderName.equalsIgnoreCase(STRING_CONTENT_LENGTH_HEADER_NAME)) {
+                // don't add this header
                 continue;
+            }
+
+            // The forwarding proxy may supply a POST encoding hint in ODO-POST-TYPE
+            if (stringHeaderName.equalsIgnoreCase("ODO-POST-TYPE") &&
+                    httpServletRequest.getHeader("ODO-POST-TYPE").startsWith("content-length:")) {
+                stripTransferEncoding = true;
             }
 
             logger.info("Current header: {}", stringHeaderName);
@@ -412,6 +420,20 @@ public class Proxy extends HttpServlet {
                 // Set the same header on the proxy request
                 httpMethodProxyRequest.addRequestHeader(header);
             }
+        }
+
+        // this strips transfer encoding headers and adds in the appropriate content-length header
+        // based on the hint provided in the ODO-POST-TYPE header(sent from BrowserMobProxyHandler)
+        if (stripTransferEncoding) {
+            httpMethodProxyRequest.removeRequestHeader("transfer-encoding");
+
+            // add content length back in based on the ODO information
+            String contentLengthHint = httpServletRequest.getHeader("ODO-POST-TYPE");
+            String[] contentLengthParts = contentLengthHint.split(":");
+            httpMethodProxyRequest.addRequestHeader("content-length", contentLengthParts[1]);
+
+            // remove the odo-post-type header
+            httpMethodProxyRequest.removeRequestHeader("ODO-POST-TYPE");
         }
 
         // bail if we aren't fully handling this request
