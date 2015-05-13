@@ -70,7 +70,6 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Servlet implementation class Proxy
- * <p/>
  * Based on http://edwardstx.net/2010/06/http-proxy-servlet/ which is licensed
  * under the Apache License, Version 2.0
  */
@@ -235,7 +234,7 @@ public class Proxy extends HttpServlet {
 
         try {
             PostMethod postMethodProxyRequest = new PostMethod(this.getProxyURL(
-                    request, history, Constants.REQUEST_TYPE_POST));
+                request, history, Constants.REQUEST_TYPE_POST));
             // Forward the request headers
             setProxyRequestHeaders(request, postMethodProxyRequest);
 
@@ -255,7 +254,7 @@ public class Proxy extends HttpServlet {
             requestInfo.originalRequestInfo = new HttpRequestInfo(request, history.getOriginalRequestPostData());
             // Execute the proxy request
             this.executeProxyRequest(postMethodProxyRequest, request, response,
-                    history);
+                                     history);
         } catch (Exception e) {
             // TODO log to history
             logger.info("ERROR: cannot execute request: {}", e.getMessage());
@@ -277,7 +276,7 @@ public class Proxy extends HttpServlet {
 
         try {
             PutMethod putMethodProxyRequest = new PutMethod(this.getProxyURL(
-                    request, history, Constants.REQUEST_TYPE_PUT));
+                request, history, Constants.REQUEST_TYPE_PUT));
             // Forward the request headers
             setProxyRequestHeaders(request, putMethodProxyRequest);
             // Check if this is a multipart (file upload) POST
@@ -296,7 +295,7 @@ public class Proxy extends HttpServlet {
 
             // Execute the proxy request
             this.executeProxyRequest(putMethodProxyRequest, request, response,
-                    history);
+                                     history);
         } catch (Exception e) {
             // TODO log to history
             logger.info("ERROR: cannot execute request: {}", e.getMessage());
@@ -333,6 +332,9 @@ public class Proxy extends HttpServlet {
     /**
      * Match the POST/PUT body data to the selected paths. If the path defines a body filter
      * and the request body does not match, the path is removed.
+     *
+     * @param history history item to match
+     * @throws Exception exception
      */
     @SuppressWarnings("unchecked")
     protected void cullPathsByBodyFilter(History history) throws Exception {
@@ -390,7 +392,7 @@ public class Proxy extends HttpServlet {
 
             // The forwarding proxy may supply a POST encoding hint in ODO-POST-TYPE
             if (stringHeaderName.equalsIgnoreCase("ODO-POST-TYPE") &&
-                    httpServletRequest.getHeader("ODO-POST-TYPE").startsWith("content-length:")) {
+                httpServletRequest.getHeader("ODO-POST-TYPE").startsWith("content-length:")) {
                 stripTransferEncoding = true;
             }
 

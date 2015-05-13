@@ -16,15 +16,14 @@
 package com.groupon.odo.proxylib;
 
 import com.groupon.odo.proxylib.models.Method;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class EditService {
 
@@ -53,10 +52,10 @@ public class EditService {
     /**
      * Return all methods for a list of groupIds
      *
-     * @param groupIds
-     * @param filters
-     * @return
-     * @throws Exception
+     * @param groupIds array of group IDs
+     * @param filters array of filters to apply to method selection
+     * @return collection of Methods found
+     * @throws Exception exception
      */
     public List<Method> getMethodsFromGroupIds(int[] groupIds, String[] filters) throws Exception {
         ArrayList<Method> methods = new ArrayList<Method>();
@@ -71,18 +70,18 @@ public class EditService {
     /**
      * Set all repeat counts to unlimited (-1) for a client
      *
-     * @param profileId
-     * @param client_uuid
+     * @param profileId profile ID of the client
+     * @param client_uuid UUID of the client
      */
     public void makeAllRepeatUnlimited(int profileId, String client_uuid) {
         PreparedStatement statement = null;
 
         try (Connection sqlConnection = sqlService.getConnection()) {
             statement = sqlConnection.prepareStatement(
-                    "UPDATE " + Constants.DB_TABLE_REQUEST_RESPONSE +
-                            " SET " + Constants.REQUEST_RESPONSE_REPEAT_NUMBER + " = ?" +
-                            " WHERE " + Constants.GENERIC_PROFILE_ID + " = ?" +
-                            " AND " + Constants.GENERIC_CLIENT_UUID + " = ?"
+                "UPDATE " + Constants.DB_TABLE_REQUEST_RESPONSE +
+                    " SET " + Constants.REQUEST_RESPONSE_REPEAT_NUMBER + " = ?" +
+                    " WHERE " + Constants.GENERIC_PROFILE_ID + " = ?" +
+                    " AND " + Constants.GENERIC_CLIENT_UUID + " = ?"
             );
             statement.setInt(1, -1);
             statement.setInt(2, profileId);
@@ -92,7 +91,9 @@ public class EditService {
             e.printStackTrace();
         } finally {
             try {
-                if (statement != null) statement.close();
+                if (statement != null) {
+                    statement.close();
+                }
             } catch (Exception e) {
             }
         }
@@ -101,10 +102,10 @@ public class EditService {
     /**
      * Update the repeat number for a client path
      *
-     * @param newNum
-     * @param path_id
-     * @param client_uuid
-     * @throws Exception
+     * @param newNum new repeat number of the path
+     * @param path_id ID of the path
+     * @param client_uuid UUID of the client
+     * @throws Exception exception
      */
     public void updateRepeatNumber(int newNum, int path_id, String client_uuid) throws Exception {
         updateRequestResponseTables("repeat_number", newNum, getProfileIdFromPathID(path_id), client_uuid, path_id);
@@ -113,16 +114,16 @@ public class EditService {
     /**
      * Delete all enabled overrides for a client
      *
-     * @param profileId
-     * @param client_uuid
+     * @param profileId profile ID of teh client
+     * @param client_uuid UUID of teh client
      */
     public void disableAll(int profileId, String client_uuid) {
         PreparedStatement statement = null;
         try (Connection sqlConnection = sqlService.getConnection()) {
             statement = sqlConnection.prepareStatement(
-                    "DELETE FROM " + Constants.DB_TABLE_ENABLED_OVERRIDE +
-                            " WHERE " + Constants.CLIENT_PROFILE_ID + " = ?" +
-                            " AND " + Constants.CLIENT_CLIENT_UUID + " =? "
+                "DELETE FROM " + Constants.DB_TABLE_ENABLED_OVERRIDE +
+                    " WHERE " + Constants.CLIENT_PROFILE_ID + " = ?" +
+                    " AND " + Constants.CLIENT_CLIENT_UUID + " =? "
             );
             statement.setInt(1, profileId);
             statement.setString(2, client_uuid);
@@ -132,7 +133,9 @@ public class EditService {
             e.printStackTrace();
         } finally {
             try {
-                if (statement != null) statement.close();
+                if (statement != null) {
+                    statement.close();
+                }
             } catch (Exception e) {
             }
         }
@@ -141,23 +144,23 @@ public class EditService {
     /**
      * Remove a path from a profile
      *
-     * @param path_id
-     * @param profileId
+     * @param path_id path ID to remove
+     * @param profileId profile ID to remove path from
      */
     public void removePathnameFromProfile(int path_id, int profileId) {
         PreparedStatement statement = null;
         try (Connection sqlConnection = sqlService.getConnection()) {
             statement = sqlConnection.prepareStatement(
-                    "DELETE FROM " + Constants.DB_TABLE_ENABLED_OVERRIDE +
-                            " WHERE " + Constants.ENABLED_OVERRIDES_PATH_ID + " = ?"
+                "DELETE FROM " + Constants.DB_TABLE_ENABLED_OVERRIDE +
+                    " WHERE " + Constants.ENABLED_OVERRIDES_PATH_ID + " = ?"
             );
             statement.setInt(1, path_id);
             statement.executeUpdate();
             statement.close();
 
             statement = sqlConnection.prepareStatement(
-                    "DELETE FROM " + Constants.DB_TABLE_PATH +
-                            " WHERE " + Constants.GENERIC_ID + " = ?"
+                "DELETE FROM " + Constants.DB_TABLE_PATH +
+                    " WHERE " + Constants.GENERIC_ID + " = ?"
             );
             statement.setInt(1, path_id);
             statement.executeUpdate();
@@ -165,7 +168,9 @@ public class EditService {
             e.printStackTrace();
         } finally {
             try {
-                if (statement != null) statement.close();
+                if (statement != null) {
+                    statement.close();
+                }
             } catch (Exception e) {
             }
         }
@@ -174,9 +179,10 @@ public class EditService {
     /**
      * Returns all methods for a specific group
      *
-     * @param groupId
-     * @param filters - array of method types to filter by, null means no filter
-     * @return
+     * @param groupId group ID to remove methods from
+     * @param filters array of method types to filter by, null means no filter
+     * @return Collection of methods found
+     * @throws Exception exception
      */
     public List<Method> getMethodsFromGroupId(int groupId, String[] filters) throws Exception {
         ArrayList<Method> methods = new ArrayList<Method>();
@@ -185,15 +191,16 @@ public class EditService {
 
         try (Connection sqlConnection = sqlService.getConnection()) {
             statement = sqlConnection.prepareStatement(
-                    "SELECT * FROM " + Constants.DB_TABLE_OVERRIDE +
-                            " WHERE " + Constants.OVERRIDE_GROUP_ID + " = ?"
+                "SELECT * FROM " + Constants.DB_TABLE_OVERRIDE +
+                    " WHERE " + Constants.OVERRIDE_GROUP_ID + " = ?"
             );
             statement.setInt(1, groupId);
             results = statement.executeQuery();
             while (results.next()) {
                 Method method = PathOverrideService.getInstance().getMethodForOverrideId(results.getInt("id"));
-                if (method == null)
+                if (method == null) {
                     continue;
+                }
 
                 // decide whether or not to add this method based on the filters
                 boolean add = true;
@@ -207,18 +214,23 @@ public class EditService {
                     }
                 }
 
-                if (add && ! methods.contains(method))
+                if (add && !methods.contains(method)) {
                     methods.add(method);
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
             try {
-                if (results != null) results.close();
+                if (results != null) {
+                    results.close();
+                }
             } catch (Exception e) {
             }
             try {
-                if (statement != null) statement.close();
+                if (statement != null) {
+                    statement.close();
+                }
             } catch (Exception e) {
             }
         }
@@ -229,10 +241,10 @@ public class EditService {
     /**
      * Enable a custom response
      *
-     * @param custom
-     * @param path_id
-     * @param client_uuid
-     * @throws Exception
+     * @param custom custom response
+     * @param path_id path ID of the response
+     * @param client_uuid client UUID
+     * @throws Exception exception
      */
     public void enableCustomResponse(String custom, int path_id, String client_uuid) throws Exception {
 
@@ -244,11 +256,11 @@ public class EditService {
 
         try (Connection sqlConnection = sqlService.getConnection()) {
             statement = sqlConnection.prepareStatement(
-                    "UPDATE " + Constants.DB_TABLE_REQUEST_RESPONSE +
-                            " SET " + columnName + " = ?" +
-                            " WHERE " + Constants.GENERIC_PROFILE_ID + "= ?" +
-                            " AND " + Constants.GENERIC_CLIENT_UUID + "= ?" +
-                            " AND " + Constants.REQUEST_RESPONSE_PATH_ID + "= ?"
+                "UPDATE " + Constants.DB_TABLE_REQUEST_RESPONSE +
+                    " SET " + columnName + " = ?" +
+                    " WHERE " + Constants.GENERIC_PROFILE_ID + "= ?" +
+                    " AND " + Constants.GENERIC_CLIENT_UUID + "= ?" +
+                    " AND " + Constants.REQUEST_RESPONSE_PATH_ID + "= ?"
             );
             statement.setObject(1, newData);
             statement.setInt(2, profileId);
@@ -259,7 +271,9 @@ public class EditService {
             e.printStackTrace();
         } finally {
             try {
-                if (statement != null) statement.close();
+                if (statement != null) {
+                    statement.close();
+                }
             } catch (Exception e) {
             }
         }
@@ -268,18 +282,18 @@ public class EditService {
     /**
      * Updates a path table value for column columnName
      *
-     * @param columnName
-     * @param newData
-     * @param path_id
+     * @param columnName name of the column to update
+     * @param newData new content to set
+     * @param path_id ID of the path to update
      */
     public static void updatePathTable(String columnName, Object newData, int path_id) {
         PreparedStatement statement = null;
 
         try (Connection sqlConnection = sqlService.getConnection()) {
             statement = sqlConnection.prepareStatement(
-                    "UPDATE " + Constants.DB_TABLE_PATH +
-                            " SET " + columnName + " = ?" +
-                            " WHERE " + Constants.GENERIC_ID + " = ?"
+                "UPDATE " + Constants.DB_TABLE_PATH +
+                    " SET " + columnName + " = ?" +
+                    " WHERE " + Constants.GENERIC_ID + " = ?"
             );
             statement.setObject(1, newData);
             statement.setInt(2, path_id);
@@ -288,7 +302,9 @@ public class EditService {
             e.printStackTrace();
         } finally {
             try {
-                if (statement != null) statement.close();
+                if (statement != null) {
+                    statement.close();
+                }
             } catch (Exception e) {
             }
         }
@@ -297,9 +313,9 @@ public class EditService {
     /**
      * Remove custom overrides
      *
-     * @param path_id
-     * @param client_uuid
-     * @throws Exception
+     * @param path_id ID of path containing custom override
+     * @param client_uuid UUID of the client
+     * @throws Exception exception
      */
     public void removeCustomOverride(int path_id, String client_uuid) throws Exception {
         updateRequestResponseTables("custom_response", "", getProfileIdFromPathID(path_id), client_uuid, path_id);
@@ -308,12 +324,11 @@ public class EditService {
     /**
      * Return the profileId for a path
      *
-     * @param path_id
-     * @return
-     * @throws Exception
+     * @param path_id ID of path
+     * @return ID of profile
+     * @throws Exception exception
      */
     public static int getProfileIdFromPathID(int path_id) throws Exception {
         return (Integer) SQLService.getInstance().getFromTable(Constants.GENERIC_PROFILE_ID, Constants.GENERIC_ID, path_id, Constants.DB_TABLE_PATH);
     }
-
 }

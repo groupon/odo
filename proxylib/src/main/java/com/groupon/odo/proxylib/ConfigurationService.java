@@ -16,14 +16,13 @@
 package com.groupon.odo.proxylib;
 
 import com.groupon.odo.proxylib.models.Configuration;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ConfigurationService {
     private static final Logger logger = LoggerFactory.getLogger(ConfigurationService.class);
@@ -52,11 +51,12 @@ public class ConfigurationService {
     /**
      * Returns true if the configuration is valid, false otherwise
      *
-     * @return
+     * @return true if valid, false if invalid
      */
     public boolean isValid() {
-        if (PluginManager.getInstance().getPlugins(true).length == 0)
+        if (PluginManager.getInstance().getPlugins(true).length == 0) {
             return false;
+        }
 
         return true;
     }
@@ -70,8 +70,9 @@ public class ConfigurationService {
     public Configuration getConfiguration(String name) {
         Configuration[] values = getConfigurations(name);
 
-        if (values == null)
+        if (values == null) {
             return null;
+        }
 
         return values[0];
     }
@@ -114,20 +115,24 @@ public class ConfigurationService {
         } catch (SQLException sqe) {
             logger.info("Exception in sql");
             sqe.printStackTrace();
-
         } finally {
             try {
-                if (results != null) results.close();
+                if (results != null) {
+                    results.close();
+                }
             } catch (Exception e) {
             }
             try {
-                if (statement != null) statement.close();
+                if (statement != null) {
+                    statement.close();
+                }
             } catch (Exception e) {
             }
         }
 
-        if (valuesList.size() == 0)
+        if (valuesList.size() == 0) {
             return null;
+        }
 
         return valuesList.toArray(new Configuration[0]);
     }
@@ -135,17 +140,17 @@ public class ConfigurationService {
     /**
      * Add a name/value pair to the configuration table
      *
-     * @param name
-     * @param value
-     * @throws Exception
+     * @param name name of configuration item
+     * @param value value of configuration item
+     * @throws Exception exception
      */
     public void addValue(String name, String value) throws Exception {
         PreparedStatement statement = null;
         try (Connection sqlConnection = sqlService.getConnection()) {
             statement = sqlConnection.prepareStatement(
-                    "INSERT INTO " + Constants.DB_TABLE_CONFIGURATION +
-                            "(" + Constants.DB_TABLE_CONFIGURATION_NAME + "," + Constants.DB_TABLE_CONFIGURATION_VALUE +
-                            ") VALUES (?, ?)"
+                "INSERT INTO " + Constants.DB_TABLE_CONFIGURATION +
+                    "(" + Constants.DB_TABLE_CONFIGURATION_NAME + "," + Constants.DB_TABLE_CONFIGURATION_VALUE +
+                    ") VALUES (?, ?)"
             );
             statement.setString(1, name);
             statement.setString(2, value);
@@ -154,7 +159,9 @@ public class ConfigurationService {
             throw e;
         } finally {
             try {
-                if (statement != null) statement.close();
+                if (statement != null) {
+                    statement.close();
+                }
             } catch (Exception e) {
             }
         }
@@ -164,8 +171,8 @@ public class ConfigurationService {
         PreparedStatement statement = null;
         try (Connection sqlConnection = sqlService.getConnection()) {
             statement = sqlConnection.prepareStatement(
-                    "DELETE FROM " + Constants.DB_TABLE_CONFIGURATION +
-                            " WHERE " + Constants.GENERIC_ID + " = ?"
+                "DELETE FROM " + Constants.DB_TABLE_CONFIGURATION +
+                    " WHERE " + Constants.GENERIC_ID + " = ?"
             );
             statement.setInt(1, id);
             statement.executeUpdate();
@@ -173,7 +180,9 @@ public class ConfigurationService {
             throw e;
         } finally {
             try {
-                if (statement != null) statement.close();
+                if (statement != null) {
+                    statement.close();
+                }
             } catch (Exception e) {
             }
         }
