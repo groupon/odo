@@ -18,7 +18,18 @@ package com.groupon.odo;
 import com.groupon.odo.plugin.PluginHelper;
 import com.groupon.odo.proxylib.Constants;
 import com.groupon.odo.proxylib.models.History;
-
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Map;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpMethod;
@@ -32,20 +43,6 @@ import org.msgpack.type.Value;
 import org.msgpack.unpacker.Unpacker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Map;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 public class HttpUtilities {
     private static final Logger logger = LoggerFactory.getLogger(HttpUtilities.class);
@@ -86,66 +83,70 @@ public class HttpUtilities {
     public static final String STRING_CONTENT_TYPE_FORM_URLENCODED = "application/x-www-form-urlencoded";
 
     /**
-     * @param url
-     * @return
+     * @param url full url containing hostname
+     * @return hostname
      */
     public static String getHostNameFromURL(String url) {
         int urlLeftPos = url.indexOf("//");
         String hostName = url.substring(urlLeftPos + 2);
         int urlRightPos = hostName.indexOf("/");
-        if (urlRightPos != -1)
+        if (urlRightPos != -1) {
             hostName = hostName.substring(0, urlRightPos);
+        }
         // now look for a port
         int portPos = hostName.indexOf(":");
-        if (portPos != -1)
+        if (portPos != -1) {
             hostName = hostName.substring(0, portPos);
+        }
 
         return hostName;
     }
-    
+
     public static int getPortFromURL(String url) {
         int urlLeftPos = url.indexOf("//");
         Boolean isHttps = url.startsWith("https");
-        
+
         // set port defaults
         int port = 80;
         if (isHttps) {
-        	port = 443;
+            port = 443;
         }
-        
+
         String portStr = null;
         String hostName = url.substring(urlLeftPos + 2);
         int urlRightPos = hostName.indexOf("/");
-        if (urlRightPos != -1)
+        if (urlRightPos != -1) {
             hostName = hostName.substring(0, urlRightPos);
+        }
         // now look for a port
         int portPos = hostName.indexOf(":");
-        if (portPos != -1)
-        	portStr = hostName.substring(portPos + 1, urlRightPos);
+        if (portPos != -1) {
+            portStr = hostName.substring(portPos + 1, urlRightPos);
+        }
 
         if (portStr != null) {
-        	port = Integer.parseInt(portStr);
+            port = Integer.parseInt(portStr);
         }
-        
+
         return port;
     }
-    
+
     public static String removePortFromHostHeaderString(String host) {
-    	String hostName = host;
-    	int portPos = host.indexOf(":");
-        if (portPos != -1)
+        String hostName = host;
+        int portPos = host.indexOf(":");
+        if (portPos != -1) {
             hostName = host.substring(0, portPos);
-        
+        }
+
         return hostName;
     }
-
 
     /**
      * Obtain collection of Parameters from request
      *
-     * @param dataArray
-     * @return
-     * @throws Exception
+     * @param dataArray request parameters
+     * @return Map of parameters
+     * @throws Exception exception
      */
     public static Map<String, String[]> mapUrlEncodedParameters(byte[] dataArray) throws Exception {
         Map<String, String[]> mapPostParameters = new HashMap<String, String[]>();
@@ -198,7 +199,6 @@ public class HttpUtilities {
         return mapPostParameters;
     }
 
-
     public static HttpServletResponse addHeader(HttpServletResponse response, Object[] headerPair) {
         // set header
         response.setHeader(headerPair[0].toString(), headerPair[1].toString());
@@ -213,8 +213,8 @@ public class HttpUtilities {
     /**
      * Retrieve URL without parameters
      *
-     * @param sourceURI
-     * @return
+     * @param sourceURI source URI
+     * @return URL without parameters
      */
     public static String getURL(String sourceURI) {
         String retval = sourceURI;
@@ -229,8 +229,8 @@ public class HttpUtilities {
     /**
      * Obtain newline-delimited headers from method
      *
-     * @param method
-     * @return
+     * @param method HttpMethod to scan
+     * @return newline-delimited headers
      */
     public static String getHeaders(HttpMethod method) {
         String headerString = "";
@@ -242,8 +242,9 @@ public class HttpUtilities {
                 continue;
             }
 
-            if (headerString.length() != 0)
+            if (headerString.length() != 0) {
                 headerString += "\n";
+            }
 
             headerString += header.getName() + ": " + header.getValue();
         }
@@ -254,13 +255,13 @@ public class HttpUtilities {
     /**
      * Obtain newline-delimited headers from request
      *
-     * @param request
-     * @return
+     * @param request HttpServletRequest to scan
+     * @return newline-delimited headers
      */
     public static String getHeaders(HttpServletRequest request) {
         String headerString = "";
         Enumeration<String> headerNames = request.getHeaderNames();
-        
+
         while (headerNames.hasMoreElements()) {
             String name = headerNames.nextElement();
             if (name.equals(Constants.ODO_PROXY_HEADER)) {
@@ -268,8 +269,9 @@ public class HttpUtilities {
                 continue;
             }
 
-            if (headerString.length() != 0)
+            if (headerString.length() != 0) {
                 headerString += "\n";
+            }
 
             headerString += name + ": " + request.getHeader(name);
         }
@@ -280,17 +282,18 @@ public class HttpUtilities {
     /**
      * Obtain newline-delimited headers from response
      *
-     * @param response
-     * @return
+     * @param response HttpServletResponse to scan
+     * @return newline-delimited headers
      */
     public static String getHeaders(HttpServletResponse response) {
         String headerString = "";
         Collection<String> headerNames = response.getHeaderNames();
         for (String headerName : headerNames) {
             // there may be multiple headers per header name
-            for (String headerValue: response.getHeaders(headerName)) {
-                if (headerString.length() != 0)
+            for (String headerValue : response.getHeaders(headerName)) {
+                if (headerString.length() != 0) {
                     headerString += "\n";
+                }
 
                 headerString += headerName + ": " + headerValue;
             }
@@ -302,8 +305,8 @@ public class HttpUtilities {
     /**
      * Obtain parameters from query
      *
-     * @param query
-     * @return
+     * @param query query to scan
+     * @return Map of parameters
      */
     public static HashMap<String, String> getParameters(String query) {
         HashMap<String, String> params = new HashMap<String, String>();
@@ -325,22 +328,21 @@ public class HttpUtilities {
         return params;
     }
 
-
     /**
      * Sets up the given {@link org.apache.commons.httpclient.methods.PostMethod} to send the same multipart POST data
      * as was sent in the given {@link HttpServletRequest}
      *
      * @param postMethodProxyRequest The {@link org.apache.commons.httpclient.methods.PostMethod} that we are configuring to send a
-     *                               multipart POST request
-     * @param httpServletRequest     The {@link HttpServletRequest} that contains the multipart
-     *                               POST data to be sent via the {@link org.apache.commons.httpclient.methods.PostMethod}
+     * multipart POST request
+     * @param httpServletRequest The {@link HttpServletRequest} that contains the multipart
+     * POST data to be sent via the {@link org.apache.commons.httpclient.methods.PostMethod}
      */
     @SuppressWarnings("unchecked")
     public static void handleMultipartPost(
-            EntityEnclosingMethod postMethodProxyRequest,
-            HttpServletRequest httpServletRequest,
-            DiskFileItemFactory diskFileItemFactory)
-            throws ServletException {
+        EntityEnclosingMethod postMethodProxyRequest,
+        HttpServletRequest httpServletRequest,
+        DiskFileItemFactory diskFileItemFactory)
+        throws ServletException {
         // TODO: this function doesn't set any history data
         try {
             // just pass back the binary data
@@ -357,10 +359,10 @@ public class HttpUtilities {
      * as was sent in the given {@link HttpServletRequest}
      *
      * @param methodProxyRequest The {@link org.apache.commons.httpclient.methods.PostMethod} that we are configuring to send a
-     *                           standard POST request
+     * standard POST request
      * @param httpServletRequest The {@link HttpServletRequest} that contains the POST data to
-     *                           be sent via the {@link org.apache.commons.httpclient.methods.PostMethod}
-     * @param history            The {@link com.groupon.odo.proxylib.models.History} log for this request
+     * be sent via the {@link org.apache.commons.httpclient.methods.PostMethod}
+     * @param history The {@link com.groupon.odo.proxylib.models.History} log for this request
      */
     @SuppressWarnings("unchecked")
     public static void handleStandardPost(EntityEnclosingMethod methodProxyRequest,
@@ -374,8 +376,8 @@ public class HttpUtilities {
         RequestEntity requestEntity = null;
 
         if (httpServletRequest.getContentType() != null &&
-                httpServletRequest.getContentType().contains(STRING_CONTENT_TYPE_FORM_URLENCODED)
-                && httpServletRequest.getHeader("content-encoding") == null) {
+            httpServletRequest.getContentType().contains(STRING_CONTENT_TYPE_FORM_URLENCODED)
+            && httpServletRequest.getHeader("content-encoding") == null) {
             requestByteArray = IOUtils.toByteArray(body);
 
             // this is binary.. just return it as is
@@ -389,7 +391,7 @@ public class HttpUtilities {
             for (String stringParameterName : mapPostParameters.keySet()) {
                 // Iterate the values for each parameter name
                 String[] stringArrayParameterValues = mapPostParameters
-                        .get(stringParameterName);
+                    .get(stringParameterName);
                 for (String stringParameterValue : stringArrayParameterValues) {
                     // Create a NameValuePair and store in list
 
@@ -408,7 +410,7 @@ public class HttpUtilities {
                 }
             }
         } else if (httpServletRequest.getContentType() != null &&
-                httpServletRequest.getContentType().contains(STRING_CONTENT_TYPE_MESSAGEPACK)) {
+            httpServletRequest.getContentType().contains(STRING_CONTENT_TYPE_MESSAGEPACK)) {
 
             /**
              * Convert input stream to bytes for it to be read by the deserializer
@@ -437,8 +439,9 @@ public class HttpUtilities {
             requestBody.append(requestBodyString);
 
             // mark in history if the body has been decoded
-            if (! requestBodyString.equals(new String(requestByteArray)))
+            if (!requestBodyString.equals(new String(requestByteArray))) {
                 history.setRequestBodyDecoded(true);
+            }
         }
 
         // set post body in history object
@@ -451,11 +454,10 @@ public class HttpUtilities {
          * Set the history to have decoded messagepack. Pass the byte data back to request
          */
         if (httpServletRequest.getContentType() != null &&
-                httpServletRequest.getContentType().contains(STRING_CONTENT_TYPE_MESSAGEPACK)) {
+            httpServletRequest.getContentType().contains(STRING_CONTENT_TYPE_MESSAGEPACK)) {
             history.setRequestPostData(deserialisedMessages);
             ByteArrayRequestEntity byteRequestEntity = new ByteArrayRequestEntity(requestByteArray);
             methodProxyRequest.setRequestEntity(byteRequestEntity);
-
         }
     }
 }

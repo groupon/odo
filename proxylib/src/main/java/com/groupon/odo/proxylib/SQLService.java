@@ -310,8 +310,9 @@ public class SQLService {
     /**
      * Converts the given string to a clob object
      *
+     * @param stringName string name to clob
+     * @param sqlConnection Connection object
      * @return Clob object or NULL
-     * @params string, sqlConnection object
      */
 
     public Clob toClob(String stringName, Connection sqlConnection) {

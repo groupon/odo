@@ -73,9 +73,10 @@ public class HistoryService {
     /**
      * Removes old entries in the history table for the given profile and client UUID
      *
-     * @param profileId
-     * @param clientUUID
-     * @param limit
+     * @param profileId ID of profile
+     * @param clientUUID UUID of client
+     * @param limit Maximum number of history entries to remove
+     * @throws Exception exception
      */
     public void cullHistory(final int profileId, final String clientUUID, final int limit) throws Exception {
 
@@ -152,7 +153,7 @@ public class HistoryService {
     /**
      * Add a history object to the history table
      *
-     * @param history - History object to add
+     * @param history History object to add
      */
     public void addHistory(History history) {
         if (disableHistoryWrite) {
@@ -294,6 +295,14 @@ public class HistoryService {
         return history;
     }
 
+    /**
+     * Returns the number of history entries for a client
+     *
+     * @param profileId ID of profile
+     * @param clientUUID UUID of client
+     * @param searchFilter unused
+     * @return number of history entries
+     */
     public int getHistoryCount(int profileId, String clientUUID, HashMap<String, String[]> searchFilter) {
         int count = 0;
         Statement query = null;
@@ -345,13 +354,15 @@ public class HistoryService {
     /**
      * Returns a set of history data ordered by most recent first
      *
-     * @param profileId - UUID of the profile we want history from(null for all)
-     * @param clientUUID - UUID of the client we want history from(null for all)
-     * @param offset - offset of the history data being looked for(0 for no offset), must be combined with a limit setting
-     * @param limit - limit of the amount of data(-1 for all data)
-     * @param withResponseData - false if you want returnData to be null, true otherwise
-     * @param searchFilter - HashMap of search filters.  This is a string(search type)/strings(regex) pair to search based on.  Search types are defined in Constants
-     * @return
+     * @param profileId UUID of the profile we want history from(null for all)
+     * @param clientUUID UUID of the client we want history from(null for all)
+     * @param offset offset of the history data being looked for(0 for no offset), must be combined with a limit setting
+     * @param limit limit of the amount of data(-1 for all data)
+     * @param withResponseData false if you want returnData to be null, true otherwise
+     * @param searchFilter HashMap of search filters.  This is a string(search type)/strings(regex) pair to search based on.  Search types are defined in Constants
+     * @param hasMessage hasMessage
+     * @return History entries found
+     * @throws Exception exception
      */
     public History[] getHistory(int profileId, String clientUUID, int offset, int limit, boolean withResponseData, HashMap<String, String[]> searchFilter, boolean hasMessage) throws Exception {
         ArrayList<History> returnData = new ArrayList<History>();
@@ -456,8 +467,8 @@ public class HistoryService {
     /**
      * Get history for a specific database ID
      *
-     * @param id
-     * @return
+     * @param id ID of history entry
+     * @return History entry
      */
     public History getHistoryForID(int id) {
         History history = null;
@@ -493,6 +504,12 @@ public class HistoryService {
         return history;
     }
 
+    /**
+     * Clear history for a client
+     *
+     * @param profileId ID of profile
+     * @param clientUUID UUID of client
+     */
     public void clearHistory(int profileId, String clientUUID) {
         PreparedStatement query = null;
 

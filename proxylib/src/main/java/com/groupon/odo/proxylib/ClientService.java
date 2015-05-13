@@ -17,14 +17,16 @@ package com.groupon.odo.proxylib;
 
 import com.groupon.odo.proxylib.models.Client;
 import com.groupon.odo.proxylib.models.Profile;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ClientService {
 
@@ -51,9 +53,9 @@ public class ClientService {
     /**
      * Return all Clients for a profile
      *
-     * @param profileId
-     * @return
-     * @throws Exception
+     * @param profileId ID of profile clients belong to
+     * @return collection of the Clients found
+     * @throws Exception exception
      */
     public List<Client> findAllClients(int profileId) throws Exception {
         ArrayList<Client> clients = new ArrayList<Client>();
@@ -63,8 +65,8 @@ public class ClientService {
 
         try (Connection sqlConnection = sqlService.getConnection()) {
             query = sqlConnection.prepareStatement(
-                    "SELECT * FROM " + Constants.DB_TABLE_CLIENT +
-                            " WHERE " + Constants.GENERIC_PROFILE_ID + " = ?"
+                "SELECT * FROM " + Constants.DB_TABLE_CLIENT +
+                    " WHERE " + Constants.GENERIC_PROFILE_ID + " = ?"
             );
             query.setInt(1, profileId);
             results = query.executeQuery();
@@ -75,11 +77,15 @@ public class ClientService {
             throw e;
         } finally {
             try {
-                if (results != null) results.close();
+                if (results != null) {
+                    results.close();
+                }
             } catch (Exception e) {
             }
             try {
-                if (query != null) query.close();
+                if (query != null) {
+                    query.close();
+                }
             } catch (Exception e) {
             }
         }
@@ -89,9 +95,9 @@ public class ClientService {
     /**
      * Returns a client object for a clientId
      *
-     * @param clientId
-     * @return
-     * @throws Exception
+     * @param clientId ID of client to return
+     * @return Client or null
+     * @throws Exception exception
      */
     public Client getClient(int clientId) throws Exception {
         Client client = null;
@@ -100,7 +106,7 @@ public class ClientService {
         ResultSet results = null;
         try (Connection sqlConnection = sqlService.getConnection()) {
             String queryString = "SELECT * FROM " + Constants.DB_TABLE_CLIENT +
-                    " WHERE " + Constants.GENERIC_ID + " = ?";
+                " WHERE " + Constants.GENERIC_ID + " = ?";
 
             statement = sqlConnection.prepareStatement(queryString);
             statement.setInt(1, clientId);
@@ -113,11 +119,15 @@ public class ClientService {
             throw e;
         } finally {
             try {
-                if (results != null) results.close();
+                if (results != null) {
+                    results.close();
+                }
             } catch (Exception e) {
             }
             try {
-                if (statement != null) statement.close();
+                if (statement != null) {
+                    statement.close();
+                }
             } catch (Exception e) {
             }
         }
@@ -128,9 +138,9 @@ public class ClientService {
     /**
      * Returns a Client object for a clientUUID and profileId
      *
-     * @param clientUUID
-     * @param profileId  - can be null, safer if it is not null
-     * @return client object
+     * @param clientUUID UUID or friendlyName of client
+     * @param profileId - can be null, safer if it is not null
+     * @return Client object or null
      * @throws Exception
      */
     public Client findClient(String clientUUID, Integer profileId) throws Exception {
@@ -138,7 +148,7 @@ public class ClientService {
 
         // first see if the clientUUID is actually a uuid.. it might be a friendlyName and need conversion
         if (clientUUID.compareTo(Constants.PROFILE_CLIENT_DEFAULT_ID) != 0 &&
-                !clientUUID.matches("[\\w]{8}-[\\w]{4}-[\\w]{4}-[\\w]{4}-[\\w]{12}")) {
+            !clientUUID.matches("[\\w]{8}-[\\w]{4}-[\\w]{4}-[\\w]{4}-[\\w]{12}")) {
             Client tmpClient = this.findClientFromFriendlyName(profileId, clientUUID);
 
             // if we can't find a client then fall back to the default ID
@@ -153,7 +163,7 @@ public class ClientService {
         ResultSet results = null;
         try (Connection sqlConnection = sqlService.getConnection()) {
             String queryString = "SELECT * FROM " + Constants.DB_TABLE_CLIENT +
-                    " WHERE " + Constants.CLIENT_CLIENT_UUID + " = ?";
+                " WHERE " + Constants.CLIENT_CLIENT_UUID + " = ?";
 
             if (profileId != null) {
                 queryString += " AND " + Constants.GENERIC_PROFILE_ID + "=?";
@@ -162,8 +172,9 @@ public class ClientService {
             statement = sqlConnection.prepareStatement(queryString);
             statement.setString(1, clientUUID);
 
-            if (profileId != null)
+            if (profileId != null) {
                 statement.setInt(2, profileId);
+            }
 
             results = statement.executeQuery();
             if (results.next()) {
@@ -173,11 +184,15 @@ public class ClientService {
             throw e;
         } finally {
             try {
-                if (results != null) results.close();
+                if (results != null) {
+                    results.close();
+                }
             } catch (Exception e) {
             }
             try {
-                if (statement != null) statement.close();
+                if (statement != null) {
+                    statement.close();
+                }
             } catch (Exception e) {
             }
         }
@@ -188,9 +203,9 @@ public class ClientService {
     /**
      * Returns a client model from a ResultSet
      *
-     * @param result
-     * @return
-     * @throws Exception
+     * @param result resultset containing client information
+     * @return Client or null
+     * @throws Exception exception
      */
     private Client getClientFromResultSet(ResultSet result) throws Exception {
         Client client = new Client();
@@ -211,7 +226,7 @@ public class ClientService {
         try (Connection sqlConnection = sqlService.getConnection()) {
             while (true) {
                 statement = sqlConnection.prepareStatement("SELECT * FROM " + Constants.DB_TABLE_CLIENT +
-                        " WHERE " + Constants.GENERIC_CLIENT_UUID + " = ?");
+                                                               " WHERE " + Constants.GENERIC_CLIENT_UUID + " = ?");
                 statement.setString(1, curClientUUID);
                 results = statement.executeQuery();
                 if (results.next()) {
@@ -224,11 +239,15 @@ public class ClientService {
             e.printStackTrace();
         } finally {
             try {
-                if (results != null) results.close();
+                if (results != null) {
+                    results.close();
+                }
             } catch (Exception e) {
             }
             try {
-                if (statement != null) statement.close();
+                if (statement != null) {
+                    statement.close();
+                }
             } catch (Exception e) {
             }
         }
@@ -241,9 +260,9 @@ public class ClientService {
      * There is a limit of Constants.CLIENT_CLIENTS_PER_PROFILE_LIMIT
      * If this limit is reached an exception is thrown back to the caller
      *
-     * @param profileId
-     * @return
-     * @throws Exception
+     * @param profileId ID of profile to create a new client for
+     * @return The newly created client
+     * @throws Exception exception
      */
     public Client add(int profileId) throws Exception {
         Client client = null;
@@ -256,33 +275,33 @@ public class ClientService {
         ResultSet rs = null;
 
         try (Connection sqlConnection = sqlService.getConnection()) {
-            
+
             // get the current count of clients
-            statement = sqlConnection.prepareStatement("SELECT COUNT(" + Constants.GENERIC_ID + ") FROM " + 
-            											Constants.DB_TABLE_CLIENT + " WHERE " + Constants.GENERIC_PROFILE_ID + "=?");
+            statement = sqlConnection.prepareStatement("SELECT COUNT(" + Constants.GENERIC_ID + ") FROM " +
+                                                           Constants.DB_TABLE_CLIENT + " WHERE " + Constants.GENERIC_PROFILE_ID + "=?");
             statement.setInt(1, profileId);
             int clientCount = -1;
             rs = statement.executeQuery();
             if (rs.next()) {
-            	clientCount = rs.getInt(1);
+                clientCount = rs.getInt(1);
             }
             statement.close();
             rs.close();
 
             // check count
             if (clientCount == -1) {
-            	throw new Exception("Error querying clients for profileId=" + profileId);
+                throw new Exception("Error querying clients for profileId=" + profileId);
             }
             if (clientCount >= Constants.CLIENT_CLIENTS_PER_PROFILE_LIMIT) {
-            	throw new Exception("Profile(" + profileId + ") already contains 50 clients.  Please remove clients before adding new ones.");
+                throw new Exception("Profile(" + profileId + ") already contains 50 clients.  Please remove clients before adding new ones.");
             }
-            
+
             statement = sqlConnection.prepareStatement(
-                    "INSERT INTO " + Constants.DB_TABLE_CLIENT +
-                            " (" + Constants.CLIENT_CLIENT_UUID + ", " +
-                            Constants.CLIENT_IS_ACTIVE + ", " +
-                            Constants.CLIENT_PROFILE_ID + ")" +
-                            " VALUES (?, ?, ?)", Statement.RETURN_GENERATED_KEYS
+                "INSERT INTO " + Constants.DB_TABLE_CLIENT +
+                    " (" + Constants.CLIENT_CLIENT_UUID + ", " +
+                    Constants.CLIENT_IS_ACTIVE + ", " +
+                    Constants.CLIENT_PROFILE_ID + ")" +
+                    " VALUES (?, ?, ?)", Statement.RETURN_GENERATED_KEYS
             );
             statement.setString(1, clientUUID);
             statement.setBoolean(2, false);
@@ -302,9 +321,9 @@ public class ClientService {
             // adding entries into request response table for this new client for every path
             // basically a copy of what happens when a path gets created
             statement = sqlConnection.prepareStatement(
-                    "SELECT * FROM " + Constants.DB_TABLE_REQUEST_RESPONSE +
-                            " WHERE " + Constants.GENERIC_PROFILE_ID + " = ?" +
-                            " AND " + Constants.GENERIC_CLIENT_UUID + " = ?"
+                "SELECT * FROM " + Constants.DB_TABLE_REQUEST_RESPONSE +
+                    " WHERE " + Constants.GENERIC_PROFILE_ID + " = ?" +
+                    " AND " + Constants.GENERIC_CLIENT_UUID + " = ?"
             );
             statement.setInt(1, profile.getId());
             statement.setString(2, Constants.PROFILE_CLIENT_DEFAULT_ID);
@@ -322,11 +341,15 @@ public class ClientService {
             throw e;
         } finally {
             try {
-                if (rs != null) rs.close();
+                if (rs != null) {
+                    rs.close();
+                }
             } catch (Exception e) {
             }
             try {
-                if (statement != null) statement.close();
+                if (statement != null) {
+                    statement.close();
+                }
             } catch (Exception e) {
             }
         }
@@ -342,11 +365,11 @@ public class ClientService {
     /**
      * Set a friendly name for a client
      *
-     * @param profileId
-     * @param clientUUID
-     * @param friendlyName
-     * @return
-     * @throws Exception
+     * @param profileId profileId of the client
+     * @param clientUUID UUID of the client
+     * @param friendlyName friendly name of the client
+     * @return return Client object or null
+     * @throws Exception exception
      */
     public Client setFriendlyName(int profileId, String clientUUID, String friendlyName) throws Exception {
         // first see if this friendlyName is already in use
@@ -360,10 +383,10 @@ public class ClientService {
 
         try (Connection sqlConnection = sqlService.getConnection()) {
             statement = sqlConnection.prepareStatement(
-                    "UPDATE " + Constants.DB_TABLE_CLIENT +
-                            " SET " + Constants.CLIENT_FRIENDLY_NAME + " = ?" +
-                            " WHERE " + Constants.CLIENT_CLIENT_UUID + " = ?" +
-                            " AND " + Constants.GENERIC_PROFILE_ID + " = ?"
+                "UPDATE " + Constants.DB_TABLE_CLIENT +
+                    " SET " + Constants.CLIENT_FRIENDLY_NAME + " = ?" +
+                    " WHERE " + Constants.CLIENT_CLIENT_UUID + " = ?" +
+                    " AND " + Constants.GENERIC_PROFILE_ID + " = ?"
             );
             statement.setString(1, friendlyName);
             statement.setString(2, clientUUID);
@@ -374,7 +397,9 @@ public class ClientService {
 
         } finally {
             try {
-                if (statement != null) statement.close();
+                if (statement != null) {
+                    statement.close();
+                }
             } catch (Exception e) {
             }
         }
@@ -388,10 +413,10 @@ public class ClientService {
     /**
      * Get the client for a profileId/friendlyName
      *
-     * @param profileId
-     * @param friendlyName
+     * @param profileId profile ID of the client
+     * @param friendlyName friendly name of the client
      * @return Client or null
-     * @throws Exception
+     * @throws Exception exception
      */
     public Client findClientFromFriendlyName(int profileId, String friendlyName) throws Exception {
         Client client = null;
@@ -406,8 +431,8 @@ public class ClientService {
 
         try (Connection sqlConnection = sqlService.getConnection()) {
             String queryString = "SELECT * FROM " + Constants.DB_TABLE_CLIENT +
-                    " WHERE " + Constants.CLIENT_FRIENDLY_NAME + " = ?" +
-                    " AND " + Constants.GENERIC_PROFILE_ID + " = ?";
+                " WHERE " + Constants.CLIENT_FRIENDLY_NAME + " = ?" +
+                " AND " + Constants.GENERIC_PROFILE_ID + " = ?";
             statement = sqlConnection.prepareStatement(queryString);
             statement.setString(1, friendlyName);
             statement.setInt(2, profileId);
@@ -420,11 +445,15 @@ public class ClientService {
             throw e;
         } finally {
             try {
-                if (results != null) results.close();
+                if (results != null) {
+                    results.close();
+                }
             } catch (Exception e) {
             }
             try {
-                if (statement != null) statement.close();
+                if (statement != null) {
+                    statement.close();
+                }
             } catch (Exception e) {
             }
         }
@@ -436,9 +465,9 @@ public class ClientService {
      * Removes a client from the database
      * Also clears all additional override information for the clientId
      *
-     * @param profileId
-     * @param clientUUID
-     * @throws Exception
+     * @param profileId profile ID of client to remove
+     * @param clientUUID client UUID of client to remove
+     * @throws Exception exception
      */
     public void remove(int profileId, String clientUUID) throws Exception {
         PreparedStatement statement = null;
@@ -446,9 +475,9 @@ public class ClientService {
         try (Connection sqlConnection = sqlService.getConnection()) {
             // first try selecting the row we want to deal with
             statement = sqlConnection.prepareStatement(
-                    "SELECT * FROM " + Constants.DB_TABLE_CLIENT +
-                            " WHERE " + Constants.GENERIC_CLIENT_UUID + " = ?" +
-                            " AND " + Constants.CLIENT_PROFILE_ID + "= ?"
+                "SELECT * FROM " + Constants.DB_TABLE_CLIENT +
+                    " WHERE " + Constants.GENERIC_CLIENT_UUID + " = ?" +
+                    " AND " + Constants.CLIENT_PROFILE_ID + "= ?"
             );
             statement.setString(1, clientUUID);
             statement.setInt(2, profileId);
@@ -460,19 +489,23 @@ public class ClientService {
             throw e;
         } finally {
             try {
-                if (results != null) results.close();
+                if (results != null) {
+                    results.close();
+                }
             } catch (Exception e) {
             }
             try {
-                if (statement != null) statement.close();
+                if (statement != null) {
+                    statement.close();
+                }
             } catch (Exception e) {
             }
         }
 
         // delete from the client table
         String queryString = "DELETE FROM " + Constants.DB_TABLE_CLIENT +
-                " WHERE " + Constants.CLIENT_CLIENT_UUID + " = ? " +
-                " AND " + Constants.CLIENT_PROFILE_ID + " = ?";
+            " WHERE " + Constants.CLIENT_CLIENT_UUID + " = ? " +
+            " AND " + Constants.CLIENT_PROFILE_ID + " = ?";
 
         try (Connection sqlConnection = sqlService.getConnection()) {
             statement = sqlConnection.prepareStatement(queryString);
@@ -485,19 +518,20 @@ public class ClientService {
             throw e;
         } finally {
             try {
-                if (statement != null) statement.close();
+                if (statement != null) {
+                    statement.close();
+                }
             } catch (Exception e) {
             }
         }
-
 
         // delete from other tables as appropriate
         // need to delete from enabled_overrides and request_response
         try (Connection sqlConnection = sqlService.getConnection()) {
             statement = sqlConnection.prepareStatement(
-                    "DELETE FROM " + Constants.DB_TABLE_REQUEST_RESPONSE +
-                            " WHERE " + Constants.CLIENT_CLIENT_UUID + " = ? " +
-                            " AND " + Constants.CLIENT_PROFILE_ID + " = ?"
+                "DELETE FROM " + Constants.DB_TABLE_REQUEST_RESPONSE +
+                    " WHERE " + Constants.CLIENT_CLIENT_UUID + " = ? " +
+                    " AND " + Constants.CLIENT_PROFILE_ID + " = ?"
             );
             statement.setString(1, clientUUID);
             statement.setInt(2, profileId);
@@ -508,9 +542,9 @@ public class ClientService {
 
         try (Connection sqlConnection = sqlService.getConnection()) {
             statement = sqlConnection.prepareStatement(
-                    "DELETE FROM " + Constants.DB_TABLE_ENABLED_OVERRIDE +
-                            " WHERE " + Constants.CLIENT_CLIENT_UUID + " = ? " +
-                            " AND " + Constants.CLIENT_PROFILE_ID + " = ?"
+                "DELETE FROM " + Constants.DB_TABLE_ENABLED_OVERRIDE +
+                    " WHERE " + Constants.CLIENT_CLIENT_UUID + " = ? " +
+                    " AND " + Constants.CLIENT_PROFILE_ID + " = ?"
             );
             statement.setString(1, clientUUID);
             statement.setInt(2, profileId);
@@ -519,7 +553,9 @@ public class ClientService {
             // ok to swallow this.. just means there wasn't any
         } finally {
             try {
-                if (statement != null) statement.close();
+                if (statement != null) {
+                    statement.close();
+                }
             } catch (Exception e) {
             }
         }
@@ -528,19 +564,19 @@ public class ClientService {
     /**
      * disables the current active id, enables the new one selected
      *
-     * @param profileId
-     * @param clientUUID
-     * @param active
-     * @throws Exception
+     * @param profileId profile ID of the client
+     * @param clientUUID UUID of the client
+     * @param active true to make client active, false to make client inactive
+     * @throws Exception exception
      */
     public void updateActive(int profileId, String clientUUID, Boolean active) throws Exception {
         PreparedStatement statement = null;
         try (Connection sqlConnection = sqlService.getConnection()) {
             statement = sqlConnection.prepareStatement(
-                    "UPDATE " + Constants.DB_TABLE_CLIENT +
-                            " SET " + Constants.CLIENT_IS_ACTIVE + "= ?" +
-                            " WHERE " + Constants.GENERIC_CLIENT_UUID + "= ? " +
-                            " AND " + Constants.GENERIC_PROFILE_ID + "= ?"
+                "UPDATE " + Constants.DB_TABLE_CLIENT +
+                    " SET " + Constants.CLIENT_IS_ACTIVE + "= ?" +
+                    " WHERE " + Constants.GENERIC_CLIENT_UUID + "= ? " +
+                    " AND " + Constants.GENERIC_PROFILE_ID + "= ?"
             );
             statement.setBoolean(1, active);
             statement.setString(2, clientUUID);
@@ -550,7 +586,9 @@ public class ClientService {
             // ok to swallow this.. just means there wasn't any
         } finally {
             try {
-                if (statement != null) statement.close();
+                if (statement != null) {
+                    statement.close();
+                }
             } catch (Exception e) {
             }
         }
@@ -559,9 +597,9 @@ public class ClientService {
     /**
      * Resets all override settings for the clientUUID and disables it
      *
-     * @param profileId
-     * @param clientUUID
-     * @throws Exception
+     * @param profileId profile ID of the client
+     * @param clientUUID UUID of the client
+     * @throws Exception exception
      */
     public void reset(int profileId, String clientUUID) throws Exception {
         PreparedStatement statement = null;
@@ -571,8 +609,8 @@ public class ClientService {
 
             // first remove all enabled overrides with this client uuid
             String queryString = "DELETE FROM " + Constants.DB_TABLE_ENABLED_OVERRIDE +
-                    " WHERE " + Constants.GENERIC_CLIENT_UUID + "= ? " +
-                    " AND " + Constants.GENERIC_PROFILE_ID + " = ?";
+                " WHERE " + Constants.GENERIC_CLIENT_UUID + "= ? " +
+                " AND " + Constants.GENERIC_PROFILE_ID + " = ?";
             statement = sqlConnection.prepareStatement(queryString);
             statement.setString(1, clientUUID);
             statement.setInt(2, profileId);
@@ -581,13 +619,13 @@ public class ClientService {
 
             // clean up request response table for this uuid
             queryString = "UPDATE " + Constants.DB_TABLE_REQUEST_RESPONSE +
-                    " SET " + Constants.REQUEST_RESPONSE_CUSTOM_REQUEST + "=?, "
-                    + Constants.REQUEST_RESPONSE_CUSTOM_RESPONSE + "=?, "
-                    + Constants.REQUEST_RESPONSE_REPEAT_NUMBER + "=-1, "
-                    + Constants.REQUEST_RESPONSE_REQUEST_ENABLED + "=0, "
-                    + Constants.REQUEST_RESPONSE_RESPONSE_ENABLED + "=0 "
-                    + "WHERE " + Constants.GENERIC_CLIENT_UUID + "=? " +
-                    " AND " + Constants.GENERIC_PROFILE_ID + "=?";
+                " SET " + Constants.REQUEST_RESPONSE_CUSTOM_REQUEST + "=?, "
+                + Constants.REQUEST_RESPONSE_CUSTOM_RESPONSE + "=?, "
+                + Constants.REQUEST_RESPONSE_REPEAT_NUMBER + "=-1, "
+                + Constants.REQUEST_RESPONSE_REQUEST_ENABLED + "=0, "
+                + Constants.REQUEST_RESPONSE_RESPONSE_ENABLED + "=0 "
+                + "WHERE " + Constants.GENERIC_CLIENT_UUID + "=? " +
+                " AND " + Constants.GENERIC_PROFILE_ID + "=?";
             statement = sqlConnection.prepareStatement(queryString);
             statement.setString(1, "");
             statement.setString(2, "");
@@ -598,7 +636,9 @@ public class ClientService {
             e.printStackTrace();
         } finally {
             try {
-                if (statement != null) statement.close();
+                if (statement != null) {
+                    statement.close();
+                }
             } catch (Exception e) {
             }
         }
@@ -618,5 +658,4 @@ public class ClientService {
     public String getProfileIdFromClientId(int id) {
         return (String) sqlService.getFromTable(Constants.CLIENT_PROFILE_ID, Constants.GENERIC_ID, id, Constants.DB_TABLE_CLIENT);
     }
-
 }

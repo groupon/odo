@@ -24,9 +24,9 @@ public class PathValueClient extends Client {
     /**
      * Create a new endpoint client instance
      *
-     * @param profileName
-     * @param useClient   - create a new client id(false means use the default client)
-     * @throws Exception
+     * @param profileName name of profile
+     * @param useClient create a new client id(false means use the default client)
+     * @throws Exception exception
      */
     public PathValueClient(String profileName, boolean useClient) throws Exception {
         super(profileName, useClient);
@@ -35,10 +35,10 @@ public class PathValueClient extends Client {
     /**
      * Retrieves the path using the endpoint value
      *
-     * @param pathValue   - path (endpoint) value
+     * @param pathValue - path (endpoint) value
      * @param requestType - "GET", "POST", etc
-     * @return
-     * @throws Exception
+     * @return Path or null
+     * @throws Exception exception
      */
     public JSONObject getPathFromEndpoint(String pathValue, String requestType) throws Exception {
         int type = getRequestTypeFromString(requestType);
@@ -55,12 +55,12 @@ public class PathValueClient extends Client {
     }
 
     /**
-     * Sets a custom response on an endpoint using default profile & client
+     * Sets a custom response on an endpoint using default profile and client
      *
-     * @param pathValue   - path (endpoint) value
-     * @param requestType - path request type. "GET", "POST", etc
-     * @param customData  - custom response data
-     * @return
+     * @param pathValue path (endpoint) value
+     * @param requestType path request type. "GET", "POST", etc
+     * @param customData custom response data
+     * @return true if success, false otherwise
      */
     public static boolean setDefaultCustomResponse(String pathValue, String requestType, String customData) {
         try {
@@ -77,9 +77,9 @@ public class PathValueClient extends Client {
     /**
      * Remove any overrides for an endpoint on the default profile, client
      *
-     * @param pathValue   - path (endpoint) value
-     * @param requestType - path request type. "GET", "POST", etc
-     * @return
+     * @param pathValue path (endpoint) value
+     * @param requestType path request type. "GET", "POST", etc
+     * @return true if success, false otherwise
      */
     public static boolean removeDefaultCustomResponse(String pathValue, String requestType) {
         try {
@@ -96,9 +96,9 @@ public class PathValueClient extends Client {
     /**
      * Remove any overrides for an endpoint
      *
-     * @param pathValue   - path (endpoint) value
-     * @param requestType - path request type. "GET", "POST", etc
-     * @return
+     * @param pathValue path (endpoint) value
+     * @param requestType path request type. "GET", "POST", etc
+     * @return true if success, false otherwise
      */
     public boolean removeCustomResponse(String pathValue, String requestType) {
         try {
@@ -117,10 +117,10 @@ public class PathValueClient extends Client {
     /**
      * Sets a custom response on an endpoint
      *
-     * @param pathValue   - path (endpoint) value
-     * @param requestType - path request type. "GET", "POST", etc
-     * @param customData  - custom response data
-     * @return
+     * @param pathValue path (endpoint) value
+     * @param requestType path request type. "GET", "POST", etc
+     * @param customData custom response data
+     * @return true if success, false otherwise
      */
     public boolean setCustomResponse(String pathValue, String requestType, String customData) {
         try {
