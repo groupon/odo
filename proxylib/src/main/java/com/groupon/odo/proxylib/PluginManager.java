@@ -19,13 +19,6 @@ import com.groupon.odo.plugin.PluginArguments;
 import com.groupon.odo.plugin.ResponseOverride;
 import com.groupon.odo.proxylib.models.Configuration;
 import com.groupon.odo.proxylib.models.Plugin;
-
-import javassist.ClassPool;
-import javassist.NotFoundException;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -43,10 +36,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
+import javassist.ClassPool;
+import javassist.NotFoundException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class PluginManager {
     private static final Logger logger = LoggerFactory
-            .getLogger(PluginManager.class);
+        .getLogger(PluginManager.class);
 
     private static PluginManager _instance = null;
     private EditService editService = EditService.getInstance();
@@ -70,7 +67,7 @@ public class PluginManager {
     /**
      * Gets the current instance of plugin manager
      *
-     * @return
+     * @return PluginManager
      */
     public static PluginManager getInstance() {
         if (_instance == null) {
@@ -114,7 +111,7 @@ public class PluginManager {
     /**
      * This loads plugin file information into a hash for lazy loading later on
      *
-     * @param pluginDirectory
+     * @param pluginDirectory path of plugin directory
      */
     public void identifyClasses(final String pluginDirectory) throws Exception {
         methodInformation.clear();
@@ -134,7 +131,7 @@ public class PluginManager {
                             className = getClassNameFromPath(className);
 
                             logger.info("Storing plugin information: {}, {}", className,
-                                    f.getName());
+                                        f.getName());
 
                             ClassInformation classInfo = new ClassInformation();
                             classInfo.pluginPath = pluginDirectory;
@@ -151,21 +148,22 @@ public class PluginManager {
 
                                 // Use the Plugin-Name manifest entry to match with the provided pluginName
                                 String pluginPackageName = jarFile.getManifest().getMainAttributes().getValue("plugin-package");
-                                if(pluginPackageName == null)
+                                if (pluginPackageName == null) {
                                     return;
+                                }
 
                                 while (enumer.hasMoreElements()) {
                                     Object element = enumer.nextElement();
                                     String elementName = element.toString();
 
-                                    if (!elementName.endsWith(".class"))
+                                    if (!elementName.endsWith(".class")) {
                                         continue;
-
+                                    }
 
                                     String className = getClassNameFromPath(elementName);
                                     if (className.contains(pluginPackageName)) {
                                         logger.info("Storing plugin information: {}, {}", className,
-                                                f.getAbsolutePath());
+                                                    f.getAbsolutePath());
 
                                         ClassInformation classInfo = new ClassInformation();
                                         classInfo.pluginPath = f.getAbsolutePath();
@@ -234,7 +232,7 @@ public class PluginManager {
         URL classURL = new File(classInfo.pluginPath).toURI().toURL();
 
         URL[] urls = new URL[] {classURL};
-        URLClassLoader child = new URLClassLoader (urls, this.getClass().getClassLoader());
+        URLClassLoader child = new URLClassLoader(urls, this.getClass().getClassLoader());
 
         // load the class
         Class<?> cls = child.loadClass(className);
@@ -251,11 +249,10 @@ public class PluginManager {
     /**
      * Calls the specified function with the specified arguments. This is used for v2 response overrides
      *
-     * @param className
-     * @param methodName
-     * @param args
-     * @return
-     * @throws Exception
+     * @param className name of class
+     * @param methodName name of method
+     * @param args arguments to supply to function
+     * @throws Exception exception
      */
     public void callFunction(String className, String methodName, PluginArguments pluginArgs, Object... args) throws Exception {
         Class<?> cls = getClass(className);
@@ -268,14 +265,14 @@ public class PluginManager {
     }
 
     /**
-    * Calls the specified function with the specified arguments. This is used for v1 response overrides
-    *
-    * @param className
-    * @param methodName
-    * @param args
-    * @return
-    * @throws Exception
-    */
+     * Calls the specified function with the specified arguments. This is used for v1 response overrides
+     *
+     * @param className name of class
+     * @param methodName name of method
+     * @param args arguments to supply to function
+     * @return Value returned by function
+     * @throws Exception exception
+     */
     public Object callFunction(String className, String methodName, String responseContent, Object... args) throws Exception {
         Object retval;
         Class<?> cls = getClass(className);
@@ -314,10 +311,10 @@ public class PluginManager {
     /**
      * Get method object for a class/method name
      *
-     * @param className
-     * @param methodName
-     * @return
-     * @throws Exception
+     * @param className name of class
+     * @param methodName name of method
+     * @return Method
+     * @throws Exception exception
      */
     public com.groupon.odo.proxylib.models.Method getMethod(String className, String methodName) throws Exception {
         // TODO: fix this so it returns the right override ID
@@ -359,8 +356,9 @@ public class PluginManager {
             // load method information
             Method[] methods = gottenClass.getDeclaredMethods();
             for (Method method : methods) {
-                if (method.getName().compareTo(methodName) != 0)
+                if (method.getName().compareTo(methodName) != 0) {
                     continue;
+                }
 
                 try {
                     // get annotation information
@@ -378,23 +376,22 @@ public class PluginManager {
 
                         // Convert to the right type and get annotation information
                         if (annotation.annotationType().toString().endsWith(Constants.PLUGIN_RESPONSE_OVERRIDE_CLASS)) {
-                            ResponseOverride roAnnotation = (ResponseOverride)annotation;
+                            ResponseOverride roAnnotation = (ResponseOverride) annotation;
                             newMethod.setHttpCode(roAnnotation.httpCode());
                             description = roAnnotation.description();
                             argNames = roAnnotation.parameters();
                             defaultArgs = new String[0];
                             newMethod.setOverrideVersion(1);
-                        }
-                        else if(annotation.annotationType().toString().endsWith(Constants.PLUGIN_RESPONSE_OVERRIDE_V2_CLASS)) {
+                        } else if (annotation.annotationType().toString().endsWith(Constants.PLUGIN_RESPONSE_OVERRIDE_V2_CLASS)) {
                             com.groupon.odo.plugin.v2.ResponseOverride roAnnotation = (com.groupon.odo.plugin.v2.ResponseOverride) annotation;
                             description = roAnnotation.description();
                             argNames = roAnnotation.parameters();
                             defaultArgs = roAnnotation.argDefaults();
                             newMethod.setBlockRequest(roAnnotation.blockRequest());
                             newMethod.setOverrideVersion(2);
-                        }
-                        else
+                        } else {
                             continue;
+                        }
 
                         // identify arguments
                         // first arg is always a reserved that we skip
@@ -415,7 +412,6 @@ public class PluginManager {
                     }
 
                     break;
-
                 } catch (Exception e) {
                     // in this case we just return null since the method would be unuseable
                     return null;
@@ -463,7 +459,7 @@ public class PluginManager {
     /**
      * Returns a string array of the available classes
      *
-     * @return
+     * @return array of available classes
      */
     public String[] getPluginClasses() {
         return classInformation.keySet().toArray(new String[0]);
@@ -472,8 +468,8 @@ public class PluginManager {
     /**
      * Returns a string array of the methods loaded for a class
      *
-     * @param pluginClass
-     * @return
+     * @param pluginClass name of class
+     * @return string array of the methods loaded for the class
      */
     public String[] getMethods(String pluginClass) throws Exception {
         ArrayList<String> methodNames = new ArrayList<String>();
@@ -483,18 +479,20 @@ public class PluginManager {
             logger.info("Checking {}", method.getName());
 
             com.groupon.odo.proxylib.models.Method methodInfo = this.getMethod(pluginClass, method.getName());
-            if (methodInfo == null)
+            if (methodInfo == null) {
                 continue;
+            }
 
             // check annotations
             Boolean matchesAnnotation = false;
             if (methodInfo.getMethodType().endsWith(Constants.PLUGIN_RESPONSE_OVERRIDE_CLASS) ||
-                    methodInfo.getMethodType().endsWith(Constants.PLUGIN_RESPONSE_OVERRIDE_V2_CLASS)) {
+                methodInfo.getMethodType().endsWith(Constants.PLUGIN_RESPONSE_OVERRIDE_V2_CLASS)) {
                 matchesAnnotation = true;
             }
 
-            if (!methodNames.contains(method.getName()) && matchesAnnotation)
+            if (!methodNames.contains(method.getName()) && matchesAnnotation) {
                 methodNames.add(method.getName());
+            }
         }
 
         return methodNames.toArray(new String[0]);
@@ -528,8 +526,8 @@ public class PluginManager {
      * (mostly just for testing and seeing how things work for now)
      * gets all the methods so that i can pass them in as an attribute to our model
      *
-     * @return
-     * @throws Exception
+     * @return List of all Methods
+     * @throws Exception exception
      */
     public List<com.groupon.odo.proxylib.models.Method> getAllMethods() throws Exception {
         ArrayList<com.groupon.odo.proxylib.models.Method> methods = new ArrayList<com.groupon.odo.proxylib.models.Method>();
@@ -551,11 +549,11 @@ public class PluginManager {
     }
 
     /**
-     * returns all the methods not in the group, using the same ArrayList<HashMap>> format
+     * returns all methods not in the group
      *
-     * @param groupId
-     * @return
-     * @throws Exception
+     * @param groupId Id of group
+     * @return List of Methods for a group
+     * @throws Exception exception
      */
     public List<com.groupon.odo.proxylib.models.Method> getMethodsNotInGroup(int groupId) throws Exception {
         List<com.groupon.odo.proxylib.models.Method> allMethods = getAllMethods();
@@ -569,11 +567,13 @@ public class PluginManager {
 
             for (int j = 0; j < methodsInGroup.size(); j++) {
                 if ((methodName.equals(methodsInGroup.get(j).getMethodName())) &&
-                        (className.equals(methodsInGroup.get(j).getClassName())))
+                    (className.equals(methodsInGroup.get(j).getClassName()))) {
                     add = false;
+                }
             }
-            if (add)
+            if (add) {
                 methodsNotInGroup.add(allMethods.get(i));
+            }
         }
         return methodsNotInGroup;
     }
@@ -581,15 +581,17 @@ public class PluginManager {
     /**
      * Returns the data about all of the plugins that are set
      *
-     * @return
+     * @param onlyValid True to get only valid plugins, False for all
+     * @return array of Plugins set
      */
     public Plugin[] getPlugins(Boolean onlyValid) {
         Configuration[] configurations = ConfigurationService.getInstance().getConfigurations(Constants.DB_TABLE_CONFIGURATION_PLUGIN_PATH);
 
         ArrayList<Plugin> plugins = new ArrayList<Plugin>();
 
-        if (configurations == null)
+        if (configurations == null) {
             return new Plugin[0];
+        }
 
         for (Configuration config : configurations) {
             Plugin plugin = new Plugin();
@@ -605,8 +607,9 @@ public class PluginManager {
                 plugin.setStatusMessage("Path is not a directory");
             }
 
-            if (!onlyValid || plugin.getStatus() == Constants.PLUGIN_STATUS_VALID)
+            if (!onlyValid || plugin.getStatus() == Constants.PLUGIN_STATUS_VALID) {
                 plugins.add(plugin);
+            }
         }
 
         return plugins.toArray(new Plugin[0]);
@@ -626,7 +629,7 @@ public class PluginManager {
      * Gets a static resource from a plugin
      *
      * @param pluginName - Name of the plugin(defined in the plugin manifest)
-     * @param fileName   - Filename to fetch
+     * @param fileName - Filename to fetch
      * @return
      * @throws Exception
      */
@@ -639,16 +642,18 @@ public class PluginManager {
             // Use the Plugin-Name manifest entry to match with the provided pluginName
             String jarPluginName = jarFile.getManifest().getMainAttributes().getValue("Plugin-Name");
 
-            if (!jarPluginName.equals(pluginName))
+            if (!jarPluginName.equals(pluginName)) {
                 continue;
+            }
 
             while (enumer.hasMoreElements()) {
                 Object element = enumer.nextElement();
                 String elementName = element.toString();
 
                 // Skip items in the jar that don't start with "resources/"
-                if (!elementName.startsWith("resources/"))
+                if (!elementName.startsWith("resources/")) {
                     continue;
+                }
 
                 elementName = elementName.replace("resources/", "");
                 if (elementName.equals(fileName)) {

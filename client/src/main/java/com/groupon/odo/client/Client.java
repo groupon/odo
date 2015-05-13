@@ -19,6 +19,12 @@ package com.groupon.odo.client;
 import com.groupon.odo.client.models.History;
 import com.groupon.odo.client.models.ServerGroup;
 import com.groupon.odo.client.models.ServerRedirect;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
@@ -32,13 +38,6 @@ import org.apache.http.protocol.HTTP;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 public class Client {
     protected String ODO_HOST = "localhost";
@@ -73,8 +72,8 @@ public class Client {
     /**
      * Create a new client instance
      *
-     * @param profileName
-     * @param createNewClient   - create a new client id(false means use the default client)
+     * @param profileName name of existing profile to create client for
+     * @param createNewClient create a new client id(false means use the default client)
      * @throws Exception
      */
     public Client(String profileName, boolean createNewClient) throws Exception {
@@ -90,8 +89,8 @@ public class Client {
     /**
      * Create a client for a clientId that already exists in Odo
      *
-     * @param profileName
-     * @param clientId - clientId of existing Odo client
+     * @param profileName name of existing profile to create client for
+     * @param clientId clientId of existing Odo client
      * @throws Exception
      */
     public Client(String profileName, String clientId) throws Exception {
@@ -101,10 +100,13 @@ public class Client {
 
     /**
      * Call when you are done with the client
+     *
+     * @throws Exception
      */
     public void destroy() throws Exception {
-        if (_clientId == null)
+        if (_clientId == null) {
             return;
+        }
 
         // delete the clientId here
         String uri = BASE_PROFILE + uriEncode(_profileName) + "/" + BASE_CLIENTS + "/" + _clientId;
@@ -118,7 +120,8 @@ public class Client {
 
     /**
      * Get the connection timeout value in ms
-     * @return
+     *
+     * @return timeout value in ms
      */
     public int getTimeout() {
         return _timeout;
@@ -126,7 +129,8 @@ public class Client {
 
     /**
      * Set the connection timeout value in ms
-     * @param timeout
+     *
+     * @param timeout value in ms
      */
     public void setTimeout(int timeout) {
         _timeout = timeout;
@@ -146,10 +150,11 @@ public class Client {
 
     /**
      * Set the host running the Odo instance to configure
-     * @param hostName
+     *
+     * @param hostName name of host
      */
     public void setHostName(String hostName) {
-        if(hostName == null || hostName.contains(":")) {
+        if (hostName == null || hostName.contains(":")) {
             return;
         }
         ODO_HOST = hostName;
@@ -159,9 +164,11 @@ public class Client {
     /**
      * Set the default host running the Odo instance to configure. Allows default profile methods and PathValueClient to
      * operate on remote hosts
+     *
+     * @param hostName name of host
      */
     public static void setDefaultHostName(String hostName) {
-        if(hostName == null || hostName.contains(":")) {
+        if (hostName == null || hostName.contains(":")) {
             return;
         }
         DEFAULT_BASE_URL = "http://" + hostName + ":" + DEFAULT_API_PORT + "/" + API_BASE + "/";
@@ -171,9 +178,9 @@ public class Client {
      * Retrieve the request History based on the specified filters.
      * If no filter is specified, return the default size history.
      *
-     * @param filters - filters to be applied
-     * @return
-     * @throws Exception
+     * @param filters filters to be applied
+     * @return array of History items
+     * @throws Exception exception
      */
     public History[] filterHistory(String... filters) throws Exception {
         BasicNameValuePair[] params;
@@ -192,9 +199,9 @@ public class Client {
     /**
      * Construct the history array based on the given parameters
      *
-     * @param params - parameters applied
-     * @return
-     * @throws Exception
+     * @param params parameters applied
+     * @return array of History items
+     * @throws Exception exception
      */
     protected History[] constructHistory(BasicNameValuePair[] params) throws Exception {
         String uri = HISTORY + uriEncode(_profileName);
@@ -204,7 +211,6 @@ public class Client {
             JSONArray historyArray = response.getJSONArray("history");
             history = new History[historyArray.length()];
 
-
             for (int i = 0; i < historyArray.length(); i++) {
                 history[i] = new History();
                 JSONObject jsonHistory = historyArray.getJSONObject(i);
@@ -212,50 +218,72 @@ public class Client {
                     continue;
                 }
 
-                if (!jsonHistory.isNull("id"))
+                if (!jsonHistory.isNull("id")) {
                     history[i].setId(jsonHistory.getInt("id"));
-                if (!jsonHistory.isNull("profileId"))
+                }
+                if (!jsonHistory.isNull("profileId")) {
                     history[i].setProfileId(jsonHistory.getInt("profileId"));
-                if (!jsonHistory.isNull("clientUUID"))
+                }
+                if (!jsonHistory.isNull("clientUUID")) {
                     history[i].setClientUUID(jsonHistory.getString("clientUUID"));
-                if (!jsonHistory.isNull("createdAt"))
+                }
+                if (!jsonHistory.isNull("createdAt")) {
                     history[i].setCreatedAt(jsonHistory.getString("createdAt"));
-                if (!jsonHistory.isNull("requestType"))
+                }
+                if (!jsonHistory.isNull("requestType")) {
                     history[i].setRequestType(jsonHistory.getString("requestType"));
-                if (!jsonHistory.isNull("requestURL"))
+                }
+                if (!jsonHistory.isNull("requestURL")) {
                     history[i].setRequestURL(jsonHistory.getString("requestURL"));
-                if (!jsonHistory.isNull("requestParams"))
+                }
+                if (!jsonHistory.isNull("requestParams")) {
                     history[i].setRequestParams(jsonHistory.getString("requestParams"));
-                if (!jsonHistory.isNull("requestPostData"))
+                }
+                if (!jsonHistory.isNull("requestPostData")) {
                     history[i].setRequestPostData(jsonHistory.getString("requestPostData"));
-                if (!jsonHistory.isNull("requestHeaders"))
+                }
+                if (!jsonHistory.isNull("requestHeaders")) {
                     history[i].setRequestHeaders(jsonHistory.getString("requestHeaders"));
-                if (!jsonHistory.isNull("responseCode"))
+                }
+                if (!jsonHistory.isNull("responseCode")) {
                     history[i].setResponseCode(jsonHistory.getString("responseCode"));
-                if (!jsonHistory.isNull("responseHeaders"))
+                }
+                if (!jsonHistory.isNull("responseHeaders")) {
                     history[i].setResponseHeaders(jsonHistory.getString("responseHeaders"));
-                if (!jsonHistory.isNull("responseContentType"))
+                }
+                if (!jsonHistory.isNull("responseContentType")) {
                     history[i].setResponseContentType(jsonHistory.getString("responseContentType"));
-                if (!jsonHistory.isNull("originalRequestURL"))
+                }
+                if (!jsonHistory.isNull("originalRequestURL")) {
                     history[i].setOriginalRequestURL(jsonHistory.getString("originalRequestURL"));
-                if (!jsonHistory.isNull("originalRequestParams"))
+                }
+                if (!jsonHistory.isNull("originalRequestParams")) {
                     history[i].setOriginalRequestParams(jsonHistory.getString("originalRequestParams"));
-                if (!jsonHistory.isNull("originalRequestPostData"))
+                }
+                if (!jsonHistory.isNull("originalRequestPostData")) {
                     history[i].setOriginalRequestPostData(jsonHistory.getString("originalRequestPostData"));
-                if (!jsonHistory.isNull("originalRequestHeaders"))
+                }
+                if (!jsonHistory.isNull("originalRequestHeaders")) {
                     history[i].setOriginalRequestHeaders(jsonHistory.getString("originalRequestHeaders"));
-                if (!jsonHistory.isNull("originalResponseCode"))
+                }
+                if (!jsonHistory.isNull("originalResponseCode")) {
                     history[i].setOriginalResponseCode(jsonHistory.getString("originalResponseCode"));
-                if (!jsonHistory.isNull("originalResponseHeaders"))
+                }
+                if (!jsonHistory.isNull("originalResponseHeaders")) {
                     history[i].setOriginalResponseHeaders(jsonHistory.getString("originalResponseHeaders"));
-                if (!jsonHistory.isNull("originalResponseContentType"))
+                }
+                if (!jsonHistory.isNull("originalResponseContentType")) {
                     history[i].setResponseContentType(jsonHistory.getString("originalResponseContentType"));
-                if (!jsonHistory.isNull("modified"))
+                }
+                if (!jsonHistory.isNull("modified")) {
                     history[i].setModified(jsonHistory.getBoolean("modified"));
-                if (!jsonHistory.isNull("requestBodyDecoded"))
+                }
+                if (!jsonHistory.isNull("requestBodyDecoded")) {
                     history[i].setRequestBodyDecoded(jsonHistory.getBoolean("requestBodyDecoded"));
-                if (!jsonHistory.isNull("responseBodyDecoded"))
+                }
+                if (!jsonHistory.isNull("responseBodyDecoded")) {
                     history[i].setResponseBodyDecoded(jsonHistory.getBoolean("responseBodyDecoded"));
+                }
                 /**
                  * To get the json responseData make a call specifically using the id
                  */
@@ -268,7 +296,6 @@ public class Client {
                 history[i].setResponseData(responseData);
                 String originalResponseData = historyId.getJSONObject("history").getString("originalResponseData");
                 history[i].setOriginalResponseData(originalResponseData);
-
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -280,7 +307,7 @@ public class Client {
      * refresh the most recent history entries
      *
      * @return populated history entries
-     * @throws Exception
+     * @throws Exception exception
      */
     public History[] refreshHistory() throws Exception {
         return refreshHistory(15, 0);
@@ -289,15 +316,15 @@ public class Client {
     /**
      * refresh the most recent history entries
      *
-     * @param limit  - number of entries to populate
-     * @param offset - number of most recent entries to skip
+     * @param limit number of entries to populate
+     * @param offset number of most recent entries to skip
      * @return populated history entries
-     * @throws Exception
+     * @throws Exception exception
      */
     public History[] refreshHistory(int limit, int offset) throws Exception {
         BasicNameValuePair[] params = {
-                new BasicNameValuePair("limit", String.valueOf(limit)),
-                new BasicNameValuePair("offset", String.valueOf(offset))
+            new BasicNameValuePair("limit", String.valueOf(limit)),
+            new BasicNameValuePair("offset", String.valueOf(offset))
         };
         return constructHistory(params);
     }
@@ -305,7 +332,7 @@ public class Client {
     /**
      * Delete the proxy history for the active profile
      *
-     * @throws Exception
+     * @throws Exception exception
      */
     public void clearHistory() throws Exception {
         String uri;
@@ -328,13 +355,13 @@ public class Client {
     /**
      * Turn this profile on or off
      *
-     * @param enabled - true or false
-     * @return
+     * @param enabled true or false
+     * @return true on success, false otherwise
      */
     public boolean toggleProfile(Boolean enabled) {
         // TODO: make this return values properly
         BasicNameValuePair[] params = {
-                new BasicNameValuePair("active", enabled.toString())
+            new BasicNameValuePair("active", enabled.toString())
         };
         try {
             String uri = BASE_PROFILE + uriEncode(this._profileName) + "/" + BASE_CLIENTS + "/";
@@ -352,17 +379,15 @@ public class Client {
         return true;
     }
 
-
     /**
      * Reset all overrrides
      *
-     * @param
-     * @return
+     * @return true if successful, otherwise false
      */
     public boolean resetProfile() {
         Boolean enabled = new Boolean(true);
         BasicNameValuePair[] params = {
-                new BasicNameValuePair("reset", enabled.toString())
+            new BasicNameValuePair("reset", enabled.toString())
         };
 
         try {
@@ -384,9 +409,9 @@ public class Client {
     /**
      * Enable/disable request overrides for a path
      *
-     * @param pathName
-     * @param enabled  - true or false
-     * @return
+     * @param pathName name of path
+     * @param enabled true or false
+     * @return true if success, false otherwise
      */
     public boolean toggleRequestOverride(String pathName, Boolean enabled) {
         return toggleOverride(pathName, "requestEnabled", enabled);
@@ -395,9 +420,9 @@ public class Client {
     /**
      * Enable/disable response overrides for a path
      *
-     * @param pathName
-     * @param enabled  - true or false
-     * @return
+     * @param pathName name of path
+     * @param enabled true or false
+     * @return true if success, false otherwise
      */
     public boolean toggleResponseOverride(String pathName, Boolean enabled) {
         return toggleOverride(pathName, "responseEnabled", enabled);
@@ -405,8 +430,8 @@ public class Client {
 
     protected boolean toggleOverride(String pathName, String type, Boolean enabled) {
         BasicNameValuePair[] params = {
-                new BasicNameValuePair(type, enabled.toString()),
-                new BasicNameValuePair("profileIdentifier", this._profileName)
+            new BasicNameValuePair(type, enabled.toString()),
+            new BasicNameValuePair("profileIdentifier", this._profileName)
         };
         try {
             JSONObject response = new JSONObject(doPost(BASE_PATH + uriEncode(pathName), params));
@@ -423,8 +448,8 @@ public class Client {
     /**
      * Reset all request override information for a path
      *
-     * @param pathName
-     * @return
+     * @param pathName name of path
+     * @return true if success, false otherwise
      */
     public boolean resetRequestOverride(String pathName) {
         return togglePathReset(pathName, "resetRequest");
@@ -433,8 +458,8 @@ public class Client {
     /**
      * Reset all response override information for a path
      *
-     * @param pathName
-     * @return
+     * @param pathName name of path
+     * @return true if success, false otherwise
      */
     public boolean resetResponseOverride(String pathName) {
         return togglePathReset(pathName, "resetResponse");
@@ -442,8 +467,8 @@ public class Client {
 
     protected boolean togglePathReset(String pathName, String type) {
         BasicNameValuePair[] params = {
-                new BasicNameValuePair(type, "true"),
-                new BasicNameValuePair("profileIdentifier", this._profileName)
+            new BasicNameValuePair(type, "true"),
+            new BasicNameValuePair("profileIdentifier", this._profileName)
         };
         try {
             JSONObject response = new JSONObject(doPost(BASE_PATH + uriEncode(pathName), params));
@@ -470,13 +495,14 @@ public class Client {
 
         // now set the string
         String command = "customResponse";
-        if (!isResponse)
+        if (!isResponse) {
             command = "customRequest";
+        }
 
         try {
             BasicNameValuePair[] params = {
-                    new BasicNameValuePair(command, custom),
-                    new BasicNameValuePair("profileIdentifier", this._profileName)
+                new BasicNameValuePair(command, custom),
+                new BasicNameValuePair("profileIdentifier", this._profileName)
             };
 
             JSONObject response = new JSONObject(doPost(BASE_PATH + uriEncode(pathName), params));
@@ -492,9 +518,10 @@ public class Client {
     /**
      * Set a custom response for this path
      *
-     * @param pathName
-     * @param customResponse
-     * @return
+     * @param pathName name of path
+     * @param customResponse value of custom response
+     * @return true if success, false otherwise
+     * @throws Exception exception
      */
     public boolean setCustomResponse(String pathName, String customResponse) throws Exception {
         // figure out the new ordinal
@@ -510,9 +537,9 @@ public class Client {
     /**
      * Set a custom request for this path
      *
-     * @param pathName
-     * @param customRequest
-     * @return
+     * @param pathName name of path
+     * @param customRequest value of custom request
+     * @return true if success, false otherwise
      */
     public boolean setCustomRequest(String pathName, String customRequest) {
         return this.setCustom(true, pathName, customRequest);
@@ -521,8 +548,8 @@ public class Client {
     /**
      * Remove a custom response for a path
      *
-     * @param pathName
-     * @return
+     * @param pathName name of path
+     * @return true if success, false otherwise
      */
     public boolean removeCustomResponse(String pathName) {
         return this.removeMethodFromResponseOverride(pathName, "-1");
@@ -531,8 +558,8 @@ public class Client {
     /**
      * Remove a custom request for a path
      *
-     * @param pathName
-     * @return
+     * @param pathName name of path
+     * @return true if success, false otherwise
      */
     public boolean removeCustomRequest(String pathName) {
         return this.removeMethodFromResponseOverride(pathName, "-2");
@@ -541,9 +568,9 @@ public class Client {
     /**
      * Add a method to the enabled response overrides for a path
      *
-     * @param pathName
-     * @param methodName
-     * @return
+     * @param pathName name of path
+     * @param methodName name of method
+     * @return true if success, false otherwise
      */
     public boolean addMethodToResponseOverride(String pathName, String methodName) {
         // need to find out the ID for the method
@@ -553,15 +580,16 @@ public class Client {
 
             // now post to path api to add this is a selected override
             BasicNameValuePair[] params = {
-                    new BasicNameValuePair("addOverride", overrideId.toString()),
-                    new BasicNameValuePair("profileIdentifier", this._profileName)
+                new BasicNameValuePair("addOverride", overrideId.toString()),
+                new BasicNameValuePair("profileIdentifier", this._profileName)
             };
             JSONObject response = new JSONObject(doPost(BASE_PATH + uriEncode(pathName), params));
             // check enabled endpoints array to see if this overrideID exists
             JSONArray enabled = response.getJSONArray("enabledEndpoints");
             for (int x = 0; x < enabled.length(); x++) {
-                if (enabled.getJSONObject(x).getInt("overrideId") == overrideId)
+                if (enabled.getJSONObject(x).getInt("overrideId") == overrideId) {
                     return true;
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -573,19 +601,19 @@ public class Client {
     /**
      * Set the repeat count of an override at ordinal index
      *
-     * @param pathName    - Path name
-     * @param methodName  - Fully qualified method name
-     * @param ordinal     - 1-based index of the override within the overrides of type methodName
-     * @param repeatCount - new repeat count to set
-     * @return
+     * @param pathName Path name
+     * @param methodName Fully qualified method name
+     * @param ordinal 1-based index of the override within the overrides of type methodName
+     * @param repeatCount new repeat count to set
+     * @return true if success, false otherwise
      */
     public boolean setOverrideRepeatCount(String pathName, String methodName, Integer ordinal, Integer repeatCount) {
         try {
             String methodId = getOverrideIdForMethodName(methodName).toString();
             BasicNameValuePair[] params = {
-                    new BasicNameValuePair("profileIdentifier", this._profileName),
-                    new BasicNameValuePair("ordinal", ordinal.toString()),
-                    new BasicNameValuePair("repeatNumber", repeatCount.toString())
+                new BasicNameValuePair("profileIdentifier", this._profileName),
+                new BasicNameValuePair("ordinal", ordinal.toString()),
+                new BasicNameValuePair("repeatNumber", repeatCount.toString())
             };
 
             JSONObject response = new JSONObject(doPost(BASE_PATH + uriEncode(pathName) + "/" + methodId, params));
@@ -599,11 +627,11 @@ public class Client {
     /**
      * Set the method arguments for an enabled method override
      *
-     * @param pathName   - Path name
-     * @param methodName - Fully qualified method name
-     * @param ordinal    TODO
-     * @param arguments  - Array of arguments to set(specify all arguments)
-     * @return
+     * @param pathName Path name
+     * @param methodName Fully qualified method name
+     * @param ordinal 1-based index of the override within the overrides of type methodName
+     * @param arguments Array of arguments to set(specify all arguments)
+     * @return true if success, false otherwise
      */
     public boolean setMethodArguments(String pathName, String methodName, Integer ordinal, Object... arguments) {
         try {
@@ -629,9 +657,9 @@ public class Client {
     /**
      * Add a method to the enabled response overrides for a path
      *
-     * @param pathName
-     * @param methodName
-     * @return
+     * @param pathName name of path
+     * @param methodName name of method
+     * @return true if success, false otherwise
      */
     public boolean removeMethodFromResponseOverride(String pathName, String methodName) {
         // need to find out the ID for the method
@@ -640,16 +668,17 @@ public class Client {
 
             // now post to path api to add this is a selected override
             BasicNameValuePair[] params = {
-                    new BasicNameValuePair("removeOverride", overrideId.toString()),
-                    new BasicNameValuePair("profileIdentifier", this._profileName)
+                new BasicNameValuePair("removeOverride", overrideId.toString()),
+                new BasicNameValuePair("profileIdentifier", this._profileName)
             };
 
             JSONObject response = new JSONObject(doPost(BASE_PATH + uriEncode(pathName), params));
             // check enabled endpoints array to see if this overrideID exists
             JSONArray enabled = response.getJSONArray("enabledEndpoints");
             for (int x = 0; x < enabled.length(); x++) {
-                if (enabled.getJSONObject(x).getInt("overrideId") == overrideId)
+                if (enabled.getJSONObject(x).getInt("overrideId") == overrideId) {
                     return false;
+                }
             }
 
             return true;
@@ -663,19 +692,19 @@ public class Client {
     /**
      * Create a new path
      *
-     * @param pathName    - friendly name of path
-     * @param pathValue   - path value or regex
-     * @param requestType - path request type. "GET", "POST", etc
+     * @param pathName friendly name of path
+     * @param pathValue path value or regex
+     * @param requestType path request type. "GET", "POST", etc
      */
     public void createPath(String pathName, String pathValue, String requestType) {
         try {
             int type = getRequestTypeFromString(requestType);
             String url = BASE_PATH;
             BasicNameValuePair[] params = {
-                    new BasicNameValuePair("pathName", pathName),
-                    new BasicNameValuePair("path", pathValue),
-                    new BasicNameValuePair("requestType", String.valueOf(type)),
-                    new BasicNameValuePair("profileIdentifier", this._profileName)
+                new BasicNameValuePair("pathName", pathName),
+                new BasicNameValuePair("path", pathValue),
+                new BasicNameValuePair("requestType", String.valueOf(type)),
+                new BasicNameValuePair("profileIdentifier", this._profileName)
             };
 
             JSONObject response = new JSONObject(doPost(BASE_PATH, params));
@@ -687,11 +716,11 @@ public class Client {
     /**
      * set custom response or request for a profile's default client, ensures profile and path are enabled
      *
-     * @param profileName - profileName to modift, default client is used
-     * @param pathName    - friendly name of path
-     * @param isResponse
-     * @param customData  - custom response/request data
-     * @return
+     * @param profileName profileName to modift, default client is used
+     * @param pathName friendly name of path
+     * @param isResponse true if response, false for request
+     * @param customData custom response/request data
+     * @return true if success, false otherwise
      */
     protected static boolean setCustomForDefaultClient(String profileName, String pathName, Boolean isResponse, String customData) {
         try {
@@ -713,10 +742,10 @@ public class Client {
     /**
      * set custom request for profile's default client
      *
-     * @param profileName - profileName to modify
-     * @param pathName    - friendly name of path
-     * @param customData  - custom request data
-     * @return
+     * @param profileName profileName to modify
+     * @param pathName friendly name of path
+     * @param customData custom request data
+     * @return true if success, false otherwise
      */
     public static boolean setCustomRequestForDefaultClient(String profileName, String pathName, String customData) {
         try {
@@ -730,10 +759,10 @@ public class Client {
     /**
      * set custom response for profile's default client
      *
-     * @param profileName - profileName to modify
-     * @param pathName    - friendly name of path
-     * @param customData  - custom request data
-     * @return
+     * @param profileName profileName to modify
+     * @param pathName friendly name of path
+     * @param customData custom request data
+     * @return true if success, false otherwise
      */
     public static boolean setCustomResponseForDefaultClient(String profileName, String pathName, String customData) {
         try {
@@ -747,10 +776,10 @@ public class Client {
     /**
      * set custom request/response for the default profile's default client
      *
-     * @param pathName   - friendly name of path
-     * @param isResponse
-     * @param customData - custom response/request data
-     * @return
+     * @param pathName friendly name of path
+     * @param isResponse true for response, false for request
+     * @param customData custom response/request data
+     * @return true if success, false otherwise
      */
     protected static boolean setCustomForDefaultProfile(String pathName, Boolean isResponse, String customData) {
         try {
@@ -767,9 +796,9 @@ public class Client {
     /**
      * set custom request for the default profile's default client
      *
-     * @param pathName   - friendly name of path
-     * @param customData - custom response/request data
-     * @return
+     * @param pathName friendly name of path
+     * @param customData custom response/request data
+     * @return true if success, false otherwise
      */
     public static boolean setCustomRequestForDefaultProfile(String pathName, String customData) {
         try {
@@ -783,9 +812,9 @@ public class Client {
     /**
      * set custom response for the default profile's default client
      *
-     * @param pathName   - friendly name of path
-     * @param customData - custom response/request data
-     * @return
+     * @param pathName friendly name of path
+     * @param customData custom response/request data
+     * @return true if success, false otherwise
      */
     public static boolean setCustomResponseForDefaultProfile(String pathName, String customData) {
         try {
@@ -799,8 +828,8 @@ public class Client {
     /**
      * get the default profile
      *
-     * @return
-     * @throws Exception
+     * @return representation of default profile
+     * @throws Exception exception
      */
     protected static JSONObject getDefaultProfile() throws Exception {
         String uri = DEFAULT_BASE_URL + BASE_PROFILE;
@@ -828,9 +857,9 @@ public class Client {
     /**
      * Get the next available ordinal for a method ID
      *
-     * @param methodId
-     * @return
-     * @throws Exception
+     * @param methodId ID of method
+     * @return value of next ordinal
+     * @throws Exception exception
      */
     private Integer getNextOrdinalForMethodId(int methodId, String pathName) throws Exception {
         String pathInfo = doGet(BASE_PATH + uriEncode(pathName), new BasicNameValuePair[0]);
@@ -854,8 +883,8 @@ public class Client {
     /**
      * Convert a request type string to value
      *
-     * @param requestType
-     * @return Matching REQUEST_TYPE
+     * @param requestType String value of request type GET/POST/PUT/DELETE
+     * @return Matching REQUEST_TYPE. Defaults to ALL
      */
     protected int getRequestTypeFromString(String requestType) {
         if ("GET".equals(requestType)) {
@@ -880,16 +909,21 @@ public class Client {
         }
 
         try {
-            if (!jsonServer.isNull("id"))
+            if (!jsonServer.isNull("id")) {
                 redirect.setId(jsonServer.getInt("id"));
-            if (!jsonServer.isNull("srcUrl"))
+            }
+            if (!jsonServer.isNull("srcUrl")) {
                 redirect.setSourceHost(jsonServer.getString("srcUrl"));
-            if (!jsonServer.isNull("destUrl"))
+            }
+            if (!jsonServer.isNull("destUrl")) {
                 redirect.setDestinationHost(jsonServer.getString("destUrl"));
-            if (!jsonServer.isNull("hostHeader"))
+            }
+            if (!jsonServer.isNull("hostHeader")) {
                 redirect.setHostHeader(jsonServer.getString("hostHeader"));
-            if (!jsonServer.isNull("profileId"))
+            }
+            if (!jsonServer.isNull("profileId")) {
                 redirect.setProfileId(jsonServer.getInt("profileId"));
+            }
         } catch (JSONException e) {
             e.printStackTrace();
             return null;
@@ -901,10 +935,10 @@ public class Client {
     /**
      * Add a new server mapping to current profile
      *
-     * @param sourceHost
-     * @param destinationHost
-     * @param hostHeader
-     * @return
+     * @param sourceHost source hostname
+     * @param destinationHost destination hostname
+     * @param hostHeader host header
+     * @return ServerRedirect
      */
     public ServerRedirect addServerMapping(String sourceHost, String destinationHost, String hostHeader) {
         JSONObject response = null;
@@ -921,7 +955,6 @@ public class Client {
             BasicNameValuePair paramArray[] = new BasicNameValuePair[params.size()];
             params.toArray(paramArray);
             response = new JSONObject(doPost(BASE_SERVER, paramArray));
-
         } catch (Exception e) {
             e.printStackTrace();
             return null;
@@ -932,8 +965,8 @@ public class Client {
     /**
      * Remove a server mapping from current profile by ID
      *
-     * @param serverMappingId
-     * @return
+     * @param serverMappingId server mapping ID
+     * @return Collection of updated ServerRedirects
      */
     public List<ServerRedirect> deleteServerMapping(int serverMappingId) {
         ArrayList<ServerRedirect> servers = new ArrayList<ServerRedirect>();
@@ -957,7 +990,7 @@ public class Client {
     /**
      * Get a list of all active server mappings defined for current profile
      *
-     * @return
+     * @return Collection of ServerRedirects
      */
     public List<ServerRedirect> getServerMappings() {
         ArrayList<ServerRedirect> servers = new ArrayList<ServerRedirect>();
@@ -982,15 +1015,15 @@ public class Client {
     /**
      * Enable/disable a server mapping
      *
-     * @param serverMappingId
-     * @param enabled
-     * @return
+     * @param serverMappingId ID of server mapping
+     * @param enabled true to enable, false to disable
+     * @return updated info for the ServerRedirect
      */
     public ServerRedirect enableServerMapping(int serverMappingId, Boolean enabled) {
         ServerRedirect redirect = new ServerRedirect();
         BasicNameValuePair[] params = {
-                new BasicNameValuePair("enabled", enabled.toString()),
-                new BasicNameValuePair("profileIdentifier", this._profileName)
+            new BasicNameValuePair("enabled", enabled.toString()),
+            new BasicNameValuePair("profileIdentifier", this._profileName)
         };
         try {
             JSONObject response = new JSONObject(doPost(BASE_SERVER + "/" + serverMappingId, params));
@@ -1005,15 +1038,15 @@ public class Client {
     /**
      * Update server mapping's source host
      *
-     * @param serverMappingId
-     * @param sourceHost
-     * @return
+     * @param serverMappingId ID of server mapping
+     * @param sourceHost hostname of source host
+     * @return updated ServerRedirect
      */
     public ServerRedirect updateServerRedirectSrc(int serverMappingId, String sourceHost) {
         ServerRedirect redirect = new ServerRedirect();
         BasicNameValuePair[] params = {
-                new BasicNameValuePair("srcUrl", sourceHost),
-                new BasicNameValuePair("profileIdentifier", this._profileName)
+            new BasicNameValuePair("srcUrl", sourceHost),
+            new BasicNameValuePair("profileIdentifier", this._profileName)
         };
         try {
             JSONObject response = new JSONObject(doPost(BASE_SERVER + "/" + serverMappingId + "/src", params));
@@ -1028,15 +1061,15 @@ public class Client {
     /**
      * Update server mapping's destination host
      *
-     * @param serverMappingId
-     * @param destinationHost
-     * @return
+     * @param serverMappingId ID of server mapping
+     * @param destinationHost hostname of destination host
+     * @return updated ServerRedirect
      */
     public ServerRedirect updateServerRedirectDest(int serverMappingId, String destinationHost) {
         ServerRedirect redirect = new ServerRedirect();
         BasicNameValuePair[] params = {
-                new BasicNameValuePair("destUrl", destinationHost),
-                new BasicNameValuePair("profileIdentifier", this._profileName)
+            new BasicNameValuePair("destUrl", destinationHost),
+            new BasicNameValuePair("profileIdentifier", this._profileName)
         };
         try {
             JSONObject response = new JSONObject(doPost(BASE_SERVER + "/" + serverMappingId + "/dest", params));
@@ -1051,15 +1084,15 @@ public class Client {
     /**
      * Update server mapping's host header
      *
-     * @param serverMappingId
-     * @param hostHeader
-     * @return
+     * @param serverMappingId ID of server mapping
+     * @param hostHeader value of host header
+     * @return updated ServerRedirect
      */
     public ServerRedirect updateServerRedirectHost(int serverMappingId, String hostHeader) {
         ServerRedirect redirect = new ServerRedirect();
         BasicNameValuePair[] params = {
-                new BasicNameValuePair("hostHeader", hostHeader),
-                new BasicNameValuePair("profileIdentifier", this._profileName)
+            new BasicNameValuePair("hostHeader", hostHeader),
+            new BasicNameValuePair("profileIdentifier", this._profileName)
         };
         try {
             JSONObject response = new JSONObject(doPost(BASE_SERVER + "/" + serverMappingId + "/host", params));
@@ -1071,7 +1104,6 @@ public class Client {
         return redirect;
     }
 
-
     protected ServerGroup getServerGroupFromJSON(JSONObject jsonServerGroup) {
         ServerGroup group = new ServerGroup();
         try {
@@ -1079,12 +1111,15 @@ public class Client {
                 return null;
             }
 
-            if (!jsonServerGroup.isNull("id"))
+            if (!jsonServerGroup.isNull("id")) {
                 group.setId(jsonServerGroup.getInt("id"));
-            if (!jsonServerGroup.isNull("name"))
+            }
+            if (!jsonServerGroup.isNull("name")) {
                 group.setName(jsonServerGroup.getString("name"));
-            if (!jsonServerGroup.isNull("profileId"))
+            }
+            if (!jsonServerGroup.isNull("profileId")) {
                 group.setProfileId(jsonServerGroup.getInt("profileId"));
+            }
         } catch (JSONException e) {
             e.printStackTrace();
             return null;
@@ -1096,15 +1131,15 @@ public class Client {
     /**
      * Create a new server group
      *
-     * @param groupName
-     * @return
+     * @param groupName name of server group
+     * @return Created ServerGroup
      */
     public ServerGroup addServerGroup(String groupName) {
         ServerGroup group = new ServerGroup();
 
         BasicNameValuePair[] params = {
-                new BasicNameValuePair("name", groupName),
-                new BasicNameValuePair("profileIdentifier", this._profileName)
+            new BasicNameValuePair("name", groupName),
+            new BasicNameValuePair("profileIdentifier", this._profileName)
         };
         try {
             JSONObject response = new JSONObject(doPost(BASE_SERVERGROUP, params));
@@ -1119,8 +1154,8 @@ public class Client {
     /**
      * Delete a server group
      *
-     * @param serverGroupId
-     * @return
+     * @param serverGroupId ID of serverGroup
+     * @return Collection of active Server Groups
      */
     public List<ServerGroup> deleteServerGroup(int serverGroupId) {
         ArrayList<ServerGroup> groups = new ArrayList<ServerGroup>();
@@ -1141,7 +1176,7 @@ public class Client {
     /**
      * Get the collection of the server groups
      *
-     * @return
+     * @return Collection of active server groups
      */
     public List<ServerGroup> getServerGroups() {
         ArrayList<ServerGroup> groups = new ArrayList<ServerGroup>();
@@ -1164,15 +1199,15 @@ public class Client {
     /**
      * Update the server group's name
      *
-     * @param serverGroupId
-     * @param name
-     * @return
+     * @param serverGroupId ID of server group
+     * @param name new name of server group
+     * @return updated ServerGroup
      */
     public ServerGroup updateServerGroupName(int serverGroupId, String name) {
         ServerGroup serverGroup = null;
         BasicNameValuePair[] params = {
-                new BasicNameValuePair("name", name),
-                new BasicNameValuePair("profileIdentifier", this._profileName)
+            new BasicNameValuePair("name", name),
+            new BasicNameValuePair("profileIdentifier", this._profileName)
         };
         try {
             JSONObject response = new JSONObject(doPost(BASE_SERVERGROUP + "/" + serverGroupId, params));
@@ -1187,14 +1222,14 @@ public class Client {
     /**
      * Activate a server group
      *
-     * @param serverGroupId
-     * @return
+     * @param serverGroupId ID of server group
+     * @return Updated ServerGroup
      */
     public ServerGroup activateServerGroup(int serverGroupId) {
         ServerGroup serverGroup = null;
         BasicNameValuePair[] params = {
-                new BasicNameValuePair("activate", String.valueOf(true)),
-                new BasicNameValuePair("profileIdentifier", this._profileName)
+            new BasicNameValuePair("activate", String.valueOf(true)),
+            new BasicNameValuePair("profileIdentifier", this._profileName)
         };
         try {
             JSONObject response = new JSONObject(doPost(BASE_SERVERGROUP + "/" + serverGroupId, params));
@@ -1209,18 +1244,18 @@ public class Client {
     /**
      * Activate a server group
      *
-     * @param groupName
-     * @return
+     * @param groupName name of serverGroup
+     * @return update ServerGroup
      */
     public ServerGroup activateServerGroup(String groupName) {
         ServerGroup serverGroup = null;
         BasicNameValuePair[] params = {
-                new BasicNameValuePair("activate", String.valueOf(true)),
-                new BasicNameValuePair("profileIdentifier", this._profileName)
+            new BasicNameValuePair("activate", String.valueOf(true)),
+            new BasicNameValuePair("profileIdentifier", this._profileName)
         };
 
         int serverGroupId = getServerGroupId(groupName);
-        if(serverGroupId == -1) {
+        if (serverGroupId == -1) {
             return null;
         }
 
@@ -1234,11 +1269,10 @@ public class Client {
         return serverGroup;
     }
 
-
     protected int getServerGroupId(String groupName) {
         List<ServerGroup> groups = getServerGroups();
-        for(ServerGroup group: groups) {
-            if(groupName.compareTo(group.getName()) == 0) {
+        for (ServerGroup group : groups) {
+            if (groupName.compareTo(group.getName()) == 0) {
                 return group.getId();
             }
         }
@@ -1268,8 +1302,9 @@ public class Client {
         String fullUrl = BASE_URL + apiUrl;
 
         if (data != null) {
-            if (data.length > 0)
+            if (data.length > 0) {
                 fullUrl += "?";
+            }
 
             for (BasicNameValuePair bnvp : data) {
                 fullUrl += bnvp.getName() + "=" + uriEncode(bnvp.getValue()) + "&";
@@ -1308,8 +1343,9 @@ public class Client {
         String fullUrl = BASE_URL + apiUrl;
 
         if (data != null) {
-            if (data.length > 0)
+            if (data.length > 0) {
                 fullUrl += "?";
+            }
 
             for (BasicNameValuePair bnvp : data) {
                 fullUrl += bnvp.getName() + "=" + uriEncode(bnvp.getValue()) + "&";
@@ -1380,5 +1416,4 @@ public class Client {
         }
         return accumulator;
     }
-
 }

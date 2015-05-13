@@ -15,9 +15,8 @@
 */
 package com.groupon.odo.proxylib;
 
-import org.apache.bsf.BSFManager;
-
 import java.util.List;
+import org.apache.bsf.BSFManager;
 
 public class GroovyService {
     private static GroovyService serviceInstance = null;
@@ -37,10 +36,10 @@ public class GroovyService {
      * Runs a groovy script with a list of arguments
      * Each argument is passed to groovy as argX(arg0, arg1, arg2 etc..)
      *
-     * @param script - script to execute
-     * @param args   - arguments to pass to the script
-     * @return - list of results
-     * @throws Exception
+     * @param script script to execute
+     * @param args arguments to pass to the script
+     * @return list of results
+     * @throws Exception exception
      */
     public List<?> runGroovy(String script, Object... args) throws Exception {
         List<?> answer;

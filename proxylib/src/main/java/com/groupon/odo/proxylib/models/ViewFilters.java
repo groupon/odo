@@ -19,7 +19,6 @@ import com.fasterxml.jackson.annotation.JsonFilter;
 
 /**
  * This class stores the view filters for Jackson JSON output
- * <p/>
  * When the ObjectMapper is used to write json output then items annotated with @JsonView(ViewFilters.BackupIgnore.class) will be skipped
  */
 public class ViewFilters {
@@ -28,8 +27,8 @@ public class ViewFilters {
 
     public static class BackupIgnore {
     }
-    
-    @JsonFilter("Filter properties from the PathController GET")  
+
+    @JsonFilter("Filter properties from the PathController GET")
     public static class GetPathFilter {
     }
 }

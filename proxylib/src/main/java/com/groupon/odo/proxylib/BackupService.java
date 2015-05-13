@@ -24,15 +24,6 @@ import com.groupon.odo.proxylib.models.ServerGroup;
 import com.groupon.odo.proxylib.models.ServerRedirect;
 import com.groupon.odo.proxylib.models.backup.Backup;
 import com.groupon.odo.proxylib.models.backup.Profile;
-
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.conn.ssl.TrustStrategy;
-import org.apache.http.conn.ssl.X509HostnameVerifier;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.InputStream;
 import java.net.InetAddress;
 import java.security.cert.CertificateException;
@@ -42,11 +33,17 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-
 import javax.management.MBeanServer;
 import javax.management.MBeanServerFactory;
 import javax.management.ObjectName;
 import javax.net.ssl.HostnameVerifier;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.conn.ssl.TrustStrategy;
+import org.apache.http.conn.ssl.X509HostnameVerifier;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @SuppressWarnings("deprecation")
 public class BackupService {
@@ -121,8 +118,8 @@ public class BackupService {
     /**
      * Return the structured backup data
      *
-     * @return
-     * @throws Exception
+     * @return Backup of current configuration
+     * @throws Exception exception
      */
     public Backup getBackupData() throws Exception {
         Backup backupData = new Backup();
@@ -139,8 +136,8 @@ public class BackupService {
     /**
      * Restore configuration from backup data
      *
-     * @param streamData
-     * @return
+     * @param streamData InputStream for configuration to restore
+     * @return true if succeeded, false if operation failed
      */
     public boolean restoreBackupData(InputStream streamData) {
         // convert stream to string
@@ -166,8 +163,9 @@ public class BackupService {
             for (Group group : backupData.getGroups()) {
                 // determine if group already exists.. if not then add it
                 Integer groupId = PathOverrideService.getInstance().getGroupIdFromName(group.getName());
-                if (groupId == null)
+                if (groupId == null) {
                     groupId = PathOverrideService.getInstance().addGroup(group.getName());
+                }
 
                 // get all methods from the group.. we are going to remove ones that don't exist in the new configuration
                 List<Method> originalMethods = EditService.getInstance().getMethodsFromGroupId(groupId, null);
@@ -178,7 +176,7 @@ public class BackupService {
                     int importCount = 0;
                     for (Method importMethod : group.getMethods()) {
                         if (originalMethod.getClassName().equals(importMethod.getClassName()) &&
-                                originalMethod.getMethodName().equals(importMethod.getMethodName())) {
+                            originalMethod.getMethodName().equals(importMethod.getMethodName())) {
                             matchInImportGroup = true;
                             break;
                         }
@@ -299,17 +297,15 @@ public class BackupService {
             org.apache.http.conn.ssl.SSLSocketFactory sslsf = new org.apache.http.conn.ssl.SSLSocketFactory(new TrustStrategy() {
                 @Override
                 public boolean isTrusted(
-                        final X509Certificate[] chain, String authType) throws CertificateException {
+                    final X509Certificate[] chain, String authType) throws CertificateException {
                     // ignore SSL cert issues
                     return true;
                 }
-
             });
             HostnameVerifier hostnameVerifier = org.apache.http.conn.ssl.SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER;
             sslsf.setHostnameVerifier((X509HostnameVerifier) hostnameVerifier);
             for (String connectstring : getConnectorStrings("https_proxy")) {
                 HttpGet request = new HttpGet(connectstring + "/proxy/reload");
-
 
                 HttpClient httpClient = new org.apache.http.impl.client.DefaultHttpClient();
                 String[] parts = connectstring.split(":");

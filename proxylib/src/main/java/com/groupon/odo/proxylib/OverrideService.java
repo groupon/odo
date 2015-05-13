@@ -17,10 +17,6 @@ package com.groupon.odo.proxylib;
 
 import com.groupon.odo.proxylib.models.EnabledEndpoint;
 import flexjson.JSONSerializer;
-import org.json.JSONArray;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -28,10 +24,13 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import org.json.JSONArray;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class OverrideService {
     static final Logger logger = LoggerFactory
-            .getLogger(OverrideService.class);
+        .getLogger(OverrideService.class);
     private static OverrideService serviceInstance = null;
     static SQLService sqlService = null;
 
@@ -49,8 +48,10 @@ public class OverrideService {
     /**
      * Enable specific override ID for a path
      *
-     * @param overrideId
-     * @param pathId
+     * @param overrideId ID of override to enable
+     * @param pathId ID of path containing override
+     * @param clientUUID UUID of client
+     * @throws Exception exception
      */
     public void enableOverride(int overrideId, int pathId, String clientUUID) throws Exception {
         // get profileId from pathId
@@ -66,10 +67,10 @@ public class OverrideService {
 
         // need to first determine the highest enabled order value for this path
         HashMap<String, Object> priorities = sqlService.getFirstResult(
-                "SELECT * FROM " + Constants.DB_TABLE_ENABLED_OVERRIDE +
-                        " WHERE " + Constants.REQUEST_RESPONSE_PATH_ID + "=" + pathId +
-                        " AND " + Constants.GENERIC_CLIENT_UUID + "='" + clientUUID +
-                        "' ORDER BY + " + Constants.ENABLED_OVERRIDES_PRIORITY + " DESC"
+            "SELECT * FROM " + Constants.DB_TABLE_ENABLED_OVERRIDE +
+                " WHERE " + Constants.REQUEST_RESPONSE_PATH_ID + "=" + pathId +
+                " AND " + Constants.GENERIC_CLIENT_UUID + "='" + clientUUID +
+                "' ORDER BY + " + Constants.ENABLED_OVERRIDES_PRIORITY + " DESC"
         );
         if (priorities != null) {
             newPriority = Integer.valueOf(priorities.get(Constants.ENABLED_OVERRIDES_PRIORITY.toUpperCase()).toString()) + 1;
@@ -83,8 +84,8 @@ public class OverrideService {
             SQLService sqlService = SQLService.getInstance();
             com.groupon.odo.proxylib.models.Method method = null;
             query = sqlConnection.prepareStatement(
-                    "SELECT * FROM " + Constants.DB_TABLE_OVERRIDE +
-                            " WHERE " + Constants.GENERIC_ID + " = ?"
+                "SELECT * FROM " + Constants.DB_TABLE_OVERRIDE +
+                    " WHERE " + Constants.GENERIC_ID + " = ?"
             );
             query.setString(1, String.valueOf(overrideId));
             results = query.executeQuery();
@@ -96,11 +97,11 @@ public class OverrideService {
             }
 
             statement = sqlConnection.prepareStatement(
-                    "INSERT INTO " + Constants.DB_TABLE_ENABLED_OVERRIDE +
-                            "(" + Constants.GENERIC_PROFILE_ID + "," + Constants.GENERIC_CLIENT_UUID + "," +
-                            Constants.REQUEST_RESPONSE_PATH_ID + "," + Constants.ENABLED_OVERRIDES_OVERRIDE_ID + "," +
-                            Constants.ENABLED_OVERRIDES_PRIORITY + "," + Constants.ENABLED_OVERRIDES_ARGUMENTS + ")" +
-                            " VALUES (?, ?, ?, ?, ?, ?);"
+                "INSERT INTO " + Constants.DB_TABLE_ENABLED_OVERRIDE +
+                    "(" + Constants.GENERIC_PROFILE_ID + "," + Constants.GENERIC_CLIENT_UUID + "," +
+                    Constants.REQUEST_RESPONSE_PATH_ID + "," + Constants.ENABLED_OVERRIDES_OVERRIDE_ID + "," +
+                    Constants.ENABLED_OVERRIDES_PRIORITY + "," + Constants.ENABLED_OVERRIDES_ARGUMENTS + ")" +
+                    " VALUES (?, ?, ?, ?, ?, ?);"
             );
             statement.setInt(1, profileId);
             statement.setString(2, clientUUID);
@@ -111,8 +112,7 @@ public class OverrideService {
                 statement.setString(6, "");
             } else {
                 ArrayList<String> argDefaults = new ArrayList<String>();
-                for (int i = 0; i < method.getMethodArguments().length; i++)
-                {
+                for (int i = 0; i < method.getMethodArguments().length; i++) {
                     if (i < method.getMethodDefaultArguments().length && method.getMethodDefaultArguments()[i] != null) {
                         argDefaults.add(String.valueOf(method.getMethodDefaultArguments()[i]));
                     } else {
@@ -126,7 +126,9 @@ public class OverrideService {
             e.printStackTrace();
         } finally {
             try {
-                if (statement != null) statement.close();
+                if (statement != null) {
+                    statement.close();
+                }
             } catch (Exception e) {
             }
         }
@@ -136,14 +138,15 @@ public class OverrideService {
      * Update the arguments for a given enabled override
      *
      * @param overrideId - override ID to update
-     * @param pathId     - path ID to update
-     * @param ordinal    - can be null, Index of the enabled override to edit if multiple of the same are enabled
-     * @param arguments  - Object array of arguments
+     * @param pathId - path ID to update
+     * @param ordinal - can be null, Index of the enabled override to edit if multiple of the same are enabled
+     * @param arguments - Object array of arguments
      * @param clientUUID - clientUUID
      */
     public void updateArguments(int overrideId, int pathId, Integer ordinal, String arguments, String clientUUID) {
-        if (ordinal == null)
+        if (ordinal == null) {
             ordinal = 1;
+        }
 
         PreparedStatement statement = null;
 
@@ -152,8 +155,8 @@ public class OverrideService {
             int enabledId = getEnabledEndpoint(pathId, overrideId, ordinal, clientUUID).getId();
 
             String queryString = "UPDATE " + Constants.DB_TABLE_ENABLED_OVERRIDE +
-                    " SET " + Constants.ENABLED_OVERRIDES_ARGUMENTS + " = ? " +
-                    " WHERE " + Constants.GENERIC_ID + " = ?";
+                " SET " + Constants.ENABLED_OVERRIDES_ARGUMENTS + " = ? " +
+                " WHERE " + Constants.GENERIC_ID + " = ?";
 
             statement = sqlConnection.prepareStatement(queryString);
             statement.setString(1, arguments);
@@ -163,7 +166,9 @@ public class OverrideService {
             e.printStackTrace();
         } finally {
             try {
-                if (statement != null) statement.close();
+                if (statement != null) {
+                    statement.close();
+                }
             } catch (Exception e) {
             }
         }
@@ -172,15 +177,16 @@ public class OverrideService {
     /**
      * Update the repeat number for a given enabled override
      *
-     * @param overrideId   - override ID to update
-     * @param pathId       - path ID to update
-     * @param ordinal      - can be null, Index of the enabled override to edit if multiple of the same are enabled
+     * @param overrideId - override ID to update
+     * @param pathId - path ID to update
+     * @param ordinal - can be null, Index of the enabled override to edit if multiple of the same are enabled
      * @param repeatNumber - number of times to repeat
-     * @param clientUUID   - clientUUID
+     * @param clientUUID - clientUUID
      */
     public void updateRepeatNumber(int overrideId, int pathId, Integer ordinal, Integer repeatNumber, String clientUUID) {
-        if (ordinal == null)
+        if (ordinal == null) {
             ordinal = 1;
+        }
 
         try {
             // get ID of the ordinal
@@ -194,15 +200,16 @@ public class OverrideService {
     /**
      * Update the repeat number for a given enabled override
      *
-     * @param id - enabled override ID to update
+     * @param id enabled override ID to update
+     * @param repeatNumber updated value of repeat
      */
     public void updateRepeatNumber(int id, Integer repeatNumber) {
         PreparedStatement statement = null;
         try (Connection sqlConnection = sqlService.getConnection()) {
 
             String queryString = "UPDATE " + Constants.DB_TABLE_ENABLED_OVERRIDE +
-                    " SET " + Constants.ENABLED_OVERRIDES_REPEAT_NUMBER + "= ? " +
-                    " WHERE " + Constants.GENERIC_ID + " = ?";
+                " SET " + Constants.ENABLED_OVERRIDES_REPEAT_NUMBER + "= ? " +
+                " WHERE " + Constants.GENERIC_ID + " = ?";
             statement = sqlConnection.prepareStatement(queryString);
             statement.setInt(1, repeatNumber);
             statement.setInt(2, id);
@@ -211,18 +218,21 @@ public class OverrideService {
             e.printStackTrace();
         } finally {
             try {
-                if (statement != null) statement.close();
+                if (statement != null) {
+                    statement.close();
+                }
             } catch (Exception e) {
             }
         }
     }
 
     /**
-     * Remove specified override id from enaled overrides for path
+     * Remove specified override id from enabled overrides for path
      *
-     * @param overrideId
-     * @param pathId
-     * @param ordinal    index to the instance of the enabled override
+     * @param overrideId ID of override to remove
+     * @param pathId ID of path containing override
+     * @param ordinal index to the instance of the enabled override
+     * @param clientUUID UUID of client
      */
     public void removeOverride(int overrideId, int pathId, Integer ordinal, String clientUUID) {
         // TODO: reorder priorities after removal
@@ -230,8 +240,8 @@ public class OverrideService {
         try (Connection sqlConnection = sqlService.getConnection()) {
             int enabledId = getEnabledEndpoint(pathId, overrideId, ordinal, clientUUID).getId();
             statement = sqlConnection.prepareStatement(
-                    "DELETE FROM " + Constants.DB_TABLE_ENABLED_OVERRIDE +
-                            " WHERE " + Constants.GENERIC_ID + " = ?"
+                "DELETE FROM " + Constants.DB_TABLE_ENABLED_OVERRIDE +
+                    " WHERE " + Constants.GENERIC_ID + " = ?"
             );
             statement.setInt(1, enabledId);
             statement.executeUpdate();
@@ -239,7 +249,9 @@ public class OverrideService {
             e.printStackTrace();
         } finally {
             try {
-                if (statement != null) statement.close();
+                if (statement != null) {
+                    statement.close();
+                }
             } catch (Exception e) {
             }
         }
@@ -248,8 +260,9 @@ public class OverrideService {
     /**
      * Increase the priority of an overrideId
      *
-     * @param overrideId
-     * @param pathId
+     * @param overrideId ID of override
+     * @param pathId ID of path containing override
+     * @param clientUUID UUID of client
      */
     public void increasePriority(int overrideId, int pathId, String clientUUID) {
         logger.info("Increase priority");
@@ -261,10 +274,10 @@ public class OverrideService {
         try (Connection sqlConnection = sqlService.getConnection()) {
             results = null;
             statement = sqlConnection.prepareStatement(
-                    "SELECT * FROM " + Constants.DB_TABLE_ENABLED_OVERRIDE +
-                            " WHERE " + Constants.ENABLED_OVERRIDES_PATH_ID + " = ?" +
-                            " AND " + Constants.GENERIC_CLIENT_UUID + " = ?" +
-                            " ORDER BY " + Constants.ENABLED_OVERRIDES_PRIORITY
+                "SELECT * FROM " + Constants.DB_TABLE_ENABLED_OVERRIDE +
+                    " WHERE " + Constants.ENABLED_OVERRIDES_PATH_ID + " = ?" +
+                    " AND " + Constants.GENERIC_CLIENT_UUID + " = ?" +
+                    " ORDER BY " + Constants.ENABLED_OVERRIDES_PRIORITY
             );
             statement.setInt(1, pathId);
             statement.setString(2, clientUUID);
@@ -281,11 +294,15 @@ public class OverrideService {
             e.printStackTrace();
         } finally {
             try {
-                if (results != null) results.close();
+                if (results != null) {
+                    results.close();
+                }
             } catch (Exception e) {
             }
             try {
-                if (statement != null) statement.close();
+                if (statement != null) {
+                    statement.close();
+                }
             } catch (Exception e) {
             }
         }
@@ -294,11 +311,11 @@ public class OverrideService {
             // update priorities
             if (origPriority != -1 && newPriority != -1) {
                 statement = sqlConnection.prepareStatement(
-                        "UPDATE " + Constants.DB_TABLE_ENABLED_OVERRIDE +
-                                " SET " + Constants.ENABLED_OVERRIDES_PRIORITY + "=?" +
-                                " WHERE " + Constants.ENABLED_OVERRIDES_PRIORITY + "=?" +
-                                " AND " + Constants.ENABLED_OVERRIDES_PATH_ID + "=?" +
-                                " AND " + Constants.GENERIC_CLIENT_UUID + "=?"
+                    "UPDATE " + Constants.DB_TABLE_ENABLED_OVERRIDE +
+                        " SET " + Constants.ENABLED_OVERRIDES_PRIORITY + "=?" +
+                        " WHERE " + Constants.ENABLED_OVERRIDES_PRIORITY + "=?" +
+                        " AND " + Constants.ENABLED_OVERRIDES_PATH_ID + "=?" +
+                        " AND " + Constants.GENERIC_CLIENT_UUID + "=?"
                 );
                 statement.setInt(1, origPriority);
                 statement.setInt(2, newPriority);
@@ -308,11 +325,11 @@ public class OverrideService {
                 statement.close();
 
                 statement = sqlConnection.prepareStatement(
-                        "UPDATE " + Constants.DB_TABLE_ENABLED_OVERRIDE +
-                                " SET " + Constants.ENABLED_OVERRIDES_PRIORITY + "=?" +
-                                " WHERE " + Constants.ENABLED_OVERRIDES_OVERRIDE_ID + "=?" +
-                                " AND " + Constants.ENABLED_OVERRIDES_PATH_ID + "=?" +
-                                " AND " + Constants.GENERIC_CLIENT_UUID + "=?"
+                    "UPDATE " + Constants.DB_TABLE_ENABLED_OVERRIDE +
+                        " SET " + Constants.ENABLED_OVERRIDES_PRIORITY + "=?" +
+                        " WHERE " + Constants.ENABLED_OVERRIDES_OVERRIDE_ID + "=?" +
+                        " AND " + Constants.ENABLED_OVERRIDES_PATH_ID + "=?" +
+                        " AND " + Constants.GENERIC_CLIENT_UUID + "=?"
                 );
                 statement.setInt(1, newPriority);
                 statement.setInt(2, overrideId);
@@ -323,7 +340,9 @@ public class OverrideService {
         } catch (Exception e) {
         } finally {
             try {
-                if (statement != null) statement.close();
+                if (statement != null) {
+                    statement.close();
+                }
             } catch (Exception e) {
             }
         }
@@ -332,8 +351,9 @@ public class OverrideService {
     /**
      * Decreases the priority of an overrideId
      *
-     * @param overrideId
-     * @param pathId
+     * @param overrideId Id of override to edit
+     * @param pathId ID of path containing override
+     * @param clientUUID ID of client
      */
     public void decreasePriority(int overrideId, int pathId, String clientUUID) {
         logger.info("Decrease priority");
@@ -343,10 +363,10 @@ public class OverrideService {
         ResultSet results = null;
         try (Connection sqlConnection = sqlService.getConnection()) {
             queryStatement = sqlConnection.prepareStatement(
-                    "SELECT * FROM " + Constants.DB_TABLE_ENABLED_OVERRIDE +
-                            " WHERE " + Constants.ENABLED_OVERRIDES_PATH_ID + " = ?" +
-                            " AND " + Constants.GENERIC_CLIENT_UUID + " = ?" +
-                            " ORDER BY " + Constants.ENABLED_OVERRIDES_PRIORITY
+                "SELECT * FROM " + Constants.DB_TABLE_ENABLED_OVERRIDE +
+                    " WHERE " + Constants.ENABLED_OVERRIDES_PATH_ID + " = ?" +
+                    " AND " + Constants.GENERIC_CLIENT_UUID + " = ?" +
+                    " ORDER BY " + Constants.ENABLED_OVERRIDES_PRIORITY
             );
             queryStatement.setInt(1, pathId);
             queryStatement.setString(2, clientUUID);
@@ -360,19 +380,24 @@ public class OverrideService {
                     newPriority = results.getInt(Constants.ENABLED_OVERRIDES_PRIORITY);
 
                     // break out because this is the one after the one we want to move down
-                    if (gotOrig)
+                    if (gotOrig) {
                         break;
+                    }
                 }
             }
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
             try {
-                if (results != null) results.close();
+                if (results != null) {
+                    results.close();
+                }
             } catch (Exception e) {
             }
             try {
-                if (queryStatement != null) queryStatement.close();
+                if (queryStatement != null) {
+                    queryStatement.close();
+                }
             } catch (Exception e) {
             }
         }
@@ -382,11 +407,11 @@ public class OverrideService {
             // update priorities
             if (origPriority != -1 && newPriority != -1) {
                 statement = sqlConnection.prepareStatement(
-                        "UPDATE " + Constants.DB_TABLE_ENABLED_OVERRIDE +
-                                " SET " + Constants.ENABLED_OVERRIDES_PRIORITY + "=?" +
-                                " WHERE " + Constants.ENABLED_OVERRIDES_PRIORITY + "=?" +
-                                " AND " + Constants.ENABLED_OVERRIDES_PATH_ID + "=?" +
-                                " AND " + Constants.GENERIC_CLIENT_UUID + "=?"
+                    "UPDATE " + Constants.DB_TABLE_ENABLED_OVERRIDE +
+                        " SET " + Constants.ENABLED_OVERRIDES_PRIORITY + "=?" +
+                        " WHERE " + Constants.ENABLED_OVERRIDES_PRIORITY + "=?" +
+                        " AND " + Constants.ENABLED_OVERRIDES_PATH_ID + "=?" +
+                        " AND " + Constants.GENERIC_CLIENT_UUID + "=?"
                 );
                 statement.setInt(1, origPriority);
                 statement.setInt(2, newPriority);
@@ -396,11 +421,11 @@ public class OverrideService {
                 statement.close();
 
                 statement = sqlConnection.prepareStatement(
-                        "UPDATE " + Constants.DB_TABLE_ENABLED_OVERRIDE +
-                                " SET " + Constants.ENABLED_OVERRIDES_PRIORITY + "=?" +
-                                " WHERE " + Constants.ENABLED_OVERRIDES_OVERRIDE_ID + "=?" +
-                                " AND " + Constants.ENABLED_OVERRIDES_PATH_ID + "=?" +
-                                " AND " + Constants.GENERIC_CLIENT_UUID + "=?"
+                    "UPDATE " + Constants.DB_TABLE_ENABLED_OVERRIDE +
+                        " SET " + Constants.ENABLED_OVERRIDES_PRIORITY + "=?" +
+                        " WHERE " + Constants.ENABLED_OVERRIDES_OVERRIDE_ID + "=?" +
+                        " AND " + Constants.ENABLED_OVERRIDES_PATH_ID + "=?" +
+                        " AND " + Constants.GENERIC_CLIENT_UUID + "=?"
                 );
                 statement.setInt(1, newPriority);
                 statement.setInt(2, overrideId);
@@ -411,7 +436,9 @@ public class OverrideService {
         } catch (Exception e) {
         } finally {
             try {
-                if (statement != null) statement.close();
+                if (statement != null) {
+                    statement.close();
+                }
             } catch (Exception e) {
             }
         }
@@ -437,15 +464,16 @@ public class OverrideService {
     /**
      * Disable all overrides for a specified path
      *
-     * @param pathID
+     * @param pathID ID of path containing overrides
+     * @param clientUUID UUID of client
      */
     public void disableAllOverrides(int pathID, String clientUUID) {
         PreparedStatement statement = null;
         try (Connection sqlConnection = sqlService.getConnection()) {
             statement = sqlConnection.prepareStatement(
-                    "DELETE FROM " + Constants.DB_TABLE_ENABLED_OVERRIDE +
-                            " WHERE " + Constants.ENABLED_OVERRIDES_PATH_ID + " = ? " +
-                            " AND " + Constants.GENERIC_CLIENT_UUID + " = ? "
+                "DELETE FROM " + Constants.DB_TABLE_ENABLED_OVERRIDE +
+                    " WHERE " + Constants.ENABLED_OVERRIDES_PATH_ID + " = ? " +
+                    " AND " + Constants.GENERIC_CLIENT_UUID + " = ? "
             );
             statement.setInt(1, pathID);
             statement.setString(2, clientUUID);
@@ -455,7 +483,9 @@ public class OverrideService {
             e.printStackTrace();
         } finally {
             try {
-                if (statement != null) statement.close();
+                if (statement != null) {
+                    statement.close();
+                }
             } catch (Exception e) {
             }
         }
@@ -464,7 +494,9 @@ public class OverrideService {
     /**
      * Disable all overrides for a specified path with overrideType
      *
-     * @param pathID
+     * @param pathID ID of path containing overrides
+     * @param clientUUID UUID of client
+     * @param overrideType Override type identifier
      */
     public void disableAllOverrides(int pathID, String clientUUID, int overrideType) {
         PreparedStatement statement = null;
@@ -478,12 +510,12 @@ public class OverrideService {
             String overridePlaceholders = preparePlaceHolders(enabledOverrides.size());
 
             statement = sqlConnection.prepareStatement(
-                    "DELETE FROM " + Constants.DB_TABLE_ENABLED_OVERRIDE +
-                            " WHERE " + Constants.ENABLED_OVERRIDES_PATH_ID + " = ? " +
-                            " AND " + Constants.GENERIC_CLIENT_UUID + " = ? " +
-                            " AND " + Constants.ENABLED_OVERRIDES_OVERRIDE_ID +
-                            (overrideType == Constants.OVERRIDE_TYPE_RESPONSE ? " NOT" : "") +
-                            " IN ( " + overridePlaceholders + " )"
+                "DELETE FROM " + Constants.DB_TABLE_ENABLED_OVERRIDE +
+                    " WHERE " + Constants.ENABLED_OVERRIDES_PATH_ID + " = ? " +
+                    " AND " + Constants.GENERIC_CLIENT_UUID + " = ? " +
+                    " AND " + Constants.ENABLED_OVERRIDES_OVERRIDE_ID +
+                    (overrideType == Constants.OVERRIDE_TYPE_RESPONSE ? " NOT" : "") +
+                    " IN ( " + overridePlaceholders + " )"
             );
             statement.setInt(1, pathID);
             statement.setString(2, clientUUID);
@@ -495,19 +527,22 @@ public class OverrideService {
             e.printStackTrace();
         } finally {
             try {
-                if (statement != null) statement.close();
+                if (statement != null) {
+                    statement.close();
+                }
             } catch (Exception e) {
             }
         }
     }
 
     /**
-     * `
      * Returns an array of the enabled endpoints as Integer IDs
      *
-     * @param pathId
-     * @param filters TODO
-     * @return
+     * @param pathId ID of path
+     * @param clientUUID UUID of client
+     * @param filters If supplied, only endpoints ending with values in filters are returned
+     * @return Collection of endpoints
+     * @throws Exception exception
      */
     public List<EnabledEndpoint> getEnabledEndpoints(int pathId, String clientUUID, String[] filters) throws Exception {
         ArrayList<EnabledEndpoint> enabledOverrides = new ArrayList<EnabledEndpoint>();
@@ -516,10 +551,10 @@ public class OverrideService {
 
         try (Connection sqlConnection = sqlService.getConnection()) {
             query = sqlConnection.prepareStatement(
-                    "SELECT * FROM " + Constants.DB_TABLE_ENABLED_OVERRIDE +
-                            " WHERE " + Constants.ENABLED_OVERRIDES_PATH_ID + "=?" +
-                            " AND " + Constants.GENERIC_CLIENT_UUID + "=?" +
-                            " ORDER BY " + Constants.ENABLED_OVERRIDES_PRIORITY
+                "SELECT * FROM " + Constants.DB_TABLE_ENABLED_OVERRIDE +
+                    " WHERE " + Constants.ENABLED_OVERRIDES_PATH_ID + "=?" +
+                    " AND " + Constants.GENERIC_CLIENT_UUID + "=?" +
+                    " ORDER BY " + Constants.ENABLED_OVERRIDES_PRIORITY
             );
             query.setInt(1, pathId);
             query.setString(2, clientUUID);
@@ -550,18 +585,23 @@ public class OverrideService {
                     addOverride = true;
                 }
 
-                if (addOverride)
+                if (addOverride) {
                     enabledOverrides.add(endpoint);
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
             try {
-                if (results != null) results.close();
+                if (results != null) {
+                    results.close();
+                }
             } catch (Exception e) {
             }
             try {
-                if (query != null) query.close();
+                if (query != null) {
+                    query.close();
+                }
             } catch (Exception e) {
             }
         }
@@ -581,20 +621,21 @@ public class OverrideService {
     }
 
     /**
-     * @param pathId
-     * @param overrideId
-     * @param ordinal    - Index of the enabled override to get if multiple of the same override are enabled(default is 1)
-     * @param clientUUID
-     * @return
-     * @throws Exception
+     * @param pathId ID of path
+     * @param overrideId ID of override
+     * @param ordinal Index of the enabled override to get if multiple of the same override are enabled(default is 1)
+     * @param clientUUID UUID of client
+     * @return EnabledEndpoint
+     * @throws Exception exception
      */
     public EnabledEndpoint getEnabledEndpoint(int pathId, int overrideId, Integer ordinal, String clientUUID) throws Exception {
         EnabledEndpoint endpoint = null;
         PreparedStatement statement = null;
         ResultSet results = null;
 
-        if (ordinal == null)
+        if (ordinal == null) {
             ordinal = 1;
+        }
 
         // try to get it from the database
         try (Connection sqlConnection = sqlService.getConnection()) {
@@ -602,10 +643,10 @@ public class OverrideService {
             ordinal--;
 
             String queryString = "SELECT * FROM " + Constants.DB_TABLE_ENABLED_OVERRIDE +
-                    " WHERE " + Constants.ENABLED_OVERRIDES_PATH_ID + "=? " +
-                    " AND " + Constants.ENABLED_OVERRIDES_OVERRIDE_ID + "=? " +
-                    " AND " + Constants.GENERIC_CLIENT_UUID + "=? " +
-                    " LIMIT 1 OFFSET ?";
+                " WHERE " + Constants.ENABLED_OVERRIDES_PATH_ID + "=? " +
+                " AND " + Constants.ENABLED_OVERRIDES_OVERRIDE_ID + "=? " +
+                " AND " + Constants.GENERIC_CLIENT_UUID + "=? " +
+                " LIMIT 1 OFFSET ?";
             statement = sqlConnection.prepareStatement(queryString);
             statement.setInt(1, pathId);
             statement.setInt(2, overrideId);
@@ -621,11 +662,15 @@ public class OverrideService {
             e.printStackTrace();
         } finally {
             try {
-                if (results != null) results.close();
+                if (results != null) {
+                    results.close();
+                }
             } catch (Exception e) {
             }
             try {
-                if (statement != null) statement.close();
+                if (statement != null) {
+                    statement.close();
+                }
             } catch (Exception e) {
             }
         }
@@ -636,12 +681,12 @@ public class OverrideService {
                 com.groupon.odo.proxylib.models.Method m = PathOverrideService.getInstance().getMethodForOverrideId(endpoint.getOverrideId());
                 endpoint.setMethodInformation(m);
             } else if (endpoint.getOverrideId() == Constants.PLUGIN_RESPONSE_HEADER_OVERRIDE_ADD
-                    || endpoint.getOverrideId() == Constants.PLUGIN_REQUEST_HEADER_OVERRIDE_ADD) {
+                || endpoint.getOverrideId() == Constants.PLUGIN_REQUEST_HEADER_OVERRIDE_ADD) {
                 // set fake method info
                 com.groupon.odo.proxylib.models.Method m = new com.groupon.odo.proxylib.models.Method();
 
-                m.setMethodArgumentNames(new String[]{"key", "value"});
-                m.setMethodArguments(new Object[]{String.class, String.class});
+                m.setMethodArgumentNames(new String[] {"key", "value"});
+                m.setMethodArguments(new Object[] {String.class, String.class});
                 m.setClassName("");
                 m.setMethodName("CUSTOM HEADER");
 
@@ -653,12 +698,12 @@ public class OverrideService {
 
                 endpoint.setMethodInformation(m);
             } else if (endpoint.getOverrideId() == Constants.PLUGIN_RESPONSE_HEADER_OVERRIDE_REMOVE
-                    || endpoint.getOverrideId() == Constants.PLUGIN_REQUEST_HEADER_OVERRIDE_REMOVE) {
+                || endpoint.getOverrideId() == Constants.PLUGIN_REQUEST_HEADER_OVERRIDE_REMOVE) {
                 // set fake method info
                 com.groupon.odo.proxylib.models.Method m = new com.groupon.odo.proxylib.models.Method();
 
-                m.setMethodArgumentNames(new String[]{"key"});
-                m.setMethodArguments(new Object[]{String.class});
+                m.setMethodArgumentNames(new String[] {"key"});
+                m.setMethodArguments(new Object[] {String.class});
                 m.setClassName("");
                 m.setMethodName("REMOVE HEADER");
 
@@ -670,12 +715,12 @@ public class OverrideService {
 
                 endpoint.setMethodInformation(m);
             } else if (endpoint.getOverrideId() == Constants.PLUGIN_REQUEST_OVERRIDE_CUSTOM
-                    || endpoint.getOverrideId() == Constants.PLUGIN_RESPONSE_OVERRIDE_CUSTOM) {
+                || endpoint.getOverrideId() == Constants.PLUGIN_RESPONSE_OVERRIDE_CUSTOM) {
                 // set fake method info
                 com.groupon.odo.proxylib.models.Method m = new com.groupon.odo.proxylib.models.Method();
 
-                m.setMethodArgumentNames(new String[]{"response"});
-                m.setMethodArguments(new Object[]{String.class});
+                m.setMethodArgumentNames(new String[] {"response"});
+                m.setMethodArguments(new Object[] {String.class});
                 m.setClassName("");
                 m.setMethodName("CUSTOM");
 
@@ -697,9 +742,9 @@ public class OverrideService {
      * Getting the method for the override id requires an additional SQL query and needs to be called after
      * the SQL connection is released
      *
-     * @param result
-     * @return
-     * @throws Exception
+     * @param result result to scan for endpoint
+     * @return EnabledEndpoint
+     * @throws Exception exception
      */
     private EnabledEndpoint getPartialEnabledEndpointFromResultset(ResultSet result) throws Exception {
         EnabledEndpoint endpoint = new EnabledEndpoint();
@@ -727,9 +772,9 @@ public class OverrideService {
     /**
      * Gets an overrideID for a class name, method name
      *
-     * @param className
-     * @param methodName
-     * @return
+     * @param className name of class
+     * @param methodName name of method
+     * @return override ID of method
      */
     public Integer getOverrideIdForMethod(String className, String methodName) {
         Integer overrideId = null;
@@ -738,9 +783,9 @@ public class OverrideService {
 
         try (Connection sqlConnection = sqlService.getConnection()) {
             query = sqlConnection.prepareStatement(
-                    "SELECT * FROM " + Constants.DB_TABLE_OVERRIDE +
-                            " WHERE " + Constants.OVERRIDE_CLASS_NAME + " = ?" +
-                            " AND " + Constants.OVERRIDE_METHOD_NAME + " = ?"
+                "SELECT * FROM " + Constants.DB_TABLE_OVERRIDE +
+                    " WHERE " + Constants.OVERRIDE_CLASS_NAME + " = ?" +
+                    " AND " + Constants.OVERRIDE_METHOD_NAME + " = ?"
             );
             query.setString(1, className);
             query.setString(2, methodName);
@@ -754,11 +799,15 @@ public class OverrideService {
             return null;
         } finally {
             try {
-                if (results != null) results.close();
+                if (results != null) {
+                    results.close();
+                }
             } catch (Exception e) {
             }
             try {
-                if (query != null) query.close();
+                if (query != null) {
+                    query.close();
+                }
             } catch (Exception e) {
             }
         }
