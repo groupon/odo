@@ -74,9 +74,14 @@ public class Client {
      *
      * @param profileName name of existing profile to create client for
      * @param createNewClient create a new client id(false means use the default client)
+     * @param hostName hostName(or IP) for the ODO host
      * @throws Exception
      */
-    public Client(String profileName, boolean createNewClient) throws Exception {
+    public Client(String profileName, boolean createNewClient, String hostName) throws Exception {
+        if(hostName != null) {
+            this.setHostName(hostName);
+        }
+
         this._profileName = profileName;
 
         if (createNewClient) {
@@ -87,6 +92,34 @@ public class Client {
     }
 
     /**
+     * Create a new client instance
+     *
+     * @param profileName name of existing profile to create client for
+     * @param createNewClient create a new client id(false means use the default client)
+     * @throws Exception
+     */
+    public Client(String profileName, boolean createNewClient) throws Exception {
+        new Client(profileName, createNewClient, null);
+    }
+
+    /**
+     * Create a client for a clientId that already exists in Odo
+     *
+     * @param profileName name of existing profile to create client for
+     * @param clientId clientId of existing Odo client
+     * @param hostName hostName(or IP) for the ODO host
+     * @throws Exception
+     */
+    public Client(String profileName, String clientId, String hostName) throws Exception {
+        if(hostName != null) {
+            this.setHostName(hostName);
+        }
+
+        this._profileName = profileName;
+        this._clientId = clientId;
+    }
+
+    /**
      * Create a client for a clientId that already exists in Odo
      *
      * @param profileName name of existing profile to create client for
@@ -94,8 +127,7 @@ public class Client {
      * @throws Exception
      */
     public Client(String profileName, String clientId) throws Exception {
-        this._profileName = profileName;
-        this._clientId = clientId;
+        new Client(profileName, clientId, null);
     }
 
     /**
