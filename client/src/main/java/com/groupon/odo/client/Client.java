@@ -78,7 +78,7 @@ public class Client {
      * @throws Exception
      */
     public Client(String profileName, boolean createNewClient, String hostName) throws Exception {
-        if(hostName != null) {
+        if (hostName != null) {
             this.setHostName(hostName);
         }
 
@@ -99,7 +99,7 @@ public class Client {
      * @throws Exception
      */
     public Client(String profileName, boolean createNewClient) throws Exception {
-        new Client(profileName, createNewClient, null);
+        this(profileName, createNewClient, null);
     }
 
     /**
@@ -111,7 +111,7 @@ public class Client {
      * @throws Exception
      */
     public Client(String profileName, String clientId, String hostName) throws Exception {
-        if(hostName != null) {
+        if (hostName != null) {
             this.setHostName(hostName);
         }
 
@@ -127,7 +127,7 @@ public class Client {
      * @throws Exception
      */
     public Client(String profileName, String clientId) throws Exception {
-        new Client(profileName, clientId, null);
+        this(profileName, clientId, null);
     }
 
     /**
