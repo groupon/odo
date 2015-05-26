@@ -511,11 +511,11 @@
                         + "'";
             }
 
-            commandLine += " '" + historyData.history.originalRequestURL;
+            commandLine += " '" + historyData.history.requestURL;
 
-            if (historyData.history.originalRequestParams != null
-                    && historyData.history.originalRequestParams !== "") {
-                commandLine += "?" + historyData.history.originalRequestParams;
+            if (historyData.history.requestParams != null
+                    && historyData.history.requestParams !== "") {
+                commandLine += "?" + historyData.history.requestParams;
             }
 
             commandLine += "'";
