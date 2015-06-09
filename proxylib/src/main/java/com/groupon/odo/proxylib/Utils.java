@@ -119,7 +119,7 @@ public class Utils {
     }
 
     /**
-     * Returns the port as configured by teh system variables, fallback is the default port value
+     * Returns the port as configured by the system variables, fallback is the default port value
      *
      * @param portIdentifier - SYS_*_PORT defined in Constants
      * @return
