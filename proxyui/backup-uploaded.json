@@ -1,0 +1,35 @@
+{
+  "groups" : [ ],
+  "profiles" : [ {
+    "name" : "hello",
+    "paths" : [ ],
+    "servers" : [ ],
+    "serverGroups" : [ ],
+    "active" : false
+  }, {
+    "name" : "my",
+    "paths" : [ ],
+    "servers" : [ ],
+    "serverGroups" : [ ],
+    "active" : false
+  }, {
+    "name" : "name",
+    "paths" : [ ],
+    "servers" : [ ],
+    "serverGroups" : [ ],
+    "active" : false
+  }, {
+    "name" : "is",
+    "paths" : [ ],
+    "servers" : [ ],
+    "serverGroups" : [ ],
+    "active" : false
+  }, {
+    "name" : "tiffany",
+    "paths" : [ ],
+    "servers" : [ ],
+    "serverGroups" : [ ],
+    "active" : false
+  } ],
+  "scripts" : [ ]
+}
