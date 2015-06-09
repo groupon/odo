@@ -7,3 +7,10 @@ scripts/proxydb
 target/
 .idea
 *.iml
+*.war
+.DS_Store
+proxyui/plugins/
+h2proxydb/
+proxyui/seleniumSslSupport/
+proxyui/backup-uploaded.json
+proxyui/tomcat.ks

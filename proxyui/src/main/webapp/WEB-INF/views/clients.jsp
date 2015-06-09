@@ -192,6 +192,7 @@ clientList.jqGrid('navGrid', '#clientnavGrid', {
 	},
 	reloadAfterSubmit: true
 });
+clientList.jqGrid('gridResize');
 </script>
 </body>
 </html>

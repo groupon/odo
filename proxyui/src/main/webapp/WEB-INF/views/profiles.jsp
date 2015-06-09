@@ -21,6 +21,7 @@
         }
 
         //for now just opens up a new window. dont know if we will want more in the future
+        /* THIS IS CALLED TO GO TO THE CORRECT "EDIT PROFILE" PAGE.*/
         function editProfile(profile_id){
             window.location = "edit/" + profile_id;
         }
@@ -36,11 +37,11 @@
             return cellvalue;
         }
 
-        // formater for the name column
+        // formatter for the name column
         function nameFormatter( cellvalue, options, rowObject ) {
-            var cellContents = '<div class="ui-state-default ui-corner-all" style="float:right" title="Edit Profile" onClick="editProfile(' + currentProfileId + ')">';
-            cellContents +=	'<span class="ui-icon ui-icon-carat-1-e"></span></div>';
-            cellContents += '<div>' + cellvalue + '</div>';
+            var cellContents = '<div class="ui-state-default" title="Edit Profile" onClick="editProfile(' + currentProfileId + ')">';
+            cellContents += '<div><span class="ui-icon ui-icon-carat-1-e" style="float:right"></span></div>';
+            cellContents += '<div>' + cellvalue + '</div></div>'
             return cellContents;
         }
 
@@ -74,11 +75,16 @@
             .jqGrid({
                 url : '<c:url value="/api/profile"/>',
                 autowidth : false,
+                sortable:true,
+                sorttext:true,
+                multiselect: true,
+                multiboxonly: true,
                 rowList : [], // disable page size dropdown
                 pgbuttons : false, // disable page control like next, back button
                 pgtext : null,
                 cellEdit : true,
                 datatype : "json",
+
                 colNames : [ 'ID', 'Profile Name', 'Name'],
                 colModel : [ {
                     name : 'id',
@@ -95,10 +101,11 @@
                     hidden : true
                 }, {
                     name : 'name',
-                    index : 'displayProfileName',
+                    index : 'name',//'displayProfileName',
                     width : 400,
                     editable : false,
-                    formatter: nameFormatter
+                    formatter: nameFormatter,
+                    sortable:true
                 }],
                 jsonReader : {
                     page : "page",
@@ -113,7 +120,10 @@
                 sortname : 'id',
                 viewrecords : true,
                 sortorder : "desc",
-                caption : 'Profiles'
+                caption : 'Profiles',
+                sorttype: function(cell){
+                    return profileList.jqGrid('getCell', cell,'Name');
+                }
             });
             profileList.jqGrid('navGrid', '#profilenavGrid', {
                 edit : false,
@@ -134,12 +144,30 @@
                 url: '<c:url value="/api/profile/"/>',
                 mtype: 'DELETE',
                 reloadAfterSubmit:true,
-                onclickSubmit: function(rp_ge, postdata) {
-                      rp_ge.url = '<c:url value="/api/profile/"/>' +
-                                  $('#profilelist').getCell (postdata, 'id');
+                onclickSubmit: function(rp_ge, postdata) { /* CODE CHANGED TO ALLOW FOR MULTISELECTION*/
+                    /* SPLIT THE DATA INTO EACH THING THAT NEEDS TO BE DELETED.*/
+                    var data = postdata.split(",");
+
+                    rp_ge.url = '<c:url value="/api/profile/"/>';
+
+                    /* FOR EVERYTHING THAT NEEDS TO BE DELETED
+                        ADD THE CELL DATA INTO THE URL.
+                     */
+                    for( var i = 0; i < data.length; i++ ) {
+                        if( i == data.length - 1 ) {
+                            rp_ge.url = rp_ge.url + $('#profilelist').getCell(data[i], 'id');
+                        }
+                        else
+                        {
+                            rp_ge.url = rp_ge.url + $('#profilelist').getCell(data[i], 'id') + ",";
+                        }
+                    }
+
                   }
             });
+            profileList.jqGrid('gridResize');
         });
+
 
         function exportConfiguration() {
             downloadFile('<c:url value="/api/backup"/>');
