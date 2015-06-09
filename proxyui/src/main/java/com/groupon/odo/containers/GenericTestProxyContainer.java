@@ -24,6 +24,8 @@ import org.springframework.boot.context.embedded.ServletRegistrationBean;
 import org.springframework.context.annotation.Bean;
 
 class GenericProxyContainer {
+
+
     private static final Logger logger = LoggerFactory.getLogger(GenericProxyContainer.class);
 
     @Bean
