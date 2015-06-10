@@ -1,35 +1,1661 @@
 {
-  "groups" : [ ],
-  "profiles" : [ {
-    "name" : "hello",
-    "paths" : [ ],
-    "servers" : [ ],
-    "serverGroups" : [ ],
-    "active" : false
+  "groups" : [ {
+    "name" : "BUILTIN",
+    "methods" : [ ]
   }, {
-    "name" : "my",
-    "paths" : [ ],
-    "servers" : [ ],
-    "serverGroups" : [ ],
-    "active" : false
+    "name" : "Breakdowns",
+    "methods" : [ {
+      "methodName" : "items_quantity_n",
+      "className" : "com.groupon.odo.internal.mobile.Breakdowns"
+    }, {
+      "methodName" : "items_long_name",
+      "className" : "com.groupon.odo.internal.mobile.Breakdowns"
+    }, {
+      "methodName" : "adj_long_name",
+      "className" : "com.groupon.odo.internal.mobile.Breakdowns"
+    }, {
+      "methodName" : "adj",
+      "className" : "com.groupon.odo.internal.mobile.Breakdowns"
+    }, {
+      "methodName" : "adj_invalidjson",
+      "className" : "com.groupon.odo.internal.mobile.Breakdowns"
+    }, {
+      "methodName" : "extra_jsonparam",
+      "className" : "com.groupon.odo.internal.mobile.Breakdowns"
+    }, {
+      "methodName" : "large_amounts",
+      "className" : "com.groupon.odo.internal.mobile.Breakdowns"
+    } ]
   }, {
-    "name" : "name",
-    "paths" : [ ],
-    "servers" : [ ],
-    "serverGroups" : [ ],
-    "active" : false
+    "name" : "Common",
+    "methods" : [ {
+      "methodName" : "http400",
+      "className" : "com.groupon.odo.internal.Common"
+    }, {
+      "methodName" : "http401",
+      "className" : "com.groupon.odo.internal.Common"
+    }, {
+      "methodName" : "http404",
+      "className" : "com.groupon.odo.internal.Common"
+    }, {
+      "methodName" : "http500",
+      "className" : "com.groupon.odo.internal.Common"
+    }, {
+      "methodName" : "http503",
+      "className" : "com.groupon.odo.internal.Common"
+    }, {
+      "methodName" : "malformed_json",
+      "className" : "com.groupon.odo.internal.Common"
+    }, {
+      "methodName" : "delay",
+      "className" : "com.groupon.odo.internal.Common"
+    }, {
+      "methodName" : "http302",
+      "className" : "com.groupon.odo.internal.Common"
+    }, {
+      "methodName" : "http403",
+      "className" : "com.groupon.odo.internal.Common"
+    }, {
+      "methodName" : "http408",
+      "className" : "com.groupon.odo.internal.Common"
+    }, {
+      "methodName" : "http201",
+      "className" : "com.groupon.odo.internal.Common"
+    }, {
+      "methodName" : "http_200_empty_response",
+      "className" : "com.groupon.odo.internal.Common"
+    }, {
+      "methodName" : "set_json_value",
+      "className" : "com.groupon.odo.internal.Common"
+    }, {
+      "methodName" : "remove_json_value",
+      "className" : "com.groupon.odo.internal.Common"
+    }, {
+      "methodName" : "response_from_file",
+      "className" : "com.groupon.odo.internal.Common"
+    } ]
   }, {
-    "name" : "is",
-    "paths" : [ ],
-    "servers" : [ ],
-    "serverGroups" : [ ],
-    "active" : false
+    "name" : "Deals",
+    "methods" : [ {
+      "methodName" : "numDeals",
+      "className" : "com.groupon.odo.internal.mobile.Deals"
+    }, {
+      "methodName" : "singleOption",
+      "className" : "com.groupon.odo.internal.mobile.Deals"
+    }, {
+      "methodName" : "lotsOfTraits",
+      "className" : "com.groupon.odo.internal.mobile.Deals"
+    }, {
+      "methodName" : "makeTraitSoldOut",
+      "className" : "com.groupon.odo.internal.mobile.Deals"
+    }, {
+      "methodName" : "removeFirstTraitCombination",
+      "className" : "com.groupon.odo.internal.mobile.Deals"
+    }, {
+      "methodName" : "set_trait_count",
+      "className" : "com.groupon.odo.internal.mobile.Deals"
+    }, {
+      "methodName" : "all_types",
+      "className" : "com.groupon.odo.internal.mobile.Deals"
+    }, {
+      "methodName" : "closed",
+      "className" : "com.groupon.odo.internal.mobile.Deals"
+    }, {
+      "methodName" : "no_redemption_locations",
+      "className" : "com.groupon.odo.internal.mobile.Deals"
+    }, {
+      "methodName" : "remove_redemption_locations",
+      "className" : "com.groupon.odo.internal.mobile.Deals"
+    }, {
+      "methodName" : "store_lat_lon",
+      "className" : "com.groupon.odo.internal.mobile.Deals"
+    }, {
+      "methodName" : "adjust_distance",
+      "className" : "com.groupon.odo.internal.mobile.Deals"
+    }, {
+      "methodName" : "mobile_only",
+      "className" : "com.groupon.odo.internal.mobile.Deals"
+    }, {
+      "methodName" : "change_display_options",
+      "className" : "com.groupon.odo.internal.mobile.Deals"
+    }, {
+      "methodName" : "with_shipping_address",
+      "className" : "com.groupon.odo.internal.mobile.Deals"
+    }, {
+      "methodName" : "set_option_count_deal_id",
+      "className" : "com.groupon.odo.internal.mobile.Deals"
+    }, {
+      "methodName" : "set_option_count_deals_list",
+      "className" : "com.groupon.odo.internal.mobile.Deals"
+    }, {
+      "methodName" : "make_available",
+      "className" : "com.groupon.odo.internal.mobile.Deals"
+    }, {
+      "methodName" : "zero_discount",
+      "className" : "com.groupon.odo.internal.mobile.Deals"
+    }, {
+      "methodName" : "redemption_locations",
+      "className" : "com.groupon.odo.internal.mobile.Deals"
+    }, {
+      "methodName" : "sold_out",
+      "className" : "com.groupon.odo.internal.mobile.Deals"
+    }, {
+      "methodName" : "zero_deals",
+      "className" : "com.groupon.odo.internal.mobile.Deals"
+    }, {
+      "methodName" : "multiple_redemption_locations",
+      "className" : "com.groupon.odo.internal.mobile.Deals"
+    }, {
+      "methodName" : "large_amount_12345678",
+      "className" : "com.groupon.odo.internal.mobile.Deals"
+    }, {
+      "methodName" : "empty_text",
+      "className" : "com.groupon.odo.internal.mobile.Deals"
+    }, {
+      "methodName" : "add_html",
+      "className" : "com.groupon.odo.internal.mobile.Deals"
+    }, {
+      "methodName" : "getaways_extra_sections",
+      "className" : "com.groupon.odo.internal.mobile.Deals"
+    }, {
+      "methodName" : "locationnote",
+      "className" : "com.groupon.odo.internal.mobile.Deals"
+    }, {
+      "methodName" : "custom_field",
+      "className" : "com.groupon.odo.internal.mobile.Deals"
+    }, {
+      "methodName" : "with_custom_field_and_shipping_address",
+      "className" : "com.groupon.odo.internal.mobile.Deals"
+    }, {
+      "methodName" : "iframe_video_in_pitchhtml",
+      "className" : "com.groupon.odo.internal.mobile.Deals"
+    }, {
+      "methodName" : "soldquantity_123456789",
+      "className" : "com.groupon.odo.internal.mobile.Deals"
+    }, {
+      "methodName" : "external_url",
+      "className" : "com.groupon.odo.internal.mobile.Deals"
+    }, {
+      "methodName" : "long_text",
+      "className" : "com.groupon.odo.internal.mobile.Deals"
+    }, {
+      "methodName" : "min_max_purchase_quantity",
+      "className" : "com.groupon.odo.internal.mobile.Deals"
+    }, {
+      "methodName" : "personal_collection_title_subtitle",
+      "className" : "com.groupon.odo.internal.mobile.Deals"
+    }, {
+      "methodName" : "file_goods_multi_images_traits_userdefined",
+      "className" : "com.groupon.odo.internal.mobile.Deals"
+    }, {
+      "methodName" : "change_deal_lat_lng",
+      "className" : "com.groupon.odo.internal.mobile.Deals"
+    }, {
+      "methodName" : "non_zero_discount",
+      "className" : "com.groupon.odo.internal.mobile.Deals"
+    }, {
+      "methodName" : "filter_sold_out",
+      "className" : "com.groupon.odo.internal.mobile.Deals"
+    }, {
+      "methodName" : "filter_on_value",
+      "className" : "com.groupon.odo.internal.mobile.Deals"
+    } ]
   }, {
-    "name" : "tiffany",
-    "paths" : [ ],
-    "servers" : [ ],
-    "serverGroups" : [ ],
-    "active" : false
+    "name" : "Divisions",
+    "methods" : [ {
+      "methodName" : "add_qa_cities",
+      "className" : "com.groupon.odo.internal.mobile.Divisions"
+    } ]
+  }, {
+    "name" : "Groupons",
+    "methods" : [ {
+      "methodName" : "change_barcode_url",
+      "className" : "com.groupon.odo.internal.mobile.Groupons"
+    }, {
+      "methodName" : "schedular_bookable",
+      "className" : "com.groupon.odo.internal.mobile.Groupons"
+    }, {
+      "methodName" : "travel_bookable",
+      "className" : "com.groupon.odo.internal.mobile.Groupons"
+    }, {
+      "methodName" : "bookable_true",
+      "className" : "com.groupon.odo.internal.mobile.Groupons"
+    }, {
+      "methodName" : "bookable_false",
+      "className" : "com.groupon.odo.internal.mobile.Groupons"
+    }, {
+      "methodName" : "add_all_barcode_types",
+      "className" : "com.groupon.odo.internal.mobile.Groupons"
+    }, {
+      "methodName" : "add_availability_status_matrix",
+      "className" : "com.groupon.odo.internal.mobile.Groupons"
+    }, {
+      "methodName" : "status_1failed_1succeeded_same_deal",
+      "className" : "com.groupon.odo.internal.mobile.Groupons"
+    }, {
+      "methodName" : "add_5_pending",
+      "className" : "com.groupon.odo.internal.mobile.Groupons"
+    }, {
+      "methodName" : "add_5_expired",
+      "className" : "com.groupon.odo.internal.mobile.Groupons"
+    }, {
+      "methodName" : "add_5_used",
+      "className" : "com.groupon.odo.internal.mobile.Groupons"
+    }, {
+      "methodName" : "n_groupons",
+      "className" : "com.groupon.odo.internal.mobile.Groupons"
+    } ]
+  }, {
+    "name" : "In App Messages",
+    "methods" : [ {
+      "methodName" : "inAppMessages",
+      "className" : "com.groupon.odo.internal.mobile.InAppMessages"
+    }, {
+      "methodName" : "messages_getaways",
+      "className" : "com.groupon.odo.internal.mobile.InAppMessages"
+    }, {
+      "methodName" : "messages_occasions",
+      "className" : "com.groupon.odo.internal.mobile.InAppMessages"
+    }, {
+      "methodName" : "messages_id_2",
+      "className" : "com.groupon.odo.internal.mobile.InAppMessages"
+    }, {
+      "methodName" : "messages_my_groupons",
+      "className" : "com.groupon.odo.internal.mobile.InAppMessages"
+    } ]
+  }, {
+    "name" : "Status",
+    "methods" : [ {
+      "methodName" : "removePromos",
+      "className" : "com.groupon.odo.internal.mobile.Status"
+    }, {
+      "methodName" : "middle_units",
+      "className" : "com.groupon.odo.internal.mobile.Status"
+    }, {
+      "methodName" : "middle_unit_empty",
+      "className" : "com.groupon.odo.internal.mobile.Status"
+    }, {
+      "methodName" : "promo_not_enabled",
+      "className" : "com.groupon.odo.internal.mobile.Status"
+    }, {
+      "methodName" : "middle_random_selection",
+      "className" : "com.groupon.odo.internal.mobile.Status"
+    }, {
+      "methodName" : "promo_type",
+      "className" : "com.groupon.odo.internal.mobile.Status"
+    }, {
+      "methodName" : "middle_missing_fullwidth",
+      "className" : "com.groupon.odo.internal.mobile.Status"
+    }, {
+      "methodName" : "image_http404",
+      "className" : "com.groupon.odo.internal.mobile.Status"
+    }, {
+      "methodName" : "promoslots_missing",
+      "className" : "com.groupon.odo.internal.mobile.Status"
+    }, {
+      "methodName" : "current_experiments",
+      "className" : "com.groupon.odo.internal.mobile.Status"
+    }, {
+      "methodName" : "add_modify_experiment",
+      "className" : "com.groupon.odo.internal.mobile.Status"
+    } ]
+  }, {
+    "name" : "User",
+    "methods" : [ {
+      "methodName" : "credits",
+      "className" : "com.groupon.odo.internal.mobile.User"
+    }, {
+      "methodName" : "giftcode_credit",
+      "className" : "com.groupon.odo.internal.mobile.UserGiftCode"
+    }, {
+      "methodName" : "numSubCategories",
+      "className" : "com.groupon.odo.internal.mobile.PersonalCollections"
+    } ]
   } ],
-  "scripts" : [ ]
+  "profiles" : [ {
+    "name" : "Consumer API",
+    "paths" : [ {
+      "pathName" : "Global",
+      "path" : "/",
+      "bodyFilter" : null,
+      "contentType" : "application/json;charset=utf-8",
+      "requestType" : 1,
+      "global" : true,
+      "groupNames" : [ "Common" ]
+    }, {
+      "pathName" : "Collections",
+      "path" : "/(collections|collections.json)",
+      "bodyFilter" : null,
+      "contentType" : "application/json;charset=utf-8",
+      "requestType" : 0,
+      "global" : false,
+      "groupNames" : [ "Common" ]
+    }, {
+      "pathName" : "Countries ID",
+      "path" : "/(countries|countries.json)/\\S+",
+      "bodyFilter" : null,
+      "contentType" : "application/json;charset=utf-8",
+      "requestType" : 0,
+      "global" : false,
+      "groupNames" : [ "Common" ]
+    }, {
+      "pathName" : "Countries",
+      "path" : "/(countries|countries.json)",
+      "bodyFilter" : null,
+      "contentType" : "application/json;charset=utf-8",
+      "requestType" : 0,
+      "global" : false,
+      "groupNames" : [ "Common" ]
+    }, {
+      "pathName" : "Access Token",
+      "path" : "/oauth/access_token",
+      "bodyFilter" : null,
+      "contentType" : "application/json;charset=utf-8",
+      "requestType" : 0,
+      "global" : false,
+      "groupNames" : [ "Common" ]
+    }, {
+      "pathName" : "Facebook Exchange",
+      "path" : "/oauth/facebook_exchange",
+      "bodyFilter" : null,
+      "contentType" : "application/json;charset=utf-8",
+      "requestType" : 0,
+      "global" : false,
+      "groupNames" : [ "Common" ]
+    }, {
+      "pathName" : "Gifts Demographics",
+      "path" : "/gifts/demographics",
+      "bodyFilter" : null,
+      "contentType" : "application/json;charset=utf-8",
+      "requestType" : 0,
+      "global" : false,
+      "groupNames" : [ "Common" ]
+    }, {
+      "pathName" : "Facebook Authenticate",
+      "path" : "/oauth/facebook_authenticate",
+      "bodyFilter" : null,
+      "contentType" : "application/json;charset=utf-8",
+      "requestType" : 3,
+      "global" : false,
+      "groupNames" : [ "Common" ]
+    }, {
+      "pathName" : "Shopping deals",
+      "path" : "/channels/shopping/(deals|deals.json)",
+      "bodyFilter" : null,
+      "contentType" : "application/json;charset=utf-8",
+      "requestType" : 1,
+      "global" : false,
+      "groupNames" : [ "Common" ]
+    }, {
+      "pathName" : "Travel deals",
+      "path" : "/channels/travel/(deals|deals.json)",
+      "bodyFilter" : null,
+      "contentType" : "application/json;charset=utf-8",
+      "requestType" : 1,
+      "global" : false,
+      "groupNames" : [ "Common" ]
+    }, {
+      "pathName" : "Reserve Cuisines",
+      "path" : "/reserve/cuisines",
+      "bodyFilter" : null,
+      "contentType" : "application/json;charset=utf-8",
+      "requestType" : 0,
+      "global" : false,
+      "groupNames" : [ "Common" ]
+    }, {
+      "pathName" : "Reserve Neighborhoods",
+      "path" : "/reserve/neighborhoods",
+      "bodyFilter" : null,
+      "contentType" : "application/json;charset=utf-8",
+      "requestType" : 0,
+      "global" : false,
+      "groupNames" : [ "Common" ]
+    }, {
+      "pathName" : "Reserve Deals Search",
+      "path" : "/reserve/search",
+      "bodyFilter" : null,
+      "contentType" : "application/json;charset=utf-8",
+      "requestType" : 0,
+      "global" : false,
+      "groupNames" : [ "Common" ]
+    }, {
+      "pathName" : "Reserve Deals",
+      "path" : "/reserve/(deals|deals.json)\\s*$",
+      "bodyFilter" : null,
+      "contentType" : "application/json;charset=utf-8",
+      "requestType" : 0,
+      "global" : false,
+      "groupNames" : [ "Common" ]
+    }, {
+      "pathName" : "Reserve Deals ID Available Party Sizes",
+      "path" : "/reserve/deals/\\S+/available_party_sizes",
+      "bodyFilter" : null,
+      "contentType" : "application/json;charset=utf-8",
+      "requestType" : 0,
+      "global" : false,
+      "groupNames" : [ "Common" ]
+    }, {
+      "pathName" : "Reserve Deals ID Available Dates",
+      "path" : "/reserve/deals/\\S+/available_dates",
+      "bodyFilter" : null,
+      "contentType" : "application/json;charset=utf-8",
+      "requestType" : 0,
+      "global" : false,
+      "groupNames" : [ "Common" ]
+    }, {
+      "pathName" : "Reserve Deals ID Available Times",
+      "path" : "/reserve/deals/\\S+/available_times",
+      "bodyFilter" : null,
+      "contentType" : "application/json;charset=utf-8",
+      "requestType" : 0,
+      "global" : false,
+      "groupNames" : [ "Common" ]
+    }, {
+      "pathName" : "Reserve Deals ID Available Inventory",
+      "path" : "/reserve/deals/\\S+/available_inventory",
+      "bodyFilter" : null,
+      "contentType" : "application/json;charset=utf-8",
+      "requestType" : 0,
+      "global" : false,
+      "groupNames" : [ "Common" ]
+    }, {
+      "pathName" : "Reserve Deals ID",
+      "path" : "/reserve/deals/\\S+\\s*$",
+      "bodyFilter" : null,
+      "contentType" : "application/json;charset=utf-8",
+      "requestType" : 0,
+      "global" : false,
+      "groupNames" : [ "Common" ]
+    }, {
+      "pathName" : "Deals Search Facets",
+      "path" : "/deals/search\\?.*facets",
+      "bodyFilter" : null,
+      "contentType" : "application/json;charset=utf-8",
+      "requestType" : 1,
+      "global" : false,
+      "groupNames" : [ "Common" ]
+    }, {
+      "pathName" : "Deals Search Goods",
+      "path" : "/deals/search\\?.*relevance_context=mobile_goods",
+      "bodyFilter" : null,
+      "contentType" : "application/json;charset=utf-8",
+      "requestType" : 1,
+      "global" : false,
+      "groupNames" : [ "Common", "Deals" ]
+    }, {
+      "pathName" : "Deals Search",
+      "path" : "/deals/search",
+      "bodyFilter" : null,
+      "contentType" : "application/json;charset=utf-8",
+      "requestType" : 1,
+      "global" : false,
+      "groupNames" : [ "Common", "Deals" ]
+    }, {
+      "pathName" : "Locations Autocomplete",
+      "path" : "/locations/autocomplete",
+      "bodyFilter" : null,
+      "contentType" : "application/json;charset=utf-8",
+      "requestType" : 1,
+      "global" : false,
+      "groupNames" : [ "Common" ]
+    }, {
+      "pathName" : "Deals Categories",
+      "path" : "/deals/categories",
+      "bodyFilter" : null,
+      "contentType" : "application/json;charset=utf-8",
+      "requestType" : 1,
+      "global" : false,
+      "groupNames" : [ "Common" ]
+    }, {
+      "pathName" : "Deals Favorites",
+      "path" : "/deals/favorites",
+      "bodyFilter" : null,
+      "contentType" : "application/json;charset=utf-8",
+      "requestType" : 1,
+      "global" : false,
+      "groupNames" : [ "Common" ]
+    }, {
+      "pathName" : "Deals ID Questions GET",
+      "path" : "/deals/\\S+/questions",
+      "bodyFilter" : null,
+      "contentType" : "application/json;charset=utf-8",
+      "requestType" : 1,
+      "global" : false,
+      "groupNames" : [ "Common" ]
+    }, {
+      "pathName" : "Deals ID Questions POST",
+      "path" : "/deals/\\S+/questions",
+      "bodyFilter" : null,
+      "contentType" : "application/json;charset=utf-8",
+      "requestType" : 2,
+      "global" : false,
+      "groupNames" : [ "Common" ]
+    }, {
+      "pathName" : "Deals ID Pricings",
+      "path" : "/deals/\\S+/(pricings|pricings.json)",
+      "bodyFilter" : null,
+      "contentType" : "application/json;charset=utf-8",
+      "requestType" : 0,
+      "global" : false,
+      "groupNames" : [ "Common" ]
+    }, {
+      "pathName" : "Deals ID Shipping Options",
+      "path" : "/deals/\\S+/(shipping_options|shipping_options.json)",
+      "bodyFilter" : null,
+      "contentType" : "application/json;charset=utf-8",
+      "requestType" : 0,
+      "global" : false,
+      "groupNames" : [ "Common" ]
+    }, {
+      "pathName" : "Deals ID Breakdowns",
+      "path" : "/deals/\\S+/(breakdowns|breakdowns.json)",
+      "bodyFilter" : null,
+      "contentType" : "application/json;charset=utf-8",
+      "requestType" : 0,
+      "global" : false,
+      "groupNames" : [ "Breakdowns", "Common" ]
+    }, {
+      "pathName" : "Deals ID Images",
+      "path" : "/deals/\\S+/(images|images.json)",
+      "bodyFilter" : null,
+      "contentType" : "application/json;charset=utf-8",
+      "requestType" : 0,
+      "global" : false,
+      "groupNames" : [ "Common" ]
+    }, {
+      "pathName" : "Deals ID Stock",
+      "path" : "/deals/\\S+/(stock|stock.json)",
+      "bodyFilter" : null,
+      "contentType" : "application/json;charset=utf-8",
+      "requestType" : 0,
+      "global" : false,
+      "groupNames" : [ "Common" ]
+    }, {
+      "pathName" : "Deals ID Travel Inventory",
+      "path" : "/deals/\\S+/(travel_inventory|travel_inventory.json)",
+      "bodyFilter" : null,
+      "contentType" : "application/json;charset=utf-8",
+      "requestType" : 0,
+      "global" : false,
+      "groupNames" : [ "Common" ]
+    }, {
+      "pathName" : "Deals Keyword Autocomplete",
+      "path" : "/(deals|deals.json)/autocomplete",
+      "bodyFilter" : null,
+      "contentType" : "application/json;charset=utf-8",
+      "requestType" : 1,
+      "global" : false,
+      "groupNames" : [ "Common" ]
+    }, {
+      "pathName" : "Deals ID",
+      "path" : "/(deals|deals.json)/\\S+",
+      "bodyFilter" : null,
+      "contentType" : "application/json;charset=utf-8",
+      "requestType" : 1,
+      "global" : false,
+      "groupNames" : [ "Common", "Deals" ]
+    }, {
+      "pathName" : "Deals VIP Early",
+      "path" : "/(deals|deals.json)\\?.*access_types=early",
+      "bodyFilter" : null,
+      "contentType" : "application/json;charset=utf-8",
+      "requestType" : 1,
+      "global" : false,
+      "groupNames" : [ "Deals", "Common" ]
+    }, {
+      "pathName" : "Deals VIP Extended",
+      "path" : "/(deals|deals.json)\\?.*access_types=extended",
+      "bodyFilter" : null,
+      "contentType" : "application/json;charset=utf-8",
+      "requestType" : 1,
+      "global" : false,
+      "groupNames" : [ "Deals", "Common" ]
+    }, {
+      "pathName" : "Deals Deal Types",
+      "path" : "/(deals|deals.json)/deal_types",
+      "bodyFilter" : null,
+      "contentType" : "application/json;charset=utf-8",
+      "requestType" : 1,
+      "global" : false,
+      "groupNames" : [ "Deals", "Common" ]
+    }, {
+      "pathName" : "Deals Channel Goods",
+      "path" : "/(deals|deals.json)\\?.*channel_id=goods",
+      "bodyFilter" : null,
+      "contentType" : "application/json;charset=utf-8",
+      "requestType" : 1,
+      "global" : false,
+      "groupNames" : [ "Deals", "Common" ]
+    }, {
+      "pathName" : "Deals Channel Getaways",
+      "path" : "/(deals|deals.json)\\?.*channel_id=getaways",
+      "bodyFilter" : null,
+      "contentType" : "application/json;charset=utf-8",
+      "requestType" : 1,
+      "global" : false,
+      "groupNames" : [ "Deals", "Common" ]
+    }, {
+      "pathName" : "Deals Channel Occasions",
+      "path" : "/(deals|deals.json)\\?.*channel_id=occasions",
+      "bodyFilter" : null,
+      "contentType" : "application/json;charset=utf-8",
+      "requestType" : 1,
+      "global" : false,
+      "groupNames" : [ "Deals", "Common" ]
+    }, {
+      "pathName" : "Deals",
+      "path" : "/(deals|deals.json)",
+      "bodyFilter" : null,
+      "contentType" : "application/json;charset=utf-8",
+      "requestType" : 1,
+      "global" : false,
+      "groupNames" : [ "Deals", "Common" ]
+    }, {
+      "pathName" : "Freebies Coupons Carousel",
+      "path" : "/freebies/coupons/carousel",
+      "bodyFilter" : null,
+      "contentType" : "application/json;charset=utf-8",
+      "requestType" : 1,
+      "global" : false,
+      "groupNames" : [ "Deals", "Common" ]
+    }, {
+      "pathName" : "Freebies Coupons",
+      "path" : "/freebies/coupons",
+      "bodyFilter" : null,
+      "contentType" : "application/json;charset=utf-8",
+      "requestType" : 1,
+      "global" : false,
+      "groupNames" : [ "Deals", "Common" ]
+    }, {
+      "pathName" : "Freebies Merchants Top",
+      "path" : "/freebies/merchants/top",
+      "bodyFilter" : null,
+      "contentType" : "application/json;charset=utf-8",
+      "requestType" : 1,
+      "global" : false,
+      "groupNames" : [ "Deals", "Common" ]
+    }, {
+      "pathName" : "Freebies Merchants",
+      "path" : "/freebies/merchants",
+      "bodyFilter" : null,
+      "contentType" : "application/json;charset=utf-8",
+      "requestType" : 1,
+      "global" : false,
+      "groupNames" : [ "Deals", "Common" ]
+    }, {
+      "pathName" : "Freebies Categories Top",
+      "path" : "/freebies/categories/top",
+      "bodyFilter" : null,
+      "contentType" : "application/json;charset=utf-8",
+      "requestType" : 1,
+      "global" : false,
+      "groupNames" : [ "Deals", "Common" ]
+    }, {
+      "pathName" : "Freebies Categories",
+      "path" : "/freebies/categories",
+      "bodyFilter" : null,
+      "contentType" : "application/json;charset=utf-8",
+      "requestType" : 1,
+      "global" : false,
+      "groupNames" : [ "Deals", "Common" ]
+    }, {
+      "pathName" : "Users Rewards",
+      "path" : "/users/\\S+/(rewards|rewards.json)",
+      "bodyFilter" : null,
+      "contentType" : "application/json;charset=utf-8",
+      "requestType" : 1,
+      "global" : false,
+      "groupNames" : [ "Common" ]
+    }, {
+      "pathName" : "Rewards ID",
+      "path" : "/(rewards|rewards.json)/\\S+",
+      "bodyFilter" : null,
+      "contentType" : "application/json;charset=utf-8",
+      "requestType" : 1,
+      "global" : false,
+      "groupNames" : [ "Common" ]
+    }, {
+      "pathName" : "Rewards",
+      "path" : "/(rewards|rewards.json)",
+      "bodyFilter" : null,
+      "contentType" : "application/json;charset=utf-8",
+      "requestType" : 1,
+      "global" : false,
+      "groupNames" : [ "Common" ]
+    }, {
+      "pathName" : "Resignation Reasons",
+      "path" : "/(resignation_reasons|resignation_reasons.json)",
+      "bodyFilter" : null,
+      "contentType" : "application/json;charset=utf-8",
+      "requestType" : 1,
+      "global" : false,
+      "groupNames" : [ "Common" ]
+    }, {
+      "pathName" : "Businesses Search",
+      "path" : "/businesses/search",
+      "bodyFilter" : null,
+      "contentType" : "application/json;charset=utf-8",
+      "requestType" : 1,
+      "global" : false,
+      "groupNames" : [ "Common" ]
+    }, {
+      "pathName" : "Businesses ID Tips",
+      "path" : "/businesses/\\S+/tips",
+      "bodyFilter" : null,
+      "contentType" : "application/json;charset=utf-8",
+      "requestType" : 1,
+      "global" : false,
+      "groupNames" : [ "Common" ]
+    }, {
+      "pathName" : "Businesses ID Recommendations",
+      "path" : "/businesses/\\S+/(recommendations|recommendations.json)",
+      "bodyFilter" : null,
+      "contentType" : "application/json;charset=utf-8",
+      "requestType" : 3,
+      "global" : false,
+      "groupNames" : [ "Common" ]
+    }, {
+      "pathName" : "Businesses ID",
+      "path" : "/businesses/\\S+",
+      "bodyFilter" : null,
+      "contentType" : "application/json;charset=utf-8",
+      "requestType" : 1,
+      "global" : false,
+      "groupNames" : [ "Common" ]
+    }, {
+      "pathName" : "Shopping Cart Items GET",
+      "path" : "/(shopping_cart|shopping_cart.json)/items.*$",
+      "bodyFilter" : null,
+      "contentType" : "application/json;charset=utf-8",
+      "requestType" : 1,
+      "global" : false,
+      "groupNames" : [ "Common" ]
+    }, {
+      "pathName" : "Shopping Cart Items PUT",
+      "path" : "/(shopping_cart|shopping_cart.json)/items.*$",
+      "bodyFilter" : null,
+      "contentType" : "application/json;charset=utf-8",
+      "requestType" : 2,
+      "global" : false,
+      "groupNames" : [ "Common" ]
+    }, {
+      "pathName" : "Shopping Cart Items POST",
+      "path" : "/(shopping_cart|shopping_cart.json)/items.*$",
+      "bodyFilter" : null,
+      "contentType" : "application/json;charset=utf-8",
+      "requestType" : 3,
+      "global" : false,
+      "groupNames" : [ "Common" ]
+    }, {
+      "pathName" : "Shopping Cart Items DELETE",
+      "path" : "/(shopping_cart|shopping_cart.json)/items.*$",
+      "bodyFilter" : null,
+      "contentType" : "application/json;charset=utf-8",
+      "requestType" : 4,
+      "global" : false,
+      "groupNames" : [ "Common" ]
+    }, {
+      "pathName" : "Getaways Destinations",
+      "path" : "/getaways/destinations",
+      "bodyFilter" : null,
+      "contentType" : "application/json;charset=utf-8",
+      "requestType" : 0,
+      "global" : false,
+      "groupNames" : [ "Common" ]
+    }, {
+      "pathName" : "Getaways Systems ID Search",
+      "path" : "/getaways/systems/\\S+/search",
+      "bodyFilter" : null,
+      "contentType" : "application/json;charset=utf-8",
+      "requestType" : 0,
+      "global" : false,
+      "groupNames" : [ "Common" ]
+    }, {
+      "pathName" : "Getaways Hotels ID Inventory",
+      "path" : "/getaways/hotels/\\S+/inventory",
+      "bodyFilter" : null,
+      "contentType" : "application/json;charset=utf-8",
+      "requestType" : 0,
+      "global" : false,
+      "groupNames" : [ "Common" ]
+    }, {
+      "pathName" : "Getaways Hotels ID Images",
+      "path" : "/getaways/hotels/\\S+/images",
+      "bodyFilter" : null,
+      "contentType" : "application/json;charset=utf-8",
+      "requestType" : 0,
+      "global" : false,
+      "groupNames" : [ "Common" ]
+    }, {
+      "pathName" : "Getaways Hotels ID",
+      "path" : "/getaways/hotels/\\S+",
+      "bodyFilter" : null,
+      "contentType" : "application/json;charset=utf-8",
+      "requestType" : 0,
+      "global" : false,
+      "groupNames" : [ "Common" ]
+    }, {
+      "pathName" : "Getaways Systems ID Users ID Hotel Reservations Deeplink",
+      "path" : "/getaways/systems/\\S+/users/\\S+/hotel_reservations/deeplink",
+      "bodyFilter" : null,
+      "contentType" : "application/json;charset=utf-8",
+      "requestType" : 0,
+      "global" : false,
+      "groupNames" : [ "Common" ]
+    }, {
+      "pathName" : "Getaways Systems ID Users ID Hotel Reservations ID",
+      "path" : "/getaways/systems/\\S+/users/\\S+/hotel_reservations/\\S+",
+      "bodyFilter" : null,
+      "contentType" : "application/json;charset=utf-8",
+      "requestType" : 0,
+      "global" : false,
+      "groupNames" : [ "Common" ]
+    }, {
+      "pathName" : "Getaways Systems ID Users ID Hotel Reservations",
+      "path" : "/getaways/systems/\\S+/users/\\S+/hotel_reservations",
+      "bodyFilter" : null,
+      "contentType" : "application/json;charset=utf-8",
+      "requestType" : 0,
+      "global" : false,
+      "groupNames" : [ "Common" ]
+    }, {
+      "pathName" : "Getaways Systems ID Hote Reservations PUT",
+      "path" : "/getaways/systems/\\S+/hotel_reservations",
+      "bodyFilter" : null,
+      "contentType" : "application/json;charset=utf-8",
+      "requestType" : 2,
+      "global" : false,
+      "groupNames" : [ "Common" ]
+    }, {
+      "pathName" : "Getaways Systems ID Hote Reservations POST",
+      "path" : "/getaways/systems/\\S+/hotel_reservations",
+      "bodyFilter" : null,
+      "contentType" : "application/json;charset=utf-8",
+      "requestType" : 3,
+      "global" : false,
+      "groupNames" : [ "Common" ]
+    }, {
+      "pathName" : "Getaways Systems ID Hote Reservations",
+      "path" : "/getaways/systems/\\S+/hotel_reservations",
+      "bodyFilter" : null,
+      "contentType" : "application/json;charset=utf-8",
+      "requestType" : 0,
+      "global" : false,
+      "groupNames" : [ "Common" ]
+    }, {
+      "pathName" : "Postal Codes ID",
+      "path" : "/postal_codes/\\S+$",
+      "bodyFilter" : null,
+      "contentType" : "application/json;charset=utf-8",
+      "requestType" : 0,
+      "global" : false,
+      "groupNames" : [ "Common" ]
+    }, {
+      "pathName" : "Mainstreet Users Me PUT",
+      "path" : "/mainstreet/users/me",
+      "bodyFilter" : null,
+      "contentType" : "application/json;charset=utf-8",
+      "requestType" : 2,
+      "global" : false,
+      "groupNames" : [ "Common" ]
+    }, {
+      "pathName" : "Mainstreet Users Me",
+      "path" : "/mainstreet/users/me",
+      "bodyFilter" : null,
+      "contentType" : "application/json;charset=utf-8",
+      "requestType" : 0,
+      "global" : false,
+      "groupNames" : [ "Common" ]
+    }, {
+      "pathName" : "Mainstreet Merchants ID",
+      "path" : "/mainstreet/merchants/\\S+$",
+      "bodyFilter" : null,
+      "contentType" : "application/json;charset=utf-8",
+      "requestType" : 0,
+      "global" : false,
+      "groupNames" : [ "Common" ]
+    }, {
+      "pathName" : "Mainstreet Users ID ProfilePicture",
+      "path" : "/mainstreet/users/.*profilepicture\\s*$",
+      "bodyFilter" : null,
+      "contentType" : "application/json;charset=utf-8",
+      "requestType" : 0,
+      "global" : false,
+      "groupNames" : [ "Common" ]
+    }, {
+      "pathName" : "In App Messages Events",
+      "path" : "/in_app_messages/\\S+/(events|events.json)",
+      "bodyFilter" : null,
+      "contentType" : "application/json;charset=utf-8",
+      "requestType" : 3,
+      "global" : false,
+      "groupNames" : [ "Common", "In App Messages" ]
+    }, {
+      "pathName" : "In App Messages",
+      "path" : "/(in_app_messages|in_app_messages.json)",
+      "bodyFilter" : null,
+      "contentType" : "application/json;charset=utf-8",
+      "requestType" : 0,
+      "global" : false,
+      "groupNames" : [ "Common", "In App Messages" ]
+    }, {
+      "pathName" : "Password Reset",
+      "path" : "/(password_reset|password_reset.json)",
+      "bodyFilter" : null,
+      "contentType" : "application/json;charset=utf-8",
+      "requestType" : 0,
+      "global" : false,
+      "groupNames" : [ "Common" ]
+    }, {
+      "pathName" : "Deal Tags",
+      "path" : "/(dealtags|dealtags.json)",
+      "bodyFilter" : null,
+      "contentType" : "application/json;charset=utf-8",
+      "requestType" : 0,
+      "global" : false,
+      "groupNames" : [ "Common" ]
+    }, {
+      "pathName" : "Deal Feedback",
+      "path" : "/(deal_feedback|deal_feedback.json)",
+      "bodyFilter" : null,
+      "contentType" : "application/json;charset=utf-8",
+      "requestType" : 3,
+      "global" : false,
+      "groupNames" : [ "Common" ]
+    }, {
+      "pathName" : "Shipping Fields",
+      "path" : "/(shipping_fields|shipping_fields.json)",
+      "bodyFilter" : null,
+      "contentType" : "application/json;charset=utf-8",
+      "requestType" : 0,
+      "global" : false,
+      "groupNames" : [ "Common" ]
+    }, {
+      "pathName" : "Support Info",
+      "path" : "/(support_info|support_info.json)",
+      "bodyFilter" : null,
+      "contentType" : "application/json;charset=utf-8",
+      "requestType" : 0,
+      "global" : false,
+      "groupNames" : [ "Common" ]
+    }, {
+      "pathName" : "Device Tokens Push Subscriptions POST",
+      "path" : "/device_tokens/\\S+/(push_subscriptions|push_subscriptions.json)",
+      "bodyFilter" : null,
+      "contentType" : "application/json;charset=utf-8",
+      "requestType" : 3,
+      "global" : false,
+      "groupNames" : [ "Common" ]
+    }, {
+      "pathName" : "Device Tokens Push Subscriptions DELETE",
+      "path" : "/device_tokens/\\S+/(push_subscriptions|push_subscriptions.json)",
+      "bodyFilter" : null,
+      "contentType" : "application/json;charset=utf-8",
+      "requestType" : 4,
+      "global" : false,
+      "groupNames" : [ "Common" ]
+    }, {
+      "pathName" : "Device Tokens Push Subscriptions",
+      "path" : "/device_tokens/\\S+/(push_subscriptions|push_subscriptions.json)",
+      "bodyFilter" : null,
+      "contentType" : "application/json;charset=utf-8",
+      "requestType" : 0,
+      "global" : false,
+      "groupNames" : [ "Common" ]
+    }, {
+      "pathName" : "Device Tokens PUT",
+      "path" : "/(device_tokens|device_tokens.json)/*[a-zA-Z0-9]*\\s*$",
+      "bodyFilter" : null,
+      "contentType" : "application/json;charset=utf-8",
+      "requestType" : 2,
+      "global" : false,
+      "groupNames" : [ "Common" ]
+    }, {
+      "pathName" : "Device Tokens POST",
+      "path" : "/(device_tokens|device_tokens.json)/*[a-zA-Z0-9]*\\s*$",
+      "bodyFilter" : null,
+      "contentType" : "application/json;charset=utf-8",
+      "requestType" : 3,
+      "global" : false,
+      "groupNames" : [ "Common" ]
+    }, {
+      "pathName" : "Device Tokens",
+      "path" : "/(device_tokens|device_tokens.json)/*[a-zA-Z0-9]*\\s*$",
+      "bodyFilter" : null,
+      "contentType" : "application/json;charset=utf-8",
+      "requestType" : 0,
+      "global" : false,
+      "groupNames" : [ "Common" ]
+    }, {
+      "pathName" : "Divisions",
+      "path" : "/(divisions|divisions.json)",
+      "bodyFilter" : null,
+      "contentType" : "application/json;charset=utf-8",
+      "requestType" : 1,
+      "global" : false,
+      "groupNames" : [ "Common" ]
+    }, {
+      "pathName" : "Email Subscriptions Delete",
+      "path" : "/email_subscriptions.*",
+      "bodyFilter" : null,
+      "contentType" : "application/json;charset=utf-8",
+      "requestType" : 4,
+      "global" : false,
+      "groupNames" : [ "Common" ]
+    }, {
+      "pathName" : "Email Subscriptions POST",
+      "path" : "/email_subscriptions.*",
+      "bodyFilter" : null,
+      "contentType" : "application/json;charset=utf-8",
+      "requestType" : 3,
+      "global" : false,
+      "groupNames" : [ "Common" ]
+    }, {
+      "pathName" : "Email Subscriptions",
+      "path" : "/email_subscriptions.*",
+      "bodyFilter" : null,
+      "contentType" : "application/json;charset=utf-8",
+      "requestType" : 0,
+      "global" : false,
+      "groupNames" : [ "Common" ]
+    }, {
+      "pathName" : "Groupon Says",
+      "path" : "/(groupon_says|groupon_says.json)",
+      "bodyFilter" : null,
+      "contentType" : "application/json;charset=utf-8",
+      "requestType" : 0,
+      "global" : false,
+      "groupNames" : [ "Common" ]
+    }, {
+      "pathName" : "Mobile Logs",
+      "path" : "/mobile/(logs|logs.json)",
+      "bodyFilter" : null,
+      "contentType" : "application/json;charset=utf-8",
+      "requestType" : 0,
+      "global" : false,
+      "groupNames" : [ "Common" ]
+    }, {
+      "pathName" : "Mobile Reports",
+      "path" : "/mobile/(reports|reports.json)",
+      "bodyFilter" : null,
+      "contentType" : "application/json;charset=utf-8",
+      "requestType" : 0,
+      "global" : false,
+      "groupNames" : [ "Common" ]
+    }, {
+      "pathName" : "Geofence Location",
+      "path" : "/mobile/location/(geofence|geofence.json)",
+      "bodyFilter" : null,
+      "contentType" : "application/json;charset=utf-8",
+      "requestType" : 3,
+      "global" : false,
+      "groupNames" : [ "Common" ]
+    }, {
+      "pathName" : "Status",
+      "path" : "/(status|status.json)",
+      "bodyFilter" : null,
+      "contentType" : "application/json;charset=utf-8",
+      "requestType" : 0,
+      "global" : false,
+      "groupNames" : [ "Common", "Status" ]
+    }, {
+      "pathName" : "Groupons Passbook",
+      "path" : "/users/\\S+/groupons/.*pkpass",
+      "bodyFilter" : null,
+      "contentType" : "application/json;charset=utf-8",
+      "requestType" : 0,
+      "global" : false,
+      "groupNames" : [ "Common" ]
+    }, {
+      "pathName" : "Groupons Barcode",
+      "path" : "/users/\\S+/groupons/.*barcode",
+      "bodyFilter" : null,
+      "contentType" : "application/json;charset=utf-8",
+      "requestType" : 0,
+      "global" : false,
+      "groupNames" : [ "Common" ]
+    }, {
+      "pathName" : "Multi Item Orders Breakdown POST",
+      "path" : "/multi_item_orders/breakdown",
+      "bodyFilter" : null,
+      "contentType" : "application/json;charset=utf-8",
+      "requestType" : 3,
+      "global" : false,
+      "groupNames" : [ "Common" ]
+    }, {
+      "pathName" : "Users ID Multi Item Orders ID",
+      "path" : "/users/\\S+/multi_item_orders/\\S+",
+      "bodyFilter" : null,
+      "contentType" : "application/json;charset=utf-8",
+      "requestType" : 0,
+      "global" : false,
+      "groupNames" : [ "Common" ]
+    }, {
+      "pathName" : "Users ID Multi Item Orders POST",
+      "path" : "/users/\\S+/multi_item_orders",
+      "bodyFilter" : null,
+      "contentType" : "application/json;charset=utf-8",
+      "requestType" : 3,
+      "global" : false,
+      "groupNames" : [ "Common" ]
+    }, {
+      "pathName" : "Users Billing Records POST",
+      "path" : "/users/\\S+/(billing_records|billing_records.json)",
+      "bodyFilter" : null,
+      "contentType" : "application/json;charset=utf-8",
+      "requestType" : 3,
+      "global" : false,
+      "groupNames" : [ "Common" ]
+    }, {
+      "pathName" : "Users Billing Records PUT",
+      "path" : "/users/\\S+/(billing_records|billing_records.json)",
+      "bodyFilter" : null,
+      "contentType" : "application/json;charset=utf-8",
+      "requestType" : 2,
+      "global" : false,
+      "groupNames" : [ "Common" ]
+    }, {
+      "pathName" : "Users Billing Records",
+      "path" : "/users/\\S+/(billing_records|billing_records.json)",
+      "bodyFilter" : null,
+      "contentType" : "application/json;charset=utf-8",
+      "requestType" : 0,
+      "global" : false,
+      "groupNames" : [ "Common" ]
+    }, {
+      "pathName" : "Reserve Users ID Reservations ID PUT",
+      "path" : "/reserve/users/\\S+/reservations/\\S+\\s*$",
+      "bodyFilter" : null,
+      "contentType" : "application/json;charset=utf-8",
+      "requestType" : 2,
+      "global" : false,
+      "groupNames" : [ "Common" ]
+    }, {
+      "pathName" : "Reserve Users ID Reservations ID DELETE",
+      "path" : "/reserve/users/\\S+/reservations/\\S+\\s*$",
+      "bodyFilter" : null,
+      "contentType" : "application/json;charset=utf-8",
+      "requestType" : 4,
+      "global" : false,
+      "groupNames" : [ "Common" ]
+    }, {
+      "pathName" : "Reserve Users ID Reservations ID",
+      "path" : "/reserve/users/\\S+/reservations/\\S+\\s*$",
+      "bodyFilter" : null,
+      "contentType" : "application/json;charset=utf-8",
+      "requestType" : 0,
+      "global" : false,
+      "groupNames" : [ "Common" ]
+    }, {
+      "pathName" : "Reserve Users ID Reservations POST",
+      "path" : "/reserve/users/\\S+/(reservations|reservations.json)",
+      "bodyFilter" : null,
+      "contentType" : "application/json;charset=utf-8",
+      "requestType" : 3,
+      "global" : false,
+      "groupNames" : [ "Common" ]
+    }, {
+      "pathName" : "Reserve Users ID Reservations",
+      "path" : "/reserve/users/\\S+/(reservations|reservations.json)",
+      "bodyFilter" : null,
+      "contentType" : "application/json;charset=utf-8",
+      "requestType" : 0,
+      "global" : false,
+      "groupNames" : [ "Common" ]
+    }, {
+      "pathName" : "Users ID Locations PUT",
+      "path" : "/users/\\S+/(locations|locations.json)",
+      "bodyFilter" : null,
+      "contentType" : "application/json;charset=utf-8",
+      "requestType" : 2,
+      "global" : false,
+      "groupNames" : [ "Common" ]
+    }, {
+      "pathName" : "Users ID Locations POST",
+      "path" : "/users/\\S+/(locations|locations.json)",
+      "bodyFilter" : null,
+      "contentType" : "application/json;charset=utf-8",
+      "requestType" : 3,
+      "global" : false,
+      "groupNames" : [ "Common" ]
+    }, {
+      "pathName" : "Users ID Locations",
+      "path" : "/users/\\S+/(locations|locations.json)",
+      "bodyFilter" : null,
+      "contentType" : "application/json;charset=utf-8",
+      "requestType" : 0,
+      "global" : false,
+      "groupNames" : [ "Common" ]
+    }, {
+      "pathName" : "Users ID Places POST",
+      "path" : "/users/\\S+/(places|places.json)",
+      "bodyFilter" : null,
+      "contentType" : "application/json;charset=utf-8",
+      "requestType" : 3,
+      "global" : false,
+      "groupNames" : [ "Common" ]
+    }, {
+      "pathName" : "Users ID Places",
+      "path" : "/users/\\S+/(places|places.json)",
+      "bodyFilter" : null,
+      "contentType" : "application/json;charset=utf-8",
+      "requestType" : 0,
+      "global" : false,
+      "groupNames" : [ "Common" ]
+    }, {
+      "pathName" : "Users ID Specials",
+      "path" : "/users/\\S+/(specials|specials.json)",
+      "bodyFilter" : null,
+      "contentType" : "application/json;charset=utf-8",
+      "requestType" : 3,
+      "global" : false,
+      "groupNames" : [ "Common" ]
+    }, {
+      "pathName" : "Users ID Feedback POST",
+      "path" : "/users/\\S+/(feedback|feedback.json)",
+      "bodyFilter" : null,
+      "contentType" : "application/json;charset=utf-8",
+      "requestType" : 3,
+      "global" : false,
+      "groupNames" : [ "Common" ]
+    }, {
+      "pathName" : "Users ID Gift Codes POST",
+      "path" : "/users/\\S+/(gift_codes|gift_codes.json)",
+      "bodyFilter" : null,
+      "contentType" : "application/json;charset=utf-8",
+      "requestType" : 3,
+      "global" : false,
+      "groupNames" : [ "Common", "User" ]
+    }, {
+      "pathName" : "Users ID Followed Merchants",
+      "path" : "/users/\\S+/(followed_merchants|followed_merchants.json)",
+      "bodyFilter" : null,
+      "contentType" : "application/json;charset=utf-8",
+      "requestType" : 0,
+      "global" : false,
+      "groupNames" : [ "Common" ]
+    }, {
+      "pathName" : "Users ID Groupons ID Barcode",
+      "path" : "/users/\\S+/groupons/.*barcode",
+      "bodyFilter" : null,
+      "contentType" : "application/json;charset=utf-8",
+      "requestType" : 0,
+      "global" : false,
+      "groupNames" : [ "Common" ]
+    }, {
+      "pathName" : "Users ID Groupons ID PUT",
+      "path" : "/users/\\S+/groupons/\\S+\\s*$",
+      "bodyFilter" : null,
+      "contentType" : "application/json;charset=utf-8",
+      "requestType" : 2,
+      "global" : false,
+      "groupNames" : [ "Common" ]
+    }, {
+      "pathName" : "Users ID Groupons",
+      "path" : "/users/\\S+/(groupons|groupons.json)",
+      "bodyFilter" : null,
+      "contentType" : "application/json;charset=utf-8",
+      "requestType" : 0,
+      "global" : false,
+      "groupNames" : [ "Common", "Groupons" ]
+    }, {
+      "pathName" : "Users Orders DELETE",
+      "path" : "/users/\\S+/(orders|orders.json)",
+      "bodyFilter" : null,
+      "contentType" : "application/json;charset=utf-8",
+      "requestType" : 4,
+      "global" : false,
+      "groupNames" : [ "Common" ]
+    }, {
+      "pathName" : "Users Orders",
+      "path" : "/users/\\S+/(orders|orders.json)",
+      "bodyFilter" : null,
+      "contentType" : "application/json;charset=utf-8",
+      "requestType" : 0,
+      "global" : false,
+      "groupNames" : [ "Common" ]
+    }, {
+      "pathName" : "Users ID Deal Types POST",
+      "path" : "/users/\\S+/(deal_types|deal_types.json)",
+      "bodyFilter" : null,
+      "contentType" : "application/json;charset=utf-8",
+      "requestType" : 3,
+      "global" : false,
+      "groupNames" : [ "Common" ]
+    }, {
+      "pathName" : "Users ID Deal Types DELETE",
+      "path" : "/users/\\S+/(deal_types|deal_types.json)",
+      "bodyFilter" : null,
+      "contentType" : "application/json;charset=utf-8",
+      "requestType" : 4,
+      "global" : false,
+      "groupNames" : [ "Common" ]
+    }, {
+      "pathName" : "Deal Types",
+      "path" : "/(deal_types|deal_types.json)",
+      "bodyFilter" : null,
+      "contentType" : "application/json;charset=utf-8",
+      "requestType" : 0,
+      "global" : false,
+      "groupNames" : [ "Common" ]
+    }, {
+      "pathName" : "Users POST",
+      "path" : "/users",
+      "bodyFilter" : null,
+      "contentType" : "application/json;charset=utf-8",
+      "requestType" : 3,
+      "global" : false,
+      "groupNames" : [ "Common" ]
+    }, {
+      "pathName" : "Users ID POST",
+      "path" : "/users/\\S+",
+      "bodyFilter" : null,
+      "contentType" : "application/json;charset=utf-8",
+      "requestType" : 3,
+      "global" : false,
+      "groupNames" : [ "Common" ]
+    }, {
+      "pathName" : "Users ID PUT",
+      "path" : "/users/\\S+",
+      "bodyFilter" : null,
+      "contentType" : "application/json;charset=utf-8",
+      "requestType" : 2,
+      "global" : false,
+      "groupNames" : [ "Common" ]
+    }, {
+      "pathName" : "Users ID",
+      "path" : "/users/\\S+",
+      "bodyFilter" : null,
+      "contentType" : "application/json;charset=utf-8",
+      "requestType" : 0,
+      "global" : false,
+      "groupNames" : [ "Common", "User" ]
+    }, {
+      "pathName" : "Widgets ID",
+      "path" : "/widgets/\\S+",
+      "bodyFilter" : null,
+      "contentType" : "application/json;charset=utf-8",
+      "requestType" : 0,
+      "global" : false,
+      "groupNames" : [ "Common" ]
+    }, {
+      "pathName" : "GDT Services",
+      "path" : "/gdt/v1/merchants/\\S+/gdt/services",
+      "bodyFilter" : null,
+      "contentType" : "application/json;charset=utf-8",
+      "requestType" : 1,
+      "global" : false,
+      "groupNames" : [ "Common" ]
+    }, {
+      "pathName" : "GDT Order",
+      "path" : "/gdt/v1/groupons/\\S+/order",
+      "bodyFilter" : null,
+      "contentType" : "application/json;charset=utf-8",
+      "requestType" : 1,
+      "global" : false,
+      "groupNames" : [ "Common" ]
+    } ],
+    "servers" : [ {
+      "region" : "",
+      "srcUrl" : "api.groupon.com",
+      "destUrl" : "",
+      "hostHeader" : null
+    }, {
+      "region" : "",
+      "srcUrl" : "api.groupon.de",
+      "destUrl" : "",
+      "hostHeader" : null
+    }, {
+      "region" : "",
+      "srcUrl" : "api-asia.groupon.de",
+      "destUrl" : "",
+      "hostHeader" : ""
+    }, {
+      "region" : "",
+      "srcUrl" : "api-india.groupon.de",
+      "destUrl" : "91.108.186.9",
+      "hostHeader" : ""
+    }, {
+      "region" : "",
+      "srcUrl" : "api.groupon.ru",
+      "destUrl" : "",
+      "hostHeader" : ""
+    }, {
+      "region" : "",
+      "srcUrl" : "www.groupon.jp",
+      "destUrl" : "",
+      "hostHeader" : ""
+    }, {
+      "region" : "",
+      "srcUrl" : "api.migroupon.com",
+      "destUrl" : "",
+      "hostHeader" : ""
+    }, {
+      "region" : "",
+      "srcUrl" : "api-proxy.groupon.com",
+      "destUrl" : "",
+      "hostHeader" : ""
+    }, {
+      "region" : "",
+      "srcUrl" : "logging.groupon.com",
+      "destUrl" : "",
+      "hostHeader" : ""
+    }, {
+      "region" : "",
+      "srcUrl" : "api-latam.groupon.com",
+      "destUrl" : "",
+      "hostHeader" : ""
+    } ],
+    "serverGroups" : [ {
+      "name" : "Production to Beta",
+      "servers" : [ {
+        "region" : "",
+        "srcUrl" : "api.groupon.com",
+        "destUrl" : "api.uat.groupon.com",
+        "hostHeader" : "api.uat.groupon.com"
+      }, {
+        "region" : "",
+        "srcUrl" : "api.groupon.de",
+        "destUrl" : "beta-api.groupon.de",
+        "hostHeader" : "beta-api.groupon.de"
+      }, {
+        "region" : "",
+        "srcUrl" : "api-asia.groupon.de",
+        "destUrl" : "beta-api-asia.groupon.de",
+        "hostHeader" : "beta-api-asia.groupon.de"
+      }, {
+        "region" : "",
+        "srcUrl" : "api-india.groupon.de",
+        "destUrl" : "beta-api-india.groupon.de",
+        "hostHeader" : "beta-api-india.groupon.de"
+      }, {
+        "region" : "",
+        "srcUrl" : "api.groupon.ru",
+        "destUrl" : "api-beta02.groupon.ru",
+        "hostHeader" : "api-beta02.groupon.ru"
+      }, {
+        "region" : "",
+        "srcUrl" : "www.groupon.jp",
+        "destUrl" : "stg.groupon.jp",
+        "hostHeader" : "stg.groupon.jp"
+      }, {
+        "region" : "",
+        "srcUrl" : "api.migroupon.com",
+        "destUrl" : "uat-api.grouponlatam.com",
+        "hostHeader" : "uat-api.grouponlatam.com"
+      }, {
+        "region" : "",
+        "srcUrl" : "api-proxy.groupon.com",
+        "destUrl" : "api-proxy-uat.groupon.com",
+        "hostHeader" : "api-proxy-uat.groupon.com"
+      }, {
+        "region" : "",
+        "srcUrl" : "logging.groupon.com",
+        "destUrl" : "logging-uat.groupon.com",
+        "hostHeader" : "logging-uat.groupon.com"
+      }, {
+        "region" : "",
+        "srcUrl" : "api-latam.groupon.com",
+        "destUrl" : "api-uat.grouponlatam.com",
+        "hostHeader" : "api-uat.grouponlatam.com"
+      } ]
+    }, {
+      "name" : "Production to Production",
+      "servers" : [ {
+        "region" : "",
+        "srcUrl" : "api.groupon.com",
+        "destUrl" : "184.27.31.24",
+        "hostHeader" : null
+      }, {
+        "region" : "",
+        "srcUrl" : "api.groupon.de",
+        "destUrl" : "172.225.171.250",
+        "hostHeader" : null
+      }, {
+        "region" : "",
+        "srcUrl" : "api-asia.groupon.de",
+        "destUrl" : "218.213.91.229",
+        "hostHeader" : ""
+      }, {
+        "region" : "",
+        "srcUrl" : "api-india.groupon.de",
+        "destUrl" : "91.108.186.9",
+        "hostHeader" : ""
+      }, {
+        "region" : "",
+        "srcUrl" : "api.groupon.ru",
+        "destUrl" : "91.108.186.68",
+        "hostHeader" : ""
+      }, {
+        "region" : "",
+        "srcUrl" : "www.groupon.jp",
+        "destUrl" : "202.221.137.110",
+        "hostHeader" : ""
+      }, {
+        "region" : "",
+        "srcUrl" : "api.migroupon.com",
+        "destUrl" : "50.115.210.138",
+        "hostHeader" : ""
+      }, {
+        "region" : "",
+        "srcUrl" : "api-proxy.groupon.com",
+        "destUrl" : "50.115.210.109",
+        "hostHeader" : ""
+      }, {
+        "region" : "",
+        "srcUrl" : "logging.groupon.com",
+        "destUrl" : "172.226.96.53",
+        "hostHeader" : ""
+      }, {
+        "region" : "",
+        "srcUrl" : "api-latam.groupon.com",
+        "destUrl" : "50.115.210.76",
+        "hostHeader" : ""
+      } ]
+    }, {
+      "name" : "Production to Test",
+      "servers" : [ {
+        "region" : "",
+        "srcUrl" : "api.groupon.com",
+        "destUrl" : "api.staging.groupon.com",
+        "hostHeader" : "api.staging.groupon.com"
+      }, {
+        "region" : "",
+        "srcUrl" : "api.groupon.de",
+        "destUrl" : "uat-api.groupon.de",
+        "hostHeader" : "uat-api.groupon.de"
+      }, {
+        "region" : "",
+        "srcUrl" : "api-asia.groupon.de",
+        "destUrl" : "uat-api-asia.groupon.de",
+        "hostHeader" : "uat-api-asia.groupon.de"
+      }, {
+        "region" : "",
+        "srcUrl" : "api-india.groupon.de",
+        "destUrl" : "uat-api.groupon.co.in",
+        "hostHeader" : "uat-api.groupon.co.in"
+      }, {
+        "region" : "",
+        "srcUrl" : "api.groupon.ru",
+        "destUrl" : "api-beta02.groupon.ru",
+        "hostHeader" : "api-beta02.groupon.ru"
+      }, {
+        "region" : "",
+        "srcUrl" : "www.groupon.jp",
+        "destUrl" : "stg.groupon.jp",
+        "hostHeader" : "stg.groupon.jp"
+      }, {
+        "region" : "",
+        "srcUrl" : "api.migroupon.com",
+        "destUrl" : "uat-api.grouponlatam.com",
+        "hostHeader" : "uat-api.grouponlatam.com"
+      }, {
+        "region" : "",
+        "srcUrl" : "api-proxy.groupon.com",
+        "destUrl" : "api-proxy-staging.groupon.com",
+        "hostHeader" : "api-proxy-staging.groupon.com"
+      }, {
+        "region" : "",
+        "srcUrl" : "logging.groupon.com",
+        "destUrl" : "logging-staging.groupon.com",
+        "hostHeader" : "logging-staging.groupon.com"
+      }, {
+        "region" : "",
+        "srcUrl" : "api-latam.groupon.com",
+        "destUrl" : "api-uat.grouponlatam.com",
+        "hostHeader" : "api-uat.grouponlatam.com"
+      } ]
+    } ],
+    "active" : true
+  }, {
+    "name" : "Merchant API",
+    "paths" : [ {
+      "pathName" : "Merchant Payments",
+      "path" : "v2/merchants/\\S+/payments",
+      "bodyFilter" : null,
+      "contentType" : "application/json;charset=utf-8",
+      "requestType" : 1,
+      "global" : false,
+      "groupNames" : [ "Common" ]
+    }, {
+      "pathName" : "Merchant OAuth",
+      "path" : "v2/oauth/authorize",
+      "bodyFilter" : null,
+      "contentType" : "application/json;charset=utf-8",
+      "requestType" : 3,
+      "global" : false,
+      "groupNames" : [ "Common" ]
+    }, {
+      "pathName" : "Merchants Deals ID",
+      "path" : "v2/merchants/\\S+/deals/\\S+",
+      "bodyFilter" : null,
+      "contentType" : "application/json;charset=utf-8",
+      "requestType" : 1,
+      "global" : false,
+      "groupNames" : [ ]
+    }, {
+      "pathName" : "Merchants Deals",
+      "path" : "v2/merchants/\\S+/deals",
+      "bodyFilter" : null,
+      "contentType" : "application/json;charset=utf-8",
+      "requestType" : 1,
+      "global" : false,
+      "groupNames" : [ "Common", "Deals" ]
+    } ],
+    "servers" : [ {
+      "region" : "",
+      "srcUrl" : "merchants.groupon.com",
+      "destUrl" : "184.28.79.170",
+      "hostHeader" : null
+    } ],
+    "serverGroups" : [ ],
+    "active" : true
+  } ],
+  "scripts" : [ {
+    "name" : "HTTP Code",
+    "script" : "def result = [0]\n\nif (arg5 != \"200\" && arg5 != \"201\")\n{\n    result[0] = 1\n    result[1] = \"HTTP Code not 200 or 201\"\n}\n\nreturn result"
+  }, {
+    "name" : "Cookie Check",
+    "script" : "def lines = arg4.split('\\n')\ndef line = lines.grep(~/cookie: .*/)\ndef result = [0]\n\nif (line.size == 1)\n{\n    def groups = line[0] =~ /cookie: (.*)/\n    if (groups[0].size == 2) \n    {\n        // split the cookies\n        def cookies = groups[0][1].split(\";\");\n\n        // checking for s cookie uuid\n        def scookie = cookies.grep(~/\\s*s=[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}/)\n        if (scookie.size != 1)\n        {\n            result[0] = 1\n            result[result.size()] = \"S cookie missing\"\n        }\n        \n        // checking for b cookie\n        def bcookie = cookies.grep(~/\\s*b=[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}/)\n        if (bcookie.size != 1)\n        {\n            result[0] = 1\n            result[result.size()] = \"B cookie missing\"\n        }\n    }\n} else {\n    result[0] = 1\n    result[1] = \"B and S cookie missing\"\n}\n\nreturn result"
+  } ]
 }
