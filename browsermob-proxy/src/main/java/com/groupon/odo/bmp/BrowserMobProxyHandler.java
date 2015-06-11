@@ -226,6 +226,7 @@ package com.groupon.odo.bmp;
 
 import com.groupon.odo.proxylib.Constants;
 
+import com.groupon.odo.proxylib.ServerRedirectService;
 import java.io.File;
 import java.io.IOException;
 import java.net.BindException;
@@ -601,6 +602,11 @@ public class BrowserMobProxyHandler extends SeleniumProxyHandler {
 
             Request.Builder okRequestBuilder = new Request.Builder();
 
+            if (urlStr.startsWith("http://")) {
+                int httpPort = com.groupon.odo.proxylib.Utils.getSystemPort(Constants.SYS_HTTP_PORT);
+                urlStr = urlStr.replace(getHostNameFromURL(urlStr), "127.0.0.1:" + httpPort);
+            }
+
             okRequestBuilder = okRequestBuilder.url(urlStr);
 
             // copy request headers
@@ -832,6 +838,26 @@ public class BrowserMobProxyHandler extends SeleniumProxyHandler {
                 }
             }
         }
+    }
+
+    /**
+     * @param url full url containing hostname
+     * @return hostname
+     */
+    public static String getHostNameFromURL(String url) {
+        int urlLeftPos = url.indexOf("//");
+        String hostName = url.substring(urlLeftPos + 2);
+        int urlRightPos = hostName.indexOf("/");
+        if (urlRightPos != -1) {
+            hostName = hostName.substring(0, urlRightPos);
+        }
+        // now look for a port
+        int portPos = hostName.indexOf(":");
+        if (portPos != -1) {
+            hostName = hostName.substring(0, portPos);
+        }
+
+        return hostName;
     }
     // END ODO CHANGES
 }
