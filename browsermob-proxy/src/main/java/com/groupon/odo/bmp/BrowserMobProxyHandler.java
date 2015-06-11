@@ -289,6 +289,7 @@ public class BrowserMobProxyHandler extends SeleniumProxyHandler {
 
     private static final int HEADER_BUFFER_DEFAULT = 2;
     private static final long serialVersionUID = 1L;
+    private final String localIP = "127.0.0.1";
 
     private Server jettyServer;
     private int headerBufferMultiplier = HEADER_BUFFER_DEFAULT;
@@ -604,7 +605,7 @@ public class BrowserMobProxyHandler extends SeleniumProxyHandler {
 
             if (urlStr.startsWith("http://")) {
                 int httpPort = com.groupon.odo.proxylib.Utils.getSystemPort(Constants.SYS_HTTP_PORT);
-                urlStr = urlStr.replace(getHostNameFromURL(urlStr), "127.0.0.1:" + httpPort);
+                urlStr = urlStr.replace(getHostNameFromURL(urlStr), localIP + ":" + httpPort);
             }
 
             okRequestBuilder = okRequestBuilder.url(urlStr);
