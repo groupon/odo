@@ -173,6 +173,7 @@
                     {
                     }
                 );
+                groupsList.jqGrid('gridResize');
 
 
 
@@ -243,6 +244,7 @@
                     {},
                     {}
                 );
+                membersList.jqGrid('gridResize');
 
             });
 

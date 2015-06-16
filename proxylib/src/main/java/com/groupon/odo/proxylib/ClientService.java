@@ -144,9 +144,11 @@ public class ClientService {
      * @throws Exception
      */
     public Client findClient(String clientUUID, Integer profileId) throws Exception {
+        logger.info("HELLOOOOOOOOOOOOOOOOOOOOooooooš", "TIFFANY");
         Client client = null;
 
         // first see if the clientUUID is actually a uuid.. it might be a friendlyName and need conversion
+        /* A UUID IS A UNIVERSALLY UNIQUE IDENTIFIER. */
         if (clientUUID.compareTo(Constants.PROFILE_CLIENT_DEFAULT_ID) != 0 &&
             !clientUUID.matches("[\\w]{8}-[\\w]{4}-[\\w]{4}-[\\w]{4}-[\\w]{12}")) {
             Client tmpClient = this.findClientFromFriendlyName(profileId, clientUUID);
