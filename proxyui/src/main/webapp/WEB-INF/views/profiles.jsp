@@ -21,6 +21,7 @@
         }
 
         //for now just opens up a new window. dont know if we will want more in the future
+        /* THIS IS CALLED TO GO TO THE CORRECT "EDIT PROFILE" PAGE.*/
         function editProfile(profile_id){
             window.location = "edit/" + profile_id;
         }
@@ -36,11 +37,14 @@
             return cellvalue;
         }
 
-        // formater for the name column
+        // formatter for the name column
         function nameFormatter( cellvalue, options, rowObject ) {
-            var cellContents = '<div class="ui-state-default ui-corner-all" style="float:right" title="Edit Profile" onClick="editProfile(' + currentProfileId + ')">';
+            /*var cellContents = '<div class="ui-state-default ui-corner-all" style="float:right" title="Edit Profile" onClick="editProfile(' + currentProfileId + ')">';
             cellContents +=	'<span class="ui-icon ui-icon-carat-1-e"></span></div>';
-            cellContents += '<div>' + cellvalue + '</div>';
+            cellContents += '<div>' + cellvalue + '</div>';*/
+            var cellContents = '<div class="ui-state-default" title="Edit Profile" onClick="editProfile(' + currentProfileId + ')">';
+            cellContents += '<div><span class="ui-icon ui-icon-carat-1-e" style="float:right"></span></div>';
+            cellContents += '<div>' + cellvalue + '</div></div>'
             return cellContents;
         }
 
@@ -74,6 +78,8 @@
             .jqGrid({
                 url : '<c:url value="/api/profile"/>',
                 autowidth : false,
+                multiselect: true,
+                multiboxonly: true,
                 rowList : [], // disable page size dropdown
                 pgbuttons : false, // disable page control like next, back button
                 pgtext : null,
@@ -135,11 +141,14 @@
                 mtype: 'DELETE',
                 reloadAfterSubmit:true,
                 onclickSubmit: function(rp_ge, postdata) {
-                      rp_ge.url = '<c:url value="/api/profile/"/>' +
-                                  $('#profilelist').getCell (postdata, 'id');
+                        rp_ge.url = '<c:url value="/api/profile/"/>' +
+                                $('#profilelist').getCell(postdata, 'id');
+
                   }
             });
+            profileList.jqGrid('gridResize');
         });
+
 
         function exportConfiguration() {
             downloadFile('<c:url value="/api/backup"/>');

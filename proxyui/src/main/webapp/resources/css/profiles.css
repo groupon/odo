@@ -5,7 +5,7 @@ th {height:40px;text-align:center;background-color:green;color:white;}
 td {text-align:center;height:40px;vertical-align:bottom;}
 newProfileButton{height:400px;font-size:14pt;}
 .container {width:80%;margin:30px auto}
-input[type="button"], input[type="submit"] { 
+input[type="button"], input[type="submit"], input[type="checkbox"] {
     color:white;
     background-color:green; 
     border:1px solid; 
