@@ -78,6 +78,8 @@
             .jqGrid({
                 url : '<c:url value="/api/profile"/>',
                 autowidth : false,
+                sortable:true,
+                sorttext:true,
                 multiselect: true,
                 multiboxonly: true,
                 rowList : [], // disable page size dropdown
@@ -85,6 +87,7 @@
                 pgtext : null,
                 cellEdit : true,
                 datatype : "json",
+
                 colNames : [ 'ID', 'Profile Name', 'Name'],
                 colModel : [ {
                     name : 'id',
@@ -101,10 +104,14 @@
                     hidden : true
                 }, {
                     name : 'name',
-                    index : 'displayProfileName',
+                    index : 'name',//'displayProfileName',
                     width : 400,
                     editable : false,
-                    formatter: nameFormatter
+                    formatter: nameFormatter,
+                    sortable:true,
+                    //sorttype:function(){
+                     //
+                    //}
                 }],
                 jsonReader : {
                     page : "page",
@@ -119,7 +126,10 @@
                 sortname : 'id',
                 viewrecords : true,
                 sortorder : "desc",
-                caption : 'Profiles'
+                caption : 'Profiles',
+                sorttype: function(cell){
+                    return profileList.jqGrid('getCell', cell,'Name');
+                }
             });
             profileList.jqGrid('navGrid', '#profilenavGrid', {
                 edit : false,

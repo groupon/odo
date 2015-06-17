@@ -655,11 +655,14 @@
                         }
                     },
                     {});
-            serverGroupList.jqGrid('gridResize')
+            serverGroupList.jqGrid('gridResize');
+
+
             var grid = $("#packages");
             grid.jqGrid({
                 autowidth: false,
                 caption: "Paths",
+                pgtext : null,
                 cellurl : '<c:url value="/api/path?profileIdentifier=${profile_id}&clientUUID=${clientUUID}"/>',
                 colModel: [
                     { name: 'pathId', index: 'pathId', width: "20", hidden: true},
