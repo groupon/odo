@@ -134,10 +134,19 @@ public class ProfileController {
 
         logger.info("Attempting to remove {}", profileIdentifier);
 
-        Integer profileId = ControllerUtils.convertProfileIdentifier(profileIdentifier);
-        logger.info("Want to (preRemove) DELETE on id {}", profileId);
-        // TODO: make this remove all clients etc for a profile
-        profileService.remove(profileId);
+        /* SPLIT THE PATHVARIABLE INTO EACH THING THAT NEEDS TO BE DELETED.*/
+        String[] toRemove = profileIdentifier.split(",");
+
+        /* FOR EVERYTHING THAT NEEDS TO BE DELETED,
+            DELETE IT.
+         */
+        for( int i = 0; i < toRemove.length; i++ ) {
+            Integer profileId = ControllerUtils.convertProfileIdentifier(toRemove[i]);
+            logger.info("Want to (preRemove) DELETE on id {}", profileId);
+            // TODO: make this remove all clients etc for a profile
+            profileService.remove(profileId);
+        }
+
         return Utils.getJQGridJSON(profileService.findAllProfiles(), "profiles");
     }
 

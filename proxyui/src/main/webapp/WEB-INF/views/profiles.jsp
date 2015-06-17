@@ -119,13 +119,7 @@
                 sortname : 'id',
                 viewrecords : true,
                 sortorder : "desc",
-                caption : 'Profiles',
-                // code from http://stackoverflow.com/questions/6756131/jqgrid-single-select-checkbox
-                beforeSelectRow: function(rowid, e)
-                {
-                    profileList.jqGrid('resetSelection');
-                    return(true);
-                }
+                caption : 'Profiles'
             });
             profileList.jqGrid('navGrid', '#profilenavGrid', {
                 edit : false,
@@ -146,9 +140,24 @@
                 url: '<c:url value="/api/profile/"/>',
                 mtype: 'DELETE',
                 reloadAfterSubmit:true,
-                onclickSubmit: function(rp_ge, postdata) {
-                        rp_ge.url = '<c:url value="/api/profile/"/>' +
-                                $('#profilelist').getCell(postdata, 'id');
+                onclickSubmit: function(rp_ge, postdata) { /* CODE CHANGED TO ALLOW FOR MULTISELECTION*/
+                    /* SPLIT THE DATA INTO EACH THING THAT NEEDS TO BE DELETED.*/
+                    var data = postdata.split(",");
+
+                    rp_ge.url = '<c:url value="/api/profile/"/>';
+
+                    /* FOR EVERYTHING THAT NEEDS TO BE DELETED
+                        ADD THE CELL DATA INTO THE URL.
+                     */
+                    for( var i = 0; i < data.length; i++ ) {
+                        if( i == data.length - 1 ) {
+                            rp_ge.url = rp_ge.url + $('#profilelist').getCell(data[i], 'id');
+                        }
+                        else
+                        {
+                            rp_ge.url = rp_ge.url + $('#profilelist').getCell(data[i], 'id') + ",";
+                        }
+                    }
 
                   }
             });
