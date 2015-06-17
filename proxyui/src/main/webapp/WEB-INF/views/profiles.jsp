@@ -119,7 +119,13 @@
                 sortname : 'id',
                 viewrecords : true,
                 sortorder : "desc",
-                caption : 'Profiles'
+                caption : 'Profiles',
+                // code from http://stackoverflow.com/questions/6756131/jqgrid-single-select-checkbox
+                beforeSelectRow: function(rowid, e)
+                {
+                    profileList.jqGrid('resetSelection');
+                    return(true);
+                }
             });
             profileList.jqGrid('navGrid', '#profilenavGrid', {
                 edit : false,
