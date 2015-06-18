@@ -144,8 +144,15 @@ public class ClientService {
      * @throws Exception
      */
     public Client findClient(String clientUUID, Integer profileId) throws Exception {
-        logger.info("HELLOOOOOOOOOOOOOOOOOOOOooooooš", "TIFFANY");
         Client client = null;
+        /* ERROR CODE: 500 WHEN TRYING TO DELETE A SERVER GROUP.
+            THIS APPEARS TO BE BECAUSE CLIENT UUID IS NULL.
+         */
+        /* CODE ADDED TO PREVENT NULL POINTERS. */
+        if(clientUUID == null)
+        {
+            clientUUID = "";
+        }
 
         // first see if the clientUUID is actually a uuid.. it might be a friendlyName and need conversion
         /* A UUID IS A UNIVERSALLY UNIQUE IDENTIFIER. */

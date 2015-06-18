@@ -39,9 +39,6 @@
 
         // formatter for the name column
         function nameFormatter( cellvalue, options, rowObject ) {
-            /*var cellContents = '<div class="ui-state-default ui-corner-all" style="float:right" title="Edit Profile" onClick="editProfile(' + currentProfileId + ')">';
-            cellContents +=	'<span class="ui-icon ui-icon-carat-1-e"></span></div>';
-            cellContents += '<div>' + cellvalue + '</div>';*/
             var cellContents = '<div class="ui-state-default" title="Edit Profile" onClick="editProfile(' + currentProfileId + ')">';
             cellContents += '<div><span class="ui-icon ui-icon-carat-1-e" style="float:right"></span></div>';
             cellContents += '<div>' + cellvalue + '</div></div>'
@@ -108,10 +105,7 @@
                     width : 400,
                     editable : false,
                     formatter: nameFormatter,
-                    sortable:true,
-                    //sorttype:function(){
-                     //
-                    //}
+                    sortable:true
                 }],
                 jsonReader : {
                     page : "page",
@@ -144,30 +138,32 @@
                     $('#tr_name', form).show();
                 },
                 reloadAfterSubmit: true,
+                closeAfterAdd:true,
+                closeAfterEdit:true,
                 width: 400
             },
             {
-                url: '<c:url value="/api/profile/"/>',
-                mtype: 'DELETE',
+                url: '<c:url value="/api/profile/delete"/>',
+                mtype: 'POST',
                 reloadAfterSubmit:true,
                 onclickSubmit: function(rp_ge, postdata) { /* CODE CHANGED TO ALLOW FOR MULTISELECTION*/
-                    /* SPLIT THE DATA INTO EACH THING THAT NEEDS TO BE DELETED.*/
-                    var data = postdata.split(",");
-
-                    rp_ge.url = '<c:url value="/api/profile/"/>';
-
-                    /* FOR EVERYTHING THAT NEEDS TO BE DELETED
-                        ADD THE CELL DATA INTO THE URL.
+                    /* IDS GIVEN IN AS A STRING SEPARATED BY COMMAS.
+                     SEPARATE INTO AN ARRAY.
                      */
-                    for( var i = 0; i < data.length; i++ ) {
-                        if( i == data.length - 1 ) {
-                            rp_ge.url = rp_ge.url + $('#profilelist').getCell(data[i], 'id');
-                        }
-                        else
-                        {
-                            rp_ge.url = rp_ge.url + $('#profilelist').getCell(data[i], 'id') + ",";
-                        }
+                    var rowids = postdata.split(",");
+
+                    /* FOR EVERY ROW ID TO BE DELETED,
+                     GET THE CORRESPONDING PROFILE ID.
+                     */
+                    var params = "";
+                    for( var i = 0; i < rowids.length; i++) {
+                        var odoId = $(this).jqGrid('getCell', rowids[i], 'id');
+                        params += "profileIdentifier=" + odoId + "&";
+
                     }
+
+                    rp_ge.url = '<c:url value="/api/profile/delete"/>?' +
+                            params;
 
                   }
             });
@@ -197,21 +193,6 @@
         }
 
         window.onload = function () {
-            /* CODE FROM:
-                http://www.trirand.com/blog/?page_id=393/feature-request/submitting-addeditsearch-on-enter-key
-             */
-            $.extend($.jgrid.edit, {
-                // ... some other default which you use
-                onInitializeForm: function ($form) {
-                    $("td.DataTD>.FormElement", $form).keypress(function (e) {
-                        if (e.which === $.ui.keyCode.ENTER) {
-                            $("#sData", $form.next()).trigger("click");
-                            return false;
-                        }
-                    });
-                }
-            });
-
             // Adapted from: http://blog.teamtreehouse.com/uploading-files-ajax
             document.getElementById('configurationUploadForm').onsubmit = function(event) {
                 event.preventDefault();
@@ -227,7 +208,7 @@
                   } else {
                     $("#statusNotificationStateDiv").removeClass("ui-state-highlight");
                     $("#statusNotificationStateDiv").addClass("ui-state-error");
-                    $("#statusNotificationText").html("An error occured while uploading configuration...");
+                    $("#statusNotificationText").html("An error occurred while uploading configuration...");
 
                     // enable form buttons
                     $(":button:contains('Submit')").prop("disabled", false).removeClass("ui-state-disabled");

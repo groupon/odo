@@ -76,6 +76,12 @@
         var clientUUID = '${clientUUID}';
         var currentPathId = -1;
         var editServerGroupId = 0;
+
+        function navigateHelp()
+        {
+            window.open("https://github.com/groupon/odo/wiki", "_blank");
+        }
+
         function navigateEditGroups() {
             window.open('<c:url value = '/group' />', "_blank");
         }
@@ -437,7 +443,8 @@
         }
         $(document).ready(function () {
             // turn on tooltips
-            $("#resetProfileButton").tooltip()
+            $("#resetProfileButton").tooltip();
+            $("#helpButton").tooltip();
             $.ajax({
                 type : "GET",
                 url : '<c:url value="/api/profile/${profile_id}/clients/"/>' + $.cookie("UUID"),
@@ -564,6 +571,8 @@
                     {
                         url: '<c:url value="/api/edit/server"/>?profileId=${profile_id}&clientUUID=${clientUUID}',
                         reloadAfterSubmit: false,
+                        closeAfterAdd:true,
+                        closeAfterEdit:true,
                         width: 400,
                         afterSubmit: function () {
                             reloadGrid("#serverlist");
@@ -645,6 +654,8 @@
                     {
                         mtype: 'DELETE',
                         reloadAfterSubmit: false,
+                        closeAfterAdd:true,
+                        closeAfterEdit:true,
                         afterSubmit: function () {
                             reloadGrid("#serverGroupList");
                             return [true];
@@ -756,6 +767,7 @@
                         reloadAfterSubmit: true,
                         width: 460,
                         closeAfterAdd: true,
+                        closeAfterEdit:true,
                         errorTextFormat: function (data) {
                             console.log(data);
                             return data.responseText;
@@ -1463,6 +1475,12 @@
                         data-toggle="tooltip" data-placement="bottom" title="Click here to reset all path settings in this profile.">Reset Profile</button>
             </div>
             <div id="status" class="form-group navbar-form navbar-left" ></div>
+            <!--  TO FIND HELP -->
+            <div class="form-group navbar-form navbar-left">
+                <button is="helpButton" class="btn btn-info" onclick="navigateHelp()"
+                        target="_blank" data-toggle="tooltip" data-placement="bottom" title="Click here to read the wiki.">Need help?</button>
+            </div>
+
             <ul id="clientInfo" class="nav navbar-nav navbar-right">
             </ul>
         </div>
@@ -1475,19 +1493,21 @@
         <div id="servernavGrid"></div>
     </div>
 
-    <!-- div for top bar notice -->
-    <div class="ui-widget" id="statusNotificationDiv" style="display: none;" onClick="dismissStatusNotificationDiv()">
-        <div class="ui-state-highlight ui-corner-all" style="margin-top: 10px;  margin-bottom: 10px; padding: 0 .7em;">
-            <p style="margin-top: 10px; margin-bottom:10px;"><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
-                <span id="statusNotificationText"/></p>
-        </div>
-    </div>
-
     <div>
         <table id="packages">
             <tr><td></td></tr>
         </table>
         <div id="packagePager" >
+        </div>
+    </div>
+
+    <!-- div for top bar notice -->
+    <!-- MOVED TO BOTTOM SO IT DOESN'T AFFECT THE TABLE POSITION AFTER CREATING NEW ROW
+        SO YOU CAN SELECT "RESPONSE" OR "REQUEST" RIGHT AWAY WITHOUT MISSING IT ON ACCIDENT BECAUSE IT'S MOVED -->
+    <div class="ui-widget" id="statusNotificationDiv" style="display: none;" onClick="dismissStatusNotificationDiv()">
+        <div class="ui-state-highlight ui-corner-all" style="margin-top: 10px;  margin-bottom: 10px; padding: 0 .7em;">
+            <p style="margin-top: 10px; margin-bottom:10px;"><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
+                <span id="statusNotificationText"/></p>
         </div>
     </div>
 </div>
