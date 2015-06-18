@@ -663,8 +663,6 @@
                 autowidth: false,
                 caption: "Paths",
                 pgtext : null,
-                //multiselect:true,
-                //multiboxonly:true,
                 cellurl : '<c:url value="/api/path?profileIdentifier=${profile_id}&clientUUID=${clientUUID}"/>',
                 colModel: [
                     { name: 'pathId', index: 'pathId', width: "20", hidden: true},

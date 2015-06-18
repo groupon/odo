@@ -39,9 +39,6 @@
 
         // formatter for the name column
         function nameFormatter( cellvalue, options, rowObject ) {
-            /*var cellContents = '<div class="ui-state-default ui-corner-all" style="float:right" title="Edit Profile" onClick="editProfile(' + currentProfileId + ')">';
-            cellContents +=	'<span class="ui-icon ui-icon-carat-1-e"></span></div>';
-            cellContents += '<div>' + cellvalue + '</div>';*/
             var cellContents = '<div class="ui-state-default" title="Edit Profile" onClick="editProfile(' + currentProfileId + ')">';
             cellContents += '<div><span class="ui-icon ui-icon-carat-1-e" style="float:right"></span></div>';
             cellContents += '<div>' + cellvalue + '</div></div>'
@@ -108,10 +105,7 @@
                     width : 400,
                     editable : false,
                     formatter: nameFormatter,
-                    sortable:true,
-                    //sorttype:function(){
-                     //
-                    //}
+                    sortable:true
                 }],
                 jsonReader : {
                     page : "page",
