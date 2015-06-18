@@ -663,6 +663,8 @@
                 autowidth: false,
                 caption: "Paths",
                 pgtext : null,
+                //multiselect:true,
+                //multiboxonly:true,
                 cellurl : '<c:url value="/api/path?profileIdentifier=${profile_id}&clientUUID=${clientUUID}"/>',
                 colModel: [
                     { name: 'pathId', index: 'pathId', width: "20", hidden: true},
@@ -727,7 +729,7 @@
                 },
                 height: "100%",
                 ignoreCase: true,
-                loadonce: true,
+                loadonce: false,
                 onSelectRow: function (id) {
                     var data = jQuery("#packages").jqGrid('getRowData',id);
                     currentPathId = data.pathId;
@@ -743,7 +745,7 @@
                 sortname : 'id',
                 sortorder : "desc",
                 url : '<c:url value="/api/path?profileIdentifier=${profile_id}&clientUUID=${clientUUID}"/>',
-                viewrecords: true,
+                viewrecords: true
             });
             grid.jqGrid('navGrid', '#packagePager',
                     { add: true, edit: false, del: true, search: false },
@@ -751,7 +753,7 @@
                     {
                         // Add path
                         url: '<c:url value="/api/path"/>?profileIdentifier=${profile_id}',
-                        reloadAfterSubmit: false,
+                        reloadAfterSubmit: true,
                         width: 460,
                         closeAfterAdd: true,
                         errorTextFormat: function (data) {
