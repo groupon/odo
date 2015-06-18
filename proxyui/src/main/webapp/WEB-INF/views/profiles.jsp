@@ -197,21 +197,6 @@
         }
 
         window.onload = function () {
-            /* CODE FROM:
-                http://www.trirand.com/blog/?page_id=393/feature-request/submitting-addeditsearch-on-enter-key
-             */
-            $.extend($.jgrid.edit, {
-                // ... some other default which you use
-                onInitializeForm: function ($form) {
-                    $("td.DataTD>.FormElement", $form).keypress(function (e) {
-                        if (e.which === $.ui.keyCode.ENTER) {
-                            $("#sData", $form.next()).trigger("click");
-                            return false;
-                        }
-                    });
-                }
-            });
-
             // Adapted from: http://blog.teamtreehouse.com/uploading-files-ajax
             document.getElementById('configurationUploadForm').onsubmit = function(event) {
                 event.preventDefault();
