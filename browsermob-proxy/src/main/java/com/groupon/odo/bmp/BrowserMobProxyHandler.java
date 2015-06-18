@@ -603,7 +603,11 @@ public class BrowserMobProxyHandler extends SeleniumProxyHandler {
 
             Request.Builder okRequestBuilder = new Request.Builder();
 
-            if (urlStr.startsWith("http://")) {
+            /*
+             * urlStr.indexOf(":") == urlStr.lastIndexOf(":") verifies that the url does not have a port
+             * by checking it only has a : as part of http://
+             */
+            if (urlStr.startsWith("http://") && urlStr.indexOf(":") == urlStr.lastIndexOf(":")) {
                 int httpPort = com.groupon.odo.proxylib.Utils.getSystemPort(Constants.SYS_HTTP_PORT);
                 urlStr = urlStr.replace(getHostNameFromURL(urlStr), localIP + ":" + httpPort);
             }
