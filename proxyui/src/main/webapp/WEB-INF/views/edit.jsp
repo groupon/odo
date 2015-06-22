@@ -1,4 +1,3 @@
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml">
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
@@ -22,7 +21,6 @@
                 margin: 12px;
                 padding: 8px;
             }
-
             .detailsRight
             {
                 width: 50%;
@@ -30,53 +28,44 @@
                 margin: 12px;
                 margin-left: 0px;
             }
-
             .overrideParameters
             {
                 padding: 12px;
             }
-
             #details
             {
                 position:fixed;
                 margin-left: 570px;
                 width:100%;
             }
-
             #listContainer
             {
                 min-width: 400px;
                 float: left;
             }
-
             #editDiv {
-                width: 60%;
+            width: 45%;
                 display:none;
             }
-
             #serverEdit {
                 width: 60%;
                 display:none;
             }
-
             /* This changes the color of the active pill */
             .nav-pills>li.active>a, .nav-pills>li.active>a:hover, .nav-pills>li.active>a:focus {
                 background-color:#e9e9e9 !important;
                 color: black !important;
             }
-
             /* This changes the color of the inactive pills */
             .nav-pills>li>a {
                 background-color:#767676 !important;
                 color: black !important;
             }
-
             /* This changes the color of the inactive pills */
             .nav-pills>li>a:hover, .nav-pills>li>a:focus {
                 background-color:#696969 !important;
                 color: black !important;
             }
-
         </style>
 
         <script type="text/javascript">
@@ -84,24 +73,24 @@
             $.jgrid.useJSON = true;
         </script>
         <script type="text/javascript">
-
             var clientUUID = '${clientUUID}';
             var currentPathId = -1;
             var editServerGroupId = 0;
 
+        function navigateHelp()
+        {
+            window.open("https://github.com/groupon/odo/wiki", "_blank");
+        }
 
             function navigateEditGroups() {
                 window.open('<c:url value = '/group' />', "_blank");
             }
-
             function navigateRequestHistory() {
                 window.open('<c:url value='/history/${profile_id}'/>?clientUUID=${clientUUID}', "_blank");
             }
-
             function navigateProfiles() {
                 window.location = '<c:url value='/profiles'/>';
             }
-
             function navigatePathPriority() {
                 window.location = '<c:url value = '/pathorder/${profile_id}'/>';
             }
@@ -109,11 +98,9 @@
             function navigateRequestHistory() {
                 window.open('<c:url value='/history/${profile_id}'/>?clientUUID=${clientUUID}', "_blank");
             }
-
             function navigateProfiles() {
                 window.location = '<c:url value='/profiles'/>';
             }
-
             function updateStatus() {
                 var status = $("#status");
                 if (${isActive} == true) {
@@ -121,7 +108,6 @@
                 } else {
                     status.html('<button id="make_active" class="btn btn-danger" onclick="changeActive(\'true\')">Activate Profile</button>');
                 }
-
                 // set client ID information
                 var clientInfo = $("#clientInfo");
                 var clientInfoHTML = "";
@@ -130,22 +116,18 @@
                 } else {
                     clientInfoHTML = "<li class='dropdown'><a href='#' class='dropdown-toggle' data-toggle='dropdown'>Client UUID: " + clientUUID + "<span class='caret'></span></a><ul class='dropdown-menu'>";
                 }
-
                 //if ("${clientFriendlyName}" != "")
                 //    clientInfoHTML += "(${clientFriendlyName})";
-
                 clientInfoHTML += '  <li><a href="#" onclick="changeClientPopup()">Change Client</a></li>';
                 clientInfoHTML += '  <li><a href="#" onclick="changeClientFriendlyNamePopup()">Set Friendly Name</a></li>';
                 clientInfoHTML += '  <li><a href="#" onclick="manageClients()">Manage Clients</a></li>';
                 clientInfoHTML += '</ul></li>'
                 clientInfo.html(clientInfoHTML);
             }
-
             function manageClients() {
                 var url = '<c:url value="/edit/${profile_id}/clients"/>';
                 window.location.href = url;
             }
-
             function changeClientFriendlyNamePopup() {
                 $("#changeClientFriendlyNameDialog").dialog({
                     title: "Set Client Friendly Name For: ${profile_name}",
@@ -168,7 +150,6 @@
                     $("#changeClientFriendlyNameDialog").dialog("close");
                     return;
                 }
-
                 $.ajax({
                     type:"POST",
                     url: '<c:url value="/api/profile/${profile_id}/clients/${clientUUID}"/>',
@@ -185,11 +166,9 @@
                         } catch(e) {
                             $("#friendlyNameError").html("An unknown error occurred");
                         }
-
                     }
                 });
             }
-
             function changeClientPopup() {
                 $("#switchClientDialog").dialog({
                     title: "Switch Client For: ${profile_name}",
@@ -206,14 +185,12 @@
                 });
                 $("#switchClientName").select();
             }
-
             function changeClientSubmit() {
                 $.removeCookie("UUID", { expires: 10000, path: '/testproxy/' });
                 var value = $('#switchClientName').val();
                 var url = '<c:url value="/edit/${profile_id}"/>?clientUUID=' + value;
                 window.location.href = url;
             }
-
             function changeActive(value){
                 $.ajax({
                     type:"POST",
@@ -224,10 +201,8 @@
                     }
                 });
             }
-
             function resetProfile(){
                 var active = ${isActive};
-
                 $.ajax({
                     type:"POST",
                     url: '<c:url value="/api/profile/${profile_id}/clients/${clientUUID}"/>',
@@ -244,18 +219,15 @@
                     }
                 });
             }
-
             function deleteServer(id) {
                 $.ajax({
                     type: 'POST',
                     url: '<c:url value="/api/edit/server/"/>' + id,
                     data: ({_method: 'DELETE'}),
                     success: function(){
-
                     }
                 });
             }
-
             // This overrides the jgrid delete button to be more REST friendly
             $.extend($.jgrid.del, {
                 mtype: "DELETE",
@@ -266,7 +238,6 @@
                     params.url += '/' + encodeURIComponent(postdata);
                 }
             });
-
             function requestTypeFormatter( cellvalue, options, rowObject ) {
                 if (cellvalue == 0) {
                     return "ALL";
@@ -280,11 +251,9 @@
                     return "DELETE";
                 }
             }
-
             // Keeps the list of pills updated
             function updateDetailPills() {
                 var pathToLoad = currentPathId;
-
                 // first get the data of all of the existing pills
                 // this will be used to mark which pills are kept/deleted
                 var existingPills = [];
@@ -293,22 +262,18 @@
                     var id = $(this).attr("id");
                     existingPills[existingPills.length] = id;
                 });
-
                 // look through the overrides list to see which are enabled/active
                 var ids = jQuery("#packages").jqGrid('getDataIDs');
                 for (var i = 0; i < ids.length; i++) {
                     var rowdata = $("#packages").getRowData(ids[i]);
-
                     // check to see if response or request is enabled
                     // or if this is the currently selected row
                     if ($("#request_enabled_" + rowdata.pathId).prop("checked") === true ||
                         $("#response_enabled_" + rowdata.pathId).prop("checked") === true ||
                         rowdata.pathId === currentPathId) {
-
                         if (pathToLoad === -1) {
                             pathToLoad = rowdata.pathId;
                         }
-
                         if ($.inArray(rowdata.pathId, existingPills) !== -1) {
                             // mark as seen in the existingpills array
                             // since it exists we don't need to add it
@@ -319,41 +284,33 @@
                         }
                     }
                 }
-
                 // remove tabs that should no longer exist
                 // at this poing the existingPills list is just the pills that need to be removed
                 for (var x = 0; x < existingPills.length; x++) {
                     if (existingPills[x] !== -1) {
                         //console.log(existingPills[x]);
                         $("#nav").find("#" + existingPills[x]).remove();
-
                         // reset pathToLoad if it is equal to the removed path
                         if (pathToLoad === existingPills[x]) {
                             pathToLoad = -1;
                         }
                     }
                 }
-
                 // make all pills non-active
                 $(".nav-pills>li").removeClass("active")
-
                 // make the currently selected pill active
                 $("#nav").find("#" + pathToLoad).addClass("active");
-
                 // register click events on all of the nav pills to load the appropriate detail data
                 $('.nav-pills > li > a').click( function() {
                     loadPath($(this).parent().attr("id"));
                 });
-
                 // load the currently selected path data
                 loadPath(pathToLoad);
             }
-
             // common function for grid reload
             function reloadGrid(gridId) {
                 jQuery(gridId).setGridParam({datatype:'json', page:1}).trigger("reloadGrid");
             }
-
             function responseEnabledFormatter( cellvalue, options, rowObject ) {
                 var checkedValue = 0;
                 if (cellvalue == true) {
@@ -366,18 +323,15 @@
                 newCellValue += '>';
                 return newCellValue;
             }
-
             function responseEnabledChanged(element) {
                 var id = element.id;
                 var pathId = element.id.substring(17, element.id.length);
-
                 var enabled = element.checked;
                 if (enabled == true) {
                     enabled = 1;
                 } else {
                     enabled = 0;
                 }
-
                 var type = type + 'Enabled';
                 $.ajax({
                     type:"POST",
@@ -391,7 +345,6 @@
                     }
                 });
             }
-
             function requestEnabledFormatter( cellvalue, options, rowObject ) {
                 var checkedValue = 0;
                 if (cellvalue == true) {
@@ -404,18 +357,15 @@
                 newCellValue += '>';
                 return newCellValue;
             }
-
             function requestEnabledChanged(element) {
                 var id = element.id;
                 var pathId = element.id.substring(16, element.id.length);
-
                 var enabled = element.checked;
                 if (enabled == true) {
                     enabled = 1;
                 } else {
                     enabled = 0;
                 }
-
                 var type = type + 'Enabled';
                 $.ajax({
                     type:"POST",
@@ -429,21 +379,17 @@
                     }
                 });
             }
-
             function getRequestTypes() {
                 return "0:ALL;1:GET;2:PUT;3:POST;4:DELETE";
             }
-
             var currentServerId = -1;
             function serverIdFormatter( cellvalue, options, rowObject ) {
                 currentServerId = cellvalue;
                 return cellvalue;
             }
-
             // called when an enabled checkbox is changed
             function serverEnabledChanged(id) {
                 var enabled = $("#serverEnabled_" + id).is(":checked");
-
                 $.ajax({
                     type:"POST",
                     url: '<c:url value="/api/edit/server/"/>' + id,
@@ -453,37 +399,28 @@
                     },
                     error: function(xhr) {
                         document.getElementById("serverEnabled_" + id).checked = origEnabled;
-
                         alert("Error updating host entry.  Please make sure the hostsedit RMI server is running");
                     }
                 });
             }
-
             // formats the enable/disable check box
             function serverEnabledFormatter( cellvalue, options, rowObject ) {
                 var checkedValue = 0;
                 if (cellvalue == true) {
                     checkedValue = 1;
                 }
-
                 var newCellValue = '<input id="serverEnabled_' + currentServerId + '" onChange="serverEnabledChanged(' + currentServerId + ')" type="checkbox" offval="0" value="' + checkedValue + '"';
-
                 if (checkedValue == 1) {
                     newCellValue += 'checked="checked"';
                 }
-
                 newCellValue += '>';
-
                 return newCellValue;
             }
-
             // format button to download a server certificate
             function certDownloadButtonFormatter(cellvalue, options, rowObject) {
                 var format = "<button type='button' class='btn btn-xs' onclick='downloadCert(\"" + rowObject.srcUrl + "\")'><span class='glyphicon glyphicon-download'></span></button>";
                 return format;
             }
-
-
             function downloadCert(serverHost) {
                 window.location = '<c:url value="/cert/"/>' + serverHost;
             }
@@ -504,10 +441,10 @@
             	}
             	return cellvalue;
             }
-
             $(document).ready(function () {
                 // turn on tooltips
-                $("#resetProfileButton").tooltip()
+            $("#resetProfileButton").tooltip();
+            $("#helpButton").tooltip();
                 $.ajax({
                     type : "GET",
                     url : '<c:url value="/api/profile/${profile_id}/clients/"/>' + $.cookie("UUID"),
@@ -526,11 +463,9 @@
                     }
                 });
                 'use strict';
-
                 updateStatus();
                 $("#responseOverrideSelect").select2({dropdownAutoWidth : true});
                 $("#requestOverrideSelect").select2({dropdownAutoWidth : true});
-
                 var serverList = jQuery("#serverlist");
                 serverList.jqGrid({
                     autowidth : false,
@@ -636,6 +571,8 @@
                 {
                     url: '<c:url value="/api/edit/server"/>?profileId=${profile_id}&clientUUID=${clientUUID}',
                     reloadAfterSubmit: false,
+                        closeAfterAdd:true,
+                        closeAfterEdit:true,
                     width: 400,
                     afterSubmit: function () {
                         reloadGrid("#serverlist");
@@ -651,7 +588,7 @@
                         return [true];
                     }
                 });
-
+            serverList.jqGrid('gridResize');
                 var serverGroupList = jQuery("#serverGroupList");
                 serverGroupList.jqGrid({
                     autowidth : false,
@@ -698,7 +635,6 @@
                     url : '<c:url value="/api/servergroup?profileId=${profile_id}"/>',
                     viewrecords : true
                 });
-
                 serverGroupList.jqGrid('navGrid', '#serverGroupNavGrid', {
                     edit : false,
                     add : true,
@@ -718,6 +654,8 @@
                 {
                     mtype: 'DELETE',
                     reloadAfterSubmit: false,
+                        closeAfterAdd:true,
+                        closeAfterEdit:true,
                     afterSubmit: function () {
                         reloadGrid("#serverGroupList");
                         return [true];
@@ -728,11 +666,15 @@
                     }
                 },
                 {});
+            serverGroupList.jqGrid('gridResize');
+
 
                 var grid = $("#packages");
                 grid.jqGrid({
                     autowidth: false,
                     caption: "Paths",
+                    pgtext : null,
+
                     cellurl : '<c:url value="/api/path?profileIdentifier=${profile_id}&clientUUID=${clientUUID}"/>',
                     colModel: [
                         { name: 'pathId', index: 'pathId', width: "20", hidden: true},
@@ -797,11 +739,10 @@
                     },
                     height: "100%",
                     ignoreCase: true,
-                    loadonce: true,
+                loadonce: false,
                     onSelectRow: function (id) {
                         var data = jQuery("#packages").jqGrid('getRowData',id);
                         currentPathId = data.pathId;
-
                         updateDetailPills();
                     },
                     loadComplete: function() {
@@ -814,7 +755,7 @@
                     sortname : 'id',
                     sortorder : "desc",
                     url : '<c:url value="/api/path?profileIdentifier=${profile_id}&clientUUID=${clientUUID}"/>',
-                    viewrecords: true,
+                viewrecords: true
                 });
                 grid.jqGrid('navGrid', '#packagePager',
                     { add: true, edit: false, del: true, search: false },
@@ -822,9 +763,10 @@
                     {
                         // Add path
                         url: '<c:url value="/api/path"/>?profileIdentifier=${profile_id}',
-                        reloadAfterSubmit: false,
+                        reloadAfterSubmit: true,
                         width: 460,
                         closeAfterAdd: true,
+                        closeAfterEdit:true,
                         errorTextFormat: function (data) {
                             console.log(data);
                             return data.responseText;
@@ -846,15 +788,16 @@
                          rp_ge.url = '<c:url value="/api/path/" />' + currentPathId + "?clientUUID=" + clientUUID;
                         }},
                     {});
+            grid.jqGrid('gridResize');
                 grid.jqGrid('filterToolbar', { defaultSearch: 'cn', stringResult: true });
                 $("#tabs").tabs();
                 $("#tabs").css("overflow", "auto");
+            $("#tabs").css("min-height","500px");
+            $("#tabs").css("resize", "both");
                 $("#sel1").select2();
-
                 var currentHTML = $("#gview_serverlist > .ui-jqgrid-titlebar > span").html();
                 var dropDown = "&nbsp;&nbsp;&nbsp;<input id='serverGroupSelection' style='width:360px%'></input>&nbsp;&nbsp;<button id='editServerGroups' type='button' class='btn btn-xs' onClick='toggleServerGroupEdit()'><span class='glyphicon glyphicon-cog'></span></button>";
                 $("#gview_serverlist > .ui-jqgrid-titlebar > span").html(currentHTML + dropDown);
-
                 $("#serverGroupSelection").select2({
                     initSelection: function(element, callback){
                             $.ajax('<c:url value="/api/profile/${profile_id}/clients/${clientUUID}"/>').done(function(data) {
@@ -917,7 +860,6 @@
                     }
                 });
                 populateGroups();
-
             });
             jQuery("#packages").jqGrid('navGrid','#packages',{
                 edit:false,
@@ -926,8 +868,6 @@
                 search:false
             });
             loadPath(currentPathId);
-
-
             function setActiveServerGroup(groupId) {
                 $.ajax({
                     type: "POST",
@@ -936,11 +876,9 @@
                     success: function(data) {
                         console.log("reloading server list");
                         reloadGrid("#serverlist");
-
                     }
                 });
             }
-
             function loadPath(pathId) {
                 if(pathId < 0) {
                     $("#editDiv").hide();
@@ -951,7 +889,6 @@
                         url: '<c:url value="/api/path/"/>' + pathId,
                         data: 'clientUUID=${clientUUID}',
                         success: function(data){
-
                             // populate Configuration values
                             $("#editDiv").show();
                             $("#pathName").attr("value", data.pathName);
@@ -963,7 +900,6 @@
                             $("#pathRepeatCount").attr("value", data.repeatNumber);
                             pathRequestTypeChanged();
                             $("#title").html(data.pathName);
-
                             $("#responseOverrideDetails").hide();
                             $("#requestOverrideDetails").hide();
                             currentPathId = pathId;
@@ -973,7 +909,6 @@
                             populateEnabledOverrides();
                             changeResponseOverrideDiv();
                             changeRequestOverrideDiv();
-
                             // reset informational divs
                             $('#applyPathChangeSuccessDiv').css('display', 'none');
                             $('#applyPathChangeAlertDiv').css('display', 'none');
@@ -981,7 +916,6 @@
                     });
                 }
             }
-
             function pathRequestTypeChanged() {
                 var requestType = $("#requestType").val();
                 if(requestType != "1" && requestType != "4") {
@@ -991,7 +925,6 @@
                     $("#postGeneral").hide();
                 }
             }
-
             // http://stackoverflow.com/questions/11112127/prevent-backspace-from-navigating-back-with-jquery-like-googles-homepage
             $(document).on("keydown", function (e){
                 if(e.keyCode == 46 || e.keyCode == 8) {
@@ -1011,20 +944,16 @@
                     }
                 }
             });
-
             function overrideRemove(type) {
                 var id = currentPathId;
                 var selector = "select#" + type + "OverrideEnabled" + " option:selected";
                 var selection = $(selector);
-
                 selection.each(function(i, selected){
                     var splitId = selected.value.split(",");
                     var methodId = splitId[0];
                     var ordinal = splitId[1];
-
                     var args = '?ordinal=' + ordinal;
                     args += '&clientUUID=' + clientUUID;
-
                     $.ajax({
                         type: 'POST',
                         url: '<c:url value="/api/path/"/>' + id + '/' + methodId,
@@ -1036,7 +965,6 @@
                             else {
                                 selectedRequestOverride = 0;
                             }
-
                             if(type == "response") {
                                 populateEnabledResponseOverrides();
                             }
@@ -1046,14 +974,11 @@
                         }
                     });
                 });
-
             }
-
             function overrideMoveUp(type) {
                 var id = currentPathId;
                 var selector = "select#" + type + "OverrideEnabled" + " option:selected";
                 var selection = $(selector);
-
                 selection.each(function(i, selected){
                     console.log(selected.value);
                     $.ajax({
@@ -1071,12 +996,10 @@
                     });
                 });
             }
-
             function overrideMoveDown(type) {
                 var id = currentPathId;
                 var selector = "select#" + type + "OverrideEnabled" + " option:selected";
                 var selection = $(selector);
-
                 selection.each(function(i, selected){
                     console.log(selected.value);
                     $.ajax({
@@ -1094,10 +1017,8 @@
                     });
                 });
             }
-
             function changeResponseOverrideDiv() {
                 var selections = $("select#responseOverrideEnabled option:selected");
-
                 if (selections.length > 1) {
                     $("#responseOverrideParameters").html("");
                     $("#responseOverrideDetails").hide();
@@ -1117,10 +1038,8 @@
                     $("#responseOverrideDetails").hide();
                 }
             }
-
             function changeRequestOverrideDiv() {
                 var selections = $("select#requestOverrideEnabled option:selected");
-
                 if (selections.length > 1) {
                     $("#requestOverrideParameters").html("");
                     $("#requestOverrideDetails").hide();
@@ -1140,7 +1059,6 @@
                     $("#requestOverrideDetails").hide();
                 }
             }
-
             function populateGroups() {
                 $.ajax({
                     type:"GET",
@@ -1155,49 +1073,36 @@
                     }
                 });
             }
-
             // get the next available ordinal for methodId on a specific path
             function getNextOrdinal(selectId, methodId) {
                 var selector = "select#" + selectId + " option";
                 var selection = $(selector);
                 var lastOrdinal = 0;
-
                 selection.each(function(i, selected){
                     var splitId = selected.value.split(",");
                     var foundMethodId = splitId[0];
                     var foundOrdinal = splitId[1];
-
                     if (methodId == foundMethodId)
                         lastOrdinal = foundOrdinal;
                 });
-
                 return parseInt(lastOrdinal, 10) + 1;
             }
-
-
             var selectedResponseOverride = 0;
             var selectedRequestOverride = 0;
-
             // Called when a different override is selected from the select box
             function overrideSelectChanged(type) {
                 var selector = "select#"+type+"OverrideSelect option:selected";
                 var selection = $(selector);
-
                 var overrides = $("select#" + type + "OverrideEnabled option");
                 var enabledCount = overrides.length;
-
                 selection.each(function(i, selected){
                     if (selected.value == -999)
                         return true;
-
                     // get the next ordinal so we can pop up the argument dialogue
                     var ordinal = getNextOrdinal(type + "OverrideEnabled", selected.value);
-
-
                     if(isNaN(ordinal)) {
                         ordinal = 1;
                     }
-
                     $.ajax({
                         type:"POST",
                         url: '<c:url value="/api/path/"/>' + currentPathId,
@@ -1220,11 +1125,9 @@
                     });
                 });
             }
-
             function enablePath(type, pathId) {
                 $("#" + type + "_enabled_" + pathId).click();
             }
-
             function populateResponseOverrideList(possibleEndpoints){
                 // preprocess methods into buckets based on class name
                 var classHash = {};
@@ -1233,20 +1136,16 @@
                     if (this.className in classHash) {
                         methodArray = classHash[this.className];
                     }
-
                     methodArray.push(this);
                     classHash[this.className] = methodArray;
                 });
-
                 var content = "";
                 content += '<option value="-999">Select Override</option>';
-
                 content += '<optgroup label="General">';
                 content += '<option value="-1">Custom Response</option>';
                 content += '<option value="-3">Set Header</option>';
                 content += '<option value="-4">Remove Header</option>';
                 content += '</optgroup>';
-
                 jQuery.each(classHash, function(hashKey, hashValue) {
                     content += '<optgroup label="' + hashKey + '">';
                     jQuery.each(hashValue, function(arrayKey, arrayValue) {
@@ -1254,19 +1153,15 @@
                     });
                     content += '</optgroup>';
                 });
-
                 $("#responseOverrideSelect").html(content);
             }
-
             // this returns a formatted string of arguments for display in the "Order" column
             function getFormattedArguments( arguments, length ) {
                 var argString = '';
-
                 // show XX instead of an argument since they aren't all set
                 if (length > arguments.length) {
                     for (var x = 0; x < length; x++) {
                         argString += "XX";
-
                         if (length - 1 > x)
                             argString += ",";
                     }
@@ -1277,17 +1172,13 @@
                         if (methodArgs.length > 10) {
                             displayStr = displayStr.substring(0, 7) + '..';
                         }
-
                         argString += displayStr;
-
                         if (length - 1 > methodArgsX)
                             argString += ",";
                     });
                 }
-
                 return argString;
             }
-
             // called to load the edit endpoint args
             function editEndpointArgs(pathId, methodId, ordinal, type) {
                 $.ajax({
@@ -1299,14 +1190,12 @@
                         if(data.enabledEndpoint == null) {
                             return;
                         }
-
                         formData += '<div class="bg-info">' + data.enabledEndpoint.methodInformation.className + " " + data.enabledEndpoint.methodInformation.methodName + '</div><dl>';
                         var x = 0;
                         $.each(data.enabledEndpoint.methodInformation.methodArguments, function(i, el) {
                             if (typeof data.enabledEndpoint.methodInformation.methodArgumentNames[i] != 'undefined') {
                                 formData += '<dt>' + data.enabledEndpoint.methodInformation.methodArgumentNames[i] + '</dt>';
                             }
-
                             // special case for custom responses
                             if (methodId == -1) {
                                 formData += '<dd><textarea id="' + type + '_args_' + x + '" ROWS=10 style="width:100%;">' + '</textarea></dd><br>';
@@ -1315,11 +1204,9 @@
                             }
                             x++;
                         });
-
                         formData += '<dt>Repeat Count</dt> <dd><input id="setRepeatNumber" type="text" value="' + data.enabledEndpoint.repeatNumber + '"/></dd><br>';
                         formData += '<button class="btn btn-primary" onClick="submitOverrideData(&quot;' + type + '&quot;,' + pathId + ',' + methodId + ',' + ordinal + ',' + x  + ')">Apply</button>';
                         $("#"+type+"OverrideParameters").html(formData);
-
                         x = 0;
                         $.each(data.enabledEndpoint.methodInformation.methodArguments, function(i, el) {
                             // populate the override parameters
@@ -1332,14 +1219,11 @@
                             }
                             x++;
                         });
-
                         $("#"+type+"OverrideDetails").show();
                     }
                 });
             }
-
             function applyGeneralPathChanges() {
-
                 var pathName = $("#pathName").attr("value");
                 var path = $("#pathValue").attr("value");
                 var contentType = $("#contentType").attr("value");
@@ -1477,6 +1361,8 @@
 
                         $("#responseOverrideEnabled").html(content);
 
+                    $("#responseOverrideEnabled").css("resize", "both");
+
                         if(selectedResponseOverride != 0) {
                             $("#responseOverrideEnabled").val(selectedResponseOverride);
                         }
@@ -1544,6 +1430,8 @@
                         });
 
                         $("#requestOverrideEnabled").html(content);
+
+                    $("#requestOverrideEnabled").css("resize","both");
 
                         if(selectedRequestOverride != 0) {
                             $("#requestOverrideEnabled").val(selectedRequestOverride);
@@ -1619,6 +1507,12 @@
                                 data-toggle="tooltip" data-placement="bottom" title="Click here to reset all path settings in this profile.">Reset Profile</button>
                     </div>
                     <div id="status" class="form-group navbar-form navbar-left" ></div>
+            <!--  TO FIND HELP -->
+            <div class="form-group navbar-form navbar-left">
+                <button is="helpButton" class="btn btn-info" onclick="navigateHelp()"
+                        target="_blank" data-toggle="tooltip" data-placement="bottom" title="Click here to read the wiki.">Need help?</button>
+            </div>
+
                     <ul id="clientInfo" class="nav navbar-nav navbar-right">
                     </ul>
                 </div>
@@ -1631,22 +1525,24 @@
                 <div id="servernavGrid"></div>
             </div>
 
+    <div>
+        <table id="packages">
+            <tr><td></td></tr>
+        </table>
+        <div id="packagePager" >
+        </div>
+    </div>
+
             <!-- div for top bar notice -->
+    <!-- MOVED TO BOTTOM SO IT DOESN'T AFFECT THE TABLE POSITION AFTER CREATING NEW ROW
+        SO YOU CAN SELECT "RESPONSE" OR "REQUEST" RIGHT AWAY WITHOUT MISSING IT ON ACCIDENT BECAUSE IT'S MOVED -->
             <div class="ui-widget" id="statusNotificationDiv" style="display: none;" onClick="dismissStatusNotificationDiv()">
                 <div class="ui-state-highlight ui-corner-all" style="margin-top: 10px;  margin-bottom: 10px; padding: 0 .7em;">
                     <p style="margin-top: 10px; margin-bottom:10px;"><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
                     <span id="statusNotificationText"/></p>
                 </div>
             </div>
-
-            <div>
-                <table id="packages">
-                    <tr><td></td></tr>
-                </table>
-                <div id="packagePager" >
                 </div>
-            </div>
-        </div>
 
         <div id="details" >
             <div class="serverGroupEdit" id="serverEdit">
