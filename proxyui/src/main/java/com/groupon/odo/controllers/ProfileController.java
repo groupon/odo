@@ -27,8 +27,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.HashMap;
+import java.util.Arrays;
 
 /**
  * Handles requests for the application home page.
@@ -132,22 +134,28 @@ public class ProfileController {
     @ResponseBody
     HashMap<String, Object> removeFromList(Model model, @PathVariable String profileIdentifier) throws Exception {
 
-        logger.info("Attempting to remove {}", profileIdentifier);
+        Integer profileId = ControllerUtils.convertProfileIdentifier(profileIdentifier);
+        logger.info("Want to (preRemove) DELETE on id {}", profileId);
+        // TODO: make this remove all clients etc for a profile
+        profileService.remove(profileId);
+        return Utils.getJQGridJSON(profileService.findAllProfiles(), "profiles");
+    }
 
-        /* SPLIT THE PATHVARIABLE INTO EACH THING THAT NEEDS TO BE DELETED.*/
-        String[] toRemove = profileIdentifier.split(",");
-
+    /*
+     * Bulk remove profiles.
+     */
+    @RequestMapping(value = "api/profile/delete", method=RequestMethod.POST)
+    public
+    @ResponseBody
+    HashMap<String, Object> removeFromList(Model model, @RequestParam String[] profileIdentifier) throws Exception {
         /* FOR EVERYTHING THAT NEEDS TO BE DELETED,
             DELETE IT.
          */
-        for( int i = 0; i < toRemove.length; i++ ) {
-            Integer profileId = ControllerUtils.convertProfileIdentifier(toRemove[i]);
-            logger.info("Want to (preRemove) DELETE on id {}", profileId);
-            // TODO: make this remove all clients etc for a profile
-            profileService.remove(profileId);
+        logger.info("Want to remove the following ids: {}", Arrays.toString(profileIdentifier));
+        for( int i = 0; i < profileIdentifier.length; i++ ) {
+            removeFromList(model, profileIdentifier[i]);
         }
 
         return Utils.getJQGridJSON(profileService.findAllProfiles(), "profiles");
     }
-
 }

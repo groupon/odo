@@ -141,31 +141,31 @@
                 width: 400
             },
             {
-                url: '<c:url value="/api/profile/"/>',
-                mtype: 'DELETE',
+                url: '<c:url value="/api/profile/delete"/>',
+                mtype: 'POST',
                 reloadAfterSubmit:true,
-                onclickSubmit: function(rp_ge, postdata) { /* CODE CHANGED TO ALLOW FOR MULTISELECTION*/
-                    /* SPLIT THE DATA INTO EACH THING THAT NEEDS TO BE DELETED.*/
-                    var data = postdata.split(",");
-
-                    rp_ge.url = '<c:url value="/api/profile/"/>';
-
-                    /* FOR EVERYTHING THAT NEEDS TO BE DELETED
-                        ADD THE CELL DATA INTO THE URL.
+                onclickSubmit: function(rp_ge, postdata) {
+                    /* IDS GIVEN IN AS A STRING SEPARATED BY COMMAS.
+                        SEPARATE INTO AN ARRAY.
                      */
-                    for( var i = 0; i < data.length; i++ ) {
-                        if( i == data.length - 1 ) {
-                            rp_ge.url = rp_ge.url + $('#profilelist').getCell(data[i], 'id');
-                        }
-                        else
-                        {
-                            rp_ge.url = rp_ge.url + $('#profilelist').getCell(data[i], 'id') + ",";
-                        }
+                    var rowids = postdata.split(",");
+
+                    /* FOR EVERY ROW ID TO BE DELETED,
+                        GET THE CORRESPONDING PROFILE ID.
+                     */
+                    var params = "";
+                    for( var i = 0; i < rowids.length; i++) {
+                        var odoId = $(this).jqGrid('getCell', rowids[i], 'id');
+                        params += "profileIdentifier=" + odoId + "&";
+
                     }
 
+                    rp_ge.url = '<c:url value="/api/profile/delete"/>?' +
+                            params;
                   }
             });
             profileList.jqGrid('gridResize');
+
         });
 
 
@@ -206,7 +206,7 @@
                   } else {
                     $("#statusNotificationStateDiv").removeClass("ui-state-highlight");
                     $("#statusNotificationStateDiv").addClass("ui-state-error");
-                    $("#statusNotificationText").html("An error occured while uploading configuration...");
+                    $("#statusNotificationText").html("An error occurred while uploading configuration...");
 
                     // enable form buttons
                     $(":button:contains('Submit')").prop("disabled", false).removeClass("ui-state-disabled");
