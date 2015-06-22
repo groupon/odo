@@ -133,6 +133,7 @@ public class ProfileController {
     public
     @ResponseBody
     HashMap<String, Object> removeFromList(Model model, @PathVariable String profileIdentifier) throws Exception {
+
         Integer profileId = ControllerUtils.convertProfileIdentifier(profileIdentifier);
         logger.info("Want to (preRemove) DELETE on id {}", profileId);
         // TODO: make this remove all clients etc for a profile

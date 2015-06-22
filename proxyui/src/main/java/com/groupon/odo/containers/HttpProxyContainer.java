@@ -40,10 +40,16 @@ public class HttpProxyContainer extends GenericProxyContainer {
     public EmbeddedServletContainerFactory servletContainer() {
         TomcatEmbeddedServletContainerFactory factory = new TomcatEmbeddedServletContainerFactory();
         int httpPort = Utils.getSystemPort(Constants.SYS_HTTP_PORT);
+
         factory.setPort(httpPort);
         factory.setSessionTimeout(10, TimeUnit.MINUTES);
         factory.addAdditionalTomcatConnectors(createSslConnector());
         factory.addContextCustomizers(new TomcatContextCustomizer() {
+            // The Context element represents a web application, which is run within a particular virtual host.
+            // You may define as many Context elements as you wish.
+            // Each such Context MUST have a unique context name within a virtual host.
+            // The context path does not need to be unique (see parallel deployment below).
+            // https://tomcat.apache.org/tomcat-7.0-doc/config/context.html
             @Override
             public void customize(Context context) {
                 JarScanner jarScanner = new JarScanner() {

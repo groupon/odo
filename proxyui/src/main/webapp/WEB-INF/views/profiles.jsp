@@ -101,7 +101,7 @@
                     hidden : true
                 }, {
                     name : 'name',
-                    index : 'name',//'displayProfileName',
+                    index : 'displayProfileName',
                     width : 400,
                     editable : false,
                     formatter: nameFormatter,
@@ -168,6 +168,7 @@
                   }
             });
             profileList.jqGrid('gridResize');
+
         });
 
 
