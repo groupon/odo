@@ -31,6 +31,7 @@ import org.springframework.web.context.request.WebRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import java.util.HashMap;
+import java.util.Arrays;
 
 @Controller
 public class ClientController {
@@ -107,7 +108,7 @@ public class ClientController {
                                       @PathVariable("profileIdentifier") String profileIdentifier,
                                       @RequestParam(required = false) String friendlyName) throws Exception {
         Integer profileId = ControllerUtils.convertProfileIdentifier(profileIdentifier);
-        
+
         // make sure client with this name does not already exist
         if (null != clientService.findClientFromFriendlyName(profileId, friendlyName)) {
         	throw new Exception("Cannot add client. Friendly name already in use.");
@@ -197,6 +198,7 @@ public class ClientController {
     HashMap<String, Object> deleteClient(Model model,
                                          @PathVariable("profileIdentifier") String profileIdentifier,
                                          @PathVariable("clientUUID") String clientUUID) throws Exception {
+        logger.info("Attempting to remove the following client: {}", clientUUID);
         if (clientUUID.compareTo(Constants.PROFILE_CLIENT_DEFAULT_ID) == 0)
             throw new Exception("Default client cannot be deleted");
 
@@ -205,6 +207,41 @@ public class ClientController {
 
         HashMap<String, Object> valueHash = new HashMap<String, Object>();
         valueHash.put("clients", clientService.findAllClients(profileId));
+        return valueHash;
+    }
+
+    /**
+     * Bulk delete clients from a profile.
+     *
+     * @param model
+     * @param profileIdentifier
+     * @param clientUUID
+     * @return returns the table of the remaining clients or an exception if deletion failed for some reason
+     * @throws Exception
+     */
+    @RequestMapping(value = "/api/profile/{profileIdentifier}/clients/delete", method = RequestMethod.POST)
+    public
+    @ResponseBody
+    HashMap<String, Object> deleteClient(Model model,
+                                         @RequestParam("profileIdentifier") String profileIdentifier,
+                                         @RequestParam("clientUUID") String[] clientUUID) throws Exception {
+
+        logger.info("Attempting to remove clients from the profile: ", profileIdentifier);
+        logger.info("Attempting to remove the following clients: {}", Arrays.toString(clientUUID));
+
+        HashMap<String, Object> valueHash = new HashMap<String, Object>();
+        Integer profileId = ControllerUtils.convertProfileIdentifier(profileIdentifier);
+
+        for( int i = 0; i < clientUUID.length; i++ )
+        {
+            if (clientUUID[i].compareTo(Constants.PROFILE_CLIENT_DEFAULT_ID) == 0)
+                throw new Exception("Default client cannot be deleted");
+
+            clientService.remove(profileId, clientUUID[i]);
+
+            valueHash.put("clients", clientService.findAllClients(profileId));
+        }
+
         return valueHash;
     }
 }

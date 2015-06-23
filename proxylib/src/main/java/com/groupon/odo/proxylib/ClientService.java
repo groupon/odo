@@ -149,8 +149,7 @@ public class ClientService {
             THIS APPEARS TO BE BECAUSE CLIENT UUID IS NULL.
          */
         /* CODE ADDED TO PREVENT NULL POINTERS. */
-        if(clientUUID == null)
-        {
+        if(clientUUID == null) {
             clientUUID = "";
         }
 

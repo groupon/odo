@@ -255,6 +255,7 @@
             <div class="container-fluid">
                 <div class="collapse navbar-collapse">
                     <ul id="status2" class="nav navbar-nav">
+                        <li class="navbar-brand">Odo</li>
                         <li><a href="#" onClick="navigateProfiles()">Profiles</a></li>
                     </ul>
                 </div>

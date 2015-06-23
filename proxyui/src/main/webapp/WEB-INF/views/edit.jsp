@@ -89,17 +89,16 @@
             var currentPathId = -1;
             var editServerGroupId = 0;
 
-            function navigateHelp()
-            {
-                window.open("https://github.com/groupon/odo/wiki","_blank");
+            function navigateHelp() {
+                window.open("https://github.com/groupon/odo/wiki","help");
             }
 
-            function navigateEditGroups() {
-                window.open('<c:url value = '/group' />', "_blank");
+            function navigateEditGroups() {0
+                window.open('<c:url value = '/group' />', "edit-groups");
             }
 
             function navigateRequestHistory() {
-                window.open('<c:url value='/history/${profile_id}'/>?clientUUID=${clientUUID}', "_blank");
+                window.open('<c:url value='/history/${profile_id}'/>?clientUUID=${clientUUID}', "request-history");
             }
 
             function navigateProfiles() {
@@ -325,7 +324,7 @@
                 }
 
                 // remove tabs that should no longer exist
-                // at this poing the existingPills list is just the pills that need to be removed
+                // at this point the existingPills list is just the pills that need to be removed
                 for (var x = 0; x < existingPills.length; x++) {
                     if (existingPills[x] !== -1) {
                         //console.log(existingPills[x]);
@@ -1625,6 +1624,7 @@
             <div class="container-fluid">
                 <div class="collapse navbar-collapse">
                     <ul id="status2"  class="nav navbar-nav navbar-left">
+                        <li class="navbar-brand">Odo</li>
                         <li><a href="#" onClick="navigateProfiles()">Profiles</a> </li>
                         <li><a href="#" onClick="navigateRequestHistory()">Request History</a></li>
                         <li id="navbarPathPriority"><a href="#" onClick="navigatePathPriority()">Path Priority</a></li>
