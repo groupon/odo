@@ -50,7 +50,7 @@
             }
 
             #editDiv {
-                width: 60%;
+                width: 45%;
                 display:none;
             }
 
@@ -89,6 +89,10 @@
             var currentPathId = -1;
             var editServerGroupId = 0;
 
+            function navigateHelp()
+            {
+                window.open("https://github.com/groupon/odo/wiki","_blank");
+            }
 
             function navigateEditGroups() {
                 window.open('<c:url value = '/group' />', "_blank");
@@ -507,7 +511,8 @@
 
             $(document).ready(function () {
                 // turn on tooltips
-                $("#resetProfileButton").tooltip()
+                $("#resetProfileButton").tooltip();
+                $("#helpButton").tooltip();
                 $.ajax({
                     type : "GET",
                     url : '<c:url value="/api/profile/${profile_id}/clients/"/>' + $.cookie("UUID"),
@@ -636,6 +641,8 @@
                 {
                     url: '<c:url value="/api/edit/server"/>?profileId=${profile_id}&clientUUID=${clientUUID}',
                     reloadAfterSubmit: false,
+                    closeAfterAdd: true,
+                    closeAfterEdit:true,
                     width: 400,
                     afterSubmit: function () {
                         reloadGrid("#serverlist");
@@ -651,6 +658,7 @@
                         return [true];
                     }
                 });
+                serverList.jqGrid('gridResize');
 
                 var serverGroupList = jQuery("#serverGroupList");
                 serverGroupList.jqGrid({
@@ -718,6 +726,8 @@
                 {
                     mtype: 'DELETE',
                     reloadAfterSubmit: false,
+                    closeAfterAdd:true,
+                    closeAfterEdit:true,
                     afterSubmit: function () {
                         reloadGrid("#serverGroupList");
                         return [true];
@@ -728,6 +738,7 @@
                     }
                 },
                 {});
+                serverGroupList.jqGrid('gridResize');
 
                 var grid = $("#packages");
                 grid.jqGrid({
@@ -825,6 +836,7 @@
                         reloadAfterSubmit: false,
                         width: 460,
                         closeAfterAdd: true,
+                        closeAfterEdit:true,
                         errorTextFormat: function (data) {
                             console.log(data);
                             return data.responseText;
@@ -846,9 +858,12 @@
                          rp_ge.url = '<c:url value="/api/path/" />' + currentPathId + "?clientUUID=" + clientUUID;
                         }},
                     {});
+                grid.jqGrid('gridResize');
                 grid.jqGrid('filterToolbar', { defaultSearch: 'cn', stringResult: true });
                 $("#tabs").tabs();
                 $("#tabs").css("overflow", "auto");
+                $("#tabs").css("min-height", "500px");
+                $("#tabs").css("resize", "both");
                 $("#sel1").select2();
 
                 var currentHTML = $("#gview_serverlist > .ui-jqgrid-titlebar > span").html();
@@ -1476,6 +1491,7 @@
                         });
 
                         $("#responseOverrideEnabled").html(content);
+                        $("#responseOverrideEnabled").css("resize", "both");
 
                         if(selectedResponseOverride != 0) {
                             $("#responseOverrideEnabled").val(selectedResponseOverride);
@@ -1544,6 +1560,7 @@
                         });
 
                         $("#requestOverrideEnabled").html(content);
+                        $("#requestOverrideEnabled").css("resize", "both");
 
                         if(selectedRequestOverride != 0) {
                             $("#requestOverrideEnabled").val(selectedRequestOverride);
@@ -1619,6 +1636,11 @@
                                 data-toggle="tooltip" data-placement="bottom" title="Click here to reset all path settings in this profile.">Reset Profile</button>
                     </div>
                     <div id="status" class="form-group navbar-form navbar-left" ></div>
+                    <!-- TO FIND HELP -->
+                    <div class="form-group navbar-form navbar-left">
+                        <button is="helpButton" class="btn btn-info" onclick="navigateHelp()"
+                                target="_blank" data-toggle="tooltip" data-placement="bottom" title="Click here to read the wiki.">Need help?</button>
+                    </div>
                     <ul id="clientInfo" class="nav navbar-nav navbar-right">
                     </ul>
                 </div>
@@ -1631,13 +1653,7 @@
                 <div id="servernavGrid"></div>
             </div>
 
-            <!-- div for top bar notice -->
-            <div class="ui-widget" id="statusNotificationDiv" style="display: none;" onClick="dismissStatusNotificationDiv()">
-                <div class="ui-state-highlight ui-corner-all" style="margin-top: 10px;  margin-bottom: 10px; padding: 0 .7em;">
-                    <p style="margin-top: 10px; margin-bottom:10px;"><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
-                    <span id="statusNotificationText"/></p>
-                </div>
-            </div>
+
 
             <div>
                 <table id="packages">
@@ -1647,7 +1663,13 @@
                 </div>
             </div>
         </div>
-
+        <!-- div for top bar notice -->
+        <div class="ui-widget" id="statusNotificationDiv" style="display: none;" onClick="dismissStatusNotificationDiv()">
+            <div class="ui-state-highlight ui-corner-all" style="margin-top: 10px;  margin-bottom: 10px; padding: 0 .7em;">
+                <p style="margin-top: 10px; margin-bottom:10px;"><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
+                    <span id="statusNotificationText"/></p>
+            </div>
+        </div>
         <div id="details" >
             <div class="serverGroupEdit" id="serverEdit">
                 <div>

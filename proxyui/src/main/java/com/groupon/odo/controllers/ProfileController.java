@@ -27,8 +27,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.HashMap;
+import java.util.Arrays;
 
 /**
  * Handles requests for the application home page.
@@ -135,6 +137,24 @@ public class ProfileController {
         logger.info("Want to (preRemove) DELETE on id {}", profileId);
         // TODO: make this remove all clients etc for a profile
         profileService.remove(profileId);
+        return Utils.getJQGridJSON(profileService.findAllProfiles(), "profiles");
+    }
+
+    /*
+    * Bulk remove profiles.
+    */
+    @RequestMapping(value = "api/profile/delete", method=RequestMethod.POST)
+    public
+    @ResponseBody
+    HashMap<String, Object> removeFromList(Model model, @RequestParam String[] profileIdentifier) throws Exception {
+        /* FOR EVERYTHING THAT NEEDS TO BE DELETED,
+            DELETE IT.
+         */
+        logger.info("Want to remove the following ids: {}", Arrays.toString(profileIdentifier));
+        for( int i = 0; i < profileIdentifier.length; i++ ) {
+            removeFromList(model, profileIdentifier[i]);
+        }
+
         return Utils.getJQGridJSON(profileService.findAllProfiles(), "profiles");
     }
 
