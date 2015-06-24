@@ -832,7 +832,7 @@
                     {
                         // Add path
                         url: '<c:url value="/api/path"/>?profileIdentifier=${profile_id}',
-                        reloadAfterSubmit: false,
+                        reloadAfterSubmit: true,
                         width: 460,
                         closeAfterAdd: true,
                         closeAfterEdit:true,
@@ -842,7 +842,7 @@
                         },
                         afterComplete: function(data) {
                             reloadGrid("#packages");
-                            $("#statusNotificationText").html("Path added.  Don't forget to adjust <a href=\"#\" onClick=\"navigatePathPriority()\" style=\"color: blue\">Path Priorities</a>!");
+                            $("#statusNotificationText").html("Path added.  Don't forget to add a hostname <b>above</b> and<br>adjust <a href=\"#\" onClick=\"navigatePathPriority()\" style=\"color: blue\">Path Priorities</a>!");
                             $("#statusNotificationDiv").fadeIn();
                         },
                         beforeShowForm: function(data) {
@@ -1662,7 +1662,6 @@
                 <div id="packagePager" >
                 </div>
             </div>
-        </div>
         <!-- div for top bar notice -->
         <div class="ui-widget" id="statusNotificationDiv" style="display: none;" onClick="dismissStatusNotificationDiv()">
             <div class="ui-state-highlight ui-corner-all" style="margin-top: 10px;  margin-bottom: 10px; padding: 0 .7em;">
@@ -1670,6 +1669,8 @@
                     <span id="statusNotificationText"/></p>
             </div>
         </div>
+        </div>
+
         <div id="details" >
             <div class="serverGroupEdit" id="serverEdit">
                 <div>
@@ -1791,7 +1792,7 @@
                                 Path Name
                             </dt>
                             <dd>
-                                <input id="pathName" style="width: 100%" />
+                                <input id="pathName" style="width: 70%" />
                             </dd>
 
                             <dt>
@@ -1831,7 +1832,7 @@
                         </dl>
                         <dl id="postGeneral" class="dl-horizontal" style="display:none;">
                             <dt>
-                                Request Body Filter<br> (optional)
+                                Request Body<br>Filter<br> (optional)
                             </dt>
                             <dd>
                                 <textarea id="postBodyFilter" ROWS="6" style="width:80%;" ></textarea>
