@@ -512,6 +512,7 @@
                 // turn on tooltips
                 $("#resetProfileButton").tooltip();
                 $("#helpButton").tooltip();
+                $("#gs_pathName").tooltip({content:"Use this box to filter the path names."});
                 $.ajax({
                     type : "GET",
                     url : '<c:url value="/api/profile/${profile_id}/clients/"/>' + $.cookie("UUID"),
@@ -568,14 +569,19 @@
                         name : 'srcUrl',
                         index : 'srcUrl',
                         width : 160,
-                        editable : true
+                        editable : true,
+                        edittype:"text",
+                        editrules:{required:true, custom:true, custom_func: srcValidation},
+                        formoptions:{label: "Source Hostname/IP (*)"}
                     }, {
                         name : 'destUrl',
                         index : 'destUrl',
                         width : 160,
                         editable : true,
                         formatter : destinationHostFormatter,
-                        unformat : destinationHostUnFormatter
+                        unformat : destinationHostUnFormatter,
+                        editoptions:{title:"default: forwards to source"},
+                        editrules:{required:true, custom:true, custom_func: destValidation},
                     }, {
                         name : 'hostHeader',
                         index : 'hostHeader',
@@ -634,7 +640,9 @@
                     edit : false,
                     add : true,
                     del : true,
-                    search: false
+                    search: false,
+                    addtext:"Add an API server",
+                    deltext:"Delete an API server"
                 },
                 {},
                 {
@@ -642,7 +650,33 @@
                     reloadAfterSubmit: false,
                     closeAfterAdd: true,
                     closeAfterEdit:true,
+                    topinfo:"Fields marked with a (*) are required.",
                     width: 400,
+                    beforeShowForm: function(formid) {
+                        /* CREATE PLACEHOLDERS FOR ADD FORM. */
+                        $("#srcUrl").val("ex. groupon.com");
+                        $("#destUrl").val("ex. 123.45.67.890");
+                        var src = true;
+                        $("#srcUrl").click(function(){
+                            if( src ) {
+                                $("#srcUrl").val("");
+                                src = false;
+                            }
+                        });
+                        var dest = true;
+                        $("#destUrl").click(function(){
+                            if( dest ) {
+                                $("#destUrl").val("");
+                                dest = false;
+                            }
+                        });
+                    },
+                    afterShowForm: function(formid) {
+                        /* SHIFT INITIAL FOCUS TO CANCEL TO MINIMIZE ACCIDENTAL CREATION OF
+                            INCORRECT HOSTNAME.
+                         */
+                        $("#cData").focus();
+                    },
                     afterSubmit: function () {
                         reloadGrid("#serverlist");
                         return [true];
@@ -819,6 +853,7 @@
                     },
                     pager: '#packagePager',
                     pgbuttons: false,
+                    pgtext: null,
                     rowList : [],
                     rowNum: 10000,
                     sortname : 'id',
@@ -866,7 +901,7 @@
                 $("#sel1").select2();
 
                 var currentHTML = $("#gview_serverlist > .ui-jqgrid-titlebar > span").html();
-                var dropDown = "&nbsp;&nbsp;&nbsp;<input id='serverGroupSelection' style='width:360px%'></input>&nbsp;&nbsp;<button id='editServerGroups' type='button' class='btn btn-xs' onClick='toggleServerGroupEdit()'><span class='glyphicon glyphicon-cog'></span></button>";
+                var dropDown = "&nbsp;&nbsp;&nbsp;<input id='serverGroupSelection' style='width:300px%'></input>&nbsp;&nbsp;<button id='editServerGroups' type='button' class='btn btn-xs' onClick='toggleServerGroupEdit()'>Server Grps ></button>";
                 $("#gview_serverlist > .ui-jqgrid-titlebar > span").html(currentHTML + dropDown);
 
                 $("#serverGroupSelection").select2({
@@ -941,6 +976,21 @@
             });
             loadPath(currentPathId);
 
+            function srcValidation(val, colname) {
+                if( val.trim() === "ex. groupon.com" ) {
+                    return [false, "Please replace the example source hostname with a valid hostname."]
+                } else {
+                    return [true, ""];
+                }
+            }
+
+            function destValidation(val, colname) {
+                if( val.trim() === "ex. 123.45.67.890" ) {
+                    return [false, "Please replace the example destination hostname with a valid hostname."]
+                } else {
+                    return [true, ""];
+                }
+            }
 
             function setActiveServerGroup(groupId) {
                 $.ajax({
@@ -1624,6 +1674,7 @@
             <div class="container-fluid">
                 <div class="collapse navbar-collapse">
                     <ul id="status2"  class="nav navbar-nav navbar-left">
+                        <li class="navbar-brand">Odo</li>
                         <li><a href="#" onClick="navigateProfiles()">Profiles</a> </li>
                         <li><a href="#" onClick="navigateRequestHistory()">Request History</a></li>
                         <li id="navbarPathPriority"><a href="#" onClick="navigatePathPriority()">Path Priority</a></li>
@@ -1637,7 +1688,7 @@
                     </div>
                     <!-- TO FIND HELP -->
                     <div class="form-group navbar-form navbar-left">
-                        <button is="helpButton" class="btn btn-info" onclick="navigateHelp()"
+                        <button id="helpButton" class="btn btn-info" onclick="navigateHelp()"
                                 target="_blank" data-toggle="tooltip" data-placement="bottom" title="Click here to read the wiki.">Need Help?</button>
                     </div>
 
