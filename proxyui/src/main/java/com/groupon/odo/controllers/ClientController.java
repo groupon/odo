@@ -238,10 +238,9 @@ public class ClientController {
                 throw new Exception("Default client cannot be deleted");
 
             clientService.remove(profileId, clientUUID[i]);
-
-            valueHash.put("clients", clientService.findAllClients(profileId));
         }
 
+        valueHash.put("clients", clientService.findAllClients(profileId));
         return valueHash;
     }
 }
