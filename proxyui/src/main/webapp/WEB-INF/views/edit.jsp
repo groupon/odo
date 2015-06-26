@@ -1624,23 +1624,23 @@
             <div class="container-fluid">
                 <div class="collapse navbar-collapse">
                     <ul id="status2"  class="nav navbar-nav navbar-left">
-                        <li class="navbar-brand">Odo</li>
                         <li><a href="#" onClick="navigateProfiles()">Profiles</a> </li>
                         <li><a href="#" onClick="navigateRequestHistory()">Request History</a></li>
                         <li id="navbarPathPriority"><a href="#" onClick="navigatePathPriority()">Path Priority</a></li>
                         <li><a href="#" onClick="navigatePathTester()">Path Tester</a></li>
                         <li><a href="#" onClick="navigateEditGroups()">Edit Groups</a></li>
                     </ul>
+                    <div id="status" class="form-group navbar-form navbar-left" ></div>
                     <div class="form-group navbar-form navbar-left">
                         <button id="resetProfileButton" class="btn btn-danger" onclick="resetProfile()"
                                 data-toggle="tooltip" data-placement="bottom" title="Click here to reset all path settings in this profile.">Reset Profile</button>
                     </div>
-                    <div id="status" class="form-group navbar-form navbar-left" ></div>
                     <!-- TO FIND HELP -->
                     <div class="form-group navbar-form navbar-left">
                         <button is="helpButton" class="btn btn-info" onclick="navigateHelp()"
-                                target="_blank" data-toggle="tooltip" data-placement="bottom" title="Click here to read the wiki.">Need help?</button>
+                                target="_blank" data-toggle="tooltip" data-placement="bottom" title="Click here to read the wiki.">Need Help?</button>
                     </div>
+
                     <ul id="clientInfo" class="nav navbar-nav navbar-right">
                     </ul>
                 </div>
