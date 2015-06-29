@@ -654,28 +654,36 @@
                     width: 400,
                     beforeShowForm: function(formid) {
                         /* CREATE PLACEHOLDERS FOR ADD FORM. */
+                        /* INITIALLY, GRAY */
                         $("#srcUrl").val("ex. groupon.com");
+                        $("#srcUrl").css("color", "gray");
+
                         $("#destUrl").val("ex. 123.45.67.890");
-                        var src = true;
-                        $("#srcUrl").click(function(){
-                            if( src ) {
-                                $("#srcUrl").val("");
-                                src = false;
-                            }
-                        });
-                        var dest = true;
-                        $("#destUrl").click(function(){
-                            if( dest ) {
-                                $("#destUrl").val("");
-                                dest = false;
-                            }
-                        });
+                        $("#destUrl").css("color", "gray");
                     },
                     afterShowForm: function(formid) {
                         /* SHIFT INITIAL FOCUS TO CANCEL TO MINIMIZE ACCIDENTAL CREATION OF
                             INCORRECT HOSTNAME.
                          */
                         $("#cData").focus();
+                        
+                        var src = true;
+                        $("#srcUrl").focus(function(){
+                            if( src ) {
+                                $("#srcUrl").val("");
+                                $("#srcUrl").css("color", "black");
+                                src = false;
+                            }
+                        });
+
+                        var dest = true;
+                        $("#destUrl").focus(function(){
+                            if( dest ) {
+                                $("#destUrl").val("");
+                                $("#destUrl").css("color", "black");
+                                dest = false;
+                            }
+                        });
                     },
                     afterSubmit: function () {
                         reloadGrid("#serverlist");
