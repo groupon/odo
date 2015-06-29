@@ -18,6 +18,7 @@
         <div class="container-fluid">
             <div class="collapse navbar-collapse">
                 <ul id="status2" class="nav navbar-nav">
+					<li class="navbar-brand">Odo</li>
                     <li><a href="#" onClick="window.location='<c:url value = '/profiles' />'">All Profiles</a></li>
                     <li><a href="#" onClick="navigateProfile()">${profile_name}</a></li>
                 </ul>
@@ -97,6 +98,8 @@ clientList
 	rowList : [], // disable page size dropdown
 	pgbuttons : false, // disable page control like next, back button
 	pgtext : null,
+	multiselect:true,
+	multiboxonly:true,
 	cellEdit : true,
 	datatype : "json",
 	colNames : [ 'ID', 'UUID',
@@ -182,16 +185,33 @@ clientList.jqGrid('navGrid', '#clientnavGrid', {
 	errorTextFormat: jsonErrorFormat
 },
 {
-	mtype:"DELETE", reloadAfterSubmit:true, serializeDelData: function (postdata) {
+	url: '<c:url value="/api/profile/{profileIdentifier}/clients/delete"/>',
+	mtype:"POST", reloadAfterSubmit:true, serializeDelData: function (postdata) {
 		return ""; // the body MUST be empty in DELETE HTTP requests
 	}, 
 	onclickSubmit: function(rp_ge,postdata) {
-		var uuid = jQuery('#clientlist').getCell(postdata, 'uuid');
-	    rp_ge.url = '<c:url value="/api/profile/${profile_id}/clients/"/>' +
-	    			uuid;
+		/* IDS GIVEN IN AS A STRING SEPARATED BY COMMAS.
+		 SEPARATE INTO AN ARRAY.
+		 */
+		var rowids = postdata.split(",");
+		console.log(postdata);
+
+		/* FOR EVERY ROW ID TO BE DELETED,
+		 GET THE CORRESPONDING PROFILE ID.
+		 */
+		var params = "profileIdentifier=${profile_id}&";
+		for( var i = 0; i < rowids.length; i++) {
+			var odoId = $(this).jqGrid('getCell', rowids[i], 'uuid');
+			params += "clientUUID=" + odoId + "&";
+		}
+
+		rp_ge.url = '<c:url value="/api/profile/{profileIdentifier}/clients/delete"/>?' +
+				params;
+		console.log(rp_ge.url);
 	},
 	reloadAfterSubmit: true
 });
+clientList.jqGrid('gridResize');
 </script>
 </body>
 </html>

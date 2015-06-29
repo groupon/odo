@@ -13,7 +13,7 @@
   
   <style>
 	#sortable { list-style-type: none; margin: 1px; padding: 1px; width: 60%; }
-	#sortable li { margin: 0 3px 3px 3px; padding: 0.4em; padding-left: 1.5em; font-size: 1.4em; height: 18px; }
+	#sortable li { margin: 0 3px 3px 3px; padding: 0.4em; padding-left: 1.5em; font-size: 1em; height: 18px; width:150% }
 	#sortable li span { position: absolute; margin-left: -1.3em; }
 	.ui-state-highlight { height: 1.5em; line-height: 1.2em; }
   </style>
@@ -48,6 +48,7 @@
     <div class="container-fluid">
         <div class="collapse navbar-collapse">
             <ul id="status2" class="nav navbar-nav">
+				<li class="navbar-brand">Odo</li>
                 <li><a href="#" onClick="window.location='<c:url value = '/profiles' />'">All Profiles</a></li>
                 <li><a href="#" onClick="window.location='<c:url value = '/edit/${profile_id}' />'">${profile_name}</a></li>
                 <li><a href="#" onClick="navigatePathTester()">Path Tester</a></li>

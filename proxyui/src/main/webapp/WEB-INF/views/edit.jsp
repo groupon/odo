@@ -50,7 +50,7 @@
             }
 
             #editDiv {
-                width: 60%;
+                width: 45%;
                 display:none;
             }
 
@@ -89,13 +89,16 @@
             var currentPathId = -1;
             var editServerGroupId = 0;
 
+            function navigateHelp() {
+                window.open("https://github.com/groupon/odo/wiki","help");
+            }
 
-            function navigateEditGroups() {
-                window.open('<c:url value = '/group' />', "_blank");
+            function navigateEditGroups() {0
+                window.open('<c:url value = '/group' />', "edit-groups");
             }
 
             function navigateRequestHistory() {
-                window.open('<c:url value='/history/${profile_id}'/>?clientUUID=${clientUUID}', "_blank");
+                window.open('<c:url value='/history/${profile_id}'/>?clientUUID=${clientUUID}', "request-history");
             }
 
             function navigateProfiles() {
@@ -321,7 +324,7 @@
                 }
 
                 // remove tabs that should no longer exist
-                // at this poing the existingPills list is just the pills that need to be removed
+                // at this point the existingPills list is just the pills that need to be removed
                 for (var x = 0; x < existingPills.length; x++) {
                     if (existingPills[x] !== -1) {
                         //console.log(existingPills[x]);
@@ -507,7 +510,8 @@
 
             $(document).ready(function () {
                 // turn on tooltips
-                $("#resetProfileButton").tooltip()
+                $("#resetProfileButton").tooltip();
+                $("#helpButton").tooltip();
                 $.ajax({
                     type : "GET",
                     url : '<c:url value="/api/profile/${profile_id}/clients/"/>' + $.cookie("UUID"),
@@ -636,6 +640,8 @@
                 {
                     url: '<c:url value="/api/edit/server"/>?profileId=${profile_id}&clientUUID=${clientUUID}',
                     reloadAfterSubmit: false,
+                    closeAfterAdd: true,
+                    closeAfterEdit:true,
                     width: 400,
                     afterSubmit: function () {
                         reloadGrid("#serverlist");
@@ -651,6 +657,7 @@
                         return [true];
                     }
                 });
+                serverList.jqGrid('gridResize');
 
                 var serverGroupList = jQuery("#serverGroupList");
                 serverGroupList.jqGrid({
@@ -718,6 +725,8 @@
                 {
                     mtype: 'DELETE',
                     reloadAfterSubmit: false,
+                    closeAfterAdd:true,
+                    closeAfterEdit:true,
                     afterSubmit: function () {
                         reloadGrid("#serverGroupList");
                         return [true];
@@ -728,6 +737,7 @@
                     }
                 },
                 {});
+                serverGroupList.jqGrid('gridResize');
 
                 var grid = $("#packages");
                 grid.jqGrid({
@@ -822,16 +832,17 @@
                     {
                         // Add path
                         url: '<c:url value="/api/path"/>?profileIdentifier=${profile_id}',
-                        reloadAfterSubmit: false,
+                        reloadAfterSubmit: true,
                         width: 460,
                         closeAfterAdd: true,
+                        closeAfterEdit:true,
                         errorTextFormat: function (data) {
                             console.log(data);
                             return data.responseText;
                         },
                         afterComplete: function(data) {
                             reloadGrid("#packages");
-                            $("#statusNotificationText").html("Path added.  Don't forget to adjust <a href=\"#\" onClick=\"navigatePathPriority()\" style=\"color: blue\">Path Priorities</a>!");
+                            $("#statusNotificationText").html("Path added.  Don't forget to add a hostname <b>above</b> and<br>adjust <a href=\"#\" onClick=\"navigatePathPriority()\" style=\"color: blue\">Path Priorities</a>!");
                             $("#statusNotificationDiv").fadeIn();
                         },
                         beforeShowForm: function(data) {
@@ -846,9 +857,12 @@
                          rp_ge.url = '<c:url value="/api/path/" />' + currentPathId + "?clientUUID=" + clientUUID;
                         }},
                     {});
+                grid.jqGrid('gridResize');
                 grid.jqGrid('filterToolbar', { defaultSearch: 'cn', stringResult: true });
                 $("#tabs").tabs();
                 $("#tabs").css("overflow", "auto");
+                $("#tabs").css("min-height", "500px");
+                $("#tabs").css("resize", "both");
                 $("#sel1").select2();
 
                 var currentHTML = $("#gview_serverlist > .ui-jqgrid-titlebar > span").html();
@@ -1476,6 +1490,7 @@
                         });
 
                         $("#responseOverrideEnabled").html(content);
+                        $("#responseOverrideEnabled").css("resize", "both");
 
                         if(selectedResponseOverride != 0) {
                             $("#responseOverrideEnabled").val(selectedResponseOverride);
@@ -1544,6 +1559,7 @@
                         });
 
                         $("#requestOverrideEnabled").html(content);
+                        $("#requestOverrideEnabled").css("resize", "both");
 
                         if(selectedRequestOverride != 0) {
                             $("#requestOverrideEnabled").val(selectedRequestOverride);
@@ -1614,11 +1630,17 @@
                         <li><a href="#" onClick="navigatePathTester()">Path Tester</a></li>
                         <li><a href="#" onClick="navigateEditGroups()">Edit Groups</a></li>
                     </ul>
+                    <div id="status" class="form-group navbar-form navbar-left" ></div>
                     <div class="form-group navbar-form navbar-left">
                         <button id="resetProfileButton" class="btn btn-danger" onclick="resetProfile()"
                                 data-toggle="tooltip" data-placement="bottom" title="Click here to reset all path settings in this profile.">Reset Profile</button>
                     </div>
-                    <div id="status" class="form-group navbar-form navbar-left" ></div>
+                    <!-- TO FIND HELP -->
+                    <div class="form-group navbar-form navbar-left">
+                        <button is="helpButton" class="btn btn-info" onclick="navigateHelp()"
+                                target="_blank" data-toggle="tooltip" data-placement="bottom" title="Click here to read the wiki.">Need Help?</button>
+                    </div>
+
                     <ul id="clientInfo" class="nav navbar-nav navbar-right">
                     </ul>
                 </div>
@@ -1631,13 +1653,7 @@
                 <div id="servernavGrid"></div>
             </div>
 
-            <!-- div for top bar notice -->
-            <div class="ui-widget" id="statusNotificationDiv" style="display: none;" onClick="dismissStatusNotificationDiv()">
-                <div class="ui-state-highlight ui-corner-all" style="margin-top: 10px;  margin-bottom: 10px; padding: 0 .7em;">
-                    <p style="margin-top: 10px; margin-bottom:10px;"><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
-                    <span id="statusNotificationText"/></p>
-                </div>
-            </div>
+
 
             <div>
                 <table id="packages">
@@ -1646,6 +1662,13 @@
                 <div id="packagePager" >
                 </div>
             </div>
+        <!-- div for top bar notice -->
+        <div class="ui-widget" id="statusNotificationDiv" style="display: none;" onClick="dismissStatusNotificationDiv()">
+            <div class="ui-state-highlight ui-corner-all" style="margin-top: 10px;  margin-bottom: 10px; padding: 0 .7em;">
+                <p style="margin-top: 10px; margin-bottom:10px;"><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
+                    <span id="statusNotificationText"/></p>
+            </div>
+        </div>
         </div>
 
         <div id="details" >
@@ -1769,7 +1792,7 @@
                                 Path Name
                             </dt>
                             <dd>
-                                <input id="pathName" style="width: 100%" />
+                                <input id="pathName" style="width: 70%" />
                             </dd>
 
                             <dt>
@@ -1809,7 +1832,7 @@
                         </dl>
                         <dl id="postGeneral" class="dl-horizontal" style="display:none;">
                             <dt>
-                                Request Body Filter<br> (optional)
+                                Request Body<br>Filter<br> (optional)
                             </dt>
                             <dd>
                                 <textarea id="postBodyFilter" ROWS="6" style="width:80%;" ></textarea>
