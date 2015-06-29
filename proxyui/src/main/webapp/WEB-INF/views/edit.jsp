@@ -666,7 +666,7 @@
                             INCORRECT HOSTNAME.
                          */
                         $("#cData").focus();
-                        
+
                         var src = true;
                         $("#srcUrl").focus(function(){
                             if( src ) {
@@ -793,9 +793,12 @@
                             index: 'pathName',
                             width: "330",
                             editrules: {
-                                required: true
+                                required: true,
+                                custom: true,
+                                custom_func: pathNameValidation
                             },
-                            editable: true
+                            editable: true,
+                            formoptions:{label: "Path name (*)"}
                         },
                         {
                             name: 'path',
@@ -803,9 +806,12 @@
                             hidden: true,
                             editrules: {
                                 required: true,
-                                edithidden: true
+                                edithidden: true,
+                                custom: true,
+                                custom_func: pathValidation
                             },
                             editable: true,
+                            formoptions:{label: "Path (*)"}
                         },
                         { name: 'requestType',
                           index: 'requestType',
@@ -870,7 +876,14 @@
                     viewrecords: true,
                 });
                 grid.jqGrid('navGrid', '#packagePager',
-                    { add: true, edit: false, del: true, search: false },
+                    {
+                        add: true,
+                        edit: false,
+                        del: true,
+                        search: false,
+                        addtext: "Add a path",
+                        deltext: "Delete a path"
+                    },
                     {},
                     {
                         // Add path
@@ -879,6 +892,7 @@
                         width: 460,
                         closeAfterAdd: true,
                         closeAfterEdit:true,
+                        topinfo:"Fields marked with a (*) are required.",
                         errorTextFormat: function (data) {
                             console.log(data);
                             return data.responseText;
@@ -890,7 +904,39 @@
                         },
                         beforeShowForm: function(data) {
                             $("#statusNotificationDiv").fadeOut();
-                        }
+
+                            /* CREATE PLACEHOLDERS FOR ADD FORM. */
+                            /* INITIALLY, GRAY */
+                            $("#pathName").val("ex. Collections");
+                            $("#pathName").css("color", "gray");
+
+                            $("#path").val("ex. /http500, /(a|b)");
+                            $("#path").css("color", "gray");
+                        },
+                        afterShowForm: function(formid) {
+                            /* SHIFT INITIAL FOCUS TO CANCEL TO MINIMIZE ACCIDENTAL CREATION OF
+                             INCORRECT HOSTNAME.
+                             */
+                            $("#cData").focus();
+
+                            var name = true;
+                            $("#pathName").focus(function(){
+                                if( name ) {
+                                    $("#pathName").val("");
+                                    $("#pathName").css("color", "black");
+                                    name = false;
+                                }
+                            });
+
+                            var path = true;
+                            $("#path").focus(function(){
+                                if( path ) {
+                                    $("#path").val("");
+                                    $("#path").css("color", "black");
+                                    path = false;
+                                }
+                            });
+                        },
                     },
                     {
                         // Delete path
@@ -994,6 +1040,22 @@
 
             function destValidation(val, colname) {
                 if( val.trim() === "ex. 123.45.67.890" ) {
+                    return [false, "Please replace the example destination hostname with a valid hostname."]
+                } else {
+                    return [true, ""];
+                }
+            }
+
+            function pathNameValidation(val, colname) {
+                if( val.trim() === "ex. Collections" ) {
+                    return [false, "Please replace the example path name with a valid name."]
+                } else {
+                    return [true, ""];
+                }
+            }
+
+            function pathValidation(val, colname) {
+                if( val.trim() === "ex. /http, /(a|b)" ) {
                     return [false, "Please replace the example destination hostname with a valid hostname."]
                 } else {
                     return [true, ""];
