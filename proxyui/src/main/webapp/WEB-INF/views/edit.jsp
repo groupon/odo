@@ -655,10 +655,10 @@
                     beforeShowForm: function(formid) {
                         /* CREATE PLACEHOLDERS FOR ADD FORM. */
                         /* INITIALLY, GRAY */
-                        $("#srcUrl").val("ex. groupon.com");
+                        $("#srcUrl").val(getExampleText("src"));
                         $("#srcUrl").css("color", "gray");
 
-                        $("#destUrl").val("ex. 123.45.67.890");
+                        $("#destUrl").val(getExampleText("dest"));
                         $("#destUrl").css("color", "gray");
                     },
                     afterShowForm: function(formid) {
@@ -899,7 +899,7 @@
                         },
                         afterComplete: function(data) {
                             reloadGrid("#packages");
-                            $("#statusNotificationText").html("Path added.  Don't forget to add a hostname <b>above</b> and<br>adjust <a href=\"#\" onClick=\"navigatePathPriority()\" style=\"color: blue\">Path Priorities</a>!");
+                            $("#statusNotificationText").html("Path added.  Don't forget to add a hostname <b>above</b> and<br>adjust path priorities by <b>dragging and dropping</b> rows<br>in the path table!");
                             $("#statusNotificationDiv").fadeIn();
                         },
                         beforeShowForm: function(data) {
@@ -907,10 +907,10 @@
 
                             /* CREATE PLACEHOLDERS FOR ADD FORM. */
                             /* INITIALLY, GRAY */
-                            $("#pathName").val("ex. Collections");
+                            $("#pathName").val(getExampleText("pathName"));
                             $("#pathName").css("color", "gray");
 
-                            $("#path").val("ex. /http500, /(a|b)");
+                            $("#path").val(getExampleText("path"));
                             $("#path").css("color", "gray");
                         },
                         afterShowForm: function(formid) {
@@ -948,6 +948,32 @@
                     {});
                 grid.jqGrid('gridResize');
                 grid.jqGrid('filterToolbar', { defaultSearch: 'cn', stringResult: true });
+
+                /* ALLOWS THE PATH PRIORITY TO BE SET INSIDE OF THE PATH TABLE, INSTEAD OF ON A SEPARATE PAGE */
+                grid.jqGrid('sortableRows', {
+                    update: function(event, ui) {
+                        var pathOrder = "";
+                        var paths = grid.jqGrid('getRowData');
+                        for( var i = 0; i < paths.length; i++ ) {
+                            if( i === paths.length - 1 ) {
+                                pathOrder += paths[i]["pathId"];
+                            } else {
+                                pathOrder += paths[i]["pathId"] + ",";
+                            }
+                        }
+                        $.ajax({
+                            type: "POST",
+                            url: '<c:url value="/pathorder/"/>${profile_id}',
+                            data: ({pathOrder : pathOrder}),
+                            success: function() {
+                                $('#info').html('Path Order Updated');
+                                $('#info').fadeOut(1).delay(50).fadeIn(150);
+                            }
+                        });
+                    },
+                    placeholder: "ui-state-highlight"
+                });
+
                 $("#tabs").tabs();
                 $("#tabs").css("overflow", "auto");
                 $("#tabs").css("min-height", "500px");
@@ -1030,8 +1056,23 @@
             });
             loadPath(currentPathId);
 
+            function getExampleText(item) {
+                switch( item ) {
+                    case "src":
+                        return "ex. groupon.com";
+                    case "dest":
+                        return "ex. 123.45.67.890";
+                    case "pathName":
+                        return "ex. Collections";
+                    case "path":
+                        return "ex. /http500, /(a|b)";
+                    default:
+                        return null;
+                }
+            }
+
             function srcValidation(val, colname) {
-                if( val.trim() === "ex. groupon.com" ) {
+                if( val.trim() === getExampleText("src") ) {
                     return [false, "Please replace the example source hostname with a valid hostname."]
                 } else {
                     return [true, ""];
@@ -1039,7 +1080,7 @@
             }
 
             function destValidation(val, colname) {
-                if( val.trim() === "ex. 123.45.67.890" ) {
+                if( val.trim() === getExampleText("dest") ) {
                     return [false, "Please replace the example destination hostname with a valid hostname."]
                 } else {
                     return [true, ""];
@@ -1047,7 +1088,7 @@
             }
 
             function pathNameValidation(val, colname) {
-                if( val.trim() === "ex. Collections" ) {
+                if( val.trim() === getExampleText("pathName") ) {
                     return [false, "Please replace the example path name with a valid name."]
                 } else {
                     return [true, ""];
@@ -1055,7 +1096,7 @@
             }
 
             function pathValidation(val, colname) {
-                if( val.trim() === "ex. /http, /(a|b)" ) {
+                if( val.trim() === getExampleText("path") ) {
                     return [false, "Please replace the example destination hostname with a valid hostname."]
                 } else {
                     return [true, ""];
@@ -1747,7 +1788,7 @@
                         <li class="navbar-brand">Odo</li>
                         <li><a href="#" onClick="navigateProfiles()">Profiles</a> </li>
                         <li><a href="#" onClick="navigateRequestHistory()">Request History</a></li>
-                        <li id="navbarPathPriority"><a href="#" onClick="navigatePathPriority()">Path Priority</a></li>
+                        <!--<li id="navbarPathPriority"><a href="#" onClick="navigatePathPriority()">Path Priority</a></li>-->
                         <li><a href="#" onClick="navigatePathTester()">Path Tester</a></li>
                         <li><a href="#" onClick="navigateEditGroups()">Edit Groups</a></li>
                     </ul>
