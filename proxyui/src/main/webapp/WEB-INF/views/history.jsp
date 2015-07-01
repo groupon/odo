@@ -279,7 +279,6 @@
                                         + filter,
                                 page : 1
                             }).trigger("reloadGrid");
-            $("#searchFilter").val("");
         }
 
         function showItemsWithMessages() {
