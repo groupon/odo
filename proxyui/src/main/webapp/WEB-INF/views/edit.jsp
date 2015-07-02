@@ -17,7 +17,6 @@
             .detailsLeft
             {
                 float: left;
-                width: 40%;
                 overflow: hidden;
                 margin: 12px;
                 padding: 8px;
@@ -25,7 +24,6 @@
 
             .detailsRight
             {
-                width: 50%;
                 float: left;
                 margin: 12px;
                 margin-left: 0px;
@@ -36,26 +34,23 @@
                 padding: 12px;
             }
 
-            #details
-            {
-                position:fixed;
-                margin-left: 570px;
-                width:100%;
+            #container>div {
+                display:inline-block;
             }
 
             #listContainer
             {
                 min-width: 400px;
+                margin-right: 40px;
                 float: left;
             }
 
             #editDiv {
-                width: 45%;
                 display:none;
+                max-width: 40vw; /* ALLOWS FOR SCROLLING TO THE END OF THE DIV IF LARGER THAN WINDOW */
             }
 
             #serverEdit {
-                width: 60%;
                 display:none;
             }
 
@@ -529,6 +524,7 @@
                 $("#requestOverrideSelect").select2({dropdownAutoWidth : true});
 
                 var serverList = jQuery("#serverlist");
+                var initServerWidth = 0;
                 serverList.jqGrid({
                     autowidth : false,
                     caption : 'API Servers',
@@ -614,6 +610,9 @@
                             serverList.hideCol("hostsEntry.enabled");
                         }
                     },
+                    gridComplete: function() {
+                        initServerWidth = serverList.jqGrid('getGridParam', 'width');
+                    },
                     datatype : "json",
                     height: "100%",
                     hiddengrid: false,
@@ -691,7 +690,11 @@
                         return [true];
                     }
                 });
-                serverList.jqGrid('gridResize');
+                serverList.jqGrid('gridResize', {
+                    stop: function() {
+                        resizeGrid( "#serverlist", serverList, initServerWidth );
+                    }
+                });
 
                 var serverGroupList = jQuery("#serverGroupList");
                 serverGroupList.jqGrid({
@@ -774,6 +777,7 @@
                 serverGroupList.jqGrid('gridResize');
 
                 var grid = $("#packages");
+                var initGridWidth = 0;
                 grid.jqGrid({
                     autowidth: false,
                     caption: "Paths",
@@ -938,7 +942,16 @@
                          rp_ge.url = '<c:url value="/api/path/" />' + currentPathId + "?clientUUID=" + clientUUID;
                         }},
                     {});
-                grid.jqGrid('gridResize');
+                grid.jqGrid('gridResize', {
+                    stop: function() {
+                        resizeGrid( "#packages", grid, initServerWidth );
+                        var width = grid.jqGrid('getGridParam', 'width');
+                        var ratio = width/initServerWidth;
+                        var newSize = ratio + 'em';
+
+                        $(".ui-jqgrid #packages tr.jqgrow td").css('font-size', newSize);
+                    }
+                });
                 grid.jqGrid('filterToolbar', { defaultSearch: 'cn', stringResult: true });
 
                 /* ALLOWS THE PATH PRIORITY TO BE SET INSIDE OF THE PATH TABLE, INSTEAD OF ON A SEPARATE PAGE */
@@ -1061,6 +1074,24 @@
                         return "ex. /http500, /(a|b)"
                     default:
                         return null;
+                }
+            }
+
+            function resizeGrid( val, grid, init ) {
+                var width = grid.jqGrid('getGridParam', 'width');
+                var ratio = width/init;
+                var newSize = ratio + 'em';
+
+                var font = $(".ui-jqgrid "+val+" tr.jqgrow td");
+                $(font).css('font-size', newSize);
+
+                /* CHECK SIZE TO MAKE SURE IT'S NOT TOO BIG AND NOT TOO SMALL */
+                var min = 11;
+                var max = 16;
+                if(parseInt(font.css("fontSize")) < min ) {
+                    font.css('font-size', min);
+                } else if( parseInt(font.css("fontSize")) > max ) {
+                    font.css('fontSize', max);
                 }
             }
 
@@ -1802,6 +1833,7 @@
             </div>
         </nav>
 
+        <div id="container">
         <div id="listContainer">
             <div>
                 <table id="serverlist"></table>
@@ -2027,6 +2059,7 @@
 
                 </div>
             </div>
+        </div>
         </div>
     </body>
 </html>
