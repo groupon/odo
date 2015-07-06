@@ -506,6 +506,7 @@ public class OverrideService {
             enabledOverrides.add(Constants.PLUGIN_REQUEST_HEADER_OVERRIDE_ADD);
             enabledOverrides.add(Constants.PLUGIN_REQUEST_HEADER_OVERRIDE_REMOVE);
             enabledOverrides.add(Constants.PLUGIN_REQUEST_OVERRIDE_CUSTOM);
+            enabledOverrides.add(Constants.PLUGIN_REQUEST_OVERRIDE_CUSTOM_POST_BODY);
 
             String overridePlaceholders = preparePlaceHolders(enabledOverrides.size());
 
@@ -715,7 +716,8 @@ public class OverrideService {
 
                 endpoint.setMethodInformation(m);
             } else if (endpoint.getOverrideId() == Constants.PLUGIN_REQUEST_OVERRIDE_CUSTOM
-                || endpoint.getOverrideId() == Constants.PLUGIN_RESPONSE_OVERRIDE_CUSTOM) {
+                || endpoint.getOverrideId() == Constants.PLUGIN_RESPONSE_OVERRIDE_CUSTOM
+                || endpoint.getOverrideId() == Constants.PLUGIN_REQUEST_OVERRIDE_CUSTOM_POST_BODY) {
                 // set fake method info
                 com.groupon.odo.proxylib.models.Method m = new com.groupon.odo.proxylib.models.Method();
 

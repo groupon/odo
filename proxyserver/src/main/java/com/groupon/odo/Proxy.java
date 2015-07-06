@@ -639,13 +639,21 @@ public class Proxy extends HttpServlet {
      * @throws Exception
      */
     private String processQueryString(String queryString) throws Exception {
+        return processQueryStrings(queryString, Constants.PLUGIN_REQUEST_OVERRIDE_CUSTOM);
+    }
+
+    public String processPostDataString(String postDataString) throws Exception {
+        return processQueryStrings(postDataString, Constants.PLUGIN_REQUEST_OVERRIDE_CUSTOM_POST_BODY);
+    }
+
+    private String processQueryStrings(String queryString, int overrideType) throws Exception {
         String returnString = queryString;
         Boolean overridden = false;
         RequestInformation requestInfo = requestInformation.get();
         for (EndpointOverride selectedPath : requestInfo.selectedRequestPaths) {
             List<EnabledEndpoint> points = selectedPath.getEnabledEndpoints();
             for (EnabledEndpoint endpoint : points) {
-                if (endpoint.getOverrideId() == Constants.PLUGIN_REQUEST_OVERRIDE_CUSTOM) {
+                if (endpoint.getOverrideId() == overrideType) {
                     if (!overridden) {
                         overridden = true;
                         returnString = "";
@@ -654,7 +662,9 @@ public class Proxy extends HttpServlet {
                     // need to tokenize this
                     // tokenize the original query string starting at the first character(skips the ?)
                     String originalQueryString = "";
-                    if (queryString.length() > 1) {
+                    if (queryString.length() > 1 && overrideType == Constants.PLUGIN_REQUEST_OVERRIDE_CUSTOM_POST_BODY) {
+                        originalQueryString = queryString;
+                    } else if (queryString.length() > 1) {
                         originalQueryString = queryString.substring(1);
                     }
                     returnString = "";
@@ -666,7 +676,7 @@ public class Proxy extends HttpServlet {
 
                     // find the first enabled custom request override
                     for (EnabledEndpoint override : overrides) {
-                        if (override.getOverrideId() == Constants.PLUGIN_REQUEST_OVERRIDE_CUSTOM &&
+                        if (override.getOverrideId() == overrideType &&
                             override.getRepeatNumber() != 0) {
                             modifierParams = HttpUtilities.getParameters((String) override.getArguments()[0]);
                             override.decrementRepeatNumber();
@@ -693,7 +703,7 @@ public class Proxy extends HttpServlet {
                     for (String key : originalParams.keySet()) {
                         if (returnString.length() > 1) {
                             returnString += "&";
-                        } else {
+                        } else if (overrideType != Constants.PLUGIN_REQUEST_OVERRIDE_CUSTOM_POST_BODY) {
                             returnString = "?";
                         }
 

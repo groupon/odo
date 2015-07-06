@@ -1589,6 +1589,8 @@
                                     content += 'Set Header(' + getFormattedArguments( enabledArgs, 2 ) + ')';
                                 } else if (enabledId == -4 || enabledId == -6) {
                                     content += 'Remove Header(' + getFormattedArguments( enabledArgs, 1 ) + ')';
+                                } else if (enabledId == -7) {
+                                    content += "Custom Post Body";
                                 }
                                 content += '</option>';
                             } else {
@@ -1659,6 +1661,8 @@
                                     content += 'Set Header(' + getFormattedArguments( enabledArgs, 2 ) + ')';
                                 } else if (enabledId == -4 || enabledId == -6) {
                                     content += 'Remove Header(' + getFormattedArguments( enabledArgs, 1 ) + ')';
+                                } else if (enabledId == -7) {
+                                    content += "Custom Post Body";
                                 }
                                 content += '</option>';
                             } else {
@@ -1697,6 +1701,7 @@
 				content += '<option value="-2">Custom Request</option>';
 				content += '<option value="-5">Set Header</option>';
 				content += '<option value="-6">Remove Header</option>';
+                content += '<option value="-7">Custom Post Body</option>';
                 content += '</optgroup>';
 
                 $("#requestOverrideSelect").html(content);
