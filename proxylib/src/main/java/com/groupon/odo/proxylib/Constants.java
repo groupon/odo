@@ -79,6 +79,7 @@ public class Constants {
     public static final int PLUGIN_RESPONSE_HEADER_OVERRIDE_REMOVE = -4;
     public static final int PLUGIN_REQUEST_HEADER_OVERRIDE_ADD = -5;
     public static final int PLUGIN_REQUEST_HEADER_OVERRIDE_REMOVE = -6;
+    public static final int PLUGIN_REQUEST_OVERRIDE_CUSTOM_POST_BODY = -7;
     public static final String PLUGIN_TYPE_RESPONSE_OVERRIDE = "interface com.groupon.odo.plugin.ResponseOverride";
     public static final String PLUGIN_TYPE_RESPONSE_OVERRIDE_V2 = "interface com.groupon.odo.plugin.v2.ResponseOverride";
     public static final String PLUGIN_TYPE_REQUEST_OVERRIDE = "interface com.groupon.odo.plugin.RequestOverride";

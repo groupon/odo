@@ -409,6 +409,10 @@ public class HttpUtilities {
                     }
                 }
             }
+            String postData = new Proxy().processPostDataString(requestBody.toString());
+            requestBody = new StringBuilder(postData);
+            requestByteArray = postData.getBytes();
+            requestEntity = new ByteArrayRequestEntity(requestByteArray);
         } else if (httpServletRequest.getContentType() != null &&
             httpServletRequest.getContentType().contains(STRING_CONTENT_TYPE_MESSAGEPACK)) {
 
@@ -443,6 +447,8 @@ public class HttpUtilities {
                 history.setRequestBodyDecoded(true);
             }
         }
+
+        requestBody = new StringBuilder(new Proxy().processPostDataString(requestBody.toString()));
 
         // set post body in history object
         history.setRequestPostData(requestBody.toString());
