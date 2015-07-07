@@ -184,6 +184,9 @@ public class HttpUtilities {
                     }
 
                     values.add(value.toString());
+                    if (equalsPos != -1 && value.size() == 0) {
+                        key.write((byte) '=');
+                    }
 
                     mapPostParameters.put(key.toString(), values.toArray(new String[values.size()]));
 
