@@ -412,10 +412,13 @@ public class HttpUtilities {
                     }
                 }
             }
-            String postData = new Proxy().processPostDataString(requestBody.toString());
-            requestBody = new StringBuilder(postData);
-            requestByteArray = postData.getBytes();
-            requestEntity = new ByteArrayRequestEntity(requestByteArray);
+            Proxy.QueryInformation queryInformation = Proxy.processPostDataString(requestBody.toString());
+            if (queryInformation.modified) {
+                String postData = queryInformation.queryString;
+                requestBody = new StringBuilder(postData);
+                requestByteArray = postData.getBytes();
+                requestEntity = new ByteArrayRequestEntity(requestByteArray);
+            }
         } else if (httpServletRequest.getContentType() != null &&
             httpServletRequest.getContentType().contains(STRING_CONTENT_TYPE_MESSAGEPACK)) {
 
@@ -435,6 +438,7 @@ public class HttpUtilities {
             }
 
             history.setRequestBodyDecoded(true);
+            requestBody = new StringBuilder(Proxy.processPostDataString(requestBody.toString()).queryString);
         } else {
             requestByteArray = IOUtils.toByteArray(body);
 
@@ -449,9 +453,8 @@ public class HttpUtilities {
             if (!requestBodyString.equals(new String(requestByteArray))) {
                 history.setRequestBodyDecoded(true);
             }
+            requestBody = new StringBuilder(Proxy.processPostDataString(requestBody.toString()).queryString);
         }
-
-        requestBody = new StringBuilder(new Proxy().processPostDataString(requestBody.toString()));
 
         // set post body in history object
         history.setRequestPostData(requestBody.toString());

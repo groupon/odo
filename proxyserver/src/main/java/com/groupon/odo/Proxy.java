@@ -598,7 +598,7 @@ public class Proxy extends HttpServlet {
 
         // Handle the path given to the servlet
         stringProxyURL += httpServletRequest.getPathInfo();
-        stringProxyURL += processQueryString(queryString);
+        stringProxyURL += processQueryString(queryString).queryString;
         logger.info("url = {}", stringProxyURL);
 
         history.setProfileId(requestInfo.profile.getId());
@@ -638,22 +638,25 @@ public class Proxy extends HttpServlet {
      * @return
      * @throws Exception
      */
-    private String processQueryString(String queryString) throws Exception {
+    public static QueryInformation processQueryString(String queryString) throws Exception {
         return processQueryStrings(queryString, Constants.PLUGIN_REQUEST_OVERRIDE_CUSTOM);
     }
 
-    public String processPostDataString(String postDataString) throws Exception {
+    public static QueryInformation processPostDataString(String postDataString) throws Exception {
         return processQueryStrings(postDataString, Constants.PLUGIN_REQUEST_OVERRIDE_CUSTOM_POST_BODY);
     }
 
-    private String processQueryStrings(String queryString, int overrideType) throws Exception {
+    private static QueryInformation processQueryStrings(String queryString, int overrideType) throws Exception {
         String returnString = queryString;
+        QueryInformation returnQuery = new QueryInformation();
+        returnQuery.modified = false;
         Boolean overridden = false;
         RequestInformation requestInfo = requestInformation.get();
         for (EndpointOverride selectedPath : requestInfo.selectedRequestPaths) {
             List<EnabledEndpoint> points = selectedPath.getEnabledEndpoints();
             for (EnabledEndpoint endpoint : points) {
                 if (endpoint.getOverrideId() == overrideType) {
+                    returnQuery.modified = true;
                     if (!overridden) {
                         overridden = true;
                         returnString = "";
@@ -712,7 +715,8 @@ public class Proxy extends HttpServlet {
                 }
             }
         }
-        return returnString;
+        returnQuery.queryString = returnString;
+        return returnQuery;
     }
 
     /**
@@ -1295,5 +1299,10 @@ public class Proxy extends HttpServlet {
         public ArrayList<EndpointOverride> selectedResponsePaths = new ArrayList<EndpointOverride>();
         public HttpRequestInfo originalRequestInfo = null;
         public String jsonpCallback = null;
+    }
+
+    public static class QueryInformation {
+        public String queryString;
+        public boolean modified;
     }
 }
