@@ -93,7 +93,7 @@
             }
 
             function navigateRequestHistory() {
-                window.open('<c:url value='/history/${profile_id}'/>?clientUUID=${clientUUID}', "request-history");
+                window.open('<c:url value='/history/${profile_id}'/>?clientUUID=${clientUUID}', '<c:url value='/history/${profile_id}'/>?clientUUID=${clientUUID}');
             }
 
             function navigateProfiles() {
