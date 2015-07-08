@@ -184,6 +184,11 @@ public class HttpUtilities {
                     }
 
                     values.add(value.toString());
+                    /**
+                     * If equalsPos is not -1, then there was a '=' for the key
+                     * If value.size is 0, then there is no value so want to add in the '='
+                     * Since it will not be added later like params with keys and valued
+                     */
                     if (equalsPos != -1 && value.size() == 0) {
                         key.write((byte) '=');
                     }
@@ -412,7 +417,14 @@ public class HttpUtilities {
                     }
                 }
             }
+            /**
+             * Process the post data string so it can be added to history
+             * Separates individual params out and applies post data override as applicable
+             */
             Proxy.QueryInformation queryInformation = Proxy.processPostDataString(requestBody.toString());
+            // Set request body which is added to history
+            requestBody = new StringBuilder(Proxy.processPostDataString(requestBody.toString()).queryString);
+            // Rewrite the post data if it is modified
             if (queryInformation.modified) {
                 String postData = queryInformation.queryString;
                 requestBody = new StringBuilder(postData);

@@ -1301,6 +1301,11 @@ public class Proxy extends HttpServlet {
         public String jsonpCallback = null;
     }
 
+    /**
+     * Struct to hold information about a post query string
+     * Used in return from handling the post to determine if it was modified
+     * or not
+     */
     public static class QueryInformation {
         public String queryString;
         public boolean modified;
