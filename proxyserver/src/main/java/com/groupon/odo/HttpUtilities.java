@@ -423,7 +423,7 @@ public class HttpUtilities {
              */
             Proxy.QueryInformation queryInformation = Proxy.processPostDataString(requestBody.toString());
             // Set request body which is added to history
-            requestBody = new StringBuilder(Proxy.processPostDataString(requestBody.toString()).queryString);
+            requestBody = new StringBuilder(queryInformation.queryString);
             // Rewrite the post data if it is modified
             if (queryInformation.modified) {
                 String postData = queryInformation.queryString;
