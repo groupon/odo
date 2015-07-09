@@ -184,6 +184,14 @@ public class HttpUtilities {
                     }
 
                     values.add(value.toString());
+                    /**
+                     * If equalsPos is not -1, then there was a '=' for the key
+                     * If value.size is 0, then there is no value so want to add in the '='
+                     * Since it will not be added later like params with keys and valued
+                     */
+                    if (equalsPos != -1 && value.size() == 0) {
+                        key.write((byte) '=');
+                    }
 
                     mapPostParameters.put(key.toString(), values.toArray(new String[values.size()]));
 
@@ -409,10 +417,20 @@ public class HttpUtilities {
                     }
                 }
             }
-            String postData = new Proxy().processPostDataString(requestBody.toString());
-            requestBody = new StringBuilder(postData);
-            requestByteArray = postData.getBytes();
-            requestEntity = new ByteArrayRequestEntity(requestByteArray);
+            /**
+             * Process the post data string so it can be added to history
+             * Separates individual params out and applies post data override as applicable
+             */
+            Proxy.QueryInformation queryInformation = Proxy.processPostDataString(requestBody.toString());
+            // Set request body which is added to history
+            requestBody = new StringBuilder(queryInformation.queryString);
+            // Rewrite the post data if it is modified
+            if (queryInformation.modified) {
+                String postData = queryInformation.queryString;
+                requestBody = new StringBuilder(postData);
+                requestByteArray = postData.getBytes();
+                requestEntity = new ByteArrayRequestEntity(requestByteArray);
+            }
         } else if (httpServletRequest.getContentType() != null &&
             httpServletRequest.getContentType().contains(STRING_CONTENT_TYPE_MESSAGEPACK)) {
 
@@ -432,6 +450,7 @@ public class HttpUtilities {
             }
 
             history.setRequestBodyDecoded(true);
+            requestBody = new StringBuilder(Proxy.processPostDataString(requestBody.toString()).queryString);
         } else {
             requestByteArray = IOUtils.toByteArray(body);
 
@@ -446,9 +465,8 @@ public class HttpUtilities {
             if (!requestBodyString.equals(new String(requestByteArray))) {
                 history.setRequestBodyDecoded(true);
             }
+            requestBody = new StringBuilder(Proxy.processPostDataString(requestBody.toString()).queryString);
         }
-
-        requestBody = new StringBuilder(new Proxy().processPostDataString(requestBody.toString()));
 
         // set post body in history object
         history.setRequestPostData(requestBody.toString());
