@@ -85,7 +85,7 @@
             var editServerGroupId = 0;
 
             function navigateHelp() {
-                window.open("https://github.com/groupon/odo/wiki","help");
+                window.open("https://github.com/groupon/odo#readme","help");
             }
 
             function navigateEditGroups() {0
@@ -1824,7 +1824,7 @@
                     <!-- TO FIND HELP -->
                     <div class="form-group navbar-form navbar-left">
                         <button id="helpButton" class="btn btn-info" onclick="navigateHelp()"
-                                target="_blank" data-toggle="tooltip" data-placement="bottom" title="Click here to read the wiki.">Need Help?</button>
+                                target="_blank" data-toggle="tooltip" data-placement="bottom" title="Click here to read the readme.">Need Help?</button>
                     </div>
 
                     <ul id="clientInfo" class="nav navbar-nav navbar-right">
