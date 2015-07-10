@@ -54,6 +54,11 @@
                 display:none;
             }
 
+            #nav>li>a { /* MAKES THE PILLS SMALLER */
+                padding-top:3px !important;
+                padding-bottom:3px !important;
+            }
+
             /* This changes the color of the active pill */
             .nav-pills>li.active>a, .nav-pills>li.active>a:hover, .nav-pills>li.active>a:focus {
                 background-color:#e9e9e9 !important;
