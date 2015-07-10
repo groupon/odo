@@ -986,6 +986,11 @@
                     placeholder: "ui-state-highlight"
                 });
 
+                /* ADD PLACEHOLDER TO FILTER BAR */
+                $("#gs_pathName").val("Type here to filter columns.");
+                $("#gs_pathName").focus(function() {
+                    $("#gs_pathName").val("");
+                });
 
                 $("#tabs").tabs();
                 $("#tabs").css("overflow", "auto");
