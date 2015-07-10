@@ -116,17 +116,19 @@
                 var clientInfo = $("#clientInfo");
                 var clientInfoHTML = "";
                 if (clientUUID == '-1') {
-                    clientInfoHTML = "<li class='dropdown'><a href='#' class='dropdown-toggle' data-toggle='dropdown'>Client UUID: Default<b class='caret'></b></a><ul class='dropdown-menu'>";
+                    clientInfoHTML = "<li><a href='#' onclick='manageClientPopup()'>Client UUID: Default</a>";
+                    //clientInfoHTML = "<li class='dropdown'><a href='#' class='dropdown-toggle' data-toggle='dropdown'>Client UUID: Default<b class='caret'></b></a><ul class='dropdown-menu'>";
                 } else {
-                    clientInfoHTML = "<li class='dropdown'><a href='#' class='dropdown-toggle' data-toggle='dropdown'>Client UUID: " + clientUUID + "<span class='caret'></span></a><ul class='dropdown-menu'>";
+                    clientInfoHTML = "<li><a href='#' onclick='manageClientPopup()'>Client UUID: " + clientUUID + "</a>";
+                    //clientInfoHTML = "<li class='dropdown'><a href='#' class='dropdown-toggle' data-toggle='dropdown'>Client UUID: " + clientUUID + "<span class='caret'></span></a><ul class='dropdown-menu'>";
                 }
 
                 //if ("${clientFriendlyName}" != "")
                 //    clientInfoHTML += "(${clientFriendlyName})";
 
-                clientInfoHTML += '  <li><a href="#" onclick="changeClientPopup()">Change Client</a></li>';
+                /*clientInfoHTML += '  <li><a href="#" onclick="changeClientPopup()">Change Client</a></li>';
                 clientInfoHTML += '  <li><a href="#" onclick="changeClientFriendlyNamePopup()">Set Friendly Name</a></li>';
-                clientInfoHTML += '  <li><a href="#" onclick="manageClients()">Manage Clients</a></li>';
+                clientInfoHTML += '  <li><a href="#" onclick="manageClients()">Manage Clients</a></li>';*/
                 clientInfoHTML += '</ul></li>'
                 clientInfo.html(clientInfoHTML);
             }
@@ -1792,17 +1794,18 @@
         </script>
     </head>
     <body>
-    	<!-- Hidden div for changing client friendly name -->
+    	<!-- Hidden div for changing client friendly name --
         <div id="changeClientFriendlyNameDialog" style="display:none;">
             Client Friendly Name: <input id="changeClientFriendlyName" value="${clientFriendlyName}"/>
             <div id="friendlyNameError" style="color: red"></div>
         </div>
 
-        <!-- Hidden div for switching clients -->
+        <!-- Hidden div for switching clients --
         <div id="switchClientDialog" style="display:none;">
             Client UUID/Name: <input id="switchClientName" value="${clientFriendlyName}"/>
-        </div>
-        
+        </div>-->
+
+        <%@ include file="clients_part.jsp" %>
         <%@ include file="pathtester_part.jsp" %>
 
         <nav class="navbar navbar-default" role="navigation">
