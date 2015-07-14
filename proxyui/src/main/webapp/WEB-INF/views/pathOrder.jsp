@@ -23,6 +23,7 @@
     $("#sortable").sortable({
     	update: function(event, ui) {
 			var pathOrder = $('#sortable').sortable('toArray').toString();
+			console.log("Path order: "+pathOrder);
 			//alert(pathOrder);
 			$.ajax({
 				type: "POST",
