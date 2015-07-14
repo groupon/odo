@@ -961,8 +961,7 @@
                 });
                 grid.jqGrid('filterToolbar', { defaultSearch: 'cn', stringResult: true });
 
-                /* ALLOWS THE PATH PRIORITY TO BE SET INSIDE OF THE PATH TABLE, INSTEAD OF ON A SEPARATE PAGE */
-                grid.jqGrid('sortableRows', {
+                var options = {
                     update: function(event, ui) {
                         var pathOrder = "";
                         var paths = grid.jqGrid('getRowData');
@@ -984,6 +983,26 @@
                         });
                     },
                     placeholder: "ui-state-highlight"
+                };
+
+                var curr = false;
+                grid.jqGrid('navButtonAdd', '#packagePager', {
+                    caption: "Reorder",
+                    buttonicon: "ui-icon-carat-2-n-s",
+                    title: "Toggle Reorder Path Priority",
+                    id: "reorder_packages",
+                    onClickButton: function() {
+                        curr = !curr;
+
+                        if( curr ) {
+                            /* ALLOWS THE PATH PRIORITY TO BE SET INSIDE OF THE PATH TABLE, INSTEAD OF ON A SEPARATE PAGE */
+                            grid.jqGrid('sortableRows', options);
+                            $("#reorder_packages").addClass("ui-state-highlight");
+                        } else {
+                            $("#packages tbody").sortable('destroy');
+                            $("#reorder_packages").removeClass("ui-state-highlight");
+                        }
+                    }
                 });
 
                 /* ADD PLACEHOLDER TO FILTER BAR */
