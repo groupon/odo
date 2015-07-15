@@ -47,7 +47,8 @@
 
             #editDiv {
                 display:none;
-                max-width: 40vw; /* ALLOWS FOR SCROLLING TO THE END OF THE DIV IF LARGER THAN WINDOW */
+                width: 45vw;
+                max-width: 45vw; /* ALLOWS FOR SCROLLING TO THE END OF THE DIV IF LARGER THAN WINDOW */
             }
 
             #serverEdit {
@@ -985,16 +986,16 @@
                     placeholder: "ui-state-highlight"
                 };
 
-                var curr = false;
+                var sortableAllowed = false;
                 grid.jqGrid('navButtonAdd', '#packagePager', {
                     caption: "Reorder",
                     buttonicon: "ui-icon-carat-2-n-s",
                     title: "Toggle Reorder Path Priority",
                     id: "reorder_packages",
                     onClickButton: function() {
-                        curr = !curr;
+                        sortableAllowed = !sortableAllowed;
 
-                        if( curr ) {
+                        if( sortableAllowed ) {
                             /* ALLOWS THE PATH PRIORITY TO BE SET INSIDE OF THE PATH TABLE, INSTEAD OF ON A SEPARATE PAGE */
                             grid.jqGrid('sortableRows', options);
                             $("#reorder_packages").addClass("ui-state-highlight");
@@ -1100,7 +1101,7 @@
                     case "dest":
                         return "ex. 123.45.67.890";
                     case "pathName":
-                        return "ex. Collections";
+                        return "ex. My Path Name";
                     case "path":
                         return "ex. /http500, /(a|b)"
                     default:

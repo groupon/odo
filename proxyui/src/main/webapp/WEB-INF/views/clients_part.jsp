@@ -6,49 +6,49 @@
 <script>
 var id = -1;
 function idFormatter( cellvalue, options, rowObject ) {
-	id = cellvalue;
-	return cellvalue;
+    id = cellvalue;
+    return cellvalue;
 }
 
 var uuid;
 function uuidFormatter( cellvalue, options, rowObject ) {
-	uuid = cellvalue;
-	return cellvalue;
+    uuid = cellvalue;
+    return cellvalue;
 }
 
 //formats the enable/disable check box
 function enabledFormatter( cellvalue, options, rowObject ) {
-	var checkedValue = 0;
-	if (cellvalue == true) {
-		checkedValue = 1;
-	}
+    var checkedValue = 0;
+    if (cellvalue == true) {
+        checkedValue = 1;
+    }
 
-	var newCellValue = '<input id="enabled_' + id + '" onChange="enabledChanged(' + id + ', \'' + uuid + '\')" type="checkbox" offval="0" value="' + checkedValue + '"';
+    var newCellValue = '<input id="enabled_' + id + '" onChange="enabledChanged(' + id + ', \'' + uuid + '\')" type="checkbox" offval="0" value="' + checkedValue + '"';
 
-	if (checkedValue == 1) {
-		newCellValue += 'checked="checked"';
-	}
+    if (checkedValue == 1) {
+        newCellValue += 'checked="checked"';
+    }
 
-	newCellValue += '>';
+    newCellValue += '>';
 
-	return newCellValue;
+    return newCellValue;
 }
 
 //called when an enabled checkbox is changed
 function enabledChanged(id, uuid) {
-	var enabled = $("#enabled_" + id).is(":checked");
+    var enabled = $("#enabled_" + id).is(":checked");
 
-	$.ajax({
-   		type:"POST",
-    	url: '<c:url value="/api/profile/${profile_id}/clients/"/>' + uuid,
-    	data: "active=" + enabled,
-    	success: function() {
-   			jQuery("#clientlist").trigger("reloadGrid");
-   		},
-   		error: function(xhr) {
-   			document.getElementById("enabled_" + id).checked = origEnabled;
-   			alert("Error updating client entry.");
-   		}
+    $.ajax({
+        type:"POST",
+        url: '<c:url value="/api/profile/${profile_id}/clients/"/>' + uuid,
+        data: "active=" + enabled,
+        success: function() {
+            jQuery("#clientlist").trigger("reloadGrid");
+        },
+        error: function(xhr) {
+            document.getElementById("enabled_" + id).checked = origEnabled;
+            alert("Error updating client entry.");
+        }
     });
 }
 
