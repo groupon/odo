@@ -127,9 +127,9 @@
                 var clientInfo = $("#clientInfo");
                 var clientInfoHTML = "";
                 if (clientUUID == '-1') {
-                    clientInfoHTML = "<li><a href='#' onclick='manageClientPopup()'>Client UUID: Default</a>";
+                    clientInfoHTML = "<li id='clientButton'><a href='#' data-toggle='tooltip' data-placement='bottom' title='Click here to manage clients.' onclick='manageClientPopup()'>Client UUID: Default</a>";
                 } else {
-                    clientInfoHTML = "<li><a href='#' onclick='manageClientPopup()'>Client UUID: " + clientUUID + "</a>";
+                    clientInfoHTML = "<li id='clientButton'><a href='#' data-toggle='tooltip' data-placement='bottom' title='Click here to manage clients.' onclick='manageClientPopup()'>Client UUID: " + clientUUID + "</a>";
                 }
 
                 clientInfoHTML += '</ul></li>'
@@ -501,10 +501,8 @@
             }
 
             $(document).ready(function () {
-                // turn on tooltips
-                $("#resetProfileButton").tooltip();
-                $("#helpButton").tooltip();
-                $("#gs_pathName").tooltip({content:"Use this box to filter the path names."});
+                // turn on all tooltips
+                $("#statusBar").tooltip({selector: '[data-toggle=tooltip]'});
                 $.ajax({
                     type : "GET",
                     url : '<c:url value="/api/profile/${profile_id}/clients/"/>' + $.cookie("UUID"),
@@ -1837,7 +1835,7 @@
 
         <nav class="navbar navbar-default" role="navigation">
             <div class="container-fluid">
-                <div class="collapse navbar-collapse">
+                <div id="statusBar" class="collapse navbar-collapse">
                     <ul id="status2"  class="nav navbar-nav navbar-left">
                         <li class="navbar-brand">Odo</li>
                         <li><a href="#" onClick="navigateProfiles()">Profiles</a> </li>
