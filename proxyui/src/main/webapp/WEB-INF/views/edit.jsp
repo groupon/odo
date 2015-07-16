@@ -17,7 +17,6 @@
             .detailsLeft
             {
                 float: left;
-                width: 40%;
                 overflow: hidden;
                 margin: 12px;
                 padding: 8px;
@@ -25,7 +24,6 @@
 
             .detailsRight
             {
-                width: 50%;
                 float: left;
                 margin: 12px;
                 margin-left: 0px;
@@ -36,27 +34,30 @@
                 padding: 12px;
             }
 
-            #details
-            {
-                position:fixed;
-                margin-left: 570px;
-                width:100%;
+            #container>div {
+                display:inline-block;
             }
 
             #listContainer
             {
                 min-width: 400px;
+                margin-right: 40px;
                 float: left;
             }
 
             #editDiv {
-                width: 45%;
                 display:none;
+                width: 45vw;
+                max-width: 45vw; /* ALLOWS FOR SCROLLING TO THE END OF THE DIV IF LARGER THAN WINDOW */
             }
 
             #serverEdit {
-                width: 60%;
                 display:none;
+            }
+
+            #nav>li>a { /* MAKES THE PILLS SMALLER */
+                padding-top:3px !important;
+                padding-bottom:3px !important;
             }
 
             /* This changes the color of the active pill */
@@ -90,7 +91,7 @@
             var editServerGroupId = 0;
 
             function navigateHelp() {
-                window.open("https://github.com/groupon/odo/wiki","help");
+                window.open("https://github.com/groupon/odo#readme","help");
             }
 
             function navigateEditGroups() {0
@@ -98,7 +99,7 @@
             }
 
             function navigateRequestHistory() {
-                window.open('<c:url value='/history/${profile_id}'/>?clientUUID=${clientUUID}', "request-history");
+                window.open('<c:url value='/history/${profile_id}'/>?clientUUID=${clientUUID}', '<c:url value='/history/${profile_id}'/>?clientUUID=${clientUUID}');
             }
 
             function navigateProfiles() {
@@ -107,14 +108,6 @@
 
             function navigatePathPriority() {
                 window.location = '<c:url value = '/pathorder/${profile_id}'/>';
-            }
-            
-            function navigateRequestHistory() {
-                window.open('<c:url value='/history/${profile_id}'/>?clientUUID=${clientUUID}', "_blank");
-            }
-
-            function navigateProfiles() {
-                window.location = '<c:url value='/profiles'/>';
             }
 
             function updateStatus() {
@@ -129,17 +122,11 @@
                 var clientInfo = $("#clientInfo");
                 var clientInfoHTML = "";
                 if (clientUUID == '-1') {
-                    clientInfoHTML = "<li class='dropdown'><a href='#' class='dropdown-toggle' data-toggle='dropdown'>Client UUID: Default<b class='caret'></b></a><ul class='dropdown-menu'>";
+                    clientInfoHTML = "<li><a href='#' onclick='manageClientPopup()'>Client UUID: Default</a>";
                 } else {
-                    clientInfoHTML = "<li class='dropdown'><a href='#' class='dropdown-toggle' data-toggle='dropdown'>Client UUID: " + clientUUID + "<span class='caret'></span></a><ul class='dropdown-menu'>";
+                    clientInfoHTML = "<li><a href='#' onclick='manageClientPopup()'>Client UUID: " + clientUUID + "</a>";
                 }
 
-                //if ("${clientFriendlyName}" != "")
-                //    clientInfoHTML += "(${clientFriendlyName})";
-
-                clientInfoHTML += '  <li><a href="#" onclick="changeClientPopup()">Change Client</a></li>';
-                clientInfoHTML += '  <li><a href="#" onclick="changeClientFriendlyNamePopup()">Set Friendly Name</a></li>';
-                clientInfoHTML += '  <li><a href="#" onclick="manageClients()">Manage Clients</a></li>';
                 clientInfoHTML += '</ul></li>'
                 clientInfo.html(clientInfoHTML);
             }
@@ -537,6 +524,7 @@
                 $("#requestOverrideSelect").select2({dropdownAutoWidth : true});
 
                 var serverList = jQuery("#serverlist");
+                var initServerWidth = 0;
                 serverList.jqGrid({
                     autowidth : false,
                     caption : 'API Servers',
@@ -622,6 +610,9 @@
                             serverList.hideCol("hostsEntry.enabled");
                         }
                     },
+                    gridComplete: function() {
+                        initServerWidth = serverList.jqGrid('getGridParam', 'width');
+                    },
                     datatype : "json",
                     height: "100%",
                     hiddengrid: false,
@@ -655,10 +646,10 @@
                     beforeShowForm: function(formid) {
                         /* CREATE PLACEHOLDERS FOR ADD FORM. */
                         /* INITIALLY, GRAY */
-                        $("#srcUrl").val("ex. groupon.com");
+                        $("#srcUrl").val(getExampleText("src"));
                         $("#srcUrl").css("color", "gray");
 
-                        $("#destUrl").val("ex. 123.45.67.890");
+                        $("#destUrl").val(getExampleText("dest"));
                         $("#destUrl").css("color", "gray");
                     },
                     afterShowForm: function(formid) {
@@ -699,7 +690,11 @@
                         return [true];
                     }
                 });
-                serverList.jqGrid('gridResize');
+                serverList.jqGrid('gridResize', {
+                    stop: function() {
+                        resizeGrid( "#serverlist", serverList, initServerWidth );
+                    }
+                });
 
                 var serverGroupList = jQuery("#serverGroupList");
                 serverGroupList.jqGrid({
@@ -782,6 +777,7 @@
                 serverGroupList.jqGrid('gridResize');
 
                 var grid = $("#packages");
+                var initGridWidth = 0;
                 grid.jqGrid({
                     autowidth: false,
                     caption: "Paths",
@@ -899,7 +895,7 @@
                         },
                         afterComplete: function(data) {
                             reloadGrid("#packages");
-                            $("#statusNotificationText").html("Path added.  Don't forget to add a hostname <b>above</b> and<br>adjust <a href=\"#\" onClick=\"navigatePathPriority()\" style=\"color: blue\">Path Priorities</a>!");
+                            $("#statusNotificationText").html("Path added.  Don't forget to add a hostname <b>above</b> and<br>adjust path priorities by <b>dragging and dropping</b> rows<br>in the path table!");
                             $("#statusNotificationDiv").fadeIn();
                         },
                         beforeShowForm: function(data) {
@@ -907,10 +903,10 @@
 
                             /* CREATE PLACEHOLDERS FOR ADD FORM. */
                             /* INITIALLY, GRAY */
-                            $("#pathName").val("ex. Collections");
+                            $("#pathName").val(getExampleText("pathName"));
                             $("#pathName").css("color", "gray");
 
-                            $("#path").val("ex. /http500, /(a|b)");
+                            $("#path").val(getExampleText("path"));
                             $("#path").css("color", "gray");
                         },
                         afterShowForm: function(formid) {
@@ -946,8 +942,68 @@
                          rp_ge.url = '<c:url value="/api/path/" />' + currentPathId + "?clientUUID=" + clientUUID;
                         }},
                     {});
-                grid.jqGrid('gridResize');
+                grid.jqGrid('gridResize', {
+                    stop: function() {
+                        resizeGrid( "#packages", grid, initServerWidth );
+                        var width = grid.jqGrid('getGridParam', 'width');
+                        var ratio = width/initServerWidth;
+                        var newSize = ratio + 'em';
+
+                        $(".ui-jqgrid #packages tr.jqgrow td").css('font-size', newSize);
+                    }
+                });
                 grid.jqGrid('filterToolbar', { defaultSearch: 'cn', stringResult: true });
+
+                var options = {
+                    update: function(event, ui) {
+                        var pathOrder = "";
+                        var paths = grid.jqGrid('getRowData');
+                        for( var i = 0; i < paths.length; i++ ) {
+                            if( i === paths.length - 1 ) {
+                                pathOrder += paths[i]["pathId"];
+                            } else {
+                                pathOrder += paths[i]["pathId"] + ",";
+                            }
+                        }
+                        $.ajax({
+                            type: "POST",
+                            url: '<c:url value="/pathorder/"/>${profile_id}',
+                            data: ({pathOrder : pathOrder}),
+                            success: function() {
+                                $('#info').html('Path Order Updated');
+                                $('#info').fadeOut(1).delay(50).fadeIn(150);
+                            }
+                        });
+                    },
+                    placeholder: "ui-state-highlight"
+                };
+
+                var sortableAllowed = false;
+                grid.jqGrid('navButtonAdd', '#packagePager', {
+                    caption: "Reorder",
+                    buttonicon: "ui-icon-carat-2-n-s",
+                    title: "Toggle Reorder Path Priority",
+                    id: "reorder_packages",
+                    onClickButton: function() {
+                        sortableAllowed = !sortableAllowed;
+
+                        if( sortableAllowed ) {
+                            /* ALLOWS THE PATH PRIORITY TO BE SET INSIDE OF THE PATH TABLE, INSTEAD OF ON A SEPARATE PAGE */
+                            grid.jqGrid('sortableRows', options);
+                            $("#reorder_packages").addClass("ui-state-highlight");
+                        } else {
+                            $("#packages tbody").sortable('destroy');
+                            $("#reorder_packages").removeClass("ui-state-highlight");
+                        }
+                    }
+                });
+
+                /* ADD PLACEHOLDER TO FILTER BAR */
+                $("#gs_pathName").val("Type here to filter columns.");
+                $("#gs_pathName").focus(function() {
+                    $("#gs_pathName").val("");
+                });
+
                 $("#tabs").tabs();
                 $("#tabs").css("overflow", "auto");
                 $("#tabs").css("min-height", "500px");
@@ -1030,8 +1086,41 @@
             });
             loadPath(currentPathId);
 
+            function getExampleText(item) {
+                switch(item) {
+                    case "src":
+                        return "ex. groupon.com";
+                    case "dest":
+                        return "ex. 123.45.67.890";
+                    case "pathName":
+                        return "ex. My Path Name";
+                    case "path":
+                        return "ex. /http500, /(a|b)"
+                    default:
+                        return null;
+                }
+            }
+
+            function resizeGrid( val, grid, init ) {
+                var width = grid.jqGrid('getGridParam', 'width');
+                var ratio = width/init;
+                var newSize = ratio + 'em';
+
+                var font = $(".ui-jqgrid "+val+" tr.jqgrow td");
+                $(font).css('font-size', newSize);
+
+                /* CHECK SIZE TO MAKE SURE IT'S NOT TOO BIG AND NOT TOO SMALL */
+                var min = 11;
+                var max = 16;
+                if(parseInt(font.css("fontSize")) < min ) {
+                    font.css('font-size', min);
+                } else if( parseInt(font.css("fontSize")) > max ) {
+                    font.css('fontSize', max);
+                }
+            }
+
             function srcValidation(val, colname) {
-                if( val.trim() === "ex. groupon.com" ) {
+                if( val.trim() === getExampleText("src") ) {
                     return [false, "Please replace the example source hostname with a valid hostname."]
                 } else {
                     return [true, ""];
@@ -1039,7 +1128,7 @@
             }
 
             function destValidation(val, colname) {
-                if( val.trim() === "ex. 123.45.67.890" ) {
+                if( val.trim() === getExampleText("dest") ) {
                     return [false, "Please replace the example destination hostname with a valid hostname."]
                 } else {
                     return [true, ""];
@@ -1047,7 +1136,7 @@
             }
 
             function pathNameValidation(val, colname) {
-                if( val.trim() === "ex. Collections" ) {
+                if( val.trim() === getExampleText("pathName") ) {
                     return [false, "Please replace the example path name with a valid name."]
                 } else {
                     return [true, ""];
@@ -1055,7 +1144,7 @@
             }
 
             function pathValidation(val, colname) {
-                if( val.trim() === "ex. /http, /(a|b)" ) {
+                if( val.trim() === getExampleText("path") ) {
                     return [false, "Please replace the example destination hostname with a valid hostname."]
                 } else {
                     return [true, ""];
@@ -1732,17 +1821,18 @@
         </script>
     </head>
     <body>
-    	<!-- Hidden div for changing client friendly name -->
+    	<!-- Hidden div for changing client friendly name --
         <div id="changeClientFriendlyNameDialog" style="display:none;">
             Client Friendly Name: <input id="changeClientFriendlyName" value="${clientFriendlyName}"/>
             <div id="friendlyNameError" style="color: red"></div>
         </div>
 
-        <!-- Hidden div for switching clients -->
+        <!-- Hidden div for switching clients --
         <div id="switchClientDialog" style="display:none;">
             Client UUID/Name: <input id="switchClientName" value="${clientFriendlyName}"/>
-        </div>
-        
+        </div>-->
+
+        <%@ include file="clients_part.jsp" %>
         <%@ include file="pathtester_part.jsp" %>
 
         <nav class="navbar navbar-default" role="navigation">
@@ -1752,7 +1842,7 @@
                         <li class="navbar-brand">Odo</li>
                         <li><a href="#" onClick="navigateProfiles()">Profiles</a> </li>
                         <li><a href="#" onClick="navigateRequestHistory()">Request History</a></li>
-                        <li id="navbarPathPriority"><a href="#" onClick="navigatePathPriority()">Path Priority</a></li>
+                        <!--<li id="navbarPathPriority"><a href="#" onClick="navigatePathPriority()">Path Priority</a></li>-->
                         <li><a href="#" onClick="navigatePathTester()">Path Tester</a></li>
                         <li><a href="#" onClick="navigateEditGroups()">Edit Groups</a></li>
                     </ul>
@@ -1764,7 +1854,7 @@
                     <!-- TO FIND HELP -->
                     <div class="form-group navbar-form navbar-left">
                         <button id="helpButton" class="btn btn-info" onclick="navigateHelp()"
-                                target="_blank" data-toggle="tooltip" data-placement="bottom" title="Click here to read the wiki.">Need Help?</button>
+                                target="_blank" data-toggle="tooltip" data-placement="bottom" title="Click here to read the readme.">Need Help?</button>
                     </div>
 
                     <ul id="clientInfo" class="nav navbar-nav navbar-right">
@@ -1773,6 +1863,7 @@
             </div>
         </nav>
 
+        <div id="container">
         <div id="listContainer">
             <div>
                 <table id="serverlist"></table>
@@ -1998,6 +2089,7 @@
 
                 </div>
             </div>
+        </div>
         </div>
     </body>
 </html>

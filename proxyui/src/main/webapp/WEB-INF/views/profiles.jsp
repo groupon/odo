@@ -8,6 +8,10 @@
         <title>API Profiles</title>
         <script type="text/javascript">
 
+        function navigateHelp() {
+            window.open("https://github.com/groupon/odo#readme","help");
+        }
+
         //makes the specific profile active, goes to the database column
         function makeActive(profile_id){
             $.ajax({
@@ -69,6 +73,8 @@
         }
 
         $(document).ready(function () {
+
+            $("#helpButton").tooltip();
 
             var profileList = jQuery("#profilelist");
             profileList
@@ -262,6 +268,10 @@
                             </ul>
                         </li>
                     </ul>
+                    <div class="form-group navbar-form navbar-left">
+                        <button id="helpButton" class="btn btn-info" onclick="navigateHelp()"
+                                target="_blank" data-toggle="tooltip" data-placement="bottom" title="Click here to read the readme.">Need Help?</button>
+                    </div>
                     <ul class="nav navbar-nav navbar-right">
                         <li>
                             <p class="navbar-text">Odo Version: <c:out value = "${version}"/></p>
