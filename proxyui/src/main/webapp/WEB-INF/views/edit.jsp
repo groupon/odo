@@ -34,19 +34,24 @@
                 padding: 12px;
             }
 
+            #container {
+                white-space: nowrap;
+            }
+
             #container>div {
                 display:inline-block;
+                vertical-align: top;
             }
 
             #listContainer
             {
                 min-width: 400px;
                 margin-right: 40px;
-                float: left;
+                /*float: left;*/
             }
 
             #editDiv {
-                display:none;
+                /*display:none;*/
                 width: 45vw;
                 max-width: 45vw; /* ALLOWS FOR SCROLLING TO THE END OF THE DIV IF LARGER THAN WINDOW */
             }
