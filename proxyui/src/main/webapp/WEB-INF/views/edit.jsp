@@ -47,11 +47,9 @@
             {
                 min-width: 400px;
                 margin-right: 40px;
-                /*float: left;*/
             }
 
             #editDiv {
-                /*display:none;*/
                 width: 45vw;
                 max-width: 45vw; /* ALLOWS FOR SCROLLING TO THE END OF THE DIV IF LARGER THAN WINDOW */
             }
