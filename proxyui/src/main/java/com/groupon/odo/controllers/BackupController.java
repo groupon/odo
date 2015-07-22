@@ -104,6 +104,19 @@ public class BackupController {
         return BackupService.getInstance().getBackupData();
     }
 
+    /**
+     * API call to backup active overreides and active server group for a client
+     * Can also backup entire odo configuration
+     *
+     * @param model
+     * @param response
+     * @param profileID Id of profile to backup
+     * @param clientUUID Client Id to backup
+     * @param odoExport Flag to also include whole odo backup in client backpu
+     * @return
+     * @throws Exception
+     */
+
     @SuppressWarnings("deprecation")
     @RequestMapping(value = "/api/backup/profile/{profileID}/{clientUUID}", method = RequestMethod.GET)
     public
