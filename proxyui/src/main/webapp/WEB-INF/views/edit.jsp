@@ -234,7 +234,7 @@
 
             function importConfiguration() {
                 $("#configurationUploadDialog").dialog({
-                    title: "Upload Profile Configuration",
+                    title: "Upload Profile and Odo Configuration",
                     modal: true,
                     position:['top',20],
                     buttons: {
@@ -255,63 +255,48 @@
                     event.preventDefault();
 
                     var file = document.getElementById('profileConfigurationUploadFile').files[0];
-                    var formData = new FormData();
-                    formData.append('fileData', file, file.name);
-                    $.ajax({
-                        type:"POST",
-                        url: '<c:url value="/api/backup/profile/${profile_id}/${clientUUID}"/>',
-                        data: formData,
-                        processData: false,
-                        contentType: false,
-                        success: function(){
-                            window.location.reload();
-                        },
-                        error: function(jqXHR, textStatus, errorThrown) {
-                            var errorResponse = JSON.parse(jqXHR.responseText);
-                            var alertText = "";
-                            for (i = 0; i < errorResponse.length; i++) {
-                                alertText += errorResponse[i].error + "\n";
-                            }
-                            window.alert(alertText);
-                            $("#profileConfigurationUploadDialog").dialog("close");;
-                        }
-                    });
+                    importConfigurationRequest(file, false, "#profileConfigurationUploadDialog");
                 }
 
                 document.getElementById('configurationUploadForm').onsubmit = function(event) {
                     event.preventDefault();
 
                     var file = document.getElementById('configurationUploadFile').files[0];
-                    var formData = new FormData();
-                    formData.append('fileData', file, file.name);
-                    $.ajax({
-                        type:"POST",
-                        url: '<c:url value="/api/backup/profile/full/${profile_id}/${clientUUID}"/>',
-                        data: formData,
-                        processData: false,
-                        contentType: false,
-                        success: function(){
-                            window.location.reload();
-                        },
-                        error: function(jqXHR, textStatus, errorThrown) {
-                            var errorResponse = JSON.parse(jqXHR.responseText);
-                            var alertText = "";
-                            for (i = 0; i < errorResponse.length; i++) {
-                                alertText += errorResponse[i].error + "\n";
-                            }
-                            window.alert(alertText);
-                            $("#configurationUploadDialog").dialog("close");
-                        }
-                    });
+                    importConfigurationRequest(file, true, "#configurationUploadDialog");
                 }
             }
 
+            function importConfigurationRequest(file, odoImport, dialogBox) {
+                var formData = new FormData();
+                formData.append('fileData', file, file.name);
+                formData.append('odoImport', odoImport);
+                $.ajax({
+                    type:"POST",
+                    url: '<c:url value="/api/backup/profile/${profile_id}/${clientUUID}"/>',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function(){
+                        window.location.reload();
+                    },
+                    error: function(jqXHR, textStatus, errorThrown) {
+                        var errorResponse = JSON.parse(jqXHR.responseText);
+                        var alertText = "";
+                        for (i = 0; i < errorResponse.length; i++) {
+                            alertText += errorResponse[i].error + "\n";
+                        }
+                        window.alert(alertText);
+                        $(dialogBox).dialog("close");;
+                    }
+                });
+            }
+
             function exportProfileConfiguration() {
-                downloadFile('<c:url value="/api/backup/profile/${profile_id}/${clientUUID}"/>');
+                downloadFile('<c:url value="/api/backup/profile/${profile_id}/${clientUUID}?odoExport=false"/>');
             }
 
             function exportConfiguration() {
-                downloadFile('<c:url value="/api/backup/profile/full/${profile_id}/${clientUUID}"/>');
+                downloadFile('<c:url value="/api/backup/profile/${profile_id}/${clientUUID}?odoExport=true"/>');
             }
 
             function resetProfile(){

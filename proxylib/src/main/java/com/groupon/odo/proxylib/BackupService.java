@@ -122,6 +122,14 @@ public class BackupService {
         return profiles;
     }
 
+    /**
+     * Get the active overrides with parameters and the active server group for a client
+     *
+     * @param profileID Id of profile to get configuration for
+     * @param clientUUID Client Id to export configuration
+     * @return SingleProfileBackup containing active overrides and active server group
+     * @throws Exception
+     */
     public SingleProfileBackup getProfileBackupData(int profileID, String clientUUID) throws Exception {
         SingleProfileBackup singleProfileBackup = new SingleProfileBackup();
         List<PathOverride> enabledPaths = new ArrayList<>();
@@ -151,6 +159,15 @@ public class BackupService {
         return singleProfileBackup;
     }
 
+    /**
+     * Get the single profile backup (active overrides and active server group) for a client
+     * and the full odo backup
+     *
+     * @param profileID Id of profile to get configuration for
+     * @param clientUUID Client Id to export configuration
+     * @return Odo backup and client backup
+     * @throws Exception
+     */
     public ConfigAndProfileBackup getConfigAndProfileData(int profileID, String clientUUID) throws Exception {
         SingleProfileBackup singleProfileBackup = getProfileBackupData(profileID, clientUUID);
         Backup backup = getBackupData();
@@ -444,6 +461,11 @@ public class BackupService {
     }
 
     /**
+     * 1. Resets profile to get fresh slate
+     * 2. Updates active server group to one from json
+     * 3. For each path in json, sets request/response enabled
+     * 4. Adds active overrides to each path
+     * 5. Update arguments and repeat count for each override
      *
      * @param profileBackup JSON containing server configuration and overrides to activate
      * @param profileId Profile to update
@@ -459,37 +481,37 @@ public class BackupService {
         JSONArray errors = new JSONArray();
 
         // Change to correct server group
-        JSONObject activeServerGroup = profileBackup.getJSONObject("activeServerGroup");
-        int activeServerId = getServerIdFromName(activeServerGroup.getString("name"), profileId);
+        JSONObject activeServerGroup = profileBackup.getJSONObject(Constants.BACKUP_ACTIVE_SERVER_GROUP);
+        int activeServerId = getServerIdFromName(activeServerGroup.getString(Constants.NAME), profileId);
         if (activeServerId == -1) {
-            errors.put(formErrorJson("Server Error", "Cannot change to '" + activeServerGroup.getString("name") + "' - Check Server Group Exists"));
+            errors.put(formErrorJson("Server Error", "Cannot change to '" + activeServerGroup.getString(Constants.NAME) + "' - Check Server Group Exists"));
         } else {
             Client clientToUpdate = ClientService.getInstance().findClient(clientUUID, profileId);
             ServerRedirectService.getInstance().activateServerGroup(activeServerId, clientToUpdate.getId());
         }
 
-        JSONArray enabledPaths = profileBackup.getJSONArray("enabledPaths");
+        JSONArray enabledPaths = profileBackup.getJSONArray(Constants.ENABLED_PATHS);
         PathOverrideService pathOverrideService = PathOverrideService.getInstance();
         OverrideService overrideService = OverrideService.getInstance();
 
         for (int i = 0; i < enabledPaths.length(); i++) {
             JSONObject path = enabledPaths.getJSONObject(i);
-            int pathId = pathOverrideService.getPathId(path.getString("pathName"), profileId);
+            int pathId = pathOverrideService.getPathId(path.getString(Constants.PATH_NAME), profileId);
             // Set path to have request/response enabled as necessary
             try {
-                if (path.getBoolean("requestEnabled")) {
+                if (path.getBoolean(Constants.REQUEST_ENABLED)) {
                     pathOverrideService.setRequestEnabled(pathId, true, clientUUID);
                 }
 
-                if (path.getBoolean("responseEnabled")) {
+                if (path.getBoolean(Constants.RESPONSE_ENABLED)) {
                     pathOverrideService.setResponseEnabled(pathId, true, clientUUID);
                 }
             } catch (Exception e) {
-                errors.put(formErrorJson("Path Error", "Cannot update path: '" + path.getString("pathName") + "' - Check Path Exists"));
+                errors.put(formErrorJson("Path Error", "Cannot update path: '" + path.getString(Constants.PATH_NAME) + "' - Check Path Exists"));
                 continue;
             }
 
-            JSONArray enabledOverrides = path.getJSONArray("enabledEndpoints");
+            JSONArray enabledOverrides = path.getJSONArray(Constants.ENABLED_ENDPOINTS);
 
             /**
              * 2 for loops to ensure overrides are added with correct priority
@@ -499,7 +521,7 @@ public class BackupService {
             for (int j = 0; j < enabledOverrides.length(); j++) {
                 for (int k = 0; k < enabledOverrides.length(); k++) {
                     JSONObject override = enabledOverrides.getJSONObject(k);
-                    if (override.getInt("priority") != j) {
+                    if (override.getInt(Constants.PRIORITY) != j) {
                         continue;
                     }
 
@@ -509,21 +531,21 @@ public class BackupService {
                     // Get the Id of the override
                     try {
                         // If method information is null, then the override is a default override
-                        if (override.get("methodInformation") != JSONObject.NULL) {
-                            JSONObject methodInformation = override.getJSONObject("methodInformation");
-                            overrideNameForError = methodInformation.getString("methodName");
-                            overrideId = overrideService.getOverrideIdForMethod(methodInformation.getString("className"),
-                                                                                methodInformation.getString("methodName"));
+                        if (override.get(Constants.METHOD_INFORMATION) != JSONObject.NULL) {
+                            JSONObject methodInformation = override.getJSONObject(Constants.METHOD_INFORMATION);
+                            overrideNameForError = methodInformation.getString(Constants.METHOD_NAME);
+                            overrideId = overrideService.getOverrideIdForMethod(methodInformation.getString(Constants.CLASS_NAME),
+                                                                                methodInformation.getString(Constants.METHOD_NAME));
                         } else {
                             overrideNameForError = "Default Override";
-                            overrideId = override.getInt("overrideId");
+                            overrideId = override.getInt(Constants.OVERRIDE_ID);
                         }
 
                         // Enable override and set repeat number and arguments
                         overrideService.enableOverride(overrideId, pathId, clientUUID);
-                        overrideService.updateRepeatNumber(overrideId, pathId, override.getInt("priority"),
-                                                           override.getInt("repeatNumber"), clientUUID);
-                        overrideService.updateArguments(overrideId, pathId, override.getInt("priority"), override.getString("arguments"), clientUUID);
+                        overrideService.updateRepeatNumber(overrideId, pathId, override.getInt(Constants.PRIORITY),
+                                                           override.getInt(Constants.REPEAT_NUMBER), clientUUID);
+                        overrideService.updateArguments(overrideId, pathId, override.getInt(Constants.PRIORITY), override.getString(Constants.ARGUMENTS), clientUUID);
                     } catch (Exception e) {
                         errors.put(formErrorJson("Override Error", "Cannot add/update override: '" + overrideNameForError + "' - Check Override Exists"));
                         continue;

@@ -110,33 +110,23 @@ public class BackupController {
     @ResponseBody
     String getSingleProfileConfiguration(Model model, HttpServletResponse response,
                                          @PathVariable int profileID,
-                                         @PathVariable String clientUUID) throws Exception {
-        response.addHeader("Content-Disposition", "attachment; filename='Enabled Endpoints.json'");
+                                         @PathVariable String clientUUID,
+                                         @RequestParam(value = "odoExport", defaultValue = "false") boolean odoExport) throws Exception {
         response.setContentType("application/json");
 
-        SingleProfileBackup singleProfileBackup = BackupService.getInstance().getProfileBackupData(profileID, clientUUID);
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectWriter writer = objectMapper.writerWithDefaultPrettyPrinter();
 
-        return writer.withView(ViewFilters.Default.class).writeValueAsString(singleProfileBackup);
-    }
-
-    @SuppressWarnings("deprecation")
-    @RequestMapping(value = "/api/backup/profile/full/{profileID}/{clientUUID}", method = RequestMethod.GET)
-    public
-    @ResponseBody
-    String getOdoAndProfileConfiguration(Model model, HttpServletResponse response,
-                                       @PathVariable int profileID,
-                                       @PathVariable String clientUUID) throws Exception {
-        response.addHeader("Content-Disposition", "attachment; filename='Config and Profile Backup.json'");
-        response.setContentType("application/json");
-
-        ConfigAndProfileBackup configAndProfileBackup = BackupService.getInstance().
-            getConfigAndProfileData(profileID, clientUUID);
-        ObjectMapper objectMapper = new ObjectMapper();
-        ObjectWriter writer = objectMapper.writerWithDefaultPrettyPrinter();
-
-        return writer.withView(ViewFilters.Default.class).writeValueAsString(configAndProfileBackup);
+        if (odoExport) {
+            response.addHeader("Content-Disposition", "attachment; filename='Config and Profile Backup.json'");
+            ConfigAndProfileBackup configAndProfileBackup = BackupService.getInstance().
+                getConfigAndProfileData(profileID, clientUUID);
+            return writer.withView(ViewFilters.Default.class).writeValueAsString(configAndProfileBackup);
+        } else {
+            response.addHeader("Content-Disposition", "attachment; filename='Enabled Endpoints.json'");
+            SingleProfileBackup singleProfileBackup = BackupService.getInstance().getProfileBackupData(profileID, clientUUID);
+            return writer.withView(ViewFilters.Default.class).writeValueAsString(singleProfileBackup);
+        }
     }
 
     /**
@@ -153,7 +143,8 @@ public class BackupController {
     @ResponseBody
     ResponseEntity<String> processSingleProfileBackup(@RequestParam("fileData") MultipartFile fileData,
                          @PathVariable int profileID,
-                         @PathVariable String clientUUID) throws Exception {
+                         @PathVariable String clientUUID,
+                         @RequestParam(value = "odoImport", defaultValue = "false") boolean odoImport) throws Exception {
         SingleProfileBackup returnProfileBackup = new SingleProfileBackup();
         if (!fileData.isEmpty()) {
             try {
@@ -166,6 +157,18 @@ public class BackupController {
                     fullFileString += singleLine;
                 }
                 JSONObject odoBackup = new JSONObject(fullFileString);
+
+                if (odoImport) {
+                    byte[] bytes = odoBackup.toString().getBytes();
+                    // Save to second file to be used in importing odo configuration
+                    BufferedOutputStream stream =
+                        new BufferedOutputStream(new FileOutputStream(new File("backup-uploaded.json")));
+                    stream.write(bytes);
+                    stream.close();
+                    File f = new File("backup-uploaded.json");
+                    BackupService.getInstance().restoreBackupData(new FileInputStream(f));
+                }
+
                 // Get profile backup if json contained both profile backup and odo backup
                 if (odoBackup.has("profileBackup")) {
                     odoBackup = odoBackup.getJSONObject("profileBackup");
@@ -173,63 +176,6 @@ public class BackupController {
 
                 // Import profile overrides
                 BackupService.getInstance().setProfileFromBackup(odoBackup, profileID, clientUUID);
-            } catch (Exception e) {
-                try {
-                    JSONArray errorArray = new JSONArray(e.getMessage());
-                    return new ResponseEntity<>(errorArray.toString(), HttpStatus.BAD_REQUEST);
-                } catch (Exception k) {
-                    // Catch for exceptions other than ones defined in backup service
-                    return new ResponseEntity<>("[{\"error\" : \"Upload Error\"}]", HttpStatus.BAD_REQUEST);
-                }
-            }
-        }
-
-        return new ResponseEntity<>(HttpStatus.OK);
-    }
-
-    /**
-     * Import odo configuration and then set client server configuration and overrides
-     * according to backup
-     *
-     * @param fileData File containing odo backup json and profile overrides and server configuration
-     * @param profileID Profile to update for client
-     * @param clientUUID Client to apply overrides to
-     * @return
-     * @throws Exception
-     */
-    @RequestMapping(value = "/api/backup/profile/full/{profileID}/{clientUUID}", method = RequestMethod.POST)
-    public
-    @ResponseBody
-    ResponseEntity<String> processOdoAndProfileBackup(@RequestParam("fileData") MultipartFile fileData,
-                         @PathVariable int profileID,
-                         @PathVariable String clientUUID) throws Exception {
-        SingleProfileBackup returnProfileBackup = new SingleProfileBackup();
-        if (!fileData.isEmpty()) {
-            try {
-                // Read in file
-                InputStream inputStream = fileData.getInputStream();
-                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
-                String singleLine;
-                String fullFileString = "";
-                while ((singleLine = bufferedReader.readLine()) != null) {
-                    fullFileString += singleLine;
-                }
-                JSONObject fileBackup = new JSONObject(fullFileString);
-                // Import odo configuration to overwrite current one
-                JSONObject odoBackup = fileBackup.getJSONObject("odoBackup");
-                byte[] bytes = odoBackup.toString().getBytes();
-                // Save to second file to be used in importing odo configuration
-                BufferedOutputStream stream =
-                    new BufferedOutputStream(new FileOutputStream(new File("backup-uploaded.json")));
-                stream.write(bytes);
-                stream.close();
-                File f = new File("backup-uploaded.json");
-                BackupService.getInstance().restoreBackupData(new FileInputStream(f));
-
-                // Import profile overrides
-                BackupService.getInstance().setProfileFromBackup(fileBackup.getJSONObject("profileBackup"),
-                                                                 profileID, clientUUID);
-
             } catch (Exception e) {
                 try {
                     JSONArray errorArray = new JSONArray(e.getMessage());
