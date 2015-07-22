@@ -22,8 +22,13 @@ import com.groupon.odo.proxylib.models.Method;
 import com.groupon.odo.proxylib.models.Script;
 import com.groupon.odo.proxylib.models.ServerGroup;
 import com.groupon.odo.proxylib.models.ServerRedirect;
+import com.groupon.odo.proxylib.models.Client;
 import com.groupon.odo.proxylib.models.backup.Backup;
+import com.groupon.odo.proxylib.models.backup.ConfigAndProfileBackup;
+import com.groupon.odo.proxylib.models.backup.PathOverride;
+import com.groupon.odo.proxylib.models.backup.SingleProfileBackup;
 import com.groupon.odo.proxylib.models.backup.Profile;
+import flexjson.JSON;
 import java.io.InputStream;
 import java.net.InetAddress;
 import java.security.cert.CertificateException;
@@ -42,6 +47,8 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.conn.ssl.TrustStrategy;
 import org.apache.http.conn.ssl.X509HostnameVerifier;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -113,6 +120,46 @@ public class BackupService {
             profiles.add(profile);
         }
         return profiles;
+    }
+
+    public SingleProfileBackup getProfileBackupData(int profileID, String clientUUID) throws Exception {
+        SingleProfileBackup singleProfileBackup = new SingleProfileBackup();
+        List<PathOverride> enabledPaths = new ArrayList<>();
+
+        List<EndpointOverride> paths = PathOverrideService.getInstance().getPaths(profileID, clientUUID, null);
+        for (EndpointOverride override : paths) {
+            if (override.getRequestEnabled() || override.getResponseEnabled()) {
+                PathOverride pathOverride = new PathOverride();
+                pathOverride.setPathName(override.getPathName());
+                if (override.getRequestEnabled()) {
+                    pathOverride.setRequestEnabled(true);
+                }
+                if (override.getResponseEnabled()) {
+                    pathOverride.setResponseEnabled(true);
+                }
+
+                pathOverride.setEnabledEndpoints(override.getEnabledEndpoints());
+                enabledPaths.add(pathOverride);
+            }
+        }
+        singleProfileBackup.setEnabledPaths(enabledPaths);
+
+        Client backupClient = ClientService.getInstance().findClient(clientUUID, profileID);
+        ServerGroup activeServerGroup = ServerRedirectService.getInstance().getServerGroup(backupClient.getActiveServerGroup(), profileID);
+        singleProfileBackup.setActiveServerGroup(activeServerGroup);
+
+        return singleProfileBackup;
+    }
+
+    public ConfigAndProfileBackup getConfigAndProfileData(int profileID, String clientUUID) throws Exception {
+        SingleProfileBackup singleProfileBackup = getProfileBackupData(profileID, clientUUID);
+        Backup backup = getBackupData();
+
+        ConfigAndProfileBackup configAndProfileBackup = new ConfigAndProfileBackup();
+        configAndProfileBackup.setOdoBackup(backup);
+        configAndProfileBackup.setProfileBackup(singleProfileBackup);
+
+        return configAndProfileBackup;
     }
 
     /**
@@ -375,5 +422,126 @@ public class BackupService {
         }
 
         return connectorStrings;
+    }
+
+    /**
+     *
+     * @param groupName Name of server group to get ID for
+     * @param profileId Profile ID server group is in
+     * @return ID of group
+     */
+    private int getServerIdFromName(String groupName, int profileId) {
+        List<ServerGroup> serverGroups = ServerRedirectService.getInstance().tableServerGroups(profileId);
+        if (groupName.equals("Default")) {
+            return 0;
+        }
+        for (ServerGroup group : serverGroups) {
+            if (groupName.compareTo(group.getName()) == 0) {
+                return group.getId();
+            }
+        }
+        return -1;
+    }
+
+    /**
+     *
+     * @param profileBackup JSON containing server configuration and overrides to activate
+     * @param profileId Profile to update
+     * @param clientUUID Client UUID to apply update to
+     * @return
+     * @throws Exception Array of errors for things that could not be imported
+     */
+    public void setProfileFromBackup(JSONObject profileBackup, int profileId, String clientUUID) throws Exception {
+        // Reset the profile before applying changes
+        ClientService clientService = ClientService.getInstance();
+        clientService.reset(profileId, clientUUID);
+        clientService.updateActive(profileId, clientUUID, true);
+        JSONArray errors = new JSONArray();
+
+        // Change to correct server group
+        JSONObject activeServerGroup = profileBackup.getJSONObject("activeServerGroup");
+        int activeServerId = getServerIdFromName(activeServerGroup.getString("name"), profileId);
+        if (activeServerId == -1) {
+            errors.put(formErrorJson("Server Error", "Cannot change to '" + activeServerGroup.getString("name") + "' - Check Server Group Exists"));
+        } else {
+            Client clientToUpdate = ClientService.getInstance().findClient(clientUUID, profileId);
+            ServerRedirectService.getInstance().activateServerGroup(activeServerId, clientToUpdate.getId());
+        }
+
+        JSONArray enabledPaths = profileBackup.getJSONArray("enabledPaths");
+        PathOverrideService pathOverrideService = PathOverrideService.getInstance();
+        OverrideService overrideService = OverrideService.getInstance();
+
+        for (int i = 0; i < enabledPaths.length(); i++) {
+            JSONObject path = enabledPaths.getJSONObject(i);
+            int pathId = pathOverrideService.getPathId(path.getString("pathName"), profileId);
+            // Set path to have request/response enabled as necessary
+            try {
+                if (path.getBoolean("requestEnabled")) {
+                    pathOverrideService.setRequestEnabled(pathId, true, clientUUID);
+                }
+
+                if (path.getBoolean("responseEnabled")) {
+                    pathOverrideService.setResponseEnabled(pathId, true, clientUUID);
+                }
+            } catch (Exception e) {
+                errors.put(formErrorJson("Path Error", "Cannot update path: '" + path.getString("pathName") + "' - Check Path Exists"));
+                continue;
+            }
+
+            JSONArray enabledOverrides = path.getJSONArray("enabledEndpoints");
+
+            /**
+             * 2 for loops to ensure overrides are added with correct priority
+             * 1st loop is priority currently adding override to
+             * 2nd loop is to find the override with matching priority in profile json
+             */
+            for (int j = 0; j < enabledOverrides.length(); j++) {
+                for (int k = 0; k < enabledOverrides.length(); k++) {
+                    JSONObject override = enabledOverrides.getJSONObject(k);
+                    if (override.getInt("priority") != j) {
+                        continue;
+                    }
+
+                    int overrideId;
+                    // Name of method that can be used by error message as necessary later
+                    String overrideNameForError = "";
+                    // Get the Id of the override
+                    try {
+                        // If method information is null, then the override is a default override
+                        if (override.get("methodInformation") != JSONObject.NULL) {
+                            JSONObject methodInformation = override.getJSONObject("methodInformation");
+                            overrideNameForError = methodInformation.getString("methodName");
+                            overrideId = overrideService.getOverrideIdForMethod(methodInformation.getString("className"),
+                                                                                methodInformation.getString("methodName"));
+                        } else {
+                            overrideNameForError = "Default Override";
+                            overrideId = override.getInt("overrideId");
+                        }
+
+                        // Enable override and set repeat number and arguments
+                        overrideService.enableOverride(overrideId, pathId, clientUUID);
+                        overrideService.updateRepeatNumber(overrideId, pathId, override.getInt("priority"),
+                                                           override.getInt("repeatNumber"), clientUUID);
+                        overrideService.updateArguments(overrideId, pathId, override.getInt("priority"), override.getString("arguments"), clientUUID);
+                    } catch (Exception e) {
+                        errors.put(formErrorJson("Override Error", "Cannot add/update override: '" + overrideNameForError + "' - Check Override Exists"));
+                        continue;
+                    }
+                }
+            }
+        }
+
+        // Throw exception if any errors occured
+        if (errors.length() > 0) {
+            throw new Exception(errors.toString());
+        }
+    }
+
+    private JSONObject formErrorJson(String type, String errorMessage) throws Exception {
+        JSONObject error = new JSONObject();
+        error.put("type", type);
+        error.put("error", errorMessage);
+        return error;
     }
 }

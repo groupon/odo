@@ -215,6 +215,105 @@
                 });
             }
 
+            function importProfileConfiguration() {
+                $("#profileConfigurationUploadDialog").dialog({
+                    title: "Upload Profile Configuration",
+                    modal: true,
+                    position:['top',20],
+                    buttons: {
+                        "Submit": function() {
+                            // submit form
+                            $("#profileConfigurationUploadFileButton").click();
+                        },
+                        "Cancel": function() {
+                            $("#profileConfigurationUploadDialog").dialog("close");
+                        }
+                    }
+                });
+            }
+
+            function importConfiguration() {
+                $("#configurationUploadDialog").dialog({
+                    title: "Upload Profile Configuration",
+                    modal: true,
+                    position:['top',20],
+                    buttons: {
+                        "Submit": function() {
+                            // submit form
+                            $("#configurationUploadFileButton").click();
+                        },
+                        "Cancel": function() {
+                            $("#configurationUploadDialog").dialog("close");
+                        }
+                    }
+                });
+            }
+
+            window.onload = function () {
+                // Adapted from: http://blog.teamtreehouse.com/uploading-files-ajax
+                document.getElementById('profileConfigurationUploadForm').onsubmit = function(event) {
+                    event.preventDefault();
+
+                    var file = document.getElementById('profileConfigurationUploadFile').files[0];
+                    var formData = new FormData();
+                    formData.append('fileData', file, file.name);
+                    $.ajax({
+                        type:"POST",
+                        url: '<c:url value="/api/backup/profile/${profile_id}/${clientUUID}"/>',
+                        data: formData,
+                        processData: false,
+                        contentType: false,
+                        success: function(){
+                            window.location.reload();
+                        },
+                        error: function(jqXHR, textStatus, errorThrown) {
+                            var errorResponse = JSON.parse(jqXHR.responseText);
+                            var alertText = "";
+                            for (i = 0; i < errorResponse.length; i++) {
+                                alertText += errorResponse[i].error + "\n";
+                            }
+                            window.alert(alertText);
+                            $("#profileConfigurationUploadDialog").dialog("close");;
+                        }
+                    });
+                }
+
+                document.getElementById('configurationUploadForm').onsubmit = function(event) {
+                    event.preventDefault();
+
+                    var file = document.getElementById('configurationUploadFile').files[0];
+                    var formData = new FormData();
+                    formData.append('fileData', file, file.name);
+                    $.ajax({
+                        type:"POST",
+                        url: '<c:url value="/api/backup/profile/full/${profile_id}/${clientUUID}"/>',
+                        data: formData,
+                        processData: false,
+                        contentType: false,
+                        success: function(){
+                            window.location.reload();
+                        },
+                        error: function(jqXHR, textStatus, errorThrown) {
+                            var errorResponse = JSON.parse(jqXHR.responseText);
+                            var alertText = "";
+                            for (i = 0; i < errorResponse.length; i++) {
+                                alertText += errorResponse[i].error + "\n";
+                            }
+                            window.alert(alertText);
+                            $("#configurationUploadDialog").dialog("close");
+                        }
+                    });
+                }
+            }
+
+            function exportProfileConfiguration() {
+                downloadFile('<c:url value="/api/backup/profile/${profile_id}/${clientUUID}"/>');
+            }
+
+            function exportConfiguration() {
+                downloadFile('<c:url value="/api/backup/profile/full/${profile_id}/${clientUUID}"/>');
+            }
+
             function resetProfile(){
                 var active = ${isActive};
 
@@ -1821,7 +1920,21 @@
         </script>
     </head>
     <body>
-    	<!-- Hidden div for changing client friendly name --
+        <!-- Hidden div for configuration file upload -->
+        <div id="profileConfigurationUploadDialog" style="display:none;">
+            <form id="profileConfigurationUploadForm" action="<c:url value="/api/backup"/>" method="POST">
+                <input id="profileConfigurationUploadFile" type="file" name="fileData" />
+                <button id="profileConfigurationUploadFileButton" type="submit" style="display: none;"></button>
+            </form>
+        </div>
+        <div id="configurationUploadDialog" style="display:none;">
+            <form id="configurationUploadForm" action="<c:url value="/api/backup"/>" method="POST">
+                <input id="configurationUploadFile" type="file" name="fileData" />
+                <button id="configurationUploadFileButton" type="submit" style="display: none;"></button>
+            </form>
+        </div>
+
+        <!-- Hidden div for changing client friendly name --
         <div id="changeClientFriendlyNameDialog" style="display:none;">
             Client Friendly Name: <input id="changeClientFriendlyName" value="${clientFriendlyName}"/>
             <div id="friendlyNameError" style="color: red"></div>
@@ -1845,6 +1958,16 @@
                         <!--<li id="navbarPathPriority"><a href="#" onClick="navigatePathPriority()">Path Priority</a></li>-->
                         <li><a href="#" onClick="navigatePathTester()">Path Tester</a></li>
                         <li><a href="#" onClick="navigateEditGroups()">Edit Groups</a></li>
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">Import/Export <b class="caret"></b></a>
+                            <ul class="dropdown-menu">
+                                    <li><a href="#" onclick='exportProfileConfiguration()'>Export Override Configuration</a></li>
+                                    <li><a href="#" onclick='exportConfiguration()'>Export Odo and Override Configuration</a></li>
+                                    <li><a href="#" onclick='importProfileConfiguration()'>Import Override Configuration</a></li>
+                                    <li><a href="#" onclick='importConfiguration()'>Import Odo and Override Configuration</a></li>
+
+                            </ul>
+                        </li>
                     </ul>
                     <div id="status" class="form-group navbar-form navbar-left" ></div>
                     <div class="form-group navbar-form navbar-left">
