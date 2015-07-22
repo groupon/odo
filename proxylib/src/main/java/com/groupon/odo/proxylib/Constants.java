@@ -200,4 +200,20 @@ public class Constants {
     public static final String SCRIPT_NAME = "name";
     public static final String SCRIPT_SCRIPT = "script";
     public static final String SCRIPT_TYPE = "type";
+
+    // backup constants
+    public static final String BACKUP_ACTIVE_SERVER_GROUP = "activeServerGroup";
+    public static final String NAME = "name";
+    public static final String ENABLED_PATHS = "enabledPaths";
+    public static final String PATH_NAME = "pathName";
+    public static final String REQUEST_ENABLED = "requestEnabled";
+    public static final String RESPONSE_ENABLED = "responseEnabled";
+    public static final String ENABLED_ENDPOINTS = "enabledEndpoints";
+    public static final String PRIORITY = "priority";
+    public static final String METHOD_INFORMATION = "methodInformation";
+    public static final String METHOD_NAME = "methodName";
+    public static final String CLASS_NAME = "className";
+    public static final String OVERRIDE_ID = "overrideId";
+    public static final String REPEAT_NUMBER = "repeatNumber";
+    public static final String ARGUMENTS = "arguments";
 }
