@@ -131,12 +131,12 @@ public class BackupController {
         ObjectWriter writer = objectMapper.writerWithDefaultPrettyPrinter();
 
         if (odoExport) {
-            response.addHeader("Content-Disposition", "attachment; filename='Config and Profile Backup.json'");
+            response.addHeader("Content-Disposition", "attachment; filename=Config_and_Profile_Backup.json");
             ConfigAndProfileBackup configAndProfileBackup = BackupService.getInstance().
                 getConfigAndProfileData(profileID, clientUUID);
             return writer.withView(ViewFilters.Default.class).writeValueAsString(configAndProfileBackup);
         } else {
-            response.addHeader("Content-Disposition", "attachment; filename='Enabled Endpoints.json'");
+            response.addHeader("Content-Disposition", "attachment; filename=Enabled_Endpoints.json");
             SingleProfileBackup singleProfileBackup = BackupService.getInstance().getProfileBackupData(profileID, clientUUID);
             return writer.withView(ViewFilters.Default.class).writeValueAsString(singleProfileBackup);
         }
@@ -158,7 +158,6 @@ public class BackupController {
                          @PathVariable int profileID,
                          @PathVariable String clientUUID,
                          @RequestParam(value = "odoImport", defaultValue = "false") boolean odoImport) throws Exception {
-        SingleProfileBackup returnProfileBackup = new SingleProfileBackup();
         if (!fileData.isEmpty()) {
             try {
                 // Read in file
@@ -169,9 +168,10 @@ public class BackupController {
                 while ((singleLine = bufferedReader.readLine()) != null) {
                     fullFileString += singleLine;
                 }
-                JSONObject odoBackup = new JSONObject(fullFileString);
+                JSONObject fileBackup = new JSONObject(fullFileString);
 
                 if (odoImport) {
+                    JSONObject odoBackup = fileBackup.getJSONObject("odoBackup");
                     byte[] bytes = odoBackup.toString().getBytes();
                     // Save to second file to be used in importing odo configuration
                     BufferedOutputStream stream =
@@ -183,12 +183,12 @@ public class BackupController {
                 }
 
                 // Get profile backup if json contained both profile backup and odo backup
-                if (odoBackup.has("profileBackup")) {
-                    odoBackup = odoBackup.getJSONObject("profileBackup");
+                if (fileBackup.has("profileBackup")) {
+                    fileBackup = fileBackup.getJSONObject("profileBackup");
                 }
 
                 // Import profile overrides
-                BackupService.getInstance().setProfileFromBackup(odoBackup, profileID, clientUUID);
+                BackupService.getInstance().setProfileFromBackup(fileBackup, profileID, clientUUID);
             } catch (Exception e) {
                 try {
                     JSONArray errorArray = new JSONArray(e.getMessage());

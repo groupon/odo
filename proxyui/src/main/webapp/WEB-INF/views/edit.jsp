@@ -215,27 +215,12 @@
                 });
             }
 
-            function importProfileConfiguration() {
-                $("#profileConfigurationUploadDialog").dialog({
-                    title: "Upload Profile Configuration",
-                    modal: true,
-                    position:['top',20],
-                    buttons: {
-                        "Submit": function() {
-                            // submit form
-                            $("#profileConfigurationUploadFileButton").click();
-                        },
-                        "Cancel": function() {
-                            $("#profileConfigurationUploadDialog").dialog("close");
-                        }
-                    }
-                });
-            }
-
             function importConfiguration() {
                 $("#configurationUploadDialog").dialog({
-                    title: "Upload Profile and Odo Configuration",
+                    title: "Upload Active Override & Server Configuration",
                     modal: true,
+                    width: 500,
+                    height: 200,
                     position:['top',20],
                     buttons: {
                         "Submit": function() {
@@ -251,25 +236,37 @@
 
             window.onload = function () {
                 // Adapted from: http://blog.teamtreehouse.com/uploading-files-ajax
-                document.getElementById('profileConfigurationUploadForm').onsubmit = function(event) {
-                    event.preventDefault();
-
-                    var file = document.getElementById('profileConfigurationUploadFile').files[0];
-                    importConfigurationRequest(file, false, "#profileConfigurationUploadDialog");
-                }
-
                 document.getElementById('configurationUploadForm').onsubmit = function(event) {
                     event.preventDefault();
 
                     var file = document.getElementById('configurationUploadFile').files[0];
-                    importConfigurationRequest(file, true, "#configurationUploadDialog");
+                    importConfigurationRequest(file);
+                }
+
+                document.getElementById('configurationExportForm').onsubmit = function(event) {
+                    event.preventDefault();
+
+                    exportConfigurationFile();
                 }
             }
 
-            function importConfigurationRequest(file, odoImport, dialogBox) {
+            function exportConfigurationFile() {
+                $("#configurationExportDialog").dialog("close");
+                if ($('#includeOdoConfigurationExport').find(":selected").text() === "No") {
+                    downloadFile('<c:url value="/api/backup/profile/${profile_id}/${clientUUID}?odoExport=false"/>');
+                } else {
+                    downloadFile('<c:url value="/api/backup/profile/${profile_id}/${clientUUID}?odoExport=true"/>');
+                }
+            }
+
+            function importConfigurationRequest(file) {
                 var formData = new FormData();
                 formData.append('fileData', file, file.name);
-                formData.append('odoImport', odoImport);
+                if ($('#includeOdoConfiguration').find(":selected").text() === "No") {
+                    formData.append('odoImport', false);
+                } else {
+                    formData.append('odoImport', true);
+                }
                 $.ajax({
                     type:"POST",
                     url: '<c:url value="/api/backup/profile/${profile_id}/${clientUUID}"/>',
@@ -286,7 +283,7 @@
                             alertText += errorResponse[i].error + "\n";
                         }
                         window.alert(alertText);
-                        $(dialogBox).dialog("close");;
+                        $("#configurationUploadDialog").dialog("close");
                     }
                 });
             }
@@ -296,7 +293,22 @@
             }
 
             function exportConfiguration() {
-                downloadFile('<c:url value="/api/backup/profile/${profile_id}/${clientUUID}?odoExport=true"/>');
+                $("#configurationExportDialog").dialog({
+                    title: "Export Active Override & Server Configuration",
+                    modal: true,
+                    width: 500,
+                    height: 150,
+                    position:['top',20],
+                    buttons: {
+                        "Submit": function() {
+                            // submit form
+                            $("#configurationExportFileButton").click();
+                        },
+                        "Cancel": function() {
+                            $("#configurationExportDialog").dialog("close");
+                        }
+                    }
+                });
             }
 
             function resetProfile(){
@@ -1906,15 +1918,25 @@
     </head>
     <body>
         <!-- Hidden div for configuration file upload -->
-        <div id="profileConfigurationUploadDialog" style="display:none;">
-            <form id="profileConfigurationUploadForm" action="<c:url value="/api/backup"/>" method="POST">
-                <input id="profileConfigurationUploadFile" type="file" name="fileData" />
-                <button id="profileConfigurationUploadFileButton" type="submit" style="display: none;"></button>
+        <div id="configurationExportDialog" style="display:none;">
+            <form id="configurationExportForm">
+                <label for="includeOdoConfigurationExport">Also Export Odo Configuration</label>
+                <select id="includeOdoConfigurationExport" name="IncludeOdoConfiguration">
+                    <option value="No">No</option>
+                    <option value="Yes">Yes</option>
+                </select>
+                <button id="configurationExportFileButton" type="submit" style="display: none;"></button>
             </form>
         </div>
         <div id="configurationUploadDialog" style="display:none;">
-            <form id="configurationUploadForm" action="<c:url value="/api/backup"/>" method="POST">
+            <form id="configurationUploadForm">
                 <input id="configurationUploadFile" type="file" name="fileData" />
+                <br>
+                <label for="includeOdoConfiguration">Also Import Odo Configuration</label>
+                <select id="includeOdoConfiguration" name="IncludeOdoConfiguration">
+                    <option value="No">No</option>
+                    <option value="Yes">Yes</option>
+                </select>
                 <button id="configurationUploadFileButton" type="submit" style="display: none;"></button>
             </form>
         </div>
@@ -1946,11 +1968,12 @@
                         <li class="dropdown">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown">Import/Export <b class="caret"></b></a>
                             <ul class="dropdown-menu">
-                                    <li><a href="#" onclick='exportProfileConfiguration()'>Export Override Configuration</a></li>
-                                    <li><a href="#" onclick='exportConfiguration()'>Export Odo and Override Configuration</a></li>
-                                    <li><a href="#" onclick='importProfileConfiguration()'>Import Override Configuration</a></li>
-                                    <li><a href="#" onclick='importConfiguration()'>Import Odo and Override Configuration</a></li>
-
+                                <li><a href="#" onclick='exportConfiguration()'
+                                       data-toggle="tooltip" data-placement="right"
+                                       title="Click here to export active overrides and active server group">Export Override Configuration</a></li>
+                                <li><a href="#" onclick='importConfiguration()'
+                                       data-toggle="tooltip" data-placement="right"
+                                       title="Click here to import active overrides and server group">Import Override Configuration</a></li>
                             </ul>
                         </li>
                     </ul>
