@@ -63,6 +63,10 @@
                 padding-bottom:3px !important;
             }
 
+            #pg_packagePager .ui-pg-table { /* KEEPS PAGER BUTTONS THE RIGHT SIZE */
+                width: auto !important;
+            }
+
             /* This changes the color of the active pill */
             .nav-pills>li.active>a, .nav-pills>li.active>a:hover, .nav-pills>li.active>a:focus {
                 background-color:#e9e9e9 !important;
@@ -97,7 +101,7 @@
                 window.open("https://github.com/groupon/odo#readme","help");
             }
 
-            function navigateEditGroups() {0
+            function navigateEditGroups() {
                 window.open('<c:url value = '/group' />', "edit-groups");
             }
 
@@ -633,8 +637,8 @@
                     add : true,
                     del : true,
                     search: false,
-                    addtext:"Add an API server",
-                    deltext:"Delete an API server"
+                    addtext:"Add API server",
+                    deltext:"Delete API server"
                 },
                 {},
                 {
@@ -878,8 +882,8 @@
                         edit: false,
                         del: true,
                         search: false,
-                        addtext: "Add a path",
-                        deltext: "Delete a path"
+                        addtext: "Add path",
+                        deltext: "Delete path"
                     },
                     {},
                     {
