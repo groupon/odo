@@ -34,19 +34,22 @@
                 padding: 12px;
             }
 
+            #container {
+                white-space: nowrap;
+            }
+
             #container>div {
                 display:inline-block;
+                vertical-align: top;
             }
 
             #listContainer
             {
                 min-width: 400px;
                 margin-right: 40px;
-                float: left;
             }
 
             #editDiv {
-                display:none;
                 width: 45vw;
                 max-width: 45vw; /* ALLOWS FOR SCROLLING TO THE END OF THE DIV IF LARGER THAN WINDOW */
             }
@@ -58,6 +61,10 @@
             #nav>li>a { /* MAKES THE PILLS SMALLER */
                 padding-top:3px !important;
                 padding-bottom:3px !important;
+            }
+
+            #pg_packagePager .ui-pg-table { /* KEEPS PAGER BUTTONS THE RIGHT SIZE */
+                width: auto !important;
             }
 
             /* This changes the color of the active pill */
@@ -94,7 +101,7 @@
                 window.open("https://github.com/groupon/odo#readme","help");
             }
 
-            function navigateEditGroups() {0
+            function navigateEditGroups() {
                 window.open('<c:url value = '/group' />', "edit-groups");
             }
 
@@ -122,9 +129,9 @@
                 var clientInfo = $("#clientInfo");
                 var clientInfoHTML = "";
                 if (clientUUID == '-1') {
-                    clientInfoHTML = "<li><a href='#' onclick='manageClientPopup()'>Client UUID: Default</a>";
+                    clientInfoHTML = "<li id='clientButton'><a href='#' data-toggle='tooltip' data-placement='bottom' title='Click here to manage clients.' onclick='manageClientPopup()'>Client UUID: Default</a>";
                 } else {
-                    clientInfoHTML = "<li><a href='#' onclick='manageClientPopup()'>Client UUID: " + clientUUID + "</a>";
+                    clientInfoHTML = "<li id='clientButton'><a href='#' data-toggle='tooltip' data-placement='bottom' title='Click here to manage clients.' onclick='manageClientPopup()'>Client UUID: " + clientUUID + "</a>";
                 }
 
                 clientInfoHTML += '</ul></li>'
@@ -592,10 +599,8 @@
             }
 
             $(document).ready(function () {
-                // turn on tooltips
-                $("#resetProfileButton").tooltip();
-                $("#helpButton").tooltip();
-                $("#gs_pathName").tooltip({content:"Use this box to filter the path names."});
+                // turn on all tooltips
+                $("#statusBar").tooltip({selector: '[data-toggle=tooltip]'});
                 $.ajax({
                     type : "GET",
                     url : '<c:url value="/api/profile/${profile_id}/clients/"/>' + $.cookie("UUID"),
@@ -665,7 +670,7 @@
                         formatter : destinationHostFormatter,
                         unformat : destinationHostUnFormatter,
                         editoptions:{title:"default: forwards to source"},
-                        editrules:{required:true, custom:true, custom_func: destValidation},
+                        editrules:{required:false, custom:true, custom_func: destValidation},
                     }, {
                         name : 'hostHeader',
                         index : 'hostHeader',
@@ -728,8 +733,8 @@
                     add : true,
                     del : true,
                     search: false,
-                    addtext:"Add an API server",
-                    deltext:"Delete an API server"
+                    addtext:"Add API server",
+                    deltext:"Delete API server"
                 },
                 {},
                 {
@@ -973,8 +978,8 @@
                         edit: false,
                         del: true,
                         search: false,
-                        addtext: "Add a path",
-                        deltext: "Delete a path"
+                        addtext: "Add path",
+                        deltext: "Delete path"
                     },
                     {},
                     {
@@ -1957,7 +1962,7 @@
 
         <nav class="navbar navbar-default" role="navigation">
             <div class="container-fluid">
-                <div class="collapse navbar-collapse">
+                <div id="statusBar" class="collapse navbar-collapse">
                     <ul id="status2"  class="nav navbar-nav navbar-left">
                         <li class="navbar-brand">Odo</li>
                         <li><a href="#" onClick="navigateProfiles()">Profiles</a> </li>
