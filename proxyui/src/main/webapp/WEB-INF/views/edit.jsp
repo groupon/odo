@@ -138,78 +138,7 @@
                 clientInfo.html(clientInfoHTML);
             }
 
-            function manageClients() {
-                var url = '<c:url value="/edit/${profile_id}/clients"/>';
-                window.location.href = url;
-            }
 
-            function changeClientFriendlyNamePopup() {
-                $("#changeClientFriendlyNameDialog").dialog({
-                    title: "Set Client Friendly Name For: ${profile_name}",
-                    modal: true,
-                    position:['top',20],
-                    buttons: {
-                      "Submit": function() {
-                          changeClientFriendlyNameSubmit();
-                      },
-                      "Cancel": function() {
-                          $("#changeClientFriendlyNameDialog").dialog("close");
-                      }
-                    }
-                });
-            }
-
-            function changeClientFriendlyNameSubmit() {
-                var value = $('#changeClientFriendlyName').val();
-                if (value == "${clientFriendlyName}") {
-                    $("#changeClientFriendlyNameDialog").dialog("close");
-                    return;
-                }
-
-                $.ajax({
-                    type:"POST",
-                    url: '<c:url value="/api/profile/${profile_id}/clients/${clientUUID}"/>',
-                    data: {friendlyName: value},
-                    success: function() {
-                        var url = '<c:url value="/edit/${profile_id}"/>?clientUUID=${clientUUID}';
-                        window.location.href = url;
-                    },
-                    error: function(xhr) {
-                        var json;
-                        try {
-                            json = $.parseJSON(xhr.responseText);
-                            $("#friendlyNameError").html(json.error.message);
-                        } catch(e) {
-                            $("#friendlyNameError").html("An unknown error occurred");
-                        }
-
-                    }
-                });
-            }
-
-            function changeClientPopup() {
-                $("#switchClientDialog").dialog({
-                    title: "Switch Client For: ${profile_name}",
-                    modal: true,
-                    position:['top',20],
-                    buttons: {
-                      "Submit": function() {
-                          changeClientSubmit();
-                      },
-                      "Cancel": function() {
-                          $("#switchClientDialog").dialog("close");
-                      }
-                    }
-                });
-                $("#switchClientName").select();
-            }
-
-            function changeClientSubmit() {
-                $.removeCookie("UUID", { expires: 10000, path: '/testproxy/' });
-                var value = $('#switchClientName').val();
-                var url = '<c:url value="/edit/${profile_id}"/>?clientUUID=' + value;
-                window.location.href = url;
-            }
 
             function changeActive(value){
                 $.ajax({
@@ -1888,9 +1817,9 @@
                 content += '<option value="-999" selected>Select Override</option>';
 
                 content += '<optgroup label="General">';
-				content += '<option value="-2">Custom Request</option>';
-				content += '<option value="-5">Set Header</option>';
-				content += '<option value="-6">Remove Header</option>';
+				        content += '<option value="-2">Custom Request</option>';
+				        content += '<option value="-5">Set Header</option>';
+				        content += '<option value="-6">Remove Header</option>';
                 content += '<option value="-7">Custom Post Body</option>';
                 content += '</optgroup>';
 
@@ -1901,8 +1830,7 @@
                 if($('#serverEdit').is(':visible') ) {
                     $("#serverEdit").hide();
                     $("#editServerGroups").attr("class", "btn-xs btn-default");
-                }
-                else {
+                } else {
                     reloadGrid("#serverGroupList");
                     $("#serverEdit").show();
                     $("#editServerGroups").attr("class", "btn-xs btn-primary");
@@ -1946,17 +1874,6 @@
             </form>
         </div>
 
-        <!-- Hidden div for changing client friendly name --
-        <div id="changeClientFriendlyNameDialog" style="display:none;">
-            Client Friendly Name: <input id="changeClientFriendlyName" value="${clientFriendlyName}"/>
-            <div id="friendlyNameError" style="color: red"></div>
-        </div>
-
-        <!-- Hidden div for switching clients --
-        <div id="switchClientDialog" style="display:none;">
-            Client UUID/Name: <input id="switchClientName" value="${clientFriendlyName}"/>
-        </div>-->
-
         <%@ include file="clients_part.jsp" %>
         <%@ include file="pathtester_part.jsp" %>
 
@@ -1967,7 +1884,6 @@
                         <li class="navbar-brand">Odo</li>
                         <li><a href="#" onClick="navigateProfiles()">Profiles</a> </li>
                         <li><a href="#" onClick="navigateRequestHistory()">Request History</a></li>
-                        <!--<li id="navbarPathPriority"><a href="#" onClick="navigatePathPriority()">Path Priority</a></li>-->
                         <li><a href="#" onClick="navigatePathTester()">Path Tester</a></li>
                         <li><a href="#" onClick="navigateEditGroups()">Edit Groups</a></li>
                         <li class="dropdown">
@@ -2000,232 +1916,227 @@
         </nav>
 
         <div id="container">
-        <div id="listContainer">
-            <div>
-                <table id="serverlist"></table>
-                <div id="servernavGrid"></div>
-            </div>
-
-
-
-            <div>
-                <table id="packages">
-                    <tr><td></td></tr>
-                </table>
-                <div id="packagePager" >
-                </div>
-            </div>
-        <!-- div for top bar notice -->
-        <div class="ui-widget" id="statusNotificationDiv" style="display: none;" onClick="dismissStatusNotificationDiv()">
-            <div class="ui-state-highlight ui-corner-all" style="margin-top: 10px;  margin-bottom: 10px; padding: 0 .7em;">
-                <p style="margin-top: 10px; margin-bottom:10px;"><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
-                    <span id="statusNotificationText"/></p>
-            </div>
-        </div>
-        </div>
-
-        <div id="details" >
-            <div class="serverGroupEdit" id="serverEdit">
+            <div id="listContainer">
                 <div>
-                    <h2><span class="label label-default" >Edit Server Groups</span></h2>
+                    <table id="serverlist"></table>
+                    <div id="servernavGrid"></div>
                 </div>
                 <div>
-                    <table id="serverGroupList"></table>
-                    <div id="serverGroupNavGrid"></div>
+                    <table id="packages">
+                        <tr><td></td></tr>
+                    </table>
+                    <div id="packagePager" >
+                    </div>
+                </div>
+                <!-- div for top bar notice -->
+                <div class="ui-widget" id="statusNotificationDiv" style="display: none;" onClick="dismissStatusNotificationDiv()">
+                    <div class="ui-state-highlight ui-corner-all" style="margin-top: 10px;  margin-bottom: 10px; padding: 0 .7em;">
+                        <p style="margin-top: 10px; margin-bottom:10px;"><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
+                            <span id="statusNotificationText"/></p>
+                    </div>
                 </div>
             </div>
 
-            <div class="detailsView" id="editDiv">
-                <div>
-                    <ul class="nav nav-pills" id="nav">
-                    </ul>
+            <div id="details" >
+                <div class="serverGroupEdit" id="serverEdit">
+                    <div>
+                        <h2><span class="label label-default" >Edit Server Groups</span></h2>
+                    </div>
+                    <div>
+                        <table id="serverGroupList"></table>
+                        <div id="serverGroupNavGrid"></div>
+                    </div>
                 </div>
-                <div id="tabs">
-                    <ul>
-                        <li><a href="#tabs-1">Response</a></li>
-                        <li><a href="#tabs-2">Request</a></li>
-                        <li><a href="#tabs-3">Configuration</a></li>
-                    </ul>
 
-                    <div id="tabs-1" >
-                        <div class="ui-widget-content ui-corner-all detailsLeft">
-                            <dl>
-                                <dt>
-                                    Overrides
-                                </dt>
-                                <dd>
-                                    <select id="responseOverrideEnabled" class="ui-corner-all" multiple="multiple"
-                                            style="min-height: 160px; width: 100%" onChange="changeResponseOverrideDiv()">
-                                    </select>
-                                    <br>
-                                    <div style="display: inline-block" class="ui-state-default">
-                                        <span class="ui-icon ui-icon-circle-triangle-n" title="Up" style="float: left;" onClick="overrideMoveUp('response')"></span>
-                                        <span class="ui-icon ui-icon-circle-triangle-s" title="Down" style="float: left;" onClick="overrideMoveDown('response')"></span>
-                                        <span class="ui-icon ui-icon-trash" title="Delete" style="float: right;" onClick="overrideRemove('response')"></span>
+                <div class="detailsView" id="editDiv">
+                    <div>
+                        <ul class="nav nav-pills" id="nav">
+                        </ul>
+                    </div>
+                    <div id="tabs">
+                        <ul>
+                            <li><a href="#tabs-1">Response</a></li>
+                            <li><a href="#tabs-2">Request</a></li>
+                            <li><a href="#tabs-3">Configuration</a></li>
+                        </ul>
+
+                        <div id="tabs-1" >
+                            <div class="ui-widget-content ui-corner-all detailsLeft">
+                                <dl>
+                                    <dt>
+                                        Overrides
+                                    </dt>
+                                    <dd>
+                                        <select id="responseOverrideEnabled" class="ui-corner-all" multiple="multiple"
+                                                style="min-height: 160px; width: 100%" onChange="changeResponseOverrideDiv()">
+                                        </select>
+                                        <br>
+                                        <div style="display: inline-block" class="ui-state-default">
+                                            <span class="ui-icon ui-icon-circle-triangle-n" title="Up" style="float: left;" onClick="overrideMoveUp('response')"></span>
+                                            <span class="ui-icon ui-icon-circle-triangle-s" title="Down" style="float: left;" onClick="overrideMoveDown('response')"></span>
+                                            <span class="ui-icon ui-icon-trash" title="Delete" style="float: right;" onClick="overrideRemove('response')"></span>
+                                        </div>
+                                        <br>
+                                    </dd>
+
+                                    <dt>
+                                        Add Override
+                                    </dt>
+                                    <dd>
+                                        <select id="responseOverrideSelect" onfocus="this.selectedIndex = -999;" style="width:100%" onChange="overrideSelectChanged('response')">
+                                            <option value="-999">Select Override</option>
+                                        </select>
+                                    </dd>
+                                </dl>
+                            </div>
+
+
+                            <div id="responseOverrideDetails" style="display: none;" class="ui-corner-all detailsRight" >
+                                <div class="ui-widget">
+                                    <div class="ui-widget-header ui-corner-all">
+                                        Override Parameters
                                     </div>
-                                    <br>
-                                </dd>
-
-                                <dt>
-                                    Add Override
-                                </dt>
-                                <dd>
-                                    <select id="responseOverrideSelect" onfocus="this.selectedIndex = -999;" style="width:100%" onChange="overrideSelectChanged('response')">
-                                        <option value="-999">Select Override</option>
-                                    </select>
-                                </dd>
-                            </dl>
+                                    <div id="responseOverrideParameters" class="ui-widget-content ui-corner-all overrideParameters">
+                                    </div>
+                                </div>
+                            </div>
+                            <div style="clear: both" ></div>
                         </div>
 
 
-                        <div id="responseOverrideDetails" style="display: none;" class="ui-corner-all detailsRight" >
-                            <div class="ui-widget">
-                                <div class="ui-widget-header ui-corner-all">
-                                    Override Parameters
-                                </div>
-                                <div id="responseOverrideParameters" class="ui-widget-content ui-corner-all overrideParameters">
+                        <div id="tabs-2" >
+                            <div  class="ui-widget-content ui-corner-all detailsLeft">
+                                <dl>
+                                    <dt>
+                                        Overrides
+                                    </dt>
+                                    <dd>
+                                        <select id="requestOverrideEnabled" class="ui-corner-all" multiple="multiple"
+                                                style="min-height: 160px; width: 100%" onChange="changeRequestOverrideDiv()">
+                                        </select>
+                                        <br>
+                                        <div style="display: inline-block" class="ui-state-default">
+                                            <span class="ui-icon ui-icon-circle-triangle-n" title="Up" style="float: left;" onClick="overrideMoveUp('request')"></span>
+                                            <span class="ui-icon ui-icon-circle-triangle-s" title="Down" style="float: left;" onClick="overrideMoveDown('request')"></span>
+                                            <span class="ui-icon ui-icon-trash" title="Delete" style="float: right;" onClick="overrideRemove('request')"></span>
+                                        </div>
+                                        <br>
+                                    </dd>
+
+                                    <dt>
+                                        Add Override
+                                    </dt>
+                                    <dd>
+                                        <select id="requestOverrideSelect" onfocus="this.selectedIndex = -999;" style="width:100%" onChange="overrideSelectChanged('request')">
+                                            <option value="-999">Select Override</option>
+                                        </select>
+                                    </dd>
+                                </dl>
+                            </div>
+
+                            <div id="requestOverrideDetails"  style="display:none" class="ui-corner-all detailsRight">
+                                <div class="ui-widget">
+                                    <div class="ui-widget-header ui-corner-all" >
+                                        Override Parameters
+                                    </div>
+                                    <div id="requestOverrideParameters" class="ui-widget-content ui-corner-all overrideParameters">
+                                        None
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                        <div style="clear: both" ></div>
-                    </div>
 
-
-                    <div id="tabs-2" >
-                        <div  class="ui-widget-content ui-corner-all detailsLeft">
-                            <dl>
+                        <div id="tabs-3">
+                            <dl class="dl-horizontal">
                                 <dt>
-                                    Overrides
+                                    Global
                                 </dt>
                                 <dd>
-                                    <select id="requestOverrideEnabled" class="ui-corner-all" multiple="multiple"
-                                            style="min-height: 160px; width: 100%" onChange="changeRequestOverrideDiv()">
-                                    </select>
-                                    <br>
-                                    <div style="display: inline-block" class="ui-state-default">
-                                        <span class="ui-icon ui-icon-circle-triangle-n" title="Up" style="float: left;" onClick="overrideMoveUp('request')"></span>
-                                        <span class="ui-icon ui-icon-circle-triangle-s" title="Down" style="float: left;" onClick="overrideMoveDown('request')"></span>
-                                        <span class="ui-icon ui-icon-trash" title="Delete" style="float: right;" onClick="overrideRemove('request')"></span>
-                                    </div>
-                                    <br>
+                                    <input id="pathGlobal" type="checkbox" />
+                                </dd>
+                                <dt>
+                                    Path Name
+                                </dt>
+                                <dd>
+                                    <input id="pathName" style="width: 70%" />
                                 </dd>
 
                                 <dt>
-                                    Add Override
+                                    Path Value
                                 </dt>
                                 <dd>
-                                    <select id="requestOverrideSelect" onfocus="this.selectedIndex = -999;" style="width:100%" onChange="overrideSelectChanged('request')">
-                                        <option value="-999">Select Override</option>
+                                    <input id="pathValue" style="width: 100%" />
+                                </dd>
+
+                                <dt>
+                                    Content Type
+                                </dt>
+                                <dd>
+                                    <input id="contentType" style="width: 100%" />
+                                </dd>
+
+                                <dt>
+                                    Repeat Count
+                                </dt>
+                                <dd>
+                                    <input id="pathRepeatCount" style="width: 20%" />
+                                </dd>
+
+                                <dt>
+                                    Request Type
+                                </dt>
+                                <dd>
+                                    <select id="requestType" class="form-control" style="width:auto;" onChange="pathRequestTypeChanged()">
+                                        <option value="0">ALL</option>
+                                        <option value="1">GET</option>
+                                        <option value="2">PUT</option>
+                                        <option value="3">POST</option>
+                                        <option value="4">DELETE</option>
                                     </select>
                                 </dd>
                             </dl>
-                        </div>
-
-                        <div id="requestOverrideDetails"  style="display:none" class="ui-corner-all detailsRight">
-                            <div class="ui-widget">
-                                <div class="ui-widget-header ui-corner-all" >
-                                    Override Parameters
-                                </div>
-                                <div id="requestOverrideParameters" class="ui-widget-content ui-corner-all overrideParameters">
-                                    None
-                                </div>
-                            </div>
+                            <dl id="postGeneral" class="dl-horizontal" style="display:none;">
+                                <dt>
+                                    Request Body<br>Filter<br> (optional)
+                                </dt>
+                                <dd>
+                                    <textarea id="postBodyFilter" ROWS="6" style="width:80%;" ></textarea>
+                                </dd>
+                            </dl>
+                            <dl class="dl-horizontal" style="display:inline;">
+                                <dt>
+                                    Groups
+                                </dt>
+                                <dd>
+                                    <select id="groupSelect" class="form-control" multiple="multiple" style="min-width:150px;width:auto;">
+                                    </select>
+                                </dd>
+                                <dd>
+                                    <table>
+                                        <tr>
+                                            <td><button class="btn btn-primary" onclick="applyGeneralPathChanges();">Apply</button></td>
+                                            <td>
+                                                <div class="ui-widget" style="display:none;" id="applyPathChangeAlertDiv">
+                                                    <div class="ui-state-error ui-corner-all" style="padding: 0 .7em;">
+                                                        <p><span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span>
+                                                        <strong>Alert: </strong><span id="applyPathChangeAlertTextDiv"/></p>
+                                                    </div>
+                                                </div>
+                                                <div class="ui-widget" style="display:none;" id="applyPathChangeSuccessDiv">
+                                                  <div class="ui-state-highlight ui-corner-all" style="padding: 0 .7em;">
+                                                    <p><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
+                                                    <strong>Success: </strong>Configuration saved.</p>
+                                                  </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </dd>
+                            </dl>
                         </div>
                     </div>
-
-                    <div id="tabs-3">
-                        <dl class="dl-horizontal">
-                            <dt>
-                                Global
-                            </dt>
-                            <dd>
-                                <input id="pathGlobal" type="checkbox" />
-                            </dd>
-                            <dt>
-                                Path Name
-                            </dt>
-                            <dd>
-                                <input id="pathName" style="width: 70%" />
-                            </dd>
-
-                            <dt>
-                                Path Value
-                            </dt>
-                            <dd>
-                                <input id="pathValue" style="width: 100%" />
-                            </dd>
-
-                            <dt>
-                                Content Type
-                            </dt>
-                            <dd>
-                                <input id="contentType" style="width: 100%" />
-                            </dd>
-
-                            <dt>
-                                Repeat Count
-                            </dt>
-                            <dd>
-                                <input id="pathRepeatCount" style="width: 20%" />
-                            </dd>
-
-                            <dt>
-                                Request Type
-                            </dt>
-                            <dd>
-                                <select id="requestType" class="form-control" style="width:auto;" onChange="pathRequestTypeChanged()">
-                                    <option value="0">ALL</option>
-                                    <option value="1">GET</option>
-                                    <option value="2">PUT</option>
-                                    <option value="3">POST</option>
-                                    <option value="4">DELETE</option>
-                                </select>
-                            </dd>
-
-                        </dl>
-                        <dl id="postGeneral" class="dl-horizontal" style="display:none;">
-                            <dt>
-                                Request Body<br>Filter<br> (optional)
-                            </dt>
-                            <dd>
-                                <textarea id="postBodyFilter" ROWS="6" style="width:80%;" ></textarea>
-                            </dd>
-                        </dl>
-                        <dl class="dl-horizontal" style="display:inline;">
-                            <dt>
-                                Groups
-                            </dt>
-                            <dd>
-                                <select id="groupSelect" class="form-control" multiple="multiple" style="min-width:150px;width:auto;">
-                                </select>
-                            </dd>
-                            <dd>
-                                <table>
-                                    <tr>
-                                    <td><button class="btn btn-primary" onclick="applyGeneralPathChanges();">Apply</button></td>
-                                    <td>
-                                        <div class="ui-widget" style="display:none;" id="applyPathChangeAlertDiv">
-                                            <div class="ui-state-error ui-corner-all" style="padding: 0 .7em;">
-                                                <p><span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span>
-                                                <strong>Alert: </strong><span id="applyPathChangeAlertTextDiv"/></p>
-                                            </div>
-                                        </div>
-                                        <div class="ui-widget" style="display:none;" id="applyPathChangeSuccessDiv">
-                                        	<div class="ui-state-highlight ui-corner-all" style="padding: 0 .7em;">
-                                        		<p><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
-                                        		<strong>Success: </strong>Configuration saved.</p>
-                                        	</div>
-                                        </div>
-                                    </td>
-                                    </tr>
-                                </table>
-                            </dd>
-                        </dl>
-                    </div>
-
                 </div>
             </div>
-        </div>
         </div>
     </body>
 </html>

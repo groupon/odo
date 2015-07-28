@@ -4,9 +4,6 @@ import com.groupon.odo.proxylib.models.EnabledEndpoint;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created by dorenfro on 7/20/15.
- */
 public class PathOverride {
     private ArrayList<EnabledEndpoint> enabledEndpoints;
     private boolean requestEnabled;
@@ -44,5 +41,4 @@ public class PathOverride {
     public void setPathName(String pathname) {
         this.pathName = pathname;
     }
-
 }
