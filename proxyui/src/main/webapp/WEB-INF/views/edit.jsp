@@ -1941,17 +1941,6 @@
             </form>
         </div>
 
-        <!-- Hidden div for changing client friendly name --
-        <div id="changeClientFriendlyNameDialog" style="display:none;">
-            Client Friendly Name: <input id="changeClientFriendlyName" value="${clientFriendlyName}"/>
-            <div id="friendlyNameError" style="color: red"></div>
-        </div>
-
-        <!-- Hidden div for switching clients --
-        <div id="switchClientDialog" style="display:none;">
-            Client UUID/Name: <input id="switchClientName" value="${clientFriendlyName}"/>
-        </div>-->
-
         <%@ include file="clients_part.jsp" %>
         <%@ include file="pathtester_part.jsp" %>
 
