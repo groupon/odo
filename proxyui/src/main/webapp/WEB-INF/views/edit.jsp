@@ -16,17 +16,22 @@
         <style type="text/css">
             .detailsLeft
             {
-                float: left;
                 overflow: hidden;
                 margin: 12px;
                 padding: 8px;
+                width: 45%;
+                max-width: 50%;
+                display:inline-block;
+                vertical-align: top;
             }
 
             .detailsRight
             {
-                float: left;
                 margin: 12px;
                 margin-left: 0px;
+                width: 50%;
+                display:inline-block;
+                vertical-align: top;
             }
 
             .overrideParameters
@@ -34,7 +39,12 @@
                 padding: 12px;
             }
 
-            #container {
+            #details {
+                position: sticky;
+                top: 10px;
+            }
+
+            #container, #tabs {
                 white-space: nowrap;
             }
 
@@ -46,12 +56,12 @@
             #listContainer
             {
                 min-width: 400px;
-                margin-right: 40px;
+                margin-right: 20px;
             }
 
             #editDiv {
-                width: 45vw;
-                max-width: 45vw; /* ALLOWS FOR SCROLLING TO THE END OF THE DIV IF LARGER THAN WINDOW */
+                width: 50vw;
+                max-width: 50vw; /* ALLOWS FOR SCROLLING TO THE END OF THE DIV IF LARGER THAN WINDOW */
             }
 
             #serverEdit {
@@ -63,7 +73,7 @@
                 padding-bottom:3px !important;
             }
 
-            #pg_packagePager .ui-pg-table { /* KEEPS PAGER BUTTONS THE RIGHT SIZE */
+            #pg_packagePager .ui-pg-table, #pg_servernavGrid .ui-pg-table, #servernavGrid_left, #packagePager_left { /* KEEPS PAGER BUTTONS THE RIGHT SIZE */
                 width: auto !important;
             }
 
@@ -137,8 +147,6 @@
                 clientInfoHTML += '</ul></li>'
                 clientInfo.html(clientInfoHTML);
             }
-
-
 
             function changeActive(value){
                 $.ajax({
@@ -570,7 +578,7 @@
                         formatter : destinationHostFormatter,
                         unformat : destinationHostUnFormatter,
                         editoptions:{title:"default: forwards to source"},
-                        editrules:{required:false, custom:true, custom_func: destValidation},
+                        editrules:{required:false},
                     }, {
                         name : 'hostHeader',
                         index : 'hostHeader',
@@ -649,9 +657,6 @@
                         /* INITIALLY, GRAY */
                         $("#srcUrl").val(getExampleText("src"));
                         $("#srcUrl").css("color", "gray");
-
-                        $("#destUrl").val(getExampleText("dest"));
-                        $("#destUrl").css("color", "gray");
                     },
                     afterShowForm: function(formid) {
                         /* SHIFT INITIAL FOCUS TO CANCEL TO MINIMIZE ACCIDENTAL CREATION OF
@@ -665,15 +670,6 @@
                                 $("#srcUrl").val("");
                                 $("#srcUrl").css("color", "black");
                                 src = false;
-                            }
-                        });
-
-                        var dest = true;
-                        $("#destUrl").focus(function(){
-                            if( dest ) {
-                                $("#destUrl").val("");
-                                $("#destUrl").css("color", "black");
-                                dest = false;
                             }
                         });
                     },
@@ -691,11 +687,7 @@
                         return [true];
                     }
                 });
-                serverList.jqGrid('gridResize', {
-                    stop: function() {
-                        resizeGrid( "#serverlist", serverList, initServerWidth );
-                    }
-                });
+                serverList.jqGrid('gridResize');
 
                 var serverGroupList = jQuery("#serverGroupList");
                 serverGroupList.jqGrid({
@@ -896,7 +888,7 @@
                         },
                         afterComplete: function(data) {
                             reloadGrid("#packages");
-                            $("#statusNotificationText").html("Path added.  Don't forget to add a hostname <b>above</b> and<br>adjust path priorities by <b>dragging and dropping</b> rows<br>in the path table!");
+                            $("#statusNotificationText").html("Path added.  Don't forget to add a hostname <b>above</b> and<br>adjust path priorities by <b>clicking Reorder</b> at the bottom<br>of the path table!");
                             $("#statusNotificationDiv").fadeIn();
                         },
                         beforeShowForm: function(data) {
@@ -943,16 +935,7 @@
                          rp_ge.url = '<c:url value="/api/path/" />' + currentPathId + "?clientUUID=" + clientUUID;
                         }},
                     {});
-                grid.jqGrid('gridResize', {
-                    stop: function() {
-                        resizeGrid( "#packages", grid, initServerWidth );
-                        var width = grid.jqGrid('getGridParam', 'width');
-                        var ratio = width/initServerWidth;
-                        var newSize = ratio + 'em';
-
-                        $(".ui-jqgrid #packages tr.jqgrow td").css('font-size', newSize);
-                    }
-                });
+                grid.jqGrid('gridResize');
                 grid.jqGrid('filterToolbar', { defaultSearch: 'cn', stringResult: true });
 
                 var options = {
@@ -992,12 +975,64 @@
                             /* ALLOWS THE PATH PRIORITY TO BE SET INSIDE OF THE PATH TABLE, INSTEAD OF ON A SEPARATE PAGE */
                             grid.jqGrid('sortableRows', options);
                             $("#reorder_packages").addClass("ui-state-highlight");
+                            /* GIVE HELPER TEXT*/
+                            $("#reorderNotificationText").html("Drag and drop rows to change the path priority.<br>The ordering of paths impacts how requests are handled. <br>In general if a higher priority path matches a request then<br>further paths will not be evaluated. <br>The only exception is Global paths. In the case that a global path<br>is matched the matcher will continue to search for a non-global<br>matching path.");
+                            $("#reorderNotificationDiv").fadeIn();
                         } else {
                             $("#packages tbody").sortable('destroy');
                             $("#reorder_packages").removeClass("ui-state-highlight");
+                            /* REMOVE HELPER TEXT */
+                            $("#reorderNotificationDiv").fadeOut();
                         }
                     }
                 });
+                
+                var group = $("#groupTable");
+                group.jqGrid({
+                    url : '<c:url value="/api/group"/>',
+                    width: 300,
+                    height: 190,
+                    pgbuttons : false, // disable page control like next, back button
+                    pgtext : null,
+                    multiselect: true,
+                    multiboxonly: true,
+                    datatype : "json",
+                    colNames : [ 'ID', 'Group Name'],
+                    colModel : [ {
+                        name : 'id',
+                        index : 'id',
+                        width : 55,
+                        hidden : true
+                    }, {
+                        name: 'name',
+                        path: 'name',
+                        width: 200,
+                        editable: true,
+                        align: 'left'
+                    }],
+                    jsonReader : {
+                        page : "page",
+                        total : "total",
+                        records : "records",
+                        root : 'groups',
+                        repeatitems : false
+                    },
+                    loadonce: true,
+                    cellurl : '/testproxy/api/group',
+                    gridComplete : function() {
+                        if($("#groupsTable").length > 0){
+                            jQuery("#groupsTable").setSelection(
+                                    $("#groupsTable").getDataIDs()[0], true);
+                        }
+                    },
+                    editurl: '<c:url value="/api/group/" />',
+                    rowList : [],
+                    sortable: false,
+                    rowNum: 10000,
+                    viewrecords : true,
+                    sortorder : "asc"
+                });
+                group.jqGrid('gridResize');
 
                 /* ADD PLACEHOLDER TO FILTER BAR */
                 $("#gs_pathName").val("Type here to filter columns.");
@@ -1012,7 +1047,7 @@
                 $("#sel1").select2();
 
                 var currentHTML = $("#gview_serverlist > .ui-jqgrid-titlebar > span").html();
-                var dropDown = "&nbsp;&nbsp;&nbsp;<input id='serverGroupSelection' style='width:300px%'></input>&nbsp;&nbsp;<button id='editServerGroups' type='button' class='btn btn-xs' onClick='toggleServerGroupEdit()'>Server Grps ></button>";
+                var dropDown = "&nbsp;&nbsp;&nbsp;<input id='serverGroupSelection' style='width:300px%'></input>&nbsp;&nbsp;<button id='editServerGroups' type='button' class='btn btn-xs' onClick='toggleServerGroupEdit()'>Server Groups ></button>";
                 $("#gview_serverlist > .ui-jqgrid-titlebar > span").html(currentHTML + dropDown);
 
                 $("#serverGroupSelection").select2({
@@ -1054,8 +1089,7 @@
                     formatResult: function(term) {
                         if (term.isNew) {
                             return 'create "' + term.text + '"';
-                        }
-                        else {
+                        } else {
                             return term.text;
                         }
                     }
@@ -1071,8 +1105,7 @@
                                 reloadGrid("#serverGroupList");
                             }
                         });
-                    }
-                    else {
+                    } else {
                         setActiveServerGroup(e.added.id);
                     }
                 });
@@ -1091,8 +1124,6 @@
                 switch(item) {
                     case "src":
                         return "ex. groupon.com";
-                    case "dest":
-                        return "ex. 123.45.67.890";
                     case "pathName":
                         return "ex. My Path Name";
                     case "path":
@@ -1102,35 +1133,9 @@
                 }
             }
 
-            function resizeGrid( val, grid, init ) {
-                var width = grid.jqGrid('getGridParam', 'width');
-                var ratio = width/init;
-                var newSize = ratio + 'em';
-
-                var font = $(".ui-jqgrid "+val+" tr.jqgrow td");
-                $(font).css('font-size', newSize);
-
-                /* CHECK SIZE TO MAKE SURE IT'S NOT TOO BIG AND NOT TOO SMALL */
-                var min = 11;
-                var max = 16;
-                if(parseInt(font.css("fontSize")) < min ) {
-                    font.css('font-size', min);
-                } else if( parseInt(font.css("fontSize")) > max ) {
-                    font.css('fontSize', max);
-                }
-            }
-
             function srcValidation(val, colname) {
                 if( val.trim() === getExampleText("src") ) {
                     return [false, "Please replace the example source hostname with a valid hostname."]
-                } else {
-                    return [true, ""];
-                }
-            }
-
-            function destValidation(val, colname) {
-                if( val.trim() === getExampleText("dest") ) {
-                    return [false, "Please replace the example destination hostname with a valid hostname."]
                 } else {
                     return [true, ""];
                 }
@@ -1146,7 +1151,7 @@
 
             function pathValidation(val, colname) {
                 if( val.trim() === getExampleText("path") ) {
-                    return [false, "Please replace the example destination hostname with a valid hostname."]
+                    return [false, "Please replace the example path with a valid hostname."]
                 } else {
                     return [true, ""];
                 }
@@ -1210,8 +1215,7 @@
                 var requestType = $("#requestType").val();
                 if(requestType != "1" && requestType != "4") {
                     $("#postGeneral").show();
-                }
-                else {
+                } else {
                     $("#postGeneral").hide();
                 }
             }
@@ -1236,6 +1240,11 @@
                 }
             });
 
+            /* KEEPS DETAILS MENU FOLLOWING SCROLL */
+            $(document).scroll(function() {
+                $("#details").stop().animate({"margin-top": $(document).scrollTop()}, 0);
+            })
+
             function overrideRemove(type) {
                 var id = currentPathId;
                 var selector = "select#" + type + "OverrideEnabled" + " option:selected";
@@ -1256,15 +1265,13 @@
                         success: function() {
                             if(type == "response") {
                                 selectedResponseOverride = 0;
-                            }
-                            else {
+                            } else {
                                 selectedRequestOverride = 0;
                             }
 
                             if(type == "response") {
                                 populateEnabledResponseOverrides();
-                            }
-                            else {
+                            } else {
                                 populateEnabledRequestOverrides();
                             }
                         }
@@ -1287,8 +1294,7 @@
                         success: function(){
                             if(type == "response") {
                                 populateEnabledResponseOverrides();
-                            }
-                            else {
+                            } else {
                                 populateEnabledRequestOverrides();
                             }
                         }
@@ -1572,8 +1578,7 @@
                 var bodyFilter = $("#postBodyFilter").val();
                 var repeat = $("#pathRepeatCount").attr("value");
 
-                var groups = $("#groupSelect").val();
-                var groupArray = new Array(groups);
+                var groupArray = $("#groupTable").jqGrid("getGridParam", "selarrrow");
 
                 // reset informational divs
                 $('#applyPathChangeSuccessDiv').css('display', 'none');
@@ -1809,14 +1814,19 @@
             }
 
             function highlightSelectedGroups(groupIds) {
+                $("#groupTable").jqGrid("resetSelection");
                 var ids = groupIds.split(",");
-                for(var index in ids) {
-                    $("#groupSelect").val(ids);
+                for(var i = 0; i < ids.length; i++) {
+                    $("#groupTable").jqGrid("setSelection", ids[i], true);
                 }
             }
 
             function dismissStatusNotificationDiv() {
                 $("#statusNotificationDiv").fadeOut();
+            }
+
+            function dismissReorderNotificationDiv() {
+                $("#reorderNotificationDiv").fadeOut();
             }
         </script>
     </head>
@@ -1834,7 +1844,7 @@
                 <button id="configurationUploadFileButton" type="submit" style="display: none;"></button>
             </form>
         </div>
-
+        
         <%@ include file="clients_part.jsp" %>
         <%@ include file="pathtester_part.jsp" %>
 
@@ -1894,6 +1904,12 @@
                     <div class="ui-state-highlight ui-corner-all" style="margin-top: 10px;  margin-bottom: 10px; padding: 0 .7em;">
                         <p style="margin-top: 10px; margin-bottom:10px;"><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
                             <span id="statusNotificationText"/></p>
+                    </div>
+                </div>
+                <div class="ui-widget" id="reorderNotificationDiv" style="display: none;" onClick="dismissReorderNotificationDiv()">
+                    <div class="ui-state-highlight ui-corner-all" style="margin-top: 10px;  margin-bottom: 10px; padding: 0 .7em;">
+                        <p style="margin-top: 10px; margin-bottom:10px;"><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
+                            <span id="reorderNotificationText"/></p>
                     </div>
                 </div>
             </div>
@@ -2061,7 +2077,7 @@
                                     Request Body<br>Filter<br> (optional)
                                 </dt>
                                 <dd>
-                                    <textarea id="postBodyFilter" ROWS="6" style="width:80%;" ></textarea>
+                                    <textarea id="postBodyFilter" ROWS="3" style="width:80%;" ></textarea>
                                 </dd>
                             </dl>
                             <dl class="dl-horizontal" style="display:inline;">
@@ -2069,8 +2085,7 @@
                                     Groups
                                 </dt>
                                 <dd>
-                                    <select id="groupSelect" class="form-control" multiple="multiple" style="min-width:150px;width:auto;">
-                                    </select>
+                                    <table id="groupTable"></table>
                                 </dd>
                                 <dd>
                                     <table>
@@ -2084,10 +2099,10 @@
                                                     </div>
                                                 </div>
                                                 <div class="ui-widget" style="display:none;" id="applyPathChangeSuccessDiv">
-                                                  <div class="ui-state-highlight ui-corner-all" style="padding: 0 .7em;">
-                                                    <p><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
-                                                    <strong>Success: </strong>Configuration saved.</p>
-                                                  </div>
+                                                    <div class="ui-state-highlight ui-corner-all" style="padding: 0 .7em;">
+                                                        <p><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
+                                                        <strong>Success: </strong>Configuration saved.</p>
+                                                    </div>
                                                 </div>
                                             </td>
                                         </tr>
