@@ -20,12 +20,9 @@ import com.groupon.odo.proxylib.HistoryService;
 import com.groupon.odo.proxylib.ProfileService;
 import com.groupon.odo.proxylib.models.History;
 import com.groupon.odo.proxylib.models.Profile;
-import java.lang.Object;
-import java.util.HashMap;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.omg.CORBA.*;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
