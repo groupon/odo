@@ -33,6 +33,12 @@
             <artifactId>proxyplugin</artifactId>
             <version>1.0.0-beta.8-SNAPSHOT</version>
         </dependency>
+
+        <dependency>
+            <groupId>org.json</groupId>
+            <artifactId>json</artifactId>
+            <version>20090211</version>
+        </dependency>
     </dependencies>
     
     <build>
