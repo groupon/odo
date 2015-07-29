@@ -65,6 +65,8 @@ import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.PutMethod;
 import org.apache.commons.httpclient.params.HttpMethodParams;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -198,6 +200,12 @@ public class Proxy extends HttpServlet {
                     request, history, Constants.REQUEST_TYPE_GET));
                 // set headers
                 setProxyRequestHeaders(request, getMethodProxyRequest);
+                try {
+                    JSONArray applicablePathNames = getApplicablePathNames(request.getRequestURL().toString(), Constants.REQUEST_TYPE_GET);
+                    history.addExtraInfo("pathNames", applicablePathNames);
+                } catch (Exception e) {
+
+                }
                 // execute request
                 logger.info("Executing request");
                 executeProxyRequest(getMethodProxyRequest, request, response,
@@ -237,6 +245,12 @@ public class Proxy extends HttpServlet {
                 request, history, Constants.REQUEST_TYPE_POST));
             // Forward the request headers
             setProxyRequestHeaders(request, postMethodProxyRequest);
+            try {
+                JSONArray applicablePathNames = getApplicablePathNames(request.getRequestURL().toString(), Constants.REQUEST_TYPE_POST);
+                history.addExtraInfo("pathNames", applicablePathNames);
+            } catch (Exception e) {
+
+            }
 
             // Check if this is a mulitpart (file upload) POST
             if (ServletFileUpload.isMultipartContent(request)) {
@@ -279,6 +293,12 @@ public class Proxy extends HttpServlet {
                 request, history, Constants.REQUEST_TYPE_PUT));
             // Forward the request headers
             setProxyRequestHeaders(request, putMethodProxyRequest);
+            try {
+                JSONArray applicablePathNames = getApplicablePathNames(request.getRequestURL().toString(), Constants.REQUEST_TYPE_PUT);
+                history.addExtraInfo("pathNames", applicablePathNames);
+            } catch (Exception e) {
+
+            }
             // Check if this is a multipart (file upload) POST
             if (ServletFileUpload.isMultipartContent(request)) {
                 logger.info("PUT:: Multipart");
@@ -321,6 +341,12 @@ public class Proxy extends HttpServlet {
                 request, history, Constants.REQUEST_TYPE_DELETE));
             // set headers
             setProxyRequestHeaders(request, getMethodProxyRequest);
+            try {
+                JSONArray applicablePathNames = getApplicablePathNames(request.getRequestURL().toString(), Constants.REQUEST_TYPE_DELETE);
+                history.addExtraInfo("pathNames", applicablePathNames);
+            } catch (Exception e) {
+
+            }
             // execute request
             executeProxyRequest(getMethodProxyRequest, request, response, history);
         } catch (Exception e) {
@@ -506,6 +532,23 @@ public class Proxy extends HttpServlet {
             history.setClientUUID(Constants.PROFILE_CLIENT_DEFAULT_ID);
         }
         logger.info("Client UUID is: {}", history.getClientUUID());
+    }
+
+    private JSONArray getApplicablePathNames (String requestUrl, Integer requestType) throws Exception {
+        RequestInformation requestInfo = requestInformation.get();
+        List<EndpointOverride> applicablePaths;
+        JSONArray pathNames = new JSONArray();
+        applicablePaths = PathOverrideService.getInstance().getSelectedPaths(Constants.OVERRIDE_TYPE_REQUEST, requestInfo.client,
+                                                                             requestInfo.profile,
+                                                                             requestUrl + requestInfo.originalRequestInfo.getQueryString(),
+                                                                             requestType, true);
+        for (EndpointOverride path : applicablePaths) {
+            JSONObject pathName = new JSONObject();
+            pathName.put("name", path.getPathName());
+            pathNames.put(pathName);
+        }
+
+        return pathNames;
     }
 
     /**

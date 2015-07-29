@@ -316,6 +316,9 @@ public class Client {
                 if (!jsonHistory.isNull("responseBodyDecoded")) {
                     history[i].setResponseBodyDecoded(jsonHistory.getBoolean("responseBodyDecoded"));
                 }
+                if (!jsonHistory.isNull("extraInfo")) {
+                    history[i].setExtraInfoFromString(jsonHistory.getString("extraInfo"));
+                }
                 /**
                  * To get the json responseData make a call specifically using the id
                  */

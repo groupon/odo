@@ -20,9 +20,12 @@ import com.groupon.odo.proxylib.HistoryService;
 import com.groupon.odo.proxylib.ProfileService;
 import com.groupon.odo.proxylib.models.History;
 import com.groupon.odo.proxylib.models.Profile;
+import java.lang.Object;
+import java.util.HashMap;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.omg.CORBA.*;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -51,7 +54,7 @@ public class HistoryTests extends TestBase {
                 "originalRequestParams", "originalRequestPostData",
                 "originalRequestHeaders", "originalResponseCode",
                 "originalResponseHeaders", "originalResponseContentType",
-                "originalResponseData", true, true, false, false);
+                "originalResponseData", true, true, false, false, "{}");
         HistoryService.getInstance().addHistory(testHistory);
         ClientService.getInstance().updateActive(newProfile.getId(), "-1", true);
     }

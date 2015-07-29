@@ -16,9 +16,13 @@
 package com.groupon.odo.proxylib.models;
 
 import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.groupon.odo.proxylib.Constants;
+import java.util.Map;
+import java.util.HashMap;
+import org.json.JSONObject;
 
 /**
  * Represents a single history object
@@ -54,6 +58,7 @@ public class History {
     private boolean requestSent = true;
     private boolean requestBodyDecoded = false;
     private boolean responseBodyDecoded = false;
+    private String extraInfo = "{}";
 
     public History() {
     }
@@ -67,7 +72,7 @@ public class History {
                    String originalRequestHeaders, String originalResponseCode,
                    String originalResponseHeaders, String originalResponseContentType,
                    String originalResponseData, boolean modified, boolean requestSent,
-                   boolean requestBodyDecoded, boolean responseBodyDecoded) {
+                   boolean requestBodyDecoded, boolean responseBodyDecoded, String extraInfo) {
         super();
         this.profileId = profileId;
         this.clientUUID = clientUUID;
@@ -95,7 +100,7 @@ public class History {
         this.formattedResponseData = "";
         this.requestBodyDecoded = requestBodyDecoded;
         this.responseBodyDecoded = responseBodyDecoded;
-
+        this.extraInfo = extraInfo;
     }
 
     public void setId(int id) {
@@ -354,5 +359,52 @@ public class History {
 
     public void setResponseBodyDecoded(boolean responseBodyDecoded) {
         this.responseBodyDecoded = responseBodyDecoded;
+    }
+
+    public Map<String, Object> getExtraInfo() {
+        return getMapFromJSON(extraInfo);
+    }
+
+    public String getExtraInfoString() {
+        return extraInfo;
+    }
+
+    public void setExtraInfo(Map<String, Object> extraInfo) throws Exception {
+        this.extraInfo = getJSONFromMap(extraInfo);
+    }
+
+    public void setExtraInfoFromString(String extraInfo) {
+        this.extraInfo = extraInfo;
+    }
+
+    public void addExtraInfo(String key, Object value) {
+        Map<String, Object> infoMap = (HashMap<String, Object>)getMapFromJSON(extraInfo);
+        infoMap.put(key, value);
+
+        extraInfo = getJSONFromMap(infoMap);
+    }
+
+    private Map<String, Object> getMapFromJSON(String json) {
+        Map<String, Object> propMap = new HashMap<String, Object>();
+        ObjectMapper mapper = new ObjectMapper();
+
+        if (json == null || json.length() == 0) {
+            json = "{}";
+        }
+
+        try {
+            propMap = mapper.readValue(json, new TypeReference<HashMap<String, Object>>(){});
+        } catch (Exception e) {
+            ;
+        }
+        return propMap;
+    }
+
+    private String getJSONFromMap(Map<String, Object> propMap) {
+        try {
+            return new JSONObject(propMap).toString();
+        } catch (Exception e) {
+            return "{}";
+        }
     }
 }

@@ -16,6 +16,10 @@
 
 package com.groupon.odo.client.models;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.core.type.TypeReference;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Represents a single history object
@@ -47,6 +51,7 @@ public class History {
     private boolean requestSent = true;
     private boolean requestBodyDecoded = false;
     private boolean responseBodyDecoded = false;
+    private String extraInfo = "{}";
 
     public History() {
     }
@@ -249,5 +254,55 @@ public class History {
 
     public void setResponseBodyDecoded(boolean responseBodyDecoded) {
         this.responseBodyDecoded = responseBodyDecoded;
+    }
+
+    public Map<String, Object> getExtraInfo() {
+        return getMapFromJSON(extraInfo);
+    }
+
+    public String getExtraInfoString() {
+        return extraInfo;
+    }
+
+    public void setExtraInfo(Map<String, Object> extraInfo) throws Exception {
+        this.extraInfo = getJSONFromMap(extraInfo);
+    }
+
+    public void setExtraInfoFromString(String extraInfo) {
+        this.extraInfo = extraInfo;
+    }
+
+    public void addExtraInfo(String key, Object value) {
+        Map<String, Object> infoMap = (HashMap<String, Object>)getMapFromJSON(extraInfo);
+        infoMap.put(key, value);
+
+        extraInfo = getJSONFromMap(infoMap);
+    }
+
+    private Map<String, Object> getMapFromJSON(String json) {
+        Map<String, Object> propMap = new HashMap<String, Object>();
+        ObjectMapper mapper = new ObjectMapper();
+
+        if (json == null || json.length() == 0) {
+            json = "{}";
+        }
+
+        try {
+            propMap = mapper.readValue(json, new TypeReference<HashMap<String, Object>>(){});
+        } catch (Exception e) {
+            ;
+        }
+        return propMap;
+    }
+
+    private String getJSONFromMap(Map<String, Object> propMap) {
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            String json = mapper.writeValueAsString(propMap);
+
+            return json;
+        } catch (Exception e) {
+            return "{}";
+        }
     }
 }
