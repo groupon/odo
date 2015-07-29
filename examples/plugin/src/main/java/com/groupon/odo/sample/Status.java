@@ -16,12 +16,18 @@
 package com.groupon.odo.sample;
 
 import com.groupon.odo.plugin.PluginArguments;
+import com.groupon.odo.plugin.PluginHelper;
 import com.groupon.odo.plugin.v2.ResponseOverride;
 
-public class Common {
+import javax.servlet.http.HttpServletResponse;
+
+public class Status {
     @ResponseOverride(
-            description="Slow Down Response")
-    public static void delay(PluginArguments args, Integer milliseconds) throws Exception {
-        Thread.sleep(milliseconds);
+            description="Return HTTP404",
+            blockRequest = true)
+    public static void http404(PluginArguments args) throws Exception {
+        HttpServletResponse response = args.getResponse();
+        response.setStatus(404);
+        PluginHelper.writeResponseContent(response, "{\"error\":{\"httpCode\":404,\"message\":\"Testing http 404 Error message here\"}}");
     }
 }
