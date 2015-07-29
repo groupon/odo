@@ -1,11 +1,17 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ page session="false" %>
-<html>
     <head>
         <%@ include file="/resources/js/webjars.include" %>
 
         <title>API Profiles</title>
+        <style type="text/css">
+            .ui-jqgrid tr.jqgrow td, #jqgh_profilelist_name { /* MAKE PROFILE NAMES BIGGER */
+                font-size: medium;
+            }
+        </style>
         <script type="text/javascript">
 
         function navigateHelp() {
