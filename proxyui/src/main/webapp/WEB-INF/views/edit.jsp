@@ -1272,7 +1272,7 @@
             });
 
             $(document).scroll(function() {
-                $("#details").css("margin-top", $(document).scrollTop());
+                $("#details").animate({"margin-top": $(document).scrollTop()}, 0, "linear");
             })
 
             function overrideRemove(type) {
