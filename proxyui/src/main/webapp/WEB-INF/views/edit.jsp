@@ -39,7 +39,6 @@
 
             #details {
                 position: sticky;
-                position: -webkit-sticky;
                 top: 10px;
             }
 
@@ -56,7 +55,6 @@
             {
                 min-width: 400px;
                 margin-right: 40px;
-                overflow: scroll; /* NEEDED TO KEEP #details FIXED IN SAFARI */
             }
 
             #editDiv {
@@ -1135,9 +1133,9 @@
                         var size = $("#fontSize").val();
                         // if it says nothing/is NaN, do nothing
                         // if it says <11, change size to 11
-                        // if it says >16, change size fo 16
+                        // if it says >18, change size fo 18
                         var min = 11;
-                        var max = 16;
+                        var max = 18;
                         if( parseInt(size) >= min && parseInt(size) <= max ) {
                             $(".ui-jqgrid "+val+" tr.jqgrow td").css('font-size', parseInt(size));
                         } else if ( parseInt(size) < min ) {
@@ -1272,6 +1270,10 @@
                     }
                 }
             });
+
+            $(document).scroll(function() {
+                $("#details").css("margin-top", $(document).scrollTop());
+            })
 
             function overrideRemove(type) {
                 var id = currentPathId;
@@ -1867,7 +1869,7 @@
 
         <!-- Hidden div for changing font size -->
         <div id="resizeFontDialog" style="display:none;">
-            Please enter a number between 11 and 16.<br>
+            Please enter a number between 11 and 18.<br>
             Font size: <input id="fontSize"/>
         </div>
 
