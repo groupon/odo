@@ -73,7 +73,7 @@
                 padding-bottom:3px !important;
             }
 
-            #pg_packagePager .ui-pg-table { /* KEEPS PAGER BUTTONS THE RIGHT SIZE */
+            #pg_packagePager .ui-pg-table, #pg_servernavGrid .ui-pg-table, #servernavGrid_left, #packagePager_left { /* KEEPS PAGER BUTTONS THE RIGHT SIZE */
                 width: auto !important;
             }
 
@@ -705,9 +705,15 @@
                         return [true];
                     }
                 });
-                serverList.jqGrid('gridResize', {
-                    stop: function() {
-                        resizeGrid( "#serverlist", serverList, initServerWidth );
+                serverList.jqGrid('gridResize');
+
+                serverList.jqGrid('navButtonAdd', '#servernavGrid', {
+                    caption: "Change font size",
+                    buttonicon: "ui-icon-gear",
+                    title: "Change the table font size",
+                    id: "resize_server",
+                    onClickButton: function() {
+                        resizeFontDialog( "#serverlist", "API Servers" );
                     }
                 });
 
@@ -957,16 +963,7 @@
                          rp_ge.url = '<c:url value="/api/path/" />' + currentPathId + "?clientUUID=" + clientUUID;
                         }},
                     {});
-                grid.jqGrid('gridResize', {
-                    stop: function() {
-                        resizeGrid( "#packages", grid, initServerWidth );
-                        var width = grid.jqGrid('getGridParam', 'width');
-                        var ratio = width/initServerWidth;
-                        var newSize = ratio + 'em';
-
-                        $(".ui-jqgrid #packages tr.jqgrow td").css('font-size', newSize);
-                    }
-                });
+                grid.jqGrid('gridResize');
                 grid.jqGrid('filterToolbar', { defaultSearch: 'cn', stringResult: true });
 
                 var options = {
@@ -1010,6 +1007,16 @@
                             $("#packages tbody").sortable('destroy');
                             $("#reorder_packages").removeClass("ui-state-highlight");
                         }
+                    }
+                });
+
+                grid.jqGrid('navButtonAdd', '#packagePager', {
+                    caption: "Change font size",
+                    buttonicon: "ui-icon-gear",
+                    title: "Change the table font size",
+                    id: "resize_packages",
+                    onClickButton: function() {
+                        resizeFontDialog( "#packages", "Paths" );
                     }
                 });
 
@@ -1116,22 +1123,38 @@
                 }
             }
 
-            function resizeGrid( val, grid, init ) {
-                var width = grid.jqGrid('getGridParam', 'width');
-                var ratio = width/init;
-                var newSize = ratio + 'em';
+            function resizeFontDialog( val, name ) {
+                $("#resizeFontDialog").dialog({
+                    title: "Change Font Size of "+name+" table",
+                    modal: true,
+                    resizeable: true,
+                    width: 'auto',
+                    height:'auto',
+                    close: function() {
+                        // get the font size that has been entered
+                        var size = $("#fontSize").val();
+                        // if it says nothing/is NaN, do nothing
+                        // if it says <11, change size to 11
+                        // if it says >16, change size fo 16
+                        var min = 11;
+                        var max = 16;
+                        if( parseInt(size) >= min && parseInt(size) <= max ) {
+                            $(".ui-jqgrid "+val+" tr.jqgrow td").css('font-size', parseInt(size));
+                        } else if ( parseInt(size) < min ) {
+                            $(".ui-jqgrid "+val+" tr.jqgrow td").css('font-size', min);
+                        } else if( parseInt(size) > max ) {
+                            $(".ui-jqgrid "+val+" tr.jqgrow td").css('font-size', max);
+                        }
 
-                var font = $(".ui-jqgrid "+val+" tr.jqgrow td");
-                $(font).css('font-size', newSize);
-
-                /* CHECK SIZE TO MAKE SURE IT'S NOT TOO BIG AND NOT TOO SMALL */
-                var min = 11;
-                var max = 16;
-                if(parseInt(font.css("fontSize")) < min ) {
-                    font.css('font-size', min);
-                } else if( parseInt(font.css("fontSize")) > max ) {
-                    font.css('fontSize', max);
-                }
+                        // reset the value
+                        $("#fontSize").val("");
+                    },
+                    buttons: {
+                        "Close": function() {
+                            $("#resizeFontDialog").dialog("close");
+                        }
+                    }
+                })
             }
 
             function srcValidation(val, colname) {
@@ -1841,6 +1864,12 @@
         <div id="switchClientDialog" style="display:none;">
             Client UUID/Name: <input id="switchClientName" value="${clientFriendlyName}"/>
         </div>-->
+
+        <!-- Hidden div for changing font size -->
+        <div id="resizeFontDialog" style="display:none;">
+            Please enter a number between 11 and 16.<br>
+            Font size: <input id="fontSize"/>
+        </div>
 
         <%@ include file="clients_part.jsp" %>
         <%@ include file="pathtester_part.jsp" %>
