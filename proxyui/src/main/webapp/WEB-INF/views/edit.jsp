@@ -37,6 +37,12 @@
                 padding: 12px;
             }
 
+            #details {
+                position: sticky;
+                position: -webkit-sticky;
+                top: 10px;
+            }
+
             #container, #tabs {
                 white-space: nowrap;
             }
@@ -50,6 +56,7 @@
             {
                 min-width: 400px;
                 margin-right: 40px;
+                overflow: scroll; /* NEEDED TO KEEP #details FIXED IN SAFARI */
             }
 
             #editDiv {
