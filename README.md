@@ -63,6 +63,28 @@ If you are starting from a fresh install, there are a few preliminary steps befo
 2. **Configure the override.** With your newly added override selected, the override parameters are displayed next to the "Overrides" list. For our custom response, we have "response" and "repeat count" parameters. The response parameter is the response content to return to the requestor. Enter "test content" here. The repeat count is a parameter that exists for all overrides. It is the number of times an override will be executed before it is disabled. -1 is infinite. Click "Apply" to update the override.
 3. **Test it.** Verify the override is working by sending a request or navigating to http://localhost:8082/test. You will see that your response content "test content" is returned to you.
 
+#### UI Quickstart: Default overrides
+Included with Odo are some default response overrides. To use them, create a directory called `plugins` in the `proxyui/target` directory (the location of `odo.war`). Then, move the `plugins-jar-with-dependencies.jar` file found in the `proxyui` directory into your newly created `plugins` directory. 
+
+If you now select a profile and go to the **Edit Groups** page by selecting it in the navigation bar, you will see the default overrides. You can select any or none of them for each of your groups, and any that are selected will be available to use when adding a response override to a path for which that group is selected. (You can select groups for a path in the **Configuration** tab, in the box that appears when you select a path from the table.)
+
+The following overrides are included with Odo:
+
+* delay: **Slows down response**, given the length of time to slow down in milliseconds.
+* http302: Returns **redirect** error response.
+* http400: Returns **bad request** error response.
+* http401: Returns **unauthorized** error response.
+* http403: Returns **forbidden** error response.
+* http404: Returns **not found** error response.
+* http408: Returns **request timeout** error response.
+* http500: Returns **internal server** error response.
+* http201: Returns **created** error response.
+* http_200_empty_response: Returns **empty** response.
+* malformed_json: Returns **malformed JSON** response.
+* remove_json_value: **Removes a JSON value**, given a name and path.
+* response_from_file: **Uses a response from a .txt file**, given the file name.
+* set_json_value: **Sets a JSON value**, given a name, value, and path.
+
 #### UI Quickstart: Sample configuration
 Included in the examples directory is a sample configuration backup. The sample configuration uses the sample plugin. After running `mvn package` the sample plugin will be located at `examples/plugin/target/plugin-*.jar`. Create a directory called `plugins` at the location of the `odo.war` and copy the sample plugin jar there.
 
