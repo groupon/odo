@@ -16,17 +16,20 @@
         <style type="text/css">
             .detailsLeft
             {
-                float: left;
                 overflow: hidden;
                 margin: 12px;
                 padding: 8px;
+                max-width: 50%;
+                display:inline-block;
+                vertical-align: top;
             }
 
             .detailsRight
             {
-                float: left;
                 margin: 12px;
                 margin-left: 0px;
+                display:inline-block;
+                vertical-align: top;
             }
 
             .overrideParameters
@@ -34,7 +37,7 @@
                 padding: 12px;
             }
 
-            #container {
+            #container, #tabs {
                 white-space: nowrap;
             }
 

@@ -11,6 +11,10 @@
             .ui-jqgrid tr.jqgrow td, #jqgh_profilelist_name { /* MAKE PROFILE NAMES BIGGER */
                 font-size: medium;
             }
+
+            ul {
+                list-style-type: none;
+            }
         </style>
         <script type="text/javascript">
 

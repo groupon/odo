@@ -5,6 +5,11 @@
 <head>
     <title>History</title>
     <%@ include file="/resources/js/webjars.include" %>
+    <style type="text/css">
+        ul, li {
+            list-style-type: none;
+        }
+    </style>
     <script src="<c:url value="/resources/js/diff_match_patch_uncompressed.js" />"></script>
     <link rel="stylesheet" type="text/css" media="screen"
              href="<c:url value="/resources/css/odo.css"/>" />
