@@ -1,39 +1,39 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.groupon.odo</groupId>
     <artifactId>plugin</artifactId>
     <version>1.0.0-beta.8-SNAPSHOT</version>
     <packaging>jar</packaging>
-
+    
     <properties>
         <org.springframework-version>4.0.9.RELEASE</org.springframework-version>
         <java-version>1.7</java-version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     </properties>
-
+    
     <parent>
         <artifactId>examples</artifactId>
         <groupId>com.groupon.odo</groupId>
         <version>1.0.0-beta.8-SNAPSHOT</version>
     </parent>
-
+    
     <scm>
         <url>git@github.com:groupon/odo.git</url>
         <connection>scm:git:git@github.com:groupon/odo.git</connection>
         <developerConnection>scm:git:git@github.com:groupon/odo.git</developerConnection>
     </scm>
-
+    
     <dependencies>
         <dependency>
             <groupId>com.groupon.odo</groupId>
             <artifactId>proxyplugin</artifactId>
             <version>1.0.0-beta.8-SNAPSHOT</version>
         </dependency>
-
+        
         <dependency>
             <groupId>org.json</groupId>
             <artifactId>json</artifactId>
@@ -92,6 +92,6 @@
             </plugin>
         </plugins>
     </build>
-
-
+    
+    
 </project>
