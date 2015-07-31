@@ -989,9 +989,14 @@
                             /* ALLOWS THE PATH PRIORITY TO BE SET INSIDE OF THE PATH TABLE, INSTEAD OF ON A SEPARATE PAGE */
                             grid.jqGrid('sortableRows', options);
                             $("#reorder_packages").addClass("ui-state-highlight");
+                            /* GIVE HELPER TEXT*/
+                            $("#reorderNotificationText").html("The ordering of paths impacts how requests are handled. <br>In general if a higher priority path matches a request then<br>further paths will not be evaluated. <br>The only exception is Global paths. In the case that a global path<br>is matched the matcher will continue to search for a non-global<br>matching path.");
+                            $("#reorderNotificationDiv").fadeIn();
                         } else {
                             $("#packages tbody").sortable('destroy');
                             $("#reorder_packages").removeClass("ui-state-highlight");
+                            /* REMOVE HELPER TEXT */
+                            $("#reorderNotificationDiv").fadeOut();
                         }
                     }
                 });
@@ -1835,6 +1840,10 @@
             function dismissStatusNotificationDiv() {
                 $("#statusNotificationDiv").fadeOut();
             }
+
+            function dismissReorderNotificationDiv() {
+                $("#reorderNotificationDiv").fadeOut();
+            }
         </script>
     </head>
     <body>
@@ -1907,6 +1916,12 @@
             <div class="ui-state-highlight ui-corner-all" style="margin-top: 10px;  margin-bottom: 10px; padding: 0 .7em;">
                 <p style="margin-top: 10px; margin-bottom:10px;"><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
                     <span id="statusNotificationText"/></p>
+            </div>
+        </div>
+        <div class="ui-widget" id="reorderNotificationDiv" style="display: none;" onClick="dismissReorderNotificationDiv()">
+            <div class="ui-state-highlight ui-corner-all" style="margin-top: 10px;  margin-bottom: 10px; padding: 0 .7em;">
+                <p style="margin-top: 10px; margin-bottom:10px;"><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
+                    <span id="reorderNotificationText"/></p>
             </div>
         </div>
         </div>
