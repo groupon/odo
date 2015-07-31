@@ -54,7 +54,7 @@
             #listContainer
             {
                 min-width: 400px;
-                margin-right: 40px;
+                margin-right: 20px;
             }
 
             #editDiv {
