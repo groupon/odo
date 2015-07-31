@@ -582,7 +582,7 @@
                         formatter : destinationHostFormatter,
                         unformat : destinationHostUnFormatter,
                         editoptions:{title:"default: forwards to source"},
-                        editrules:{required:false, custom:true},
+                        editrules:{required:false},
                     }, {
                         name : 'hostHeader',
                         index : 'hostHeader',
