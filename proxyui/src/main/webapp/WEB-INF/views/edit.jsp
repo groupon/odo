@@ -1128,6 +1128,10 @@
                     resizeable: true,
                     width: 'auto',
                     height:'auto',
+                    open: function() {
+                        var currSize = parseInt($(".ui-jqgrid "+val+" tr.jqgrow td").css("fontSize"));
+                        $("#fontSize").val( currSize );
+                    },
                     close: function() {
                         // get the font size that has been entered
                         var size = $("#fontSize").val();
