@@ -582,7 +582,7 @@
                         formatter : destinationHostFormatter,
                         unformat : destinationHostUnFormatter,
                         editoptions:{title:"default: forwards to source"},
-                        editrules:{required:false, custom:true, custom_func: destValidation},
+                        editrules:{required:false, custom:true},
                     }, {
                         name : 'hostHeader',
                         index : 'hostHeader',
@@ -661,9 +661,6 @@
                         /* INITIALLY, GRAY */
                         $("#srcUrl").val(getExampleText("src"));
                         $("#srcUrl").css("color", "gray");
-
-                        $("#destUrl").val(getExampleText("dest"));
-                        $("#destUrl").css("color", "gray");
                     },
                     afterShowForm: function(formid) {
                         /* SHIFT INITIAL FOCUS TO CANCEL TO MINIMIZE ACCIDENTAL CREATION OF
@@ -677,15 +674,6 @@
                                 $("#srcUrl").val("");
                                 $("#srcUrl").css("color", "black");
                                 src = false;
-                            }
-                        });
-
-                        var dest = true;
-                        $("#destUrl").focus(function(){
-                            if( dest ) {
-                                $("#destUrl").val("");
-                                $("#destUrl").css("color", "black");
-                                dest = false;
                             }
                         });
                     },
@@ -1110,8 +1098,6 @@
                 switch(item) {
                     case "src":
                         return "ex. groupon.com";
-                    case "dest":
-                        return "ex. 123.45.67.890";
                     case "pathName":
                         return "ex. My Path Name";
                     case "path":
@@ -1167,14 +1153,6 @@
                 }
             }
 
-            function destValidation(val, colname) {
-                if( val.trim() === getExampleText("dest") ) {
-                    return [false, "Please replace the example destination hostname with a valid hostname."]
-                } else {
-                    return [true, ""];
-                }
-            }
-
             function pathNameValidation(val, colname) {
                 if( val.trim() === getExampleText("pathName") ) {
                     return [false, "Please replace the example path name with a valid name."]
@@ -1185,7 +1163,7 @@
 
             function pathValidation(val, colname) {
                 if( val.trim() === getExampleText("path") ) {
-                    return [false, "Please replace the example destination hostname with a valid hostname."]
+                    return [false, "Please replace the example path with a valid hostname."]
                 } else {
                     return [true, ""];
                 }

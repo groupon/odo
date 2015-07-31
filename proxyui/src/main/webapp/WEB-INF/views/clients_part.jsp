@@ -60,9 +60,7 @@ function manageClientPopup() {
         width:'auto',
         height:'auto',
         close: function() {
-            $("#changeClientFriendlyName").val("");
             $("#switchClientName").val("");
-            $("#friendlyNameError").html("");
         },
         buttons: {
             "Close": function () {
@@ -213,12 +211,6 @@ $(document).ready(function () {
         <div id="clientnavGrid"></div>
         <table>
             <tr>
-                <td>Client Friendly Name: </td><td><input id="changeClientFriendlyName"/></td>
-                <td><input type="button" id="changeFriendlyNameButton" onclick="changeClientFriendlyNameSubmit()" value="Change Current Friendly Name"/></td>
-            </tr><tr>
-                <td></td>
-                <td colspan="2"><div id="friendlyNameError" style="color: red"></div></td>
-            </tr><tr>
                 <td>Client UUID/Name: </td><td><input id="switchClientName"/></td>
                 <td><input type="button" id="changeClientButton" onclick="changeClientSubmit()" value="Change Client"/></td>
             </tr>
