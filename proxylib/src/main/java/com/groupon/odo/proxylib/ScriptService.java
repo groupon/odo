@@ -16,14 +16,13 @@
 package com.groupon.odo.proxylib;
 
 import com.groupon.odo.proxylib.models.Script;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ScriptService {
     private static final Logger logger = LoggerFactory.getLogger(ScriptService.class);
@@ -37,7 +36,7 @@ public class ScriptService {
     /**
      * Get instance of ScriptService
      *
-     * @return
+     * @return ScriptService instance
      */
     public static ScriptService getInstance() {
         if (_instance == null) {
@@ -60,8 +59,8 @@ public class ScriptService {
     /**
      * Get the script for a given ID
      *
-     * @param id
-     * @return
+     * @param id ID of script
+     * @return Script if found, otherwise null
      */
     public Script getScript(int id) {
         PreparedStatement statement = null;
@@ -69,8 +68,8 @@ public class ScriptService {
 
         try (Connection sqlConnection = SQLService.getInstance().getConnection()) {
             statement = sqlConnection.prepareStatement(
-                    "SELECT * FROM " + Constants.DB_TABLE_SCRIPT +
-                            " WHERE id = ?"
+                "SELECT * FROM " + Constants.DB_TABLE_SCRIPT +
+                    " WHERE id = ?"
             );
             statement.setInt(1, id);
             results = statement.executeQuery();
@@ -81,11 +80,15 @@ public class ScriptService {
 
         } finally {
             try {
-                if (results != null) results.close();
+                if (results != null) {
+                    results.close();
+                }
             } catch (Exception e) {
             }
             try {
-                if (statement != null) statement.close();
+                if (statement != null) {
+                    statement.close();
+                }
             } catch (Exception e) {
             }
         }
@@ -96,7 +99,7 @@ public class ScriptService {
     /**
      * Return all scripts
      *
-     * @return
+     * @return array of Script
      */
     public Script[] getScripts() {
         return getScripts(null);
@@ -105,22 +108,22 @@ public class ScriptService {
     /**
      * Return all scripts of a given type
      *
-     * @param type
-     * @return
+     * @param type integer value of type
+     * @return Array of scripts of the given type
      */
     public Script[] getScripts(Integer type) {
-        ArrayList<Script> returnData = new ArrayList<Script>();
+        ArrayList<Script> returnData = new ArrayList<>();
         PreparedStatement statement = null;
         ResultSet results = null;
 
         try (Connection sqlConnection = SQLService.getInstance().getConnection()) {
 
             statement = sqlConnection.prepareStatement("SELECT * FROM " + Constants.DB_TABLE_SCRIPT +
-                    " ORDER BY " + Constants.GENERIC_ID);
+                                                           " ORDER BY " + Constants.GENERIC_ID);
             if (type != null) {
                 statement = sqlConnection.prepareStatement("SELECT * FROM " + Constants.DB_TABLE_SCRIPT +
-                        " WHERE " + Constants.SCRIPT_TYPE + "= ?" +
-                        " ORDER BY " + Constants.GENERIC_ID);
+                                                               " WHERE " + Constants.SCRIPT_TYPE + "= ?" +
+                                                               " ORDER BY " + Constants.GENERIC_ID);
                 statement.setInt(1, type);
             }
 
@@ -134,11 +137,15 @@ public class ScriptService {
 
         } finally {
             try {
-                if (results != null) results.close();
+                if (results != null) {
+                    results.close();
+                }
             } catch (Exception e) {
             }
             try {
-                if (statement != null) statement.close();
+                if (statement != null) {
+                    statement.close();
+                }
             } catch (Exception e) {
             }
         }
@@ -150,10 +157,10 @@ public class ScriptService {
      * Add a script
      * TODO: Make this take type as a param
      *
-     * @param name   - name of script
+     * @param name - name of script
      * @param script - script
-     * @return
-     * @throws Exception
+     * @return Newly-added script
+     * @throws Exception exception
      */
     public Script addScript(String name, String script) throws Exception {
         int id = -1;
@@ -162,9 +169,9 @@ public class ScriptService {
 
         try (Connection sqlConnection = SQLService.getInstance().getConnection()) {
             statement = sqlConnection.prepareStatement(
-                    "INSERT INTO " + Constants.DB_TABLE_SCRIPT
-                            + "(" + Constants.SCRIPT_NAME + "," + Constants.SCRIPT_SCRIPT + "," + Constants.SCRIPT_TYPE + ")"
-                            + " VALUES (?, ?, ?)", PreparedStatement.RETURN_GENERATED_KEYS
+                "INSERT INTO " + Constants.DB_TABLE_SCRIPT
+                    + "(" + Constants.SCRIPT_NAME + "," + Constants.SCRIPT_SCRIPT + "," + Constants.SCRIPT_TYPE + ")"
+                    + " VALUES (?, ?, ?)", PreparedStatement.RETURN_GENERATED_KEYS
             );
             statement.setString(1, name);
             statement.setString(2, script);
@@ -184,11 +191,15 @@ public class ScriptService {
             throw e;
         } finally {
             try {
-                if (results != null) results.close();
+                if (results != null) {
+                    results.close();
+                }
             } catch (Exception e) {
             }
             try {
-                if (statement != null) statement.close();
+                if (statement != null) {
+                    statement.close();
+                }
             } catch (Exception e) {
             }
         }
@@ -199,19 +210,19 @@ public class ScriptService {
     /**
      * Update the name of a script
      *
-     * @param id
-     * @param name
-     * @return
-     * @throws Exception
+     * @param id ID of script
+     * @param name new name
+     * @return updated script
+     * @throws Exception exception
      */
     public Script updateName(int id, String name) throws Exception {
         PreparedStatement statement = null;
 
         try (Connection sqlConnection = SQLService.getInstance().getConnection()) {
             statement = sqlConnection.prepareStatement(
-                    "UPDATE " + Constants.DB_TABLE_SCRIPT +
-                            " SET " + Constants.SCRIPT_NAME + " = ? " +
-                            " WHERE " + Constants.GENERIC_ID + " = ?"
+                "UPDATE " + Constants.DB_TABLE_SCRIPT +
+                    " SET " + Constants.SCRIPT_NAME + " = ? " +
+                    " WHERE " + Constants.GENERIC_ID + " = ?"
             );
             statement.setString(1, name);
             statement.setInt(2, id);
@@ -220,7 +231,9 @@ public class ScriptService {
             e.printStackTrace();
         } finally {
             try {
-                if (statement != null) statement.close();
+                if (statement != null) {
+                    statement.close();
+                }
             } catch (Exception e) {
             }
         }
@@ -231,19 +244,19 @@ public class ScriptService {
     /**
      * Update a script
      *
-     * @param id
-     * @param script
-     * @return
-     * @throws Exception
+     * @param id ID of script
+     * @param script Script contents
+     * @return updated script
+     * @throws Exception exception
      */
     public Script updateScript(int id, String script) throws Exception {
         PreparedStatement statement = null;
 
         try (Connection sqlConnection = SQLService.getInstance().getConnection()) {
             statement = sqlConnection.prepareStatement(
-                    "UPDATE " + Constants.DB_TABLE_SCRIPT +
-                            " SET " + Constants.SCRIPT_SCRIPT + " = ? " +
-                            " WHERE " + Constants.GENERIC_ID + " = ?"
+                "UPDATE " + Constants.DB_TABLE_SCRIPT +
+                    " SET " + Constants.SCRIPT_SCRIPT + " = ? " +
+                    " WHERE " + Constants.GENERIC_ID + " = ?"
             );
             statement.setString(1, script);
             statement.setInt(2, id);
@@ -252,7 +265,9 @@ public class ScriptService {
             e.printStackTrace();
         } finally {
             try {
-                if (statement != null) statement.close();
+                if (statement != null) {
+                    statement.close();
+                }
             } catch (Exception e) {
             }
         }
@@ -263,16 +278,16 @@ public class ScriptService {
     /**
      * Remove script for a given ID
      *
-     * @param id
-     * @throws Exception
+     * @param id ID of script
+     * @throws Exception exception
      */
     public void removeScript(int id) throws Exception {
         PreparedStatement statement = null;
 
         try (Connection sqlConnection = SQLService.getInstance().getConnection()) {
             statement = sqlConnection.prepareStatement(
-                    "DELETE FROM " + Constants.DB_TABLE_SCRIPT +
-                            " WHERE " + Constants.GENERIC_ID + " = ?"
+                "DELETE FROM " + Constants.DB_TABLE_SCRIPT +
+                    " WHERE " + Constants.GENERIC_ID + " = ?"
             );
             statement.setInt(1, id);
             statement.executeUpdate();
@@ -280,7 +295,9 @@ public class ScriptService {
             e.printStackTrace();
         } finally {
             try {
-                if (statement != null) statement.close();
+                if (statement != null) {
+                    statement.close();
+                }
             } catch (Exception e) {
             }
         }

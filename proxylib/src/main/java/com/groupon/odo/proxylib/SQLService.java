@@ -58,6 +58,8 @@ public class SQLService {
 
     /**
      * Only meant to be called once
+     *
+     * @throws Exception exception
      */
     public void startServer() throws Exception {
         if (!externalDatabaseHost) {
@@ -77,7 +79,7 @@ public class SQLService {
     /**
      * Shutdown the server
      *
-     * @throws Exception
+     * @throws Exception exception
      */
     public void stopServer() throws Exception {
         if (!externalDatabaseHost) {
@@ -96,8 +98,8 @@ public class SQLService {
     /**
      * Obtain instance of the SQL Service
      *
-     * @return
-     * @throws Exception
+     * @return instance of SQLService
+     * @throws Exception exception
      */
     public static SQLService getInstance() throws Exception {
         if (_instance == null) {
@@ -136,7 +138,8 @@ public class SQLService {
      * This sets the database name
      * Generally this will only be used for test purposes
      *
-     * @param name
+     * @param name database name
+     * @throws Exception exception
      */
     public void setDatabaseName(String name) throws Exception {
         this.databaseName = name;
@@ -149,8 +152,8 @@ public class SQLService {
     /**
      * Obtain database connection
      *
-     * @return
-     * @throws SQLException
+     * @return database connection
+     * @throws SQLException when failing to create connection
      */
     public Connection getConnection() throws SQLException {
         return datasource.getConnection();
@@ -172,7 +175,7 @@ public class SQLService {
     /**
      * Update database schema
      *
-     * @param migrationPath
+     * @param migrationPath path to migrations
      */
     public void updateSchema(String migrationPath) {
         try {
@@ -241,7 +244,7 @@ public class SQLService {
      * Wrapped version of standard jdbc executeUpdate Pays attention to DB
      * locked exception and waits up to 1s
      *
-     * @param query
+     * @param query SQL query to execute
      * @throws Exception - will throw an exception if we can never get a lock
      */
     public int executeUpdate(String query) throws Exception {
@@ -267,7 +270,7 @@ public class SQLService {
     /**
      * Gets the first row for a query
      *
-     * @param query
+     * @param query query to execute
      * @return result or NULL
      */
     public HashMap<String, Object> getFirstResult(String query)
@@ -280,7 +283,7 @@ public class SQLService {
             queryStatement = sqlConnection.createStatement();
             results = queryStatement.executeQuery(query);
             if (results.next()) {
-                result = new HashMap<String, Object>();
+                result = new HashMap<>();
                 String[] columns = getColumnNames(results.getMetaData());
 
                 for (String column : columns) {
@@ -331,8 +334,9 @@ public class SQLService {
     /**
      * Gets all of the column names for a result meta data
      *
-     * @param rsmd
-     * @return
+     * @param rsmd Resultset metadata
+     * @return Array of column names
+     * @throws Exception exception
      */
     private String[] getColumnNames(ResultSetMetaData rsmd) throws Exception {
         ArrayList<String> names = new ArrayList<String>();
