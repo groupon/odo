@@ -1276,7 +1276,7 @@
             });
 
             $(document).scroll(function() {
-                $("#details").animate({"margin-top": $(document).scrollTop()}, 0, "linear");
+                $("#details").stop().animate({"margin-top": $(document).scrollTop()}, 0);
             })
 
             function overrideRemove(type) {
