@@ -3,7 +3,7 @@
 <%@ page session="false" %>
 <html>
 <head>
-    <title>History</title>
+    <title>History: ${profile_name}</title>
     <%@ include file="/resources/js/webjars.include" %>
     <style type="text/css">
         ul, li {

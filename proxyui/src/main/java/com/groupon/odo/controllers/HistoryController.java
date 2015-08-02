@@ -17,6 +17,7 @@ package com.groupon.odo.controllers;
 
 import com.groupon.odo.proxylib.Constants;
 import com.groupon.odo.proxylib.HistoryService;
+import com.groupon.odo.proxylib.ProfileService;
 import com.groupon.odo.proxylib.Utils;
 import com.groupon.odo.proxylib.models.History;
 import org.slf4j.Logger;
@@ -44,6 +45,7 @@ public class HistoryController {
         model.addAttribute("offset", offset);
         model.addAttribute("clientUUID", clientUUID);
         model.addAttribute("historyID", historyID);
+        model.addAttribute("profile_name", ProfileService.getInstance().getNamefromId(profileId));
 
         Integer page = 1;
         if (historyID != -1) {
