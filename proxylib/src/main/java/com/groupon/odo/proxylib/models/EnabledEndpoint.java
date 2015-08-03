@@ -15,6 +15,7 @@
 */
 package com.groupon.odo.proxylib.models;
 
+import com.fasterxml.jackson.annotation.JsonView;
 import com.groupon.odo.proxylib.OverrideService;
 
 public class EnabledEndpoint {
@@ -29,6 +30,7 @@ public class EnabledEndpoint {
     public EnabledEndpoint() {
     }
 
+    @JsonView(ViewFilters.BackupIgnore.class)
     public int getId() {
         return this.id;
     }
@@ -37,6 +39,7 @@ public class EnabledEndpoint {
         this.id = id;
     }
 
+    @JsonView(ViewFilters.BackupIgnore.class)
     public int getPathId() {
         return this.pathId;
     }
@@ -45,6 +48,7 @@ public class EnabledEndpoint {
         this.pathId = pathId;
     }
 
+    @JsonView(ViewFilters.BackupIgnore.class)
     public int getOverrideId() {
         return this.overrideId;
     }

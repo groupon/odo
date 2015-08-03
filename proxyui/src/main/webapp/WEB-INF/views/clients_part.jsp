@@ -70,6 +70,41 @@ function manageClientPopup() {
     });
 }
 
+function changeClientSubmit() {
+    $.removeCookie("UUID", { expires: 10000, path: '/testproxy/' });
+    var value = $('#switchClientName').val();
+    var url = '<c:url value="/edit/${profile_id}"/>?clientUUID=' + value;
+    window.location.href = url;
+}
+
+function changeClientFriendlyNameSubmit() {
+    var value = $('#changeClientFriendlyName').val();
+    if (value == "${clientFriendlyName}") {
+        $("#changeClientFriendlyNameDialog").dialog("close");
+        return;
+    }
+
+    $.ajax({
+        type:"POST",
+        url: '<c:url value="/api/profile/${profile_id}/clients/${clientUUID}"/>',
+        data: {friendlyName: value},
+        success: function() {
+            var url = '<c:url value="/edit/${profile_id}"/>?clientUUID=${clientUUID}';
+            window.location.href = url;
+        },
+        error: function(xhr) {
+            var json;
+            try {
+                json = $.parseJSON(xhr.responseText);
+                $("#friendlyNameError").html(json.error.message);
+            } catch(e) {
+                $("#friendlyNameError").html("An unknown error occurred");
+            }
+
+        }
+    });
+}
+
 $(document).ready(function () {
     var clientList = jQuery("#clientlist");
     clientList

@@ -16,6 +16,11 @@
 
 package com.groupon.odo.client.models;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.core.type.TypeReference;
+import java.util.HashMap;
+import java.util.Map;
+import org.json.JSONObject;
 
 /**
  * Represents a single history object
@@ -47,6 +52,7 @@ public class History {
     private boolean requestSent = true;
     private boolean requestBodyDecoded = false;
     private boolean responseBodyDecoded = false;
+    private String extraInfo = "{}";
 
     public History() {
     }
@@ -249,5 +255,96 @@ public class History {
 
     public void setResponseBodyDecoded(boolean responseBodyDecoded) {
         this.responseBodyDecoded = responseBodyDecoded;
+    }
+
+    /**
+     *
+     * @return extraInfo as a map
+     */
+    public Map<String, Object> getExtraInfo() {
+        return getMapFromJSON(extraInfo);
+    }
+
+    /**
+     *
+     * @return extraInfo as string, for use with sql query
+     */
+    public String getExtraInfoString() {
+        return extraInfo;
+    }
+
+    /**
+     * Set the extra info param, extraInfo is a string instead of a map to allow
+     * serialization
+     *
+     * @param extraInfo Map of string, object that will get turned into the extra info
+     * @throws Exception
+     */
+    public void setExtraInfo(Map<String, Object> extraInfo) throws Exception {
+        this.extraInfo = getJSONFromMap(extraInfo);
+    }
+
+    /**
+     * Set extra info from a string, provided so it can be set with results
+     * of sql queries
+     *
+     * @param extraInfo
+     */
+    public void setExtraInfoFromString(String extraInfo) {
+        this.extraInfo = extraInfo;
+    }
+
+    /**
+     * Add key value pair to extra info
+     *
+     * @param key Key of new item
+     * @param value New value to add
+     */
+    public void addExtraInfo(String key, Object value) {
+        // Turn extraInfo into map
+        Map<String, Object> infoMap = (HashMap<String, Object>)getMapFromJSON(extraInfo);
+        // Add value
+        infoMap.put(key, value);
+
+        // Turn back into string
+        extraInfo = getJSONFromMap(infoMap);
+    }
+
+    /**
+     * Turn json string into map
+     *
+     * @param json
+     * @return
+     */
+    private Map<String, Object> getMapFromJSON(String json) {
+        Map<String, Object> propMap = new HashMap<String, Object>();
+        ObjectMapper mapper = new ObjectMapper();
+
+        // Initialize string if empty
+        if (json == null || json.length() == 0) {
+            json = "{}";
+        }
+
+        try {
+            // Convert string
+            propMap = mapper.readValue(json, new TypeReference<HashMap<String, Object>>(){});
+        } catch (Exception e) {
+            ;
+        }
+        return propMap;
+    }
+
+    /**
+     * Turn map into string
+     *
+     * @param propMap Map to be converted
+     * @return
+     */
+    private String getJSONFromMap(Map<String, Object> propMap) {
+        try {
+            return new JSONObject(propMap).toString();
+        } catch (Exception e) {
+            return "{}";
+        }
     }
 }

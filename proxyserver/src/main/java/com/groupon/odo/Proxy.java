@@ -65,6 +65,8 @@ import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.PutMethod;
 import org.apache.commons.httpclient.params.HttpMethodParams;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -198,6 +200,13 @@ public class Proxy extends HttpServlet {
                     request, history, Constants.REQUEST_TYPE_GET));
                 // set headers
                 setProxyRequestHeaders(request, getMethodProxyRequest);
+                // Set path names request applies to
+                try {
+                    JSONArray applicablePathNames = getApplicablePathNames(request.getRequestURL().toString(), Constants.REQUEST_TYPE_GET);
+                    history.addExtraInfo("pathNames", applicablePathNames);
+                } catch (Exception e) {
+
+                }
                 // execute request
                 logger.info("Executing request");
                 executeProxyRequest(getMethodProxyRequest, request, response,
@@ -237,6 +246,13 @@ public class Proxy extends HttpServlet {
                 request, history, Constants.REQUEST_TYPE_POST));
             // Forward the request headers
             setProxyRequestHeaders(request, postMethodProxyRequest);
+            // Set path names request applies to
+            try {
+                JSONArray applicablePathNames = getApplicablePathNames(request.getRequestURL().toString(), Constants.REQUEST_TYPE_POST);
+                history.addExtraInfo("pathNames", applicablePathNames);
+            } catch (Exception e) {
+
+            }
 
             // Check if this is a mulitpart (file upload) POST
             if (ServletFileUpload.isMultipartContent(request)) {
@@ -279,6 +295,13 @@ public class Proxy extends HttpServlet {
                 request, history, Constants.REQUEST_TYPE_PUT));
             // Forward the request headers
             setProxyRequestHeaders(request, putMethodProxyRequest);
+            // Set path names request applies to
+            try {
+                JSONArray applicablePathNames = getApplicablePathNames(request.getRequestURL().toString(), Constants.REQUEST_TYPE_PUT);
+                history.addExtraInfo("pathNames", applicablePathNames);
+            } catch (Exception e) {
+
+            }
             // Check if this is a multipart (file upload) POST
             if (ServletFileUpload.isMultipartContent(request)) {
                 logger.info("PUT:: Multipart");
@@ -321,6 +344,13 @@ public class Proxy extends HttpServlet {
                 request, history, Constants.REQUEST_TYPE_DELETE));
             // set headers
             setProxyRequestHeaders(request, getMethodProxyRequest);
+            // Set path names request applies to
+            try {
+                JSONArray applicablePathNames = getApplicablePathNames(request.getRequestURL().toString(), Constants.REQUEST_TYPE_DELETE);
+                history.addExtraInfo("pathNames", applicablePathNames);
+            } catch (Exception e) {
+
+            }
             // execute request
             executeProxyRequest(getMethodProxyRequest, request, response, history);
         } catch (Exception e) {
@@ -509,6 +539,33 @@ public class Proxy extends HttpServlet {
     }
 
     /**
+     * Get the names of the paths that would apply to the request
+     *
+     * @param requestUrl URL of the request
+     * @param requestType Type of the request: GET, POST, PUT, or DELETE as integer
+     * @return JSONArray of path names
+     * @throws Exception
+     */
+    private JSONArray getApplicablePathNames (String requestUrl, Integer requestType) throws Exception {
+        RequestInformation requestInfo = requestInformation.get();
+        List<EndpointOverride> applicablePaths;
+        JSONArray pathNames = new JSONArray();
+        // Get all paths that match the request
+        applicablePaths = PathOverrideService.getInstance().getSelectedPaths(Constants.OVERRIDE_TYPE_REQUEST, requestInfo.client,
+                                                                             requestInfo.profile,
+                                                                             requestUrl + requestInfo.originalRequestInfo.getQueryString(),
+                                                                             requestType, true);
+        // Extract just the path name from each path
+        for (EndpointOverride path : applicablePaths) {
+            JSONObject pathName = new JSONObject();
+            pathName.put("name", path.getPathName());
+            pathNames.put(pathName);
+        }
+
+        return pathNames;
+    }
+
+    /**
      * Returns the newly formatted URL based on if the client is enabled, server mappings etc..
      * This also figures out what client ID to use for a profile(default is "-1"(PROFILE_CLIENT_DEFAULT_ID))
      *
@@ -598,7 +655,7 @@ public class Proxy extends HttpServlet {
 
         // Handle the path given to the servlet
         stringProxyURL += httpServletRequest.getPathInfo();
-        stringProxyURL += processQueryString(queryString);
+        stringProxyURL += processQueryString(queryString).queryString;
         logger.info("url = {}", stringProxyURL);
 
         history.setProfileId(requestInfo.profile.getId());
@@ -638,14 +695,25 @@ public class Proxy extends HttpServlet {
      * @return
      * @throws Exception
      */
-    private String processQueryString(String queryString) throws Exception {
+    public static QueryInformation processQueryString(String queryString) throws Exception {
+        return processQueryStrings(queryString, Constants.PLUGIN_REQUEST_OVERRIDE_CUSTOM);
+    }
+
+    public static QueryInformation processPostDataString(String postDataString) throws Exception {
+        return processQueryStrings(postDataString, Constants.PLUGIN_REQUEST_OVERRIDE_CUSTOM_POST_BODY);
+    }
+
+    private static QueryInformation processQueryStrings(String queryString, int overrideType) throws Exception {
         String returnString = queryString;
+        QueryInformation returnQuery = new QueryInformation();
+        returnQuery.modified = false;
         Boolean overridden = false;
         RequestInformation requestInfo = requestInformation.get();
         for (EndpointOverride selectedPath : requestInfo.selectedRequestPaths) {
             List<EnabledEndpoint> points = selectedPath.getEnabledEndpoints();
             for (EnabledEndpoint endpoint : points) {
-                if (endpoint.getOverrideId() == Constants.PLUGIN_REQUEST_OVERRIDE_CUSTOM) {
+                if (endpoint.getOverrideId() == overrideType) {
+                    returnQuery.modified = true;
                     if (!overridden) {
                         overridden = true;
                         returnString = "";
@@ -654,7 +722,9 @@ public class Proxy extends HttpServlet {
                     // need to tokenize this
                     // tokenize the original query string starting at the first character(skips the ?)
                     String originalQueryString = "";
-                    if (queryString.length() > 1) {
+                    if (queryString.length() > 1 && overrideType == Constants.PLUGIN_REQUEST_OVERRIDE_CUSTOM_POST_BODY) {
+                        originalQueryString = queryString;
+                    } else if (queryString.length() > 1) {
                         originalQueryString = queryString.substring(1);
                     }
                     returnString = "";
@@ -666,7 +736,7 @@ public class Proxy extends HttpServlet {
 
                     // find the first enabled custom request override
                     for (EnabledEndpoint override : overrides) {
-                        if (override.getOverrideId() == Constants.PLUGIN_REQUEST_OVERRIDE_CUSTOM &&
+                        if (override.getOverrideId() == overrideType &&
                             override.getRepeatNumber() != 0) {
                             modifierParams = HttpUtilities.getParameters((String) override.getArguments()[0]);
                             override.decrementRepeatNumber();
@@ -693,7 +763,7 @@ public class Proxy extends HttpServlet {
                     for (String key : originalParams.keySet()) {
                         if (returnString.length() > 1) {
                             returnString += "&";
-                        } else {
+                        } else if (overrideType != Constants.PLUGIN_REQUEST_OVERRIDE_CUSTOM_POST_BODY) {
                             returnString = "?";
                         }
 
@@ -702,7 +772,8 @@ public class Proxy extends HttpServlet {
                 }
             }
         }
-        return returnString;
+        returnQuery.queryString = returnString;
+        return returnQuery;
     }
 
     /**
@@ -1285,5 +1356,15 @@ public class Proxy extends HttpServlet {
         public ArrayList<EndpointOverride> selectedResponsePaths = new ArrayList<EndpointOverride>();
         public HttpRequestInfo originalRequestInfo = null;
         public String jsonpCallback = null;
+    }
+
+    /**
+     * Struct to hold information about a post query string
+     * Used in return from handling the post to determine if it was modified
+     * or not
+     */
+    public static class QueryInformation {
+        public String queryString;
+        public boolean modified;
     }
 }

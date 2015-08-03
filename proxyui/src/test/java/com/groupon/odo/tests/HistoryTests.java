@@ -51,7 +51,7 @@ public class HistoryTests extends TestBase {
                 "originalRequestParams", "originalRequestPostData",
                 "originalRequestHeaders", "originalResponseCode",
                 "originalResponseHeaders", "originalResponseContentType",
-                "originalResponseData", true, true, false, false);
+                "originalResponseData", true, true, false, false, "{}");
         HistoryService.getInstance().addHistory(testHistory);
         ClientService.getInstance().updateActive(newProfile.getId(), "-1", true);
     }

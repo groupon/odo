@@ -37,7 +37,7 @@ public class Constants {
     public static final String ODO_INTERNAL_WEBAPP_URL = "http://odo";
 
     // DB constants
-    public static final int DB_CURRENT_SCHEMA_VERSION = 5;
+    public static final int DB_CURRENT_SCHEMA_VERSION = 6;
     public static final String DB_TABLE_CONFIGURATION = "configuration";
     public static final String DB_TABLE_HISTORY = "history";
     public static final String DB_TABLE_OVERRIDE = "override_db";
@@ -79,6 +79,7 @@ public class Constants {
     public static final int PLUGIN_RESPONSE_HEADER_OVERRIDE_REMOVE = -4;
     public static final int PLUGIN_REQUEST_HEADER_OVERRIDE_ADD = -5;
     public static final int PLUGIN_REQUEST_HEADER_OVERRIDE_REMOVE = -6;
+    public static final int PLUGIN_REQUEST_OVERRIDE_CUSTOM_POST_BODY = -7;
     public static final String PLUGIN_TYPE_RESPONSE_OVERRIDE = "interface com.groupon.odo.plugin.ResponseOverride";
     public static final String PLUGIN_TYPE_RESPONSE_OVERRIDE_V2 = "interface com.groupon.odo.plugin.v2.ResponseOverride";
     public static final String PLUGIN_TYPE_REQUEST_OVERRIDE = "interface com.groupon.odo.plugin.RequestOverride";
@@ -126,6 +127,7 @@ public class Constants {
     public static final String HISTORY_REQUEST_SENT = "requestSent";
     public static final String HISTORY_REQUEST_BODY_DECODED = "request_body_decoded";
     public static final String HISTORY_RESPONSE_BODY_DECODED = "response_body_decoded";
+    public static final String HISTORY_EXTRA_INFO = "extraInfo";
 
     // Client profile constants
     public static final String PROFILE_CLIENT_DEFAULT_ID = "-1";
@@ -199,4 +201,20 @@ public class Constants {
     public static final String SCRIPT_NAME = "name";
     public static final String SCRIPT_SCRIPT = "script";
     public static final String SCRIPT_TYPE = "type";
+
+    // backup constants
+    public static final String BACKUP_ACTIVE_SERVER_GROUP = "activeServerGroup";
+    public static final String NAME = "name";
+    public static final String ENABLED_PATHS = "enabledPaths";
+    public static final String PATH_NAME = "pathName";
+    public static final String REQUEST_ENABLED = "requestEnabled";
+    public static final String RESPONSE_ENABLED = "responseEnabled";
+    public static final String ENABLED_ENDPOINTS = "enabledEndpoints";
+    public static final String PRIORITY = "priority";
+    public static final String METHOD_INFORMATION = "methodInformation";
+    public static final String METHOD_NAME = "methodName";
+    public static final String CLASS_NAME = "className";
+    public static final String OVERRIDE_ID = "overrideId";
+    public static final String REPEAT_NUMBER = "repeatNumber";
+    public static final String ARGUMENTS = "arguments";
 }
