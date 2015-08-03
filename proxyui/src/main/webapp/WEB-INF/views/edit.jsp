@@ -1010,7 +1010,7 @@
                             grid.jqGrid('sortableRows', options);
                             $("#reorder_packages").addClass("ui-state-highlight");
                             /* GIVE HELPER TEXT*/
-                            $("#reorderNotificationText").html("The ordering of paths impacts how requests are handled. <br>In general if a higher priority path matches a request then<br>further paths will not be evaluated. <br>The only exception is Global paths. In the case that a global path<br>is matched the matcher will continue to search for a non-global<br>matching path.");
+                            $("#reorderNotificationText").html("Drag and drop rows to change the path priority.<br>The ordering of paths impacts how requests are handled. <br>In general if a higher priority path matches a request then<br>further paths will not be evaluated. <br>The only exception is Global paths. In the case that a global path<br>is matched the matcher will continue to search for a non-global<br>matching path.");
                             $("#reorderNotificationDiv").fadeIn();
                         } else {
                             $("#packages tbody").sortable('destroy');
@@ -1044,7 +1044,7 @@
                 $("#sel1").select2();
 
                 var currentHTML = $("#gview_serverlist > .ui-jqgrid-titlebar > span").html();
-                var dropDown = "&nbsp;&nbsp;&nbsp;<input id='serverGroupSelection' style='width:300px%'></input>&nbsp;&nbsp;<button id='editServerGroups' type='button' class='btn btn-xs' onClick='toggleServerGroupEdit()'>Server Grps ></button>";
+                var dropDown = "&nbsp;&nbsp;&nbsp;<input id='serverGroupSelection' style='width:300px%'></input>&nbsp;&nbsp;<button id='editServerGroups' type='button' class='btn btn-xs' onClick='toggleServerGroupEdit()'>Server Groups ></button>";
                 $("#gview_serverlist > .ui-jqgrid-titlebar > span").html(currentHTML + dropDown);
 
                 $("#serverGroupSelection").select2({
