@@ -1086,8 +1086,7 @@
                     formatResult: function(term) {
                         if (term.isNew) {
                             return 'create "' + term.text + '"';
-                        }
-                        else {
+                        } else {
                             return term.text;
                         }
                     }
@@ -1103,8 +1102,7 @@
                                 reloadGrid("#serverGroupList");
                             }
                         });
-                    }
-                    else {
+                    } else {
                         setActiveServerGroup(e.added.id);
                     }
                 });
@@ -1252,8 +1250,7 @@
                 var requestType = $("#requestType").val();
                 if(requestType != "1" && requestType != "4") {
                     $("#postGeneral").show();
-                }
-                else {
+                } else {
                     $("#postGeneral").hide();
                 }
             }
@@ -1302,15 +1299,13 @@
                         success: function() {
                             if(type == "response") {
                                 selectedResponseOverride = 0;
-                            }
-                            else {
+                            } else {
                                 selectedRequestOverride = 0;
                             }
 
                             if(type == "response") {
                                 populateEnabledResponseOverrides();
-                            }
-                            else {
+                            } else {
                                 populateEnabledRequestOverrides();
                             }
                         }
@@ -1333,8 +1328,7 @@
                         success: function(){
                             if(type == "response") {
                                 populateEnabledResponseOverrides();
-                            }
-                            else {
+                            } else {
                                 populateEnabledRequestOverrides();
                             }
                         }
@@ -1848,8 +1842,7 @@
                 if($('#serverEdit').is(':visible') ) {
                     $("#serverEdit").hide();
                     $("#editServerGroups").attr("class", "btn-xs btn-default");
-                }
-                else {
+                } else {
                     reloadGrid("#serverGroupList");
                     $("#serverEdit").show();
                     $("#editServerGroups").attr("class", "btn-xs btn-primary");
@@ -2154,13 +2147,13 @@
                                                 <div class="ui-widget" style="display:none;" id="applyPathChangeAlertDiv">
                                                     <div class="ui-state-error ui-corner-all" style="padding: 0 .7em;">
                                                         <p><span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span>
-                                                            <strong>Alert: </strong><span id="applyPathChangeAlertTextDiv"/></p>
+                                                        <strong>Alert: </strong><span id="applyPathChangeAlertTextDiv"/></p>
                                                     </div>
                                                 </div>
                                                 <div class="ui-widget" style="display:none;" id="applyPathChangeSuccessDiv">
                                                     <div class="ui-state-highlight ui-corner-all" style="padding: 0 .7em;">
                                                         <p><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
-                                                            <strong>Success: </strong>Configuration saved.</p>
+                                                        <strong>Success: </strong>Configuration saved.</p>
                                                     </div>
                                                 </div>
                                             </td>
