@@ -922,7 +922,7 @@
                         },
                         afterComplete: function(data) {
                             reloadGrid("#packages");
-                            $("#statusNotificationText").html("Path added.  Don't forget to add a hostname <b>above</b> and<br>adjust path priorities by <b>dragging and dropping</b> rows<br>in the path table!");
+                            $("#statusNotificationText").html("Path added.  Don't forget to add a hostname <b>above</b> and<br>adjust path priorities by <b>clicking Reorder</b> at the bottom<br>of the path table!");
                             $("#statusNotificationDiv").fadeIn();
                         },
                         beforeShowForm: function(data) {
