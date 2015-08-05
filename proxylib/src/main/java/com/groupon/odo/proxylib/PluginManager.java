@@ -111,7 +111,8 @@ public class PluginManager {
     /**
      * This loads plugin file information into a hash for lazy loading later on
      *
-     * @param pluginDirectory path of plugin directory
+     * @param pluginDirectory path of plugin
+     * @throws Exception exception
      */
     public void identifyClasses(final String pluginDirectory) throws Exception {
         methodInformation.clear();
@@ -211,8 +212,8 @@ public class PluginManager {
     /**
      * Loads the specified class name and stores it in the hash
      *
-     * @param className
-     * @throws Exception
+     * @param className class name
+     * @throws Exception exception
      */
     public void loadClass(String className) throws Exception {
         ClassInformation classInfo = classInformation.get(className);
@@ -251,13 +252,14 @@ public class PluginManager {
      *
      * @param className name of class
      * @param methodName name of method
+     * @param pluginArgs plugin arguments
      * @param args arguments to supply to function
      * @throws Exception exception
      */
     public void callFunction(String className, String methodName, PluginArguments pluginArgs, Object... args) throws Exception {
         Class<?> cls = getClass(className);
 
-        ArrayList<Object> newArgs = new ArrayList<Object>();
+        ArrayList<Object> newArgs = new ArrayList<>();
         newArgs.add(pluginArgs);
         com.groupon.odo.proxylib.models.Method m = preparePluginMethod(newArgs, className, methodName, args);
 
@@ -269,6 +271,7 @@ public class PluginManager {
      *
      * @param className name of class
      * @param methodName name of method
+     * @param responseContent response content
      * @param args arguments to supply to function
      * @return Value returned by function
      * @throws Exception exception
@@ -277,7 +280,7 @@ public class PluginManager {
         Object retval;
         Class<?> cls = getClass(className);
 
-        ArrayList<Object> newArgs = new ArrayList<Object>();
+        ArrayList<Object> newArgs = new ArrayList<>();
         newArgs.add(responseContent);
         com.groupon.odo.proxylib.models.Method m = preparePluginMethod(newArgs, className, methodName, args);
 
@@ -470,6 +473,7 @@ public class PluginManager {
      *
      * @param pluginClass name of class
      * @return string array of the methods loaded for the class
+     * @throws Exception exception
      */
     public String[] getMethods(String pluginClass) throws Exception {
         ArrayList<String> methodNames = new ArrayList<String>();
@@ -630,8 +634,8 @@ public class PluginManager {
      *
      * @param pluginName - Name of the plugin(defined in the plugin manifest)
      * @param fileName - Filename to fetch
-     * @return
-     * @throws Exception
+     * @return byte array of the resource
+     * @throws Exception exception
      */
     public byte[] getResource(String pluginName, String fileName) throws Exception {
         // TODO: This is going to be slow.. future improvement is to cache the data instead of searching all jars
