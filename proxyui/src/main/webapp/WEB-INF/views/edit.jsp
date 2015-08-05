@@ -1037,6 +1037,54 @@
                     }
                 });
 
+                var group = $("#groupTable");
+                group.jqGrid({
+                    url : '<c:url value="/api/group"/>',
+                    width: 150,
+                    height: 100,
+                    pgbuttons : false, // disable page control like next, back button
+                    pgtext : null,
+                    multiselect: true,
+                    multiboxonly: true,
+                    datatype : "json",
+                    colNames : [ 'ID', 'Group Name'],
+                    colModel : [ {
+                        name : 'id',
+                        index : 'id',
+                        width : 55,
+                        hidden : true
+                    }, {
+                        name: 'name',
+                        path: 'name',
+                        width: 200,
+                        editable: true,
+                        align: 'left'
+                    }],
+                    jsonReader : {
+                        page : "page",
+                        total : "total",
+                        records : "records",
+                        root : 'groups',
+                        repeatitems : false
+                    },
+                    loadonce: true,
+                    cellurl : '/testproxy/api/group',
+                    gridComplete : function() {
+                        if($("#groupsTable").length > 0){
+                            jQuery("#groupsTable").setSelection(
+                                    $("#groupsTable").getDataIDs()[0], true);
+                        }
+                    },
+                    editurl: '<c:url value="/api/group/" />',
+                    rowList : [],
+                    rowNum: 10000,
+                    pager : '#groupNavGrid',
+                    sortname : 'name',
+                    viewrecords : true,
+                    sortorder : "asc"
+                });
+                group.jqGrid('gridResize');
+
                 /* ADD PLACEHOLDER TO FILTER BAR */
                 $("#gs_pathName").val("Type here to filter columns.");
                 $("#gs_pathName").focus(function() {
@@ -1630,8 +1678,7 @@
                 var bodyFilter = $("#postBodyFilter").val();
                 var repeat = $("#pathRepeatCount").attr("value");
 
-                var groups = $("#groupSelect").val();
-                var groupArray = new Array(groups);
+                var groupArray = $("#groupTable").jqGrid("getGridParam", "selarrrow");
 
                 // reset informational divs
                 $('#applyPathChangeSuccessDiv').css('display', 'none');
@@ -1869,8 +1916,8 @@
 
             function highlightSelectedGroups(groupIds) {
                 var ids = groupIds.split(",");
-                for(var index in ids) {
-                    $("#groupSelect").val(ids);
+                for(var i = 0; i < ids.length; i++) {
+                    $("#groupTable").jqGrid("setSelection", ids[i], true);
                 }
             }
 
@@ -2146,7 +2193,7 @@
                                     Request Body<br>Filter<br> (optional)
                                 </dt>
                                 <dd>
-                                    <textarea id="postBodyFilter" ROWS="6" style="width:80%;" ></textarea>
+                                    <textarea id="postBodyFilter" ROWS="3" style="width:80%;" ></textarea>
                                 </dd>
                             </dl>
                             <dl class="dl-horizontal" style="display:inline;">
@@ -2154,8 +2201,8 @@
                                     Groups
                                 </dt>
                                 <dd>
-                                    <select id="groupSelect" class="form-control" multiple="multiple" style="min-width:150px;width:auto;">
-                                    </select>
+                                    <table id="groupTable"></table>
+                                    <div id="groupNavGrid"></div>
                                 </dd>
                                 <dd>
                                     <table>
