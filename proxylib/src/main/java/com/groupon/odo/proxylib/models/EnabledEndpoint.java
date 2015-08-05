@@ -48,7 +48,6 @@ public class EnabledEndpoint {
         this.pathId = pathId;
     }
 
-    @JsonView(ViewFilters.BackupIgnore.class)
     public int getOverrideId() {
         return this.overrideId;
     }

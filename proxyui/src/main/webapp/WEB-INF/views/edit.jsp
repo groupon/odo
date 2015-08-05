@@ -178,31 +178,21 @@
                     var file = document.getElementById('configurationUploadFile').files[0];
                     importConfigurationRequest(file);
                 }
-
-                document.getElementById('configurationExportForm').onsubmit = function(event) {
-                    event.preventDefault();
-
-                    exportConfigurationFile();
-                }
             }
 
             function exportConfigurationFile() {
-                $("#configurationExportDialog").dialog("close");
-                if ($('#includeOdoConfigurationExport').find(":selected").text() === "No") {
-                    downloadFile('<c:url value="/api/backup/profile/${profile_id}/${clientUUID}?odoExport=false"/>');
-                } else {
-                    downloadFile('<c:url value="/api/backup/profile/${profile_id}/${clientUUID}?odoExport=true"/>');
-                }
+                downloadFile('<c:url value="/api/backup/profile/${profile_id}/${clientUUID}"/>');
             }
 
             function importConfigurationRequest(file) {
+                downloadFile('<c:url value="/api/backup/profile/${profile_id}/${clientUUID}?oldExport=true"/>');
                 var formData = new FormData();
-                formData.append('fileData', file, file.name);
                 if ($('#includeOdoConfiguration').find(":selected").text() === "No") {
                     formData.append('odoImport', false);
                 } else {
                     formData.append('odoImport', true);
                 }
+                formData.append('fileData', file, file.name);
                 $.ajax({
                     type:"POST",
                     url: '<c:url value="/api/backup/profile/${profile_id}/${clientUUID}"/>',
@@ -226,25 +216,6 @@
 
             function exportProfileConfiguration() {
                 downloadFile('<c:url value="/api/backup/profile/${profile_id}/${clientUUID}?odoExport=false"/>');
-            }
-
-            function exportConfiguration() {
-                $("#configurationExportDialog").dialog({
-                    title: "Export Active Override & Server Configuration",
-                    modal: true,
-                    width: 500,
-                    height: 150,
-                    position:['top',20],
-                    buttons: {
-                        "Submit": function() {
-                            // submit form
-                            $("#configurationExportFileButton").click();
-                        },
-                        "Cancel": function() {
-                            $("#configurationExportDialog").dialog("close");
-                        }
-                    }
-                });
             }
 
             function resetProfile(){
@@ -1851,24 +1822,14 @@
     </head>
     <body>
         <!-- Hidden div for configuration file upload -->
-        <div id="configurationExportDialog" style="display:none;">
-            <form id="configurationExportForm">
-                <label for="includeOdoConfigurationExport">Also Export Odo Configuration</label>
-                <select id="includeOdoConfigurationExport" name="IncludeOdoConfiguration">
-                    <option value="No">No</option>
-                    <option value="Yes">Yes</option>
-                </select>
-                <button id="configurationExportFileButton" type="submit" style="display: none;"></button>
-            </form>
-        </div>
         <div id="configurationUploadDialog" style="display:none;">
             <form id="configurationUploadForm">
                 <input id="configurationUploadFile" type="file" name="fileData" />
                 <br>
                 <label for="includeOdoConfiguration">Also Import Odo Configuration</label>
                 <select id="includeOdoConfiguration" name="IncludeOdoConfiguration">
-                    <option value="No">No</option>
                     <option value="Yes">Yes</option>
+                    <option value="No">No</option>
                 </select>
                 <button id="configurationUploadFileButton" type="submit" style="display: none;"></button>
             </form>
@@ -1889,7 +1850,7 @@
                         <li class="dropdown">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown">Import/Export <b class="caret"></b></a>
                             <ul class="dropdown-menu">
-                                <li><a href="#" onclick='exportConfiguration()'
+                                <li><a href="#" onclick='exportConfigurationFile()'
                                        data-toggle="tooltip" data-placement="right"
                                        title="Click here to export active overrides and active server group">Export Override Configuration</a></li>
                                 <li><a href="#" onclick='importConfiguration()'
