@@ -795,7 +795,7 @@
                     sortname : 'id',
                     viewrecords : true,
                     sortorder : "desc",
-                    caption : '<font size="5">History</font>'
+                    caption : '<font size="5">History: ${profile_name}</font>'
                 });
 
         historyList.jqGrid('navGrid', '#historynavGrid', {
