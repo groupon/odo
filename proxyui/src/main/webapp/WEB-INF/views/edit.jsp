@@ -645,6 +645,8 @@
                     },
                     gridComplete: function() {
                         initServerWidth = serverList.jqGrid('getGridParam', 'width');
+                        /** UPDATE THE FONT SIZE **/
+                        updateFontSize("#serverlist");
                     },
                     datatype : "json",
                     height: "100%",
@@ -887,6 +889,10 @@
                     },
                     loadComplete: function() {
                         updateDetailPills();
+                    },
+                    gridComplete: function() {
+                        /** UPDATE THE FONT SIZE **/
+                        updateFontSize("#packages");
                     },
                     pager: '#packagePager',
                     pgbuttons: false,
@@ -1138,8 +1144,7 @@
                     width: 'auto',
                     height:'auto',
                     open: function() {
-                        var currSize = parseInt($(".ui-jqgrid "+val+" tr.jqgrow td").css("fontSize"));
-                        $("#fontSize").val( currSize );
+                        $("#fontSize").val( getFontSize(val) );
                     },
                     close: function() {
                         // get the font size that has been entered
@@ -1159,6 +1164,9 @@
 
                         // reset the value
                         $("#fontSize").val("");
+
+                        // save the font size
+                        $.cookie(val+"FontSize", getFontSize(val));
                     },
                     buttons: {
                         "Close": function() {
@@ -1166,6 +1174,16 @@
                         }
                     }
                 })
+            }
+
+            function updateFontSize(val) {
+                if($.cookie(val+"FontSize")!= null) {
+                    $(".ui-jqgrid "+val+" tr.jqgrow td").css('font-size', parseInt($.cookie(val+"FontSize")));
+                }
+            }
+
+            function getFontSize(val) {
+                return parseInt($(".ui-jqgrid "+val+" tr.jqgrow td").css("fontSize"));
             }
 
             function srcValidation(val, colname) {
