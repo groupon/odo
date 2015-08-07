@@ -1066,6 +1066,7 @@ public class PathOverrideService {
      * Returns information for a specific path id
      *
      * @param pathId ID of path
+     * @param clientUUID client UUID
      * @param filters filters to set on endpoint
      * @return EndpointOverride
      * @throws Exception exception
@@ -1344,6 +1345,7 @@ public class PathOverrideService {
      *
      * @param pathId ID of path
      * @param enabled 1 for enabled, 0 for disabled
+     * @param clientUUID client ID
      * @throws Exception exception
      */
     public void setResponseEnabled(int pathId, boolean enabled, String clientUUID) throws Exception {

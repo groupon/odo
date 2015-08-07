@@ -16,19 +16,18 @@
 package com.groupon.odo.proxylib;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.groupon.odo.proxylib.models.Client;
 import com.groupon.odo.proxylib.models.EndpointOverride;
 import com.groupon.odo.proxylib.models.Group;
 import com.groupon.odo.proxylib.models.Method;
 import com.groupon.odo.proxylib.models.Script;
 import com.groupon.odo.proxylib.models.ServerGroup;
 import com.groupon.odo.proxylib.models.ServerRedirect;
-import com.groupon.odo.proxylib.models.Client;
 import com.groupon.odo.proxylib.models.backup.Backup;
 import com.groupon.odo.proxylib.models.backup.ConfigAndProfileBackup;
 import com.groupon.odo.proxylib.models.backup.PathOverride;
-import com.groupon.odo.proxylib.models.backup.SingleProfileBackup;
 import com.groupon.odo.proxylib.models.backup.Profile;
-import flexjson.JSON;
+import com.groupon.odo.proxylib.models.backup.SingleProfileBackup;
 import java.io.InputStream;
 import java.net.InetAddress;
 import java.security.cert.CertificateException;
@@ -128,7 +127,7 @@ public class BackupService {
      * @param profileID Id of profile to get configuration for
      * @param clientUUID Client Id to export configuration
      * @return SingleProfileBackup containing active overrides and active server group
-     * @throws Exception
+     * @throws Exception exception
      */
     public SingleProfileBackup getProfileBackupData(int profileID, String clientUUID) throws Exception {
         SingleProfileBackup singleProfileBackup = new SingleProfileBackup();
@@ -166,7 +165,7 @@ public class BackupService {
      * @param profileID Id of profile to get configuration for
      * @param clientUUID Client Id to export configuration
      * @return Odo backup and client backup
-     * @throws Exception
+     * @throws Exception exception
      */
     public ConfigAndProfileBackup getConfigAndProfileData(int profileID, String clientUUID) throws Exception {
         SingleProfileBackup singleProfileBackup = getProfileBackupData(profileID, clientUUID);
@@ -442,7 +441,6 @@ public class BackupService {
     }
 
     /**
-     *
      * @param groupName Name of server group to get ID for
      * @param profileId Profile ID server group is in
      * @return ID of group
@@ -470,7 +468,6 @@ public class BackupService {
      * @param profileBackup JSON containing server configuration and overrides to activate
      * @param profileId Profile to update
      * @param clientUUID Client UUID to apply update to
-     * @return
      * @throws Exception Array of errors for things that could not be imported
      */
     public void setProfileFromBackup(JSONObject profileBackup, int profileId, String clientUUID) throws Exception {

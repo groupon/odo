@@ -105,14 +105,14 @@ public class BackupController {
     }
 
     /**
-     * API call to backup active overreides and active server group for a client
-     * Can also backup entire odo configuration
+     * API call to backup active overides and active server group for a client
+     * Also backs up entire odo configuration
      *
      * @param model
      * @param response
      * @param profileID Id of profile to backup
      * @param clientUUID Client Id to backup
-     * @param odoExport Flag to also include whole odo backup in client backpu
+     * @param oldExport Flag if this is exporting old configuration on a new import, used to change name of file
      * @return
      * @throws Exception
      */
@@ -124,22 +124,20 @@ public class BackupController {
     String getSingleProfileConfiguration(Model model, HttpServletResponse response,
                                          @PathVariable int profileID,
                                          @PathVariable String clientUUID,
-                                         @RequestParam(value = "odoExport", defaultValue = "false") boolean odoExport) throws Exception {
+                                         @RequestParam(value = "oldExport", defaultValue = "false") boolean oldExport) throws Exception {
         response.setContentType("application/json");
 
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectWriter writer = objectMapper.writerWithDefaultPrettyPrinter();
 
-        if (odoExport) {
-            response.addHeader("Content-Disposition", "attachment; filename=Config_and_Profile_Backup.json");
-            ConfigAndProfileBackup configAndProfileBackup = BackupService.getInstance().
-                getConfigAndProfileData(profileID, clientUUID);
-            return writer.withView(ViewFilters.Default.class).writeValueAsString(configAndProfileBackup);
+        if (oldExport) {
+            response.addHeader("Content-Disposition", "attachment; filename=Config_and_Profile_OLD.json");
         } else {
-            response.addHeader("Content-Disposition", "attachment; filename=Enabled_Endpoints.json");
-            SingleProfileBackup singleProfileBackup = BackupService.getInstance().getProfileBackupData(profileID, clientUUID);
-            return writer.withView(ViewFilters.Default.class).writeValueAsString(singleProfileBackup);
+            response.addHeader("Content-Disposition", "attachment; filename=Config_and_Profile_Backup.json");
         }
+        ConfigAndProfileBackup configAndProfileBackup = BackupService.getInstance().
+            getConfigAndProfileData(profileID, clientUUID);
+        return writer.withView(ViewFilters.Default.class).writeValueAsString(configAndProfileBackup);
     }
 
     /**
@@ -158,7 +156,7 @@ public class BackupController {
     ResponseEntity<String> processSingleProfileBackup(@RequestParam("fileData") MultipartFile fileData,
                          @PathVariable int profileID,
                          @PathVariable String clientUUID,
-                         @RequestParam(value = "odoImport", defaultValue = "false") boolean odoImport) throws Exception {
+                         @RequestParam(value = "odoImport", defaultValue = "true") boolean odoImport) throws Exception {
         if (!fileData.isEmpty()) {
             try {
                 // Read in file

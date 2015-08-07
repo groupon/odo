@@ -141,7 +141,7 @@ public class ClientService {
      * @param clientUUID UUID or friendlyName of client
      * @param profileId - can be null, safer if it is not null
      * @return Client object or null
-     * @throws Exception
+     * @throws Exception exception
      */
     public Client findClient(String clientUUID, Integer profileId) throws Exception {
         Client client = null;
@@ -149,7 +149,7 @@ public class ClientService {
             THIS APPEARS TO BE BECAUSE CLIENT UUID IS NULL.
          */
         /* CODE ADDED TO PREVENT NULL POINTERS. */
-        if(clientUUID == null) {
+        if (clientUUID == null) {
             clientUUID = "";
         }
 
