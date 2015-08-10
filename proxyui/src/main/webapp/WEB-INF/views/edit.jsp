@@ -622,8 +622,6 @@
                     },
                     gridComplete: function() {
                         initServerWidth = serverList.jqGrid('getGridParam', 'width');
-                        /** UPDATE THE FONT SIZE **/
-                        updateFontSize("#serverlist");
                     },
                     datatype : "json",
                     height: "100%",
@@ -691,16 +689,6 @@
                     }
                 });
                 serverList.jqGrid('gridResize');
-
-                serverList.jqGrid('navButtonAdd', '#servernavGrid', {
-                    caption: "Change font size",
-                    buttonicon: "ui-icon-gear",
-                    title: "Change the table font size",
-                    id: "resize_server",
-                    onClickButton: function() {
-                        resizeFontDialog( "#serverlist", "API Servers" );
-                    }
-                });
 
                 var serverGroupList = jQuery("#serverGroupList");
                 serverGroupList.jqGrid({
@@ -867,10 +855,6 @@
                     loadComplete: function() {
                         updateDetailPills();
                     },
-                    gridComplete: function() {
-                        /** UPDATE THE FONT SIZE **/
-                        updateFontSize("#packages");
-                    },
                     pager: '#packagePager',
                     pgbuttons: false,
                     pgtext: null,
@@ -1001,16 +985,6 @@
                             /* REMOVE HELPER TEXT */
                             $("#reorderNotificationDiv").fadeOut();
                         }
-                    }
-                });
-
-                grid.jqGrid('navButtonAdd', '#packagePager', {
-                    caption: "Change font size",
-                    buttonicon: "ui-icon-gear",
-                    title: "Change the table font size",
-                    id: "resize_packages",
-                    onClickButton: function() {
-                        resizeFontDialog( "#packages", "Paths" );
                     }
                 });
 
@@ -1159,56 +1133,6 @@
                     default:
                         return null;
                 }
-            }
-
-            function resizeFontDialog( val, name ) {
-                $("#resizeFontDialog").dialog({
-                    title: "Change Font Size of "+name+" table",
-                    modal: true,
-                    resizeable: true,
-                    width: 'auto',
-                    height:'auto',
-                    open: function() {
-                        $("#fontSize").val( getFontSize(val) );
-                    },
-                    close: function() {
-                        // get the font size that has been entered
-                        var size = $("#fontSize").val();
-                        // if it says nothing/is NaN, do nothing
-                        // if it says <11, change size to 11
-                        // if it says >18, change size fo 18
-                        var min = 11;
-                        var max = 18;
-                        if( parseInt(size) >= min && parseInt(size) <= max ) {
-                            $(".ui-jqgrid "+val+" tr.jqgrow td").css('font-size', parseInt(size));
-                        } else if ( parseInt(size) < min ) {
-                            $(".ui-jqgrid "+val+" tr.jqgrow td").css('font-size', min);
-                        } else if( parseInt(size) > max ) {
-                            $(".ui-jqgrid "+val+" tr.jqgrow td").css('font-size', max);
-                        }
-
-                        // reset the value
-                        $("#fontSize").val("");
-
-                        // save the font size
-                        $.cookie(val+"FontSize", getFontSize(val));
-                    },
-                    buttons: {
-                        "Close": function() {
-                            $("#resizeFontDialog").dialog("close");
-                        }
-                    }
-                })
-            }
-
-            function updateFontSize(val) {
-                if($.cookie(val+"FontSize")!= null) {
-                    $(".ui-jqgrid "+val+" tr.jqgrow td").css('font-size', parseInt($.cookie(val+"FontSize")));
-                }
-            }
-
-            function getFontSize(val) {
-                return parseInt($(".ui-jqgrid "+val+" tr.jqgrow td").css("fontSize"));
             }
 
             function srcValidation(val, colname) {
@@ -1910,11 +1834,6 @@
 
     </head>
     <body>
-        <!-- Hidden div for changing font size -->
-        <div id="resizeFontDialog" style="display:none;">
-            Please enter a number between 11 and 18.<br>
-            Font size: <input id="fontSize"/>
-        </div>
         <!-- Hidden div for configuration file upload -->
         <div id="configurationUploadDialog" style="display:none;">
             <form id="configurationUploadForm">
