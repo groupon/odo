@@ -58,8 +58,8 @@
             }
 
             #editDiv {
-                width: 45vw;
-                max-width: 45vw; /* ALLOWS FOR SCROLLING TO THE END OF THE DIV IF LARGER THAN WINDOW */
+                width: 50vw;
+                max-width: 50vw; /* ALLOWS FOR SCROLLING TO THE END OF THE DIV IF LARGER THAN WINDOW */
             }
 
             #serverEdit {
