@@ -72,8 +72,10 @@ function manageClientPopup() {
 
 function changeClientSubmit(id) {
     $.removeCookie("UUID", { expires: 10000, path: '/testproxy/' });
-    var value = $('#switchClientName').val();
     var value = $("#clientlist").jqGrid('getCell', id, "friendlyName");
+    if( value === "" ) {
+        value = $("#clientlist").jqGrid('getCell', id, 'uuid');
+    }
     var url = '<c:url value="/edit/${profile_id}"/>?clientUUID=' + value;
     window.location.href = url;
 }
