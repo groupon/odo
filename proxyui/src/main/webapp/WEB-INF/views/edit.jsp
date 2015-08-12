@@ -19,6 +19,7 @@
                 overflow: hidden;
                 margin: 12px;
                 padding: 8px;
+                width: 45%;
                 max-width: 50%;
                 display:inline-block;
                 vertical-align: top;
@@ -28,6 +29,7 @@
             {
                 margin: 12px;
                 margin-left: 0px;
+                width: 45%;
                 display:inline-block;
                 vertical-align: top;
             }
@@ -991,8 +993,8 @@
                 var group = $("#groupTable");
                 group.jqGrid({
                     url : '<c:url value="/api/group"/>',
-                    width: 150,
-                    height: 100,
+                    width: 300,
+                    height: 190,
                     pgbuttons : false, // disable page control like next, back button
                     pgtext : null,
                     multiselect: true,
@@ -1028,9 +1030,8 @@
                     },
                     editurl: '<c:url value="/api/group/" />',
                     rowList : [],
+                    sortable: false,
                     rowNum: 10000,
-                    pager : '#groupNavGrid',
-                    sortname : 'name',
                     viewrecords : true,
                     sortorder : "asc"
                 });
@@ -2090,7 +2091,6 @@
                                 </dt>
                                 <dd>
                                     <table id="groupTable"></table>
-                                    <div id="groupNavGrid"></div>
                                 </dd>
                                 <dd>
                                     <table>
