@@ -1817,6 +1817,7 @@
             }
 
             function highlightSelectedGroups(groupIds) {
+                $("#groupTable").jqGrid("resetSelection");
                 var ids = groupIds.split(",");
                 for(var i = 0; i < ids.length; i++) {
                     $("#groupTable").jqGrid("setSelection", ids[i], true);
