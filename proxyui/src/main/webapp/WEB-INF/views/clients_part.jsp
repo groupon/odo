@@ -60,6 +60,7 @@ function manageClientPopup() {
         width:'auto',
         height:'auto',
         close: function() {
+            $("#friendlyNameSubmitError").html("");
             $("#switchClientName").val("");
         },
         buttons: {
@@ -71,13 +72,20 @@ function manageClientPopup() {
 }
 
 function changeClientSubmit(id) {
-    $.removeCookie("UUID", { expires: 10000, path: '/testproxy/' });
-    var value = $("#clientlist").jqGrid('getCell', id, "friendlyName");
-    if( value === "" ) {
-        value = $("#clientlist").jqGrid('getCell', id, 'uuid');
+    // check to see if row is being edited
+    var editing = $("#clientlist #" + id + " td").hasClass("edit-cell");
+
+    if( editing ) {
+        $("#friendlyNameSubmitError").html("Please finish editing the friendly name (submit the name with Enter key) before choosing this client.");
+    } else {
+        $.removeCookie("UUID", { expires: 10000, path: '/testproxy/' });
+        var value = $("#clientlist").jqGrid('getCell', id, "friendlyName");
+        if( value === "" ) {
+            value = $("#clientlist").jqGrid('getCell', id, 'uuid');
+        }
+        var url = '<c:url value="/edit/${profile_id}"/>?clientUUID=' + value;
+        window.location.href = url;
     }
-    var url = '<c:url value="/edit/${profile_id}"/>?clientUUID=' + value;
-    window.location.href = url;
 }
 
 $(document).ready(function () {
@@ -139,6 +147,7 @@ $(document).ready(function () {
             repeatitems : false
         },
         afterEditCell : function(rowid, cellname, value, iRow, iCol) {
+            $("#friendlyNameSubmitError").html("");
             var uuid = clientList.getCell(rowid, 'uuid');
             console.log(rowid);
             if (cellname == "friendlyName") {
@@ -229,4 +238,5 @@ $(document).ready(function () {
         <table id="clientlist" style="width:100%"></table><br>
         <div id="clientnavGrid"></div>
     </div>
+    <div id="friendlyNameSubmitError" style="color: red"></div>
 </div>
