@@ -94,8 +94,10 @@ public class HistoryController {
             limit = rows;
         }
 
-        // offset id # of page(-1) * rows
-        offset = (page - 1) * rows;
+        // offset id # of page(-1) * rows if not passed in
+        if (offset == 0) {
+            offset = (page - 1) * rows;
+        }
 
         History[] histories = HistoryService.getInstance().getHistory(profileId, clientUUID, offset, limit, false, filters, hasMessage);
         int totalRows = HistoryService.getInstance().getHistoryCount(profileId, clientUUID, filters);
