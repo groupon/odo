@@ -246,13 +246,6 @@ public class Proxy extends HttpServlet {
                 request, history, Constants.REQUEST_TYPE_POST));
             // Forward the request headers
             setProxyRequestHeaders(request, postMethodProxyRequest);
-            // Set path names request applies to
-            try {
-                JSONArray applicablePathNames = getApplicablePathNames(request.getRequestURL().toString(), Constants.REQUEST_TYPE_POST);
-                history.addExtraInfo("pathNames", applicablePathNames);
-            } catch (Exception e) {
-
-            }
 
             // Check if this is a mulitpart (file upload) POST
             if (ServletFileUpload.isMultipartContent(request)) {
@@ -268,6 +261,14 @@ public class Proxy extends HttpServlet {
             // use body filter to filter paths
             this.cullPathsByBodyFilter(history);
             requestInfo.originalRequestInfo = new HttpRequestInfo(request, history.getOriginalRequestPostData());
+            // Set path names request applies to
+            try {
+                JSONArray applicablePathNames = getApplicablePathNames(request.getRequestURL().toString(), Constants.REQUEST_TYPE_POST);
+                history.addExtraInfo("pathNames", applicablePathNames);
+            } catch (Exception e) {
+
+            }
+
             // Execute the proxy request
             this.executeProxyRequest(postMethodProxyRequest, request, response,
                                      history);
@@ -295,13 +296,7 @@ public class Proxy extends HttpServlet {
                 request, history, Constants.REQUEST_TYPE_PUT));
             // Forward the request headers
             setProxyRequestHeaders(request, putMethodProxyRequest);
-            // Set path names request applies to
-            try {
-                JSONArray applicablePathNames = getApplicablePathNames(request.getRequestURL().toString(), Constants.REQUEST_TYPE_PUT);
-                history.addExtraInfo("pathNames", applicablePathNames);
-            } catch (Exception e) {
 
-            }
             // Check if this is a multipart (file upload) POST
             if (ServletFileUpload.isMultipartContent(request)) {
                 logger.info("PUT:: Multipart");
@@ -315,6 +310,13 @@ public class Proxy extends HttpServlet {
             // use body filter to filter paths
             this.cullPathsByBodyFilter(history);
             requestInfo.originalRequestInfo = new HttpRequestInfo(request, history.getOriginalRequestPostData());
+            // Set path names request applies to
+            try {
+                JSONArray applicablePathNames = getApplicablePathNames(request.getRequestURL().toString(), Constants.REQUEST_TYPE_PUT);
+                history.addExtraInfo("pathNames", applicablePathNames);
+            } catch (Exception e) {
+
+            }
 
             // Execute the proxy request
             this.executeProxyRequest(putMethodProxyRequest, request, response,
