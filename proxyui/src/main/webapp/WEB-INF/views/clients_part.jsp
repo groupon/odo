@@ -70,7 +70,62 @@ function manageClientPopup() {
     });
 }
 
+function saveClientRow(id, active) {
+    $("#clientlist").jqGrid("setGridParam",
+            {
+                ajaxRowOptions: {
+                    url : '<c:url value="/api/profile/${profile_id}/clients/"/>'+$("#clientlist").jqGrid("getCell", id, "uuid")
+                }
+            });
+
+    var saveParameters = {
+        "successfunc" : null,
+        "url" : '<c:url value="/api/profile/${profile_id}/clients/"/>' + $("#clientlist").jqGrid("getCell", id, "uuid"),
+        "extraparam" : {
+            "active" : active
+        },
+        "aftersavefunc" : null,
+        "errorfunc": null,
+        "afterrestorefunc" : null,
+        "restoreAfterError" : true,
+        "mtype" : "POST"
+    }
+
+    $("#clientlist").jqGrid("saveRow", id, saveParameters);
+}
+
+function editClientRow(id) {
+    $("#clientlist").jqGrid("setGridParam",
+            {
+                ajaxRowOptions: {
+                    url : '<c:url value="/api/profile/${profile_id}/clients/"/>'+$("#clientlist").jqGrid("getCell", id, "uuid")
+                }
+            });
+
+    var editParameters = {
+        "oneditfunc" : null,
+        "successfunc" : null,
+        "url" : '<c:url value="/api/profile/${profile_id}/clients/"/>' + $("#clientlist").jqGrid("getCell", id, "uuid"),
+        "extraparam" : {},
+        "aftersavefunc" : null,
+        "errorfunc": null,
+        "afterrestorefunc" : null,
+        "restoreAfterError" : true,
+        "mtype" : "POST"
+    };
+
+    var checked = $("#enabled_"+id).is(":checked");
+    $("#clientlist").jqGrid("editRow", id, true, editParameters);
+    document.getElementById(id+"_isActive").checked = checked;
+}
+
 function changeClientSubmit(id) {
+    // check if active -- pretty sure this doesn't work properly
+    var active = $("#" + id + "_isActive").is(":checked");
+    console.log("active: "+active);
+
+    saveClientRow(id, active);
+
     $.removeCookie("UUID", { expires: 10000, path: '/testproxy/' });
     var value = $("#clientlist").jqGrid('getCell', id, "friendlyName");
     if( value === "" ) {
@@ -81,6 +136,7 @@ function changeClientSubmit(id) {
 }
 
 $(document).ready(function () {
+    var lastSelected = -2;
     var clientList = jQuery("#clientlist");
     clientList
     .jqGrid({
@@ -91,7 +147,6 @@ $(document).ready(function () {
         pgtext : null,
         multiselect:true,
         multiboxonly:true,
-        cellEdit : true,
         datatype : "json",
         colNames : [ 'ID', 'UUID',
             'Friendly Name', 'Active', 'Last Accessed', 'Change Current' ],
@@ -138,16 +193,26 @@ $(document).ready(function () {
             root : 'clients',
             repeatitems : false
         },
-        afterEditCell : function(rowid, cellname, value, iRow, iCol) {
-            var uuid = clientList.getCell(rowid, 'uuid');
-            console.log(rowid);
-            if (cellname == "friendlyName") {
-                clientList.setGridParam({
-                    cellurl : '<c:url value="/api/profile/${profile_id}/clients/"/>' + uuid
-                });
+        onCellSelect: function(id, iCol, cellcontent, e) {
+            // if the user has another row currently selected
+            if( id != lastSelected ) {
+                // keep track of whether or not the checkbox for isActive is checked
+                var active;
+                // and if there exists a last selected row, save the info edited in that row first
+                if( lastSelected != -2 ) {
+                    active = $("#" + lastSelected + "_isActive").is(":checked");
+                    saveClientRow(lastSelected, active);
+                    document.getElementById("enabled_"+lastSelected).checked = active;
+                }
+
+                // now edit the row that we wish to edit
+                editClientRow(id);
+
+                // update that our last selected row is this one
+                lastSelected = id;
             }
         },
-        afterSaveCell : function() {
+        afterSaveCell: function() {
             clientList.trigger("reloadGrid");
         },
         gridComplete: function() {
@@ -163,6 +228,9 @@ $(document).ready(function () {
             if( rowData.uuid === clientUUID ) {
                 return { "class": "selectedRow" };
             }
+        },
+        ajaxRowOptions: {
+            url : '<c:url value="/api/profile/${profile_id}/clients/"/>'
         },
         cellurl : '<c:url value="/api/profile/${profile_id}/clients/"/>',
         rowList : [],

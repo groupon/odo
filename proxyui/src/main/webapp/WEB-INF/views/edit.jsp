@@ -29,7 +29,7 @@
             {
                 margin: 12px;
                 margin-left: 0px;
-                width: 45%;
+                width: 50%;
                 display:inline-block;
                 vertical-align: top;
             }
