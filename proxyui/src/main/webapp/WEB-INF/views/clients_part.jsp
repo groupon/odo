@@ -59,9 +59,6 @@ function manageClientPopup() {
         resizeable: true,
         width:'auto',
         height:'auto',
-        close: function() {
-            $("#switchClientName").val("");
-        },
         buttons: {
             "Close": function () {
                 $("#changeClientDialog").dialog("close");
