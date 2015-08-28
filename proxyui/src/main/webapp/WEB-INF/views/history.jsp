@@ -3,8 +3,13 @@
 <%@ page session="false" %>
 <html>
 <head>
-    <title>History</title>
+    <title>History: ${profile_name}</title>
     <%@ include file="/resources/js/webjars.include" %>
+    <style type="text/css">
+        ul, li {
+            list-style-type: none;
+        }
+    </style>
     <script src="<c:url value="/resources/js/diff_match_patch_uncompressed.js" />"></script>
     <link rel="stylesheet" type="text/css" media="screen"
              href="<c:url value="/resources/css/odo.css"/>" />
@@ -790,7 +795,7 @@
                     sortname : 'id',
                     viewrecords : true,
                     sortorder : "desc",
-                    caption : '<font size="5">History</font>'
+                    caption : '<font size="5">History: ${profile_name}</font>'
                 });
 
         historyList.jqGrid('navGrid', '#historynavGrid', {
