@@ -555,7 +555,7 @@ public class Proxy extends HttpServlet {
         // Get all paths that match the request
         applicablePaths = PathOverrideService.getInstance().getSelectedPaths(Constants.OVERRIDE_TYPE_REQUEST, requestInfo.client,
                                                                              requestInfo.profile,
-                                                                             requestUrl + requestInfo.originalRequestInfo.getQueryString(),
+                                                                             requestUrl + "?" + requestInfo.originalRequestInfo.getQueryString(),
                                                                              requestType, true);
         // Extract just the path name from each path
         for (EndpointOverride path : applicablePaths) {
