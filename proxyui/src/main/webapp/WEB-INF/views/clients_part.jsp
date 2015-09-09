@@ -93,11 +93,11 @@ function saveClientRow(id, active) {
 
 function editClientRow(id) {
     $("#clientlist").jqGrid("setGridParam",
-            {
-                ajaxRowOptions: {
-                    url : '<c:url value="/api/profile/${profile_id}/clients/"/>'+$("#clientlist").jqGrid("getCell", id, "uuid")
-                }
-            });
+        {
+            ajaxRowOptions: {
+                url : '<c:url value="/api/profile/${profile_id}/clients/"/>'+$("#clientlist").jqGrid("getCell", id, "uuid")
+            }
+        });
 
     var editParameters = {
         "oneditfunc" : null,
@@ -117,15 +117,15 @@ function editClientRow(id) {
 }
 
 function isChecked(cellValue) {
-  if(cellValue === true || cellValue === 'Yes') {
-    return true;
-  }
+    if(cellValue === true || cellValue === 'Yes') {
+        return true;
+    }
 
-  if(cellValue != null && cellValue[0] == '<')
-  {
-    return cellValue.indexOf('checked="checked"') != -1;
-  }
-  return false;
+    if(cellValue != null && cellValue[0] == '<')
+    {
+        return cellValue.indexOf('checked="checked"') != -1;
+    }
+    return false;
 }
 
 function changeClientSubmit(id) {
