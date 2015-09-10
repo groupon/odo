@@ -382,7 +382,7 @@ public class ClientService {
     public Client setFriendlyName(int profileId, String clientUUID, String friendlyName) throws Exception {
         // first see if this friendlyName is already in use
         Client client = this.findClientFromFriendlyName(profileId, friendlyName);
-        if (client != null) {
+        if (client != null && !client.getUUID().equals(clientUUID)) {
             throw new Exception("Friendly name already in use");
         }
 
