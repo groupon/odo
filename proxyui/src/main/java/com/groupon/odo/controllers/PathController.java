@@ -21,10 +21,23 @@ import com.fasterxml.jackson.databind.ser.FilterProvider;
 import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import com.groupon.odo.controllers.models.Identifiers;
-import com.groupon.odo.proxylib.*;
+import com.groupon.odo.proxylib.ClientService;
+import com.groupon.odo.proxylib.Constants;
+import com.groupon.odo.proxylib.EditService;
+import com.groupon.odo.proxylib.OverrideService;
+import com.groupon.odo.proxylib.PathOverrideService;
+import com.groupon.odo.proxylib.ProfileService;
+import com.groupon.odo.proxylib.Utils;
 import com.groupon.odo.proxylib.models.EndpointOverride;
 import com.groupon.odo.proxylib.models.ViewFilters;
-
+import flexjson.JSONSerializer;
+import java.net.URLDecoder;
+import java.util.HashMap;
+import java.util.List;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,17 +49,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import java.net.URLDecoder;
-import java.util.HashMap;
-import java.util.List;
-import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import flexjson.JSONSerializer;
-
 @Controller
 public class PathController {
 
@@ -55,40 +57,38 @@ public class PathController {
     private PathOverrideService pathOverrideService = PathOverrideService.getInstance();
 
     @SuppressWarnings("deprecation")
-	@RequestMapping(value = "/api/path", method = RequestMethod.GET)
-    public
+    @RequestMapping(value = "/api/path", method = RequestMethod.GET)
     @ResponseBody
-    String getPathsForProfile(Model model, String profileIdentifier,
-                                               @RequestParam(value = "typeFilter[]", required = false) String[] typeFilter,
-                                               @RequestParam(value = "clientUUID", defaultValue = Constants.PROFILE_CLIENT_DEFAULT_ID) String clientUUID) throws Exception {
+    public String getPathsForProfile(Model model, String profileIdentifier,
+                                     @RequestParam(value = "typeFilter[]", required = false) String[] typeFilter,
+                                     @RequestParam(value = "clientUUID", defaultValue = Constants.PROFILE_CLIENT_DEFAULT_ID) String clientUUID) throws Exception {
         int profileId = ControllerUtils.convertProfileIdentifier(profileIdentifier);
         List<EndpointOverride> paths = PathOverrideService.getInstance().getPaths(profileId, clientUUID, typeFilter);
 
         HashMap<String, Object> jqReturn = Utils.getJQGridJSON(paths, "paths");
-        
+
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.addMixInAnnotations(Object.class, ViewFilters.GetPathFilter.class);
-        String[] ignorableFieldNames = { "possibleEndpoints", "enabledEndpoints" }; 
-        FilterProvider filters = new SimpleFilterProvider().addFilter("Filter properties from the PathController GET", 
-        		SimpleBeanPropertyFilter.serializeAllExcept(ignorableFieldNames));
-        		
+        String[] ignorableFieldNames = {"possibleEndpoints", "enabledEndpoints"};
+        FilterProvider filters = new SimpleFilterProvider().addFilter("Filter properties from the PathController GET",
+                                                                      SimpleBeanPropertyFilter.serializeAllExcept(ignorableFieldNames));
+
         ObjectWriter writer = objectMapper.writer(filters);
 
         return writer.writeValueAsString(jqReturn);
     }
 
     @RequestMapping(value = "/api/path", method = RequestMethod.POST)
-    public
     @ResponseBody
-    String addPath(Model model, String profileIdentifier,
-                             @RequestParam(value = "pathName") String pathName,
-                             @RequestParam(value = "path") String path,
-                             @RequestParam(value = "bodyFilter", required = false) String bodyFilter,
-                             @RequestParam(value = "contentType", required = false) String contentType,
-                             @RequestParam(value = "requestType", required = false) Integer requestType,
-                             @RequestParam(value = "groups[]", required = false) Integer[] groups,
-                             @RequestParam(value = "global", defaultValue = "false") Boolean global,
-                             HttpServletResponse response) throws Exception {
+    public String addPath(Model model, String profileIdentifier,
+                          @RequestParam(value = "pathName") String pathName,
+                          @RequestParam(value = "path") String path,
+                          @RequestParam(value = "bodyFilter", required = false) String bodyFilter,
+                          @RequestParam(value = "contentType", required = false) String contentType,
+                          @RequestParam(value = "requestType", required = false) Integer requestType,
+                          @RequestParam(value = "groups[]", required = false) Integer[] groups,
+                          @RequestParam(value = "global", defaultValue = "false") Boolean global,
+                          HttpServletResponse response) throws Exception {
         int profileId = ControllerUtils.convertProfileIdentifier(profileIdentifier);
 
         // TODO: Update UI to display the appropriate error message for this
@@ -121,7 +121,7 @@ public class PathController {
         pathOverrideService.setRequestType(pathId, requestType);
         pathOverrideService.setGlobal(pathId, global);
 
-        if(bodyFilter != null) {
+        if (bodyFilter != null) {
             pathOverrideService.setBodyFilter(pathId, bodyFilter);
         }
 
@@ -130,29 +130,29 @@ public class PathController {
 
         return writer.writeValueAsString(pathOverrideService.getPath(pathId));
     }
-    
+
     @RequestMapping(value = "/api/path/test", method = RequestMethod.GET)
-    public @ResponseBody String testPath(@RequestParam String url, @RequestParam String profileIdentifier,
-                                         @RequestParam Integer requestType) throws Exception {
+    @ResponseBody
+    public String testPath(@RequestParam String url, @RequestParam String profileIdentifier,
+                           @RequestParam Integer requestType) throws Exception {
         int profileId = ControllerUtils.convertProfileIdentifier(profileIdentifier);
 
-        List<EndpointOverride> trySelectedRequestPaths = PathOverrideService.getInstance().getSelectedPaths(Constants.OVERRIDE_TYPE_REQUEST, 
-                ClientService.getInstance().findClient("-1", profileId),
-                ProfileService.getInstance().findProfile(profileId), url, requestType, true);
-    	
+        List<EndpointOverride> trySelectedRequestPaths = PathOverrideService.getInstance().getSelectedPaths(Constants.OVERRIDE_TYPE_REQUEST,
+                                                                                                            ClientService.getInstance().findClient("-1", profileId),
+                                                                                                            ProfileService.getInstance().findProfile(profileId), url, requestType, true);
+
         HashMap<String, Object> jqReturn = Utils.getJQGridJSON(trySelectedRequestPaths, "paths");
 
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.addMixInAnnotations(Object.class, ViewFilters.GetPathFilter.class);
-        String[] ignorableFieldNames = { "possibleEndpoints", "enabledEndpoints" }; 
-        FilterProvider filters = new SimpleFilterProvider().addFilter("Filter properties from the PathController GET", 
-              SimpleBeanPropertyFilter.serializeAllExcept(ignorableFieldNames));
-		
+        String[] ignorableFieldNames = {"possibleEndpoints", "enabledEndpoints"};
+        FilterProvider filters = new SimpleFilterProvider().addFilter("Filter properties from the PathController GET",
+                                                                      SimpleBeanPropertyFilter.serializeAllExcept(ignorableFieldNames));
+
         ObjectWriter writer = objectMapper.writer(filters);
 
         return writer.writeValueAsString(jqReturn);
     }
-    
 
     /**
      * Get information for a specific path name/profileId or pathId
@@ -163,13 +163,12 @@ public class PathController {
      * @return
      */
     @RequestMapping(value = "/api/path/{pathIdentifier}", method = RequestMethod.GET)
-    public
     @ResponseBody
-    EndpointOverride getPath(Model model,
-                             @PathVariable String pathIdentifier,
-                             @RequestParam(required = false) String profileIdentifier,
-                             @RequestParam(value = "typeFilter[]", required = false) String[] typeFilter,
-                             @RequestParam(value = "clientUUID", defaultValue = Constants.PROFILE_CLIENT_DEFAULT_ID) String clientUUID) throws Exception {
+    public EndpointOverride getPath(Model model,
+                                    @PathVariable String pathIdentifier,
+                                    @RequestParam(required = false) String profileIdentifier,
+                                    @RequestParam(value = "typeFilter[]", required = false) String[] typeFilter,
+                                    @RequestParam(value = "clientUUID", defaultValue = Constants.PROFILE_CLIENT_DEFAULT_ID) String clientUUID) throws Exception {
         Identifiers identifiers = ControllerUtils.convertProfileAndPathIdentifier(profileIdentifier, pathIdentifier);
 
         return PathOverrideService.getInstance().getPath(identifiers.getPathId(), clientUUID, typeFilter);
@@ -183,10 +182,9 @@ public class PathController {
      * @return
      */
     @RequestMapping(value = "/api/path/{pathId}", method = RequestMethod.DELETE)
-    public
     @ResponseBody
-    HashMap<String, Object> deletePath(Model model, @PathVariable int pathId,
-                                       @RequestParam(value = "clientUUID", defaultValue = Constants.PROFILE_CLIENT_DEFAULT_ID) String clientUUID) throws Exception {
+    public HashMap<String, Object> deletePath(Model model, @PathVariable int pathId,
+                                              @RequestParam(value = "clientUUID", defaultValue = Constants.PROFILE_CLIENT_DEFAULT_ID) String clientUUID) throws Exception {
         EndpointOverride currentPath = PathOverrideService.getInstance().getPath(pathId);
         int profileId = currentPath.getProfileId();
 
@@ -226,33 +224,33 @@ public class PathController {
      * @throws Exception
      */
     @RequestMapping(value = "/api/path/{pathIdentifier}", method = RequestMethod.POST)
-    public
     @ResponseBody
-    String setPath(Model model, @PathVariable String pathIdentifier,
-                             @RequestParam(value = "profileIdentifier", required = false) String profileIdentifier,
-                             @RequestParam(value = "clientUUID", defaultValue = Constants.PROFILE_CLIENT_DEFAULT_ID) String clientUUID,
-                             @RequestParam(required = false) Boolean responseEnabled,
-                             @RequestParam(required = false) Boolean requestEnabled,
-                             @RequestParam(value = "addOverride", required = false) Integer addOverride,
-                             @RequestParam(value = "enabledMoveUp", required = false) String enabledMoveUp,
-                             @RequestParam(value = "enabledMoveDown", required = false) String enabledMoveDown,
-                             @RequestParam(required = false) String pathName,
-                             @RequestParam(required = false) String path,
-                             @RequestParam(required = false) String bodyFilter,
-                             @RequestParam(required = false) String customResponse,
-                             @RequestParam(required = false) String customRequest,
-                             @RequestParam(required = false) Boolean resetResponse,
-                             @RequestParam(required = false) Boolean resetRequest,
-                             @RequestParam(required = false) String contentType,
-                             @RequestParam(required = false) Integer repeatNumber,
-                             @RequestParam(required = false) Boolean global,
-                             @RequestParam(required = false) Integer requestType,
-                             @RequestParam(value = "groups[]", required = false) Integer[] groups,
-                             HttpServletResponse response
+    public String setPath(Model model, @PathVariable String pathIdentifier,
+                          @RequestParam(value = "profileIdentifier", required = false) String profileIdentifier,
+                          @RequestParam(value = "clientUUID", defaultValue = Constants.PROFILE_CLIENT_DEFAULT_ID) String clientUUID,
+                          @RequestParam(required = false) Boolean responseEnabled,
+                          @RequestParam(required = false) Boolean requestEnabled,
+                          @RequestParam(value = "addOverride", required = false) Integer addOverride,
+                          @RequestParam(value = "enabledMoveUp", required = false) String enabledMoveUp,
+                          @RequestParam(value = "enabledMoveDown", required = false) String enabledMoveDown,
+                          @RequestParam(required = false) String pathName,
+                          @RequestParam(required = false) String path,
+                          @RequestParam(required = false) String bodyFilter,
+                          @RequestParam(required = false) String customResponse,
+                          @RequestParam(required = false) String customRequest,
+                          @RequestParam(required = false) Boolean resetResponse,
+                          @RequestParam(required = false) Boolean resetRequest,
+                          @RequestParam(required = false) String contentType,
+                          @RequestParam(required = false) Integer repeatNumber,
+                          @RequestParam(required = false) Boolean global,
+                          @RequestParam(required = false) Integer requestType,
+                          @RequestParam(value = "groups[]", required = false) Integer[] groups,
+                          HttpServletResponse response
     ) throws Exception {
         String decodedProfileIdentifier = null;
-        if (profileIdentifier != null)
+        if (profileIdentifier != null) {
             decodedProfileIdentifier = URLDecoder.decode(profileIdentifier, "UTF-8");
+        }
         Identifiers identifiers = ControllerUtils.convertProfileAndPathIdentifier(decodedProfileIdentifier, pathIdentifier);
         Integer pathId = identifiers.getPathId();
 
@@ -273,21 +271,19 @@ public class PathController {
 
         // move priority of an enabled override up
         if (enabledMoveUp != null) {
-            // TODO make this handle ordinals correctly
             String[] parts = enabledMoveUp.split(",");
-            OverrideService.getInstance().increasePriority(Integer.parseInt(parts[0]), pathId, clientUUID);
+            OverrideService.getInstance().increasePriority(Integer.parseInt(parts[0]), Integer.parseInt(parts[1]), pathId, clientUUID);
         }
 
         // move priority of an enabled override down
         if (enabledMoveDown != null) {
-            // TODO make this handle ordinals correctly
             String[] parts = enabledMoveDown.split(",");
-            OverrideService.getInstance().decreasePriority(Integer.parseInt(parts[0]), pathId, clientUUID);
+            OverrideService.getInstance().decreasePriority(Integer.parseInt(parts[0]), Integer.parseInt(parts[1]), pathId, clientUUID);
         }
 
         // update the name of the path
         if (pathName != null) {
-        	// TODO: Update UI to display the appropriate error message for this
+            // TODO: Update UI to display the appropriate error message for this
             if (pathName.equals("test")) {
                 response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                 return "Cannot update path.  \"test\" is a reserved path name.";
@@ -380,7 +376,7 @@ public class PathController {
      * @param model
      * @param pathIdentifier
      * @param overrideIdentifier
-     * @param ordinal            - Index of the enabled override to edit if multiple of the same override are enabled
+     * @param ordinal - Index of the enabled override to edit if multiple of the same override are enabled
      * @param profileIdentifier
      * @param clientUUID
      * @param arguments
@@ -389,16 +385,15 @@ public class PathController {
      * @throws Exception
      */
     @RequestMapping(value = "/api/path/{pathIdentifier}/{overrideIdentifier:.+}", method = RequestMethod.POST)
-    public
     @ResponseBody
-    HashMap<String, Object> setOverrideArgsWithEnabledId(Model model,
-                                                         @PathVariable String pathIdentifier,
-                                                         @PathVariable String overrideIdentifier,
-                                                         @RequestParam(value = "ordinal", defaultValue = "1") Integer ordinal,
-                                                         @RequestParam(required = false) String profileIdentifier,
-                                                         @RequestParam(value = "clientUUID", defaultValue = Constants.PROFILE_CLIENT_DEFAULT_ID) String clientUUID,
-                                                         @RequestParam(value = "arguments[]", required = false) Object[] arguments,
-                                                         @RequestParam(value = "repeatNumber", required = false) Integer repeatNumber) throws Exception {
+    public HashMap<String, Object> setOverrideArgsWithEnabledId(Model model,
+                                                                @PathVariable String pathIdentifier,
+                                                                @PathVariable String overrideIdentifier,
+                                                                @RequestParam(value = "ordinal", defaultValue = "1") Integer ordinal,
+                                                                @RequestParam(required = false) String profileIdentifier,
+                                                                @RequestParam(value = "clientUUID", defaultValue = Constants.PROFILE_CLIENT_DEFAULT_ID) String clientUUID,
+                                                                @RequestParam(value = "arguments[]", required = false) Object[] arguments,
+                                                                @RequestParam(value = "repeatNumber", required = false) Integer repeatNumber) throws Exception {
         Identifiers identifiers = ControllerUtils.convertProfileAndPathIdentifier(profileIdentifier, pathIdentifier);
 
         // need to get overrideId for identifiers..
@@ -427,21 +422,20 @@ public class PathController {
      * @param model
      * @param pathIdentifier
      * @param overrideIdentifier
-     * @param ordinal-           Index of the enabled override to edit if multiple of the same override are enabled
+     * @param ordinal- Index of the enabled override to edit if multiple of the same override are enabled
      * @param profileIdentifier
      * @param clientUUID
      * @return
      * @throws Exception
      */
     @RequestMapping(value = "/api/path/{pathIdentifier}/{overrideIdentifier:.+}", method = RequestMethod.DELETE)
-    public
     @ResponseBody
-    HashMap<String, Object> deleteOverride(Model model,
-                                           @PathVariable String pathIdentifier,
-                                           @PathVariable String overrideIdentifier,
-                                           @RequestParam(value = "ordinal", defaultValue = "1") Integer ordinal,
-                                           @RequestParam(required = false) String profileIdentifier,
-                                           @RequestParam(value = "clientUUID", defaultValue = Constants.PROFILE_CLIENT_DEFAULT_ID) String clientUUID) throws Exception {
+    public HashMap<String, Object> deleteOverride(Model model,
+                                                  @PathVariable String pathIdentifier,
+                                                  @PathVariable String overrideIdentifier,
+                                                  @RequestParam(value = "ordinal", defaultValue = "1") Integer ordinal,
+                                                  @RequestParam(required = false) String profileIdentifier,
+                                                  @RequestParam(value = "clientUUID", defaultValue = Constants.PROFILE_CLIENT_DEFAULT_ID) String clientUUID) throws Exception {
         Identifiers identifiers = ControllerUtils.convertProfileAndPathIdentifier(profileIdentifier, pathIdentifier);
 
         // need to get overrideId for identifiers..
@@ -456,23 +450,22 @@ public class PathController {
 
     /**
      * @param model
-     * @param pathIdentifier     - String/Int ID of the path to edit
+     * @param pathIdentifier - String/Int ID of the path to edit
      * @param overrideIdentifier - String/Int ID of the override
-     * @param ordinal            - Index of the enabled override to edit if multiple of the same override are enabled
-     * @param clientUUID         - clientUUID(can be left out)
-     * @param profileIdentifier  - profile identifier
+     * @param ordinal - Index of the enabled override to edit if multiple of the same override are enabled
+     * @param clientUUID - clientUUID(can be left out)
+     * @param profileIdentifier - profile identifier
      * @return
      * @throws Exception
      */
     @RequestMapping(value = "/api/path/{pathIdentifier}/{overrideIdentifier:.+}", method = RequestMethod.GET)
-    public
     @ResponseBody
-    HashMap<String, Object> getOverrideInformationWithEnabledId(Model model,
-                                                                @PathVariable String pathIdentifier,
-                                                                @PathVariable String overrideIdentifier,
-                                                                @RequestParam(value = "ordinal", defaultValue = "1") Integer ordinal,
-                                                                @RequestParam(value = "clientUUID", defaultValue = Constants.PROFILE_CLIENT_DEFAULT_ID) String clientUUID,
-                                                                @RequestParam(required = false) String profileIdentifier) throws Exception {
+    public HashMap<String, Object> getOverrideInformationWithEnabledId(Model model,
+                                                                       @PathVariable String pathIdentifier,
+                                                                       @PathVariable String overrideIdentifier,
+                                                                       @RequestParam(value = "ordinal", defaultValue = "1") Integer ordinal,
+                                                                       @RequestParam(value = "clientUUID", defaultValue = Constants.PROFILE_CLIENT_DEFAULT_ID) String clientUUID,
+                                                                       @RequestParam(required = false) String profileIdentifier) throws Exception {
         Identifiers identifiers = ControllerUtils.convertProfileAndPathIdentifier(profileIdentifier, pathIdentifier);
 
         // need to get overrideId for identifiers..
@@ -480,8 +473,9 @@ public class PathController {
 
         HashMap<String, Object> returnMap = new HashMap<String, Object>();
 
-        if (overrideId != null)
+        if (overrideId != null) {
             returnMap.put("enabledEndpoint", OverrideService.getInstance().getEnabledEndpoint(identifiers.getPathId(), overrideId, ordinal, clientUUID));
+        }
 
         return returnMap;
     }
@@ -504,9 +498,8 @@ public class PathController {
 
     //this adds groups from the editPathname page
     @RequestMapping(value = "/pathname/{profileId}/{pathId}/addGroups", method = RequestMethod.POST)
-    public
     @ResponseBody
-    String addGroups(Model model, @PathVariable int profileId, @PathVariable int pathId, int[] group_ids) {
+    public String addGroups(Model model, @PathVariable int profileId, @PathVariable int pathId, int[] group_ids) {
         for (int i = 0; i < group_ids.length; i++)
             pathOverrideService.AddGroupByNumber(profileId, pathId, group_ids[i]);
         return null;
@@ -514,9 +507,8 @@ public class PathController {
 
     //this removes groups from the editPathname page
     @RequestMapping(value = "/pathname/{profileId}/{pathId}/removeGroup", method = RequestMethod.POST)
-    public
     @ResponseBody
-    String removeGroup(Model model, @PathVariable int profileId, @PathVariable int pathId, int group_id) {
+    public String removeGroup(Model model, @PathVariable int profileId, @PathVariable int pathId, int group_id) {
         pathOverrideService.removeGroupFromPathProfile(group_id, pathId, profileId);
         return null;
     }

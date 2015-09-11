@@ -264,11 +264,14 @@ public class OverrideService {
      * @param pathId ID of path containing override
      * @param clientUUID UUID of client
      */
-    public void increasePriority(int overrideId, int pathId, String clientUUID) {
+    public void increasePriority(int overrideId, int ordinal, int pathId, String clientUUID) {
         logger.info("Increase priority");
 
         int origPriority = -1;
         int newPriority = -1;
+        int origId = 0;
+        int newId = 0;
+
         PreparedStatement statement = null;
         ResultSet results = null;
         try (Connection sqlConnection = sqlService.getConnection()) {
@@ -282,13 +285,19 @@ public class OverrideService {
             statement.setInt(1, pathId);
             statement.setString(2, clientUUID);
             results = statement.executeQuery();
+
+            int ordinalCount = 0;
             while (results.next()) {
                 if (results.getInt(Constants.ENABLED_OVERRIDES_OVERRIDE_ID) == overrideId) {
-                    origPriority = results.getInt(Constants.ENABLED_OVERRIDES_PRIORITY);
-                    break;
-                } else {
-                    newPriority = results.getInt(Constants.ENABLED_OVERRIDES_PRIORITY);
+                    ordinalCount++;
+                    if (ordinalCount == ordinal) {
+                        origPriority = results.getInt(Constants.ENABLED_OVERRIDES_PRIORITY);
+                        origId = results.getInt(Constants.GENERIC_ID);
+                        break;
+                    }
                 }
+                newPriority = results.getInt(Constants.ENABLED_OVERRIDES_PRIORITY);
+                newId = results.getInt(Constants.GENERIC_ID);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -313,28 +322,20 @@ public class OverrideService {
                 statement = sqlConnection.prepareStatement(
                     "UPDATE " + Constants.DB_TABLE_ENABLED_OVERRIDE +
                         " SET " + Constants.ENABLED_OVERRIDES_PRIORITY + "=?" +
-                        " WHERE " + Constants.ENABLED_OVERRIDES_PRIORITY + "=?" +
-                        " AND " + Constants.ENABLED_OVERRIDES_PATH_ID + "=?" +
-                        " AND " + Constants.GENERIC_CLIENT_UUID + "=?"
+                        " WHERE " + Constants.GENERIC_ID + "=?"
                 );
                 statement.setInt(1, origPriority);
-                statement.setInt(2, newPriority);
-                statement.setInt(3, pathId);
-                statement.setString(4, clientUUID);
+                statement.setInt(2, newId);
                 statement.executeUpdate();
                 statement.close();
 
                 statement = sqlConnection.prepareStatement(
                     "UPDATE " + Constants.DB_TABLE_ENABLED_OVERRIDE +
                         " SET " + Constants.ENABLED_OVERRIDES_PRIORITY + "=?" +
-                        " WHERE " + Constants.ENABLED_OVERRIDES_OVERRIDE_ID + "=?" +
-                        " AND " + Constants.ENABLED_OVERRIDES_PATH_ID + "=?" +
-                        " AND " + Constants.GENERIC_CLIENT_UUID + "=?"
+                        " WHERE " + Constants.GENERIC_ID + "=?"
                 );
                 statement.setInt(1, newPriority);
-                statement.setInt(2, overrideId);
-                statement.setInt(3, pathId);
-                statement.setString(4, clientUUID);
+                statement.setInt(2, origId);
                 statement.executeUpdate();
             }
         } catch (Exception e) {
@@ -355,10 +356,14 @@ public class OverrideService {
      * @param pathId ID of path containing override
      * @param clientUUID ID of client
      */
-    public void decreasePriority(int overrideId, int pathId, String clientUUID) {
+    public void decreasePriority(int overrideId, int ordinal, int pathId, String clientUUID) {
         logger.info("Decrease priority");
         int origPriority = -1;
         int newPriority = -1;
+
+        int origId = 0;
+        int newId = 0;
+
         PreparedStatement queryStatement = null;
         ResultSet results = null;
         try (Connection sqlConnection = sqlService.getConnection()) {
@@ -372,17 +377,24 @@ public class OverrideService {
             queryStatement.setString(2, clientUUID);
             results = queryStatement.executeQuery();
             boolean gotOrig = false;
+            int ordinalCount = 0;
+
             while (results.next()) {
                 if (results.getInt(Constants.ENABLED_OVERRIDES_OVERRIDE_ID) == overrideId) {
-                    origPriority = results.getInt(Constants.ENABLED_OVERRIDES_PRIORITY);
-                    gotOrig = true;
-                } else {
-                    newPriority = results.getInt(Constants.ENABLED_OVERRIDES_PRIORITY);
-
-                    // break out because this is the one after the one we want to move down
-                    if (gotOrig) {
-                        break;
+                    ordinalCount++;
+                    if (ordinalCount == ordinal) {
+                        origPriority = results.getInt(Constants.ENABLED_OVERRIDES_PRIORITY);
+                        origId = results.getInt(Constants.GENERIC_ID);
+                        gotOrig = true;
+                        continue;
                     }
+                }
+                newPriority = results.getInt(Constants.ENABLED_OVERRIDES_PRIORITY);
+                newId = results.getInt(Constants.GENERIC_ID);
+
+                // break out because this is the one after the one we want to move down
+                if (gotOrig) {
+                    break;
                 }
             }
         } catch (Exception e) {
@@ -409,28 +421,20 @@ public class OverrideService {
                 statement = sqlConnection.prepareStatement(
                     "UPDATE " + Constants.DB_TABLE_ENABLED_OVERRIDE +
                         " SET " + Constants.ENABLED_OVERRIDES_PRIORITY + "=?" +
-                        " WHERE " + Constants.ENABLED_OVERRIDES_PRIORITY + "=?" +
-                        " AND " + Constants.ENABLED_OVERRIDES_PATH_ID + "=?" +
-                        " AND " + Constants.GENERIC_CLIENT_UUID + "=?"
+                        " WHERE " + Constants.GENERIC_ID + "=?"
                 );
                 statement.setInt(1, origPriority);
-                statement.setInt(2, newPriority);
-                statement.setInt(3, pathId);
-                statement.setString(4, clientUUID);
+                statement.setInt(2, newId);
                 statement.executeUpdate();
                 statement.close();
 
                 statement = sqlConnection.prepareStatement(
                     "UPDATE " + Constants.DB_TABLE_ENABLED_OVERRIDE +
                         " SET " + Constants.ENABLED_OVERRIDES_PRIORITY + "=?" +
-                        " WHERE " + Constants.ENABLED_OVERRIDES_OVERRIDE_ID + "=?" +
-                        " AND " + Constants.ENABLED_OVERRIDES_PATH_ID + "=?" +
-                        " AND " + Constants.GENERIC_CLIENT_UUID + "=?"
+                        " WHERE " + Constants.GENERIC_ID + "=?"
                 );
                 statement.setInt(1, newPriority);
-                statement.setInt(2, overrideId);
-                statement.setInt(3, pathId);
-                statement.setString(4, clientUUID);
+                statement.setInt(2, origId);
                 statement.executeUpdate();
             }
         } catch (Exception e) {
