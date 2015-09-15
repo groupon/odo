@@ -22,6 +22,7 @@ import com.groupon.odo.client.models.ServerRedirect;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -34,7 +35,6 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.params.HttpConnectionParams;
-import org.apache.http.protocol.HTTP;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -1419,8 +1419,8 @@ public class Client {
         String fullUrl = BASE_URL + apiUrl;
         HttpPost post = new HttpPost(fullUrl);
 
-        post.setHeader("Content-Type", "application/x-www-form-urlencoded");
-        ArrayList<BasicNameValuePair> dataList = new ArrayList<BasicNameValuePair>();
+        post.setHeader("Content-Type", "application/x-www-form-urlencoded;charset=UTF-8");
+        ArrayList<BasicNameValuePair> dataList = new ArrayList<>();
         if (data != null) {
             dataList.addAll(Arrays.asList(data));
         }
@@ -1432,8 +1432,7 @@ public class Client {
         }
 
         if (dataList.size() > 0) {
-            UrlEncodedFormEntity urlEncodedFormEntity = new UrlEncodedFormEntity(dataList);
-            urlEncodedFormEntity.setContentEncoding(HTTP.UTF_8);
+            UrlEncodedFormEntity urlEncodedFormEntity = new UrlEncodedFormEntity(dataList, StandardCharsets.UTF_8.name());
             post.setEntity(urlEncodedFormEntity);
         }
 
