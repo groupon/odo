@@ -651,7 +651,7 @@ public class OverrideService {
                 " WHERE " + Constants.ENABLED_OVERRIDES_PATH_ID + "=? " +
                 " AND " + Constants.ENABLED_OVERRIDES_OVERRIDE_ID + "=? " +
                 " AND " + Constants.GENERIC_CLIENT_UUID + "=? " +
-                " LIMIT 1 OFFSET ?";
+                "ORDER BY " + Constants.PRIORITY + " LIMIT 1 OFFSET ?";
             statement = sqlConnection.prepareStatement(queryString);
             statement.setInt(1, pathId);
             statement.setInt(2, overrideId);
