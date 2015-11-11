@@ -28,6 +28,7 @@ public class Constants {
     public static final String SYS_HTTP_PORT = "ODO_HTTP_PORT";
     public static final String SYS_HTTPS_PORT = "ODO_HTTPS_PORT";
     public static final String SYS_LOGGING_DISABLED = "ODO_DISABLE_HISTORY";
+    public static final String SYS_DATABASE_POOL_SIZE = "ODO_DB_POOL_SIZE";
     public static final int DEFAULT_API_PORT = 8090;
     public static final int DEFAULT_DB_PORT = 9092;
     public static final int DEFAULT_FWD_PORT = 9090;

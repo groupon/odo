@@ -106,6 +106,13 @@ public class SQLService {
             _instance = new SQLService();
             _instance.startServer();
 
+            // default pool size is 20
+            // can be overriden by env variable
+            int dbPool = 20;
+            if (Utils.getEnvironmentOptionValue(Constants.SYS_DATABASE_POOL_SIZE) != null) {
+                dbPool = Integer.valueOf(Utils.getEnvironmentOptionValue(Constants.SYS_DATABASE_POOL_SIZE));
+            }
+
             // initialize connection pool
             PoolProperties p = new PoolProperties();
             String connectString = "jdbc:h2:tcp://" + _instance.databaseHost + ":" + String.valueOf(_instance.port) + "/" +
@@ -120,7 +127,7 @@ public class SQLService {
             p.setTestOnReturn(false);
             p.setValidationInterval(5000);
             p.setTimeBetweenEvictionRunsMillis(30000);
-            p.setMaxActive(20);
+            p.setMaxActive(dbPool);
             p.setInitialSize(5);
             p.setMaxWait(30000);
             p.setRemoveAbandonedTimeout(60);
