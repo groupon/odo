@@ -627,6 +627,9 @@ public class Proxy extends HttpServlet {
         for (Profile tryProfile : ServerRedirectService.getInstance().getProfilesForServerName(origHostName)) {
             logger.info("Trying {}", tryProfile.getName());
             Client tryClient = ClientService.getInstance().findClient(history.getClientUUID(), tryProfile.getId());
+            if (tryClient == null) {
+                continue;
+            }
 
             List<EndpointOverride> trySelectedRequestPaths = PathOverrideService.getInstance().getSelectedPaths(Constants.OVERRIDE_TYPE_REQUEST, tryClient,
                                                                                                                 tryProfile, httpServletRequest.getRequestURL() + queryString, requestType, false);
