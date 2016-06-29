@@ -387,6 +387,7 @@ public class HttpUtilities {
             httpServletRequest.getContentType().contains(STRING_CONTENT_TYPE_FORM_URLENCODED)
             && httpServletRequest.getHeader("content-encoding") == null) {
             requestByteArray = IOUtils.toByteArray(body);
+            history.setRawPostData(requestByteArray);
 
             // this is binary.. just return it as is
             requestEntity = new ByteArrayRequestEntity(requestByteArray);
@@ -440,6 +441,7 @@ public class HttpUtilities {
              */
             MessagePack msgpack = new MessagePack();
             requestByteArray = IOUtils.toByteArray(body);
+            history.setRawPostData(requestByteArray);
             requestEntity = new ByteArrayRequestEntity(requestByteArray);
             ByteArrayInputStream byteArrayIS = new ByteArrayInputStream(requestByteArray);
             Unpacker unpacker = msgpack.createUnpacker(byteArrayIS);
@@ -453,6 +455,7 @@ public class HttpUtilities {
             requestBody = new StringBuilder(Proxy.processPostDataString(requestBody.toString()).queryString);
         } else {
             requestByteArray = IOUtils.toByteArray(body);
+            history.setRawPostData(requestByteArray);
 
             // this is binary.. just return it as is
             requestEntity = new ByteArrayRequestEntity(requestByteArray);
