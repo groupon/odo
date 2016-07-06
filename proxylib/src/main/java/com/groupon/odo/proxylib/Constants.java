@@ -129,7 +129,7 @@ public class Constants {
     public static final String HISTORY_REQUEST_BODY_DECODED = "request_body_decoded";
     public static final String HISTORY_RESPONSE_BODY_DECODED = "response_body_decoded";
     public static final String HISTORY_EXTRA_INFO = "extraInfo";
-    public static final String HISTORY_RAW_POST_DATA = "raw_Post_Data";
+    public static final String HISTORY_RAW_POST_DATA = "raw_post_data";
 
     // Client profile constants
     public static final String PROFILE_CLIENT_DEFAULT_ID = "-1";
