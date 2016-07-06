@@ -175,8 +175,8 @@ public class HistoryService {
                                                            Constants.HISTORY_ORIGINAL_RESPONSE_CONTENT_TYPE + "," + Constants.HISTORY_ORIGINAL_RESPONSE_DATA + "," +
                                                            Constants.HISTORY_MODIFIED + "," + Constants.HISTORY_REQUEST_SENT + "," +
                                                            Constants.HISTORY_REQUEST_BODY_DECODED + "," + Constants.HISTORY_RESPONSE_BODY_DECODED + "," +
-                                                           Constants.HISTORY_EXTRA_INFO + ")" +
-                                                           " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);");
+                                                           Constants.HISTORY_EXTRA_INFO + "," + Constants.HISTORY_RAW_POST_DATA + ")" +
+                                                           " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);");
             statement.setInt(1, history.getProfileId());
             statement.setString(2, history.getClientUUID());
             statement.setString(3, history.getCreatedAt());
@@ -202,6 +202,7 @@ public class HistoryService {
             statement.setBoolean(23, history.getRequestBodyDecoded());
             statement.setBoolean(24, history.getResponseBodyDecoded());
             statement.setString(25, history.getExtraInfoString());
+            statement.setBytes(26, history.getRawPostData());
             statement.executeUpdate();
 
             // cull history
@@ -244,6 +245,7 @@ public class HistoryService {
         history.setRequestBodyDecoded(result.getBoolean(Constants.HISTORY_REQUEST_BODY_DECODED));
         history.setResponseBodyDecoded(result.getBoolean(Constants.HISTORY_RESPONSE_BODY_DECODED));
         history.setExtraInfoFromString(result.getString(Constants.HISTORY_EXTRA_INFO));
+        history.setRawPostData(result.getBytes(Constants.HISTORY_RAW_POST_DATA));
 
         if (withResponseData) {
             history.setResponseData(result.getString(Constants.HISTORY_RESPONSE_DATA));

@@ -59,6 +59,7 @@ public class History {
     private boolean requestBodyDecoded = false;
     private boolean responseBodyDecoded = false;
     private String extraInfo = "{}";
+    private byte [] rawPostData = new byte [0];
 
     public History() {
     }
@@ -72,7 +73,7 @@ public class History {
                    String originalRequestHeaders, String originalResponseCode,
                    String originalResponseHeaders, String originalResponseContentType,
                    String originalResponseData, boolean modified, boolean requestSent,
-                   boolean requestBodyDecoded, boolean responseBodyDecoded, String extraInfo) {
+                   boolean requestBodyDecoded, boolean responseBodyDecoded, String extraInfo, byte [] rawPostData) {
         super();
         this.profileId = profileId;
         this.clientUUID = clientUUID;
@@ -101,6 +102,7 @@ public class History {
         this.requestBodyDecoded = requestBodyDecoded;
         this.responseBodyDecoded = responseBodyDecoded;
         this.extraInfo = extraInfo;
+        this.rawPostData = rawPostData;
     }
 
     public void setId(int id) {
@@ -412,6 +414,23 @@ public class History {
 
         // Turn back into string
         extraInfo = getJSONFromMap(infoMap);
+    }
+
+    /**
+     *
+     * @return Raw post data (not decompressed)
+     */
+    public byte [] getRawPostData() {
+        return rawPostData;
+    }
+
+    /**
+     * Set the raw post data (byte array)
+     *
+     * @param rawPostData Post data in byte array
+     */
+    public void setRawPostData(byte [] rawPostData) {
+        this.rawPostData = rawPostData;
     }
 
     /**
