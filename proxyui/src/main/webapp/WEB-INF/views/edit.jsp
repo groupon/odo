@@ -1629,10 +1629,18 @@
                     args[x] = value;
                 }
 
+                var formData = new FormData();
+                formData.append("ordinal", ordinal);
+                formData.append("clientUUID", clientUUID);
+                formData.append("arguments[]", args);
+
                 $.ajax({
                     type:"POST",
                     url: '<c:url value="/api/path/"/>' + pathId + '/' + methodId,
-                    data: ({'arguments[]' : args, ordinal: ordinal, clientUUID: clientUUID}),
+                    data: formData,
+                    cache: false,
+                    processData: false,
+                    contentType: false,
                     async: false,
                     success: function(){
 
