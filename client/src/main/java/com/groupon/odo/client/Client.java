@@ -21,20 +21,26 @@ import com.groupon.odo.client.models.ServerGroup;
 import com.groupon.odo.client.models.ServerRedirect;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.io.File;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.mime.HttpMultipartMode;
+import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.params.HttpConnectionParams;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -56,6 +62,7 @@ public class Client {
     protected static String HISTORY = "history/";
     protected static String BASE_SERVER = "edit/server";
     protected static String BASE_SERVERGROUP = "servergroup";
+    protected static String BASE_BACKUP_PROFILE = "backup/profile";
 
     protected String _profileName = null;
     protected int _profileId;
@@ -1304,6 +1311,37 @@ public class Client {
         return serverGroup;
     }
 
+    public boolean uploadConfigurationAndProfile(String fileName, String odoImport) {
+        File file = new File(fileName);
+        MultipartEntityBuilder multipartEntityBuilder = MultipartEntityBuilder.create();
+        FileBody fileBody = new FileBody(file, ContentType.MULTIPART_FORM_DATA);
+        multipartEntityBuilder.setMode(HttpMultipartMode.BROWSER_COMPATIBLE);
+        multipartEntityBuilder.addPart("fileData", fileBody);
+        multipartEntityBuilder.addTextBody("odoImport", odoImport);
+        try {
+            JSONObject response = new JSONObject(doMultipartPost(BASE_BACKUP_PROFILE + "/" + uriEncode(this._profileName) + "/" + this._clientId, multipartEntityBuilder));
+            if (response.length() == 0) {
+                return true;
+            } else {
+                return false;
+            }
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public JSONObject exportConfigurationAndProfile(String oldExport) {
+        try {
+            BasicNameValuePair[] params = {
+                new BasicNameValuePair("oldExport", oldExport)
+            };
+            String url = BASE_BACKUP_PROFILE + "/" + uriEncode(this._profileName) + "/" + this._clientId;
+            return new JSONObject(doGet(url, new BasicNameValuePair[]{}));
+        } catch (Exception e) {
+            return new JSONObject();
+        }
+    }
+
     protected int getServerGroupId(String groupName) {
         List<ServerGroup> groups = getServerGroups();
         for (ServerGroup group : groups) {
@@ -1435,6 +1473,30 @@ public class Client {
             UrlEncodedFormEntity urlEncodedFormEntity = new UrlEncodedFormEntity(dataList, StandardCharsets.UTF_8.name());
             post.setEntity(urlEncodedFormEntity);
         }
+
+        HttpClient client = new DefaultHttpClient();
+        HttpConnectionParams.setConnectionTimeout(client.getParams(), _timeout);
+        HttpConnectionParams.setSoTimeout(client.getParams(), _timeout);
+
+        HttpResponse response = client.execute(post);
+        BufferedReader rd = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
+        String accumulator = "";
+        String line = "";
+        while ((line = rd.readLine()) != null) {
+            accumulator += line;
+            accumulator += "\n";
+        }
+        return accumulator;
+    }
+
+    protected String doMultipartPost(String apiUrl, MultipartEntityBuilder multipartEntityBuilder) throws Exception {
+        String boundary = "23ljkw4ljefw093ljk";
+        String fullUrl = BASE_URL + apiUrl;
+        HttpPost post = new HttpPost(fullUrl);
+
+        post.setHeader("Content-Type", "multipart/form-data; boundary=" + boundary);
+        multipartEntityBuilder.setBoundary(boundary);
+        post.setEntity(multipartEntityBuilder.build());
 
         HttpClient client = new DefaultHttpClient();
         HttpConnectionParams.setConnectionTimeout(client.getParams(), _timeout);
