@@ -1311,6 +1311,13 @@ public class Client {
         return serverGroup;
     }
 
+    /**
+     * Upload file and set odo overrides and configuration of odo
+     *
+     * @param fileName File containing configuration
+     * @param odoImport Import odo configuration in addition to overrides
+     * @return If upload was successful
+     */
     public boolean uploadConfigurationAndProfile(String fileName, String odoImport) {
         File file = new File(fileName);
         MultipartEntityBuilder multipartEntityBuilder = MultipartEntityBuilder.create();
@@ -1330,6 +1337,12 @@ public class Client {
         }
     }
 
+    /**
+     * Export the odo overrides setup and odo configuration
+     *
+     * @param oldExport Whether this is a backup from scratch or backing up because user will upload after (matches API)
+     * @return The odo configuration and overrides in JSON format, can be written to a file after
+     */
     public JSONObject exportConfigurationAndProfile(String oldExport) {
         try {
             BasicNameValuePair[] params = {
