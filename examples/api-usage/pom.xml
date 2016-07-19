@@ -5,7 +5,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.groupon.odo</groupId>
   <artifactId>api-usage</artifactId>
-  <version>1.0.0-beta.10</version>
+  <version>1.0.0-beta.11-SNAPSHOT</version>
   <packaging>jar</packaging>
   <properties>
     <org.springframework-version>4.0.9.RELEASE</org.springframework-version>
@@ -17,7 +17,7 @@
   <parent>
     <artifactId>examples</artifactId>
     <groupId>com.groupon.odo</groupId>
-    <version>1.0.0-beta.10</version>
+    <version>1.0.0-beta.11-SNAPSHOT</version>
   </parent>
 
   <scm>
@@ -30,12 +30,12 @@
     <dependency>
       <groupId>com.groupon.odo</groupId>
       <artifactId>proxylib</artifactId>
-      <version>1.0.0-beta.10</version>
+      <version>1.0.0-beta.11-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>com.groupon.odo</groupId>
       <artifactId>client</artifactId>
-      <version>1.0.0-beta.10</version>
+      <version>1.0.0-beta.11-SNAPSHOT</version>
     </dependency>
   </dependencies>
   <build>
