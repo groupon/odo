@@ -3,11 +3,11 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.groupon.odo</groupId>
   <artifactId>HostsEdit</artifactId>
-  <version>1.0.0-beta.10-SNAPSHOT</version>
+  <version>1.0.0-beta.10</version>
   <parent>
     <groupId>com.groupon.odo</groupId>
     <artifactId>proxyaggregator</artifactId>
-    <version>1.0.0-beta.10-SNAPSHOT</version>
+    <version>1.0.0-beta.10</version>
   </parent>
 
   <scm>
@@ -25,7 +25,7 @@
     <dependency>
       <groupId>com.groupon.odo</groupId>
       <artifactId>proxylib</artifactId>
-      <version>1.0.0-beta.10-SNAPSHOT</version>
+      <version>1.0.0-beta.10</version>
     </dependency>
   </dependencies>
 
