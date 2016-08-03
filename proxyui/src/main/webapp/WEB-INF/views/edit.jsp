@@ -1632,7 +1632,9 @@
                 var formData = new FormData();
                 formData.append("ordinal", ordinal);
                 formData.append("clientUUID", clientUUID);
-                formData.append("arguments[]", args);
+                for (var i = 0; i < args.length; i++) {
+                    formData.append('arguments[]', args[i]);
+                }
 
                 $.ajax({
                     type:"POST",
