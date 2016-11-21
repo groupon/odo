@@ -26,6 +26,7 @@ public class EnabledEndpoint {
     private Object[] arguments = new Object[0];
     private com.groupon.odo.proxylib.models.Method method = null;
     private int repeatNumber = -1;
+    private String responseCode = "";
 
     public EnabledEndpoint() {
     }
@@ -87,6 +88,10 @@ public class EnabledEndpoint {
     public void setRepeatNumber(int repeatNumber) {
         this.repeatNumber = repeatNumber;
     }
+
+    public String getResponseCode() { return responseCode; }
+
+    public void setResponseCode(String responseCode) { this.responseCode = responseCode; }
 
     /**
      * This decrements repeat number until it reaches 0

@@ -381,6 +381,7 @@ public class PathController {
      * @param clientUUID
      * @param arguments
      * @param repeatNumber
+     * @param responseCode
      * @return
      * @throws Exception
      */
@@ -393,7 +394,8 @@ public class PathController {
                                                                 @RequestParam(required = false) String profileIdentifier,
                                                                 @RequestParam(value = "clientUUID", defaultValue = Constants.PROFILE_CLIENT_DEFAULT_ID) String clientUUID,
                                                                 @RequestParam(value = "arguments[]", required = false) Object[] arguments,
-                                                                @RequestParam(value = "repeatNumber", required = false) Integer repeatNumber) throws Exception {
+                                                                @RequestParam(value = "repeatNumber", required = false) Integer repeatNumber,
+                                                                @RequestParam(value = "responseCode", required = false) String responseCode) throws Exception {
         Identifiers identifiers = ControllerUtils.convertProfileAndPathIdentifier(profileIdentifier, pathIdentifier);
 
         // need to get overrideId for identifiers..
@@ -409,6 +411,11 @@ public class PathController {
         // set repeat number
         if (repeatNumber != null) {
             OverrideService.getInstance().updateRepeatNumber(overrideId, identifiers.getPathId(), ordinal, repeatNumber, clientUUID);
+        }
+
+        // set response code
+        if (responseCode != null) {
+            OverrideService.getInstance().updateResponseCode(overrideId, identifiers.getPathId(), ordinal, responseCode, clientUUID);
         }
 
         HashMap<String, Object> returnMap = new HashMap<String, Object>();

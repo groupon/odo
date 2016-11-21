@@ -198,6 +198,7 @@ public class Constants {
     public static final String ENABLED_OVERRIDES_PRIORITY = "priority";
     public static final String ENABLED_OVERRIDES_ARGUMENTS = "arguments";
     public static final String ENABLED_OVERRIDES_REPEAT_NUMBER = "repeat_number";
+    public static final String ENABLED_OVERRIDES_RESPONSE_CODE = "response_code";
 
     // script_db
     public static final String SCRIPT_NAME = "name";
@@ -218,5 +219,6 @@ public class Constants {
     public static final String CLASS_NAME = "className";
     public static final String OVERRIDE_ID = "overrideId";
     public static final String REPEAT_NUMBER = "repeatNumber";
+    public static final String RESPONSE_CODE = "responseCode";
     public static final String ARGUMENTS = "arguments";
 }
