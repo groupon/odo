@@ -1190,6 +1190,7 @@
                             $("#requestType").val(data.requestType);
                             $("#postBodyFilter").val(data.bodyFilter);
                             $("#pathRepeatCount").attr("value", data.repeatNumber);
+                            $("#pathResponseCode").attr("value", data.responseCode);
                             pathRequestTypeChanged();
                             $("#title").html(data.pathName);
 
@@ -1540,6 +1541,7 @@
                             // special case for custom responses
                             if (methodId == -1) {
                                 formData += '<dd><textarea id="' + type + '_args_' + x + '" ROWS=10 style="width:100%;">' + '</textarea></dd><br>';
+                                formData += '<dt>Response Code</dt> <dd><input id="setResponseCode" type="text" value="' + data.enabledEndpoint.responseCode + '"/></dd><br>';
                             } else {
                                 formData += '<dd>(' + el + ')<input id="' + type + '_args_' + x + '" style="width:60%;" type="text" value=""/></dd>';
                             }
@@ -1577,6 +1579,7 @@
                 var requestType = $("#requestType").val();
                 var bodyFilter = $("#postBodyFilter").val();
                 var repeat = $("#pathRepeatCount").attr("value");
+                var code = $("#pathResponseCode").attr("value");
 
                 var groupArray = $("#groupTable").jqGrid("getGridParam", "selarrrow");
 
@@ -1588,7 +1591,7 @@
                     type:"POST",
                     async: false,
                     url: '<c:url value="/api/path/"/>' + currentPathId,
-                    data: ({clientUUID: "${clientUUID}", pathName: pathName, path: path, bodyFilter: bodyFilter, contentType: contentType, repeatNumber: repeat, requestType: requestType, global: global, 'groups[]': groupArray}),
+                    data: ({clientUUID: "${clientUUID}", pathName: pathName, path: path, bodyFilter: bodyFilter, contentType: contentType, repeatNumber: repeat, requestType: requestType, global: global, responseCode: code, 'groups[]': groupArray}),
                     success: function() {
                         $('#applyPathChangeSuccessDiv').css('display', '');
                     },
@@ -1601,18 +1604,20 @@
 
             function submitOverrideData(type, pathId, methodId, ordinal, numArgs) {
                 submitEndPointArgs(type, pathId, methodId, ordinal, numArgs);
-                submitOverrideRepeatCount(type, pathId, methodId, ordinal);
+                submitOverrideRepeatCountAndResponseCode(type, pathId, methodId, ordinal);
                 loadPath(currentPathId);
             }
 
-            function submitOverrideRepeatCount(type, pathId, methodId, ordinal) {
-                var selector = "#setRepeatNumber";
-                var value = $(selector).val();
+            function submitOverrideRepeatCountAndResponseCode(type, pathId, methodId, ordinal) {
+                var repeatNumberSelector = "#setRepeatNumber";
+                var repeatNumberValue = $(repeatNumberSelector).val();
+                var responseCodeSelector = "#setResponseCode";
+                var responseCodeValue = $(responseCodeSelector).val();
 
                 $.ajax({
                     type:"POST",
                     url: '<c:url value="/api/path/"/>' + pathId + '/' + methodId,
-                    data: ({repeatNumber: value, ordinal: ordinal, clientUUID: clientUUID}),
+                    data: ({repeatNumber: repeatNumberValue, responseCode: responseCodeValue, ordinal: ordinal, clientUUID: clientUUID}),
                     async: false,
                     success: function(){
                         populateEnabledResponseOverrides();

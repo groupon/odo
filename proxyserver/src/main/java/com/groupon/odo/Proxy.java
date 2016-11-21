@@ -1188,6 +1188,10 @@ public class Proxy extends HttpServlet {
                 if (endpoint.getOverrideId() == Constants.PLUGIN_RESPONSE_OVERRIDE_CUSTOM) {
                     // return custom response
                     String response = endpoint.getArguments()[0].toString();
+                    String responseCode = endpoint.getResponseCode();
+                    if (responseCode != null && !responseCode.isEmpty()) {
+                        httpServletResponse.setStatus(Integer.parseInt(responseCode));
+                    }
                     httpServletResponse.setContentType(selectedPath.getContentType());
                     requestInfo.usedCustomResponse = true;
                     requestInfo.modified = true;

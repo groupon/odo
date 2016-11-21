@@ -667,6 +667,32 @@ public class Client {
     }
 
     /**
+     * Set the response code of an override at ordinal index
+     *
+     * @param pathName Path name
+     * @param methodName Fully qualified method name
+     * @param ordinal 1-based index of the override within the overrides of type methodName
+     * @param responseCode new response code to set
+     * @return true if success, false otherwise
+     */
+    public boolean setOverrideResponseCode(String pathName, String methodName, Integer ordinal, String responseCode) {
+        try {
+            String methodId = getOverrideIdForMethodName(methodName).toString();
+            BasicNameValuePair[] params = {
+                    new BasicNameValuePair("profileIdentifier", this._profileName),
+                    new BasicNameValuePair("ordinal", ordinal.toString()),
+                    new BasicNameValuePair("responseCode", responseCode)
+            };
+
+            JSONObject response = new JSONObject(doPost(BASE_PATH + uriEncode(pathName) + "/" + methodId, params));
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    /**
      * Set the method arguments for an enabled method override
      *
      * @param pathName Path name
