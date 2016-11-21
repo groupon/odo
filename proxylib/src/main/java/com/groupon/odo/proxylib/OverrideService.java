@@ -626,6 +626,27 @@ public class OverrideService {
     }
 
     /**
+     * Get the ordinal value for the last of a particular override on a path
+     *
+     * @param overrideId Id of the override to check
+     * @param pathId Path the override is on
+     * @param clientUUID UUID of the client
+     * @param filters If supplied, only endpoints ending with values in filters are returned
+     * @return The integer ordinal
+     * @throws Exception
+     */
+    public int getCurrentMethodOrdinal(int overrideId, int pathId, String clientUUID, String[] filters) throws Exception {
+        int currentOrdinal = 0;
+        List<EnabledEndpoint> enabledEndpoints = getEnabledEndpoints(pathId, clientUUID, filters);
+        for (EnabledEndpoint enabledEndpoint : enabledEndpoints) {
+            if (enabledEndpoint.getOverrideId() == overrideId) {
+                currentOrdinal++;
+            }
+        }
+        return currentOrdinal;
+    }
+
+    /**
      * @param pathId ID of path
      * @param overrideId ID of override
      * @param ordinal Index of the enabled override to get if multiple of the same override are enabled(default is 1)
