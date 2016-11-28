@@ -540,9 +540,9 @@ public class BackupService {
 
                         // Enable override and set repeat number and arguments
                         overrideService.enableOverride(overrideId, pathId, clientUUID);
-                        overrideService.updateRepeatNumber(overrideId, pathId, override.getInt(Constants.PRIORITY),
-                                                           override.getInt(Constants.REPEAT_NUMBER), clientUUID);
                         int overrideOrdinal = overrideService.getCurrentMethodOrdinal(overrideId, pathId, clientUUID, null);
+                        overrideService.updateRepeatNumber(overrideId, pathId, overrideOrdinal, override.getInt(Constants.REPEAT_NUMBER), clientUUID);
+                        overrideService.updateResponseCode(overrideId, pathId, overrideOrdinal, override.getString(Constants.RESPONSE_CODE), clientUUID);
                         overrideService.updateArguments(overrideId, pathId, overrideOrdinal, override.getString(Constants.ARGUMENTS), clientUUID);
                     } catch (Exception e) {
                         errors.put(formErrorJson("Override Error", "Cannot add/update override: '" + overrideNameForError + "' - Check Override Exists"));

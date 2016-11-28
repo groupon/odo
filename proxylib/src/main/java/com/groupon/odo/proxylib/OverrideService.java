@@ -100,8 +100,9 @@ public class OverrideService {
                 "INSERT INTO " + Constants.DB_TABLE_ENABLED_OVERRIDE +
                     "(" + Constants.GENERIC_PROFILE_ID + "," + Constants.GENERIC_CLIENT_UUID + "," +
                     Constants.REQUEST_RESPONSE_PATH_ID + "," + Constants.ENABLED_OVERRIDES_OVERRIDE_ID + "," +
-                    Constants.ENABLED_OVERRIDES_PRIORITY + "," + Constants.ENABLED_OVERRIDES_ARGUMENTS + ")" +
-                    " VALUES (?, ?, ?, ?, ?, ?);"
+                    Constants.ENABLED_OVERRIDES_PRIORITY + "," + Constants.ENABLED_OVERRIDES_ARGUMENTS +  "," +
+                    Constants.ENABLED_OVERRIDES_RESPONSE_CODE + ")" +
+                    " VALUES (?, ?, ?, ?, ?, ?, ?);"
             );
             statement.setInt(1, profileId);
             statement.setString(2, clientUUID);
@@ -121,6 +122,7 @@ public class OverrideService {
                 }
                 statement.setString(6, serializer.serialize(argDefaults));
             }
+            statement.setString(7,"200");
             statement.executeUpdate();
         } catch (Exception e) {
             e.printStackTrace();
@@ -212,6 +214,58 @@ public class OverrideService {
                 " WHERE " + Constants.GENERIC_ID + " = ?";
             statement = sqlConnection.prepareStatement(queryString);
             statement.setInt(1, repeatNumber);
+            statement.setInt(2, id);
+            statement.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (statement != null) {
+                    statement.close();
+                }
+            } catch (Exception e) {
+            }
+        }
+    }
+
+    /**
+     * Update the response code for a given enabled override
+     *
+     * @param overrideId - override ID to update
+     * @param pathId - path ID to update
+     * @param ordinal - can be null, Index of the enabled override to edit if multiple of the same are enabled
+     * @param responseCode - response code for the given response
+     * @param clientUUID - clientUUID
+     */
+    public void updateResponseCode(int overrideId, int pathId, Integer ordinal, String responseCode, String clientUUID) {
+        if (ordinal == null) {
+            ordinal = 1;
+        }
+
+        try {
+            // get ID of the ordinal
+            int enabledId = getEnabledEndpoint(pathId, overrideId, ordinal, clientUUID).getId();
+            updateResponseCode(enabledId, responseCode);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Update the response code for a given enabled override
+     *
+     * @param id enabled override ID to update
+     * @param responseCode updated value of responseCode
+     */
+    public void updateResponseCode(int id, String responseCode) {
+        PreparedStatement statement = null;
+        try (Connection sqlConnection = sqlService.getConnection()) {
+
+            String queryString = "UPDATE " + Constants.DB_TABLE_ENABLED_OVERRIDE +
+                    " SET " + Constants.ENABLED_OVERRIDES_RESPONSE_CODE + "= ? " +
+                    " WHERE " + Constants.GENERIC_ID + " = ?";
+            statement = sqlConnection.prepareStatement(queryString);
+            statement.setString(1, responseCode);
             statement.setInt(2, id);
             statement.executeUpdate();
         } catch (Exception e) {
@@ -780,6 +834,7 @@ public class OverrideService {
         endpoint.setOverrideId(result.getInt(Constants.ENABLED_OVERRIDES_OVERRIDE_ID));
         endpoint.setPriority(result.getInt(Constants.ENABLED_OVERRIDES_PRIORITY));
         endpoint.setRepeatNumber(result.getInt(Constants.ENABLED_OVERRIDES_REPEAT_NUMBER));
+        endpoint.setResponseCode(result.getString(Constants.ENABLED_OVERRIDES_RESPONSE_CODE));
 
         ArrayList<Object> args = new ArrayList<Object>();
         try {
