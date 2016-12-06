@@ -38,7 +38,7 @@ public class Constants {
     public static final String ODO_INTERNAL_WEBAPP_URL = "http://odo";
 
     // DB constants
-    public static final int DB_CURRENT_SCHEMA_VERSION = 8;
+    public static final int DB_CURRENT_SCHEMA_VERSION = 9;
     public static final String DB_TABLE_CONFIGURATION = "configuration";
     public static final String DB_TABLE_HISTORY = "history";
     public static final String DB_TABLE_OVERRIDE = "override_db";
