@@ -20,6 +20,7 @@ import com.groupon.odo.proxylib.Constants;
 import com.groupon.odo.proxylib.HistoryService;
 import com.groupon.odo.proxylib.SQLService;
 import com.groupon.odo.proxylib.Utils;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -65,6 +66,7 @@ import org.springframework.web.filter.HiddenHttpMethodFilter;
 @PropertySources(value = {@PropertySource("classpath:application.properties")})
 public class HomeController {
     private static final Logger logger = LoggerFactory.getLogger(HomeController.class);
+    public File baseDirectory;
 
     private RelaxedPropertyResolver propertyResolver;
 
@@ -110,6 +112,8 @@ public class HomeController {
         factory.setPort(apiPort);
         factory.setSessionTimeout(10, TimeUnit.MINUTES);
         factory.setContextPath("/testproxy");
+        baseDirectory = new File("./tmp");
+        factory.setBaseDirectory(baseDirectory);
         List<TomcatConnectorCustomizer> cs = new ArrayList();
         cs.add(tomcatConnectorCustomizers());
         factory.setTomcatConnectorCustomizers(cs);
