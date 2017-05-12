@@ -50,17 +50,21 @@ Odo UI is available at http://localhost:8090/testproxy
 #### UI Quickstart: Setting up a Profile
 If you are starting from a fresh install, there are a few preliminary steps before actually configuring an override.
 
-1. **Create a profile.** When you navigate to `http://localhost:8090/testproxy` you are presented with the profile list. Initially it will be empty. To create a new Profile, click the '+' icon below the list and give the new profile a name in the dialog that appears. Select the newly-created profile by clicking on the '>' button to the right of the the profile name. Finally, click the "Activate Profile" button at the top of the profile page.
+1. **Create a profile.** When you navigate to `http://localhost:8090/testproxy` you are presented with the profile list. Initially it will be empty. To create a new Profile, click the '+' icon below the list and give the new profile a name in the dialog that appears. Select the newly-created profile. Finally, click the "Activate Profile" button at the top of the profile page.
+
 2. **Add an API server.** An API server is needed to determine which requests to handle. When a request enters Odo, the request hostname is compared to the API Servers configured. If the request hostname is not in Odo's configured hostnames, Odo will simply pass the request through without processing it.
 
-  To add a host, click the '+' button under the "API Servers" list and fill in the Source Hostname and Destination Hostname/IP. For a live server, the source would be the actual hostname (domain.com) and the destination will be the actual IP address of the host. For this example, add Source Hostname "localhost" and Destination "blackhole". When a custom response is enabled on a path that request is never actually sent to the destination, so the destination host will not matter in this case.
+    To add a host, click the '+' button under the "API Servers" list and fill in the Source Hostname and Destination Hostname/IP. For a live server, the source would be the actual hostname (domain.com) and the destination will be the actual IP address of the host. For this example, add Source Hostname "localhost" and Destination "blackhole". When a custom response is enabled on a path that request is never actually sent to the destination, so the destination host will not matter in this case.
+
 3. **Create a path.** Click on the '+' button under the Paths list to add a new path. A dialog prompting for path name, path value, and path type will show. Path name can be any name for you to identify it. Enter "Test path" for path name. Path value is a regular expression of the endpoint, so "/test" will match a response directed to "localhost/test". Enter "/test" for this value. Select "GET" for the path type.
 
 #### UI Quickstart: Creating a Custom Response
 1. **Add the Custom Response override.** Clicking on your newly added path's name will display a details view. The "Response" tab contains the configuration for your response overrides. A Response Override is for modifying the data received from an API server before sending that data back to the requestor. This is also where we enable a custom response to act as a mock server.
 
-  From the "Add Override" dropdown list, select "Custom Response". This will add the "Custom Response" override to the list of enabled overrides and enable the "Response" column in the Paths list.
+    From the "Add Override" dropdown list, select "Custom Response". This will add the "Custom Response" override to the list of enabled overrides and enable the "Response" column in the Paths list.
+
 2. **Configure the override.** With your newly added override selected, the override parameters are displayed next to the "Overrides" list. For our custom response, we have "response" and "repeat count" parameters. The response parameter is the response content to return to the requestor. Enter "test content" here. The repeat count is a parameter that exists for all overrides. It is the number of times an override will be executed before it is disabled. -1 is infinite. Click "Apply" to update the override.
+
 3. **Test it.** Verify the override is working by sending a request or navigating to http://localhost:8082/test. You will see that your response content "test content" is returned to you.
 
 #### UI Quickstart: Default overrides
