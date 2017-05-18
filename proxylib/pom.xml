@@ -5,13 +5,13 @@
   <groupId>com.groupon.odo</groupId>
   <artifactId>proxylib</artifactId>
   <name>proxylib</name>
-  <version>1.0.0-beta.11</version>
+  <version>1.0.0-beta.12-SNAPSHOT</version>
   <packaging>jar</packaging>
 
   <parent>
     <groupId>com.groupon.odo</groupId>
     <artifactId>proxyaggregator</artifactId>
-    <version>1.0.0-beta.11</version>
+    <version>1.0.0-beta.12-SNAPSHOT</version>
   </parent>
 
   <scm>
@@ -32,7 +32,7 @@
     <dependency>
       <groupId>com.groupon.odo</groupId>
       <artifactId>proxyplugin</artifactId>
-      <version>1.0.0-beta.11</version>
+      <version>1.0.0-beta.12-SNAPSHOT</version>
     </dependency>
 
     <dependency>
@@ -200,7 +200,7 @@
               <addClasspath>false</addClasspath>
             </manifest>
             <manifestEntries>
-              <Implementation-Version>1.0.0-beta.11</Implementation-Version>
+              <Implementation-Version>1.0.0-beta.12-SNAPSHOT</Implementation-Version>
             </manifestEntries>
           </archive>
         </configuration>

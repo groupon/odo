@@ -4,7 +4,7 @@
   <groupId>com.groupon.odo</groupId>
   <artifactId>browsermob-proxy-odo</artifactId>
   <name>browsermob-proxy-odo</name>
-  <version>1.0.0-beta.11</version>
+  <version>1.0.0-beta.12-SNAPSHOT</version>
   <packaging>jar</packaging>
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -14,7 +14,7 @@
   <parent>
     <groupId>com.groupon.odo</groupId>
     <artifactId>proxyaggregator</artifactId>
-    <version>1.0.0-beta.11</version>
+    <version>1.0.0-beta.12-SNAPSHOT</version>
   </parent>
 
   <scm>
@@ -32,7 +32,7 @@
     <dependency>
       <groupId>com.groupon.odo</groupId>
       <artifactId>proxylib</artifactId>
-      <version>1.0.0-beta.11</version>
+      <version>1.0.0-beta.12-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>com.squareup.okhttp</groupId>
@@ -79,7 +79,7 @@
               <addClasspath>false</addClasspath>
             </manifest>
             <manifestEntries>
-              <Implementation-Version>1.0.0-beta.11</Implementation-Version>
+              <Implementation-Version>1.0.0-beta.12-SNAPSHOT</Implementation-Version>
             </manifestEntries>
           </archive>
         </configuration>
