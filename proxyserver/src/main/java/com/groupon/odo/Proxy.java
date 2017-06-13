@@ -607,7 +607,7 @@ public class Proxy extends HttpServlet {
         if (queryString == null) {
             queryString = "";
         } else {
-            queryString = "?" + queryString;
+            queryString = "?" + queryString.replace("|", "%7C");
         }
 
         // if this can't be overridden we are going to finish the string and bail
