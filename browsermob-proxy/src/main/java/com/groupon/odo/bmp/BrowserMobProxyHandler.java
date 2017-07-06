@@ -283,6 +283,7 @@ import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLSession;
 import javax.net.ssl.SSLProtocolException;
 import java.security.cert.CertificateException;
+import java.util.concurrent.TimeUnit;
 
 public class BrowserMobProxyHandler extends SeleniumProxyHandler {
     private static final Log LOG = new Log();
@@ -600,6 +601,9 @@ public class BrowserMobProxyHandler extends SeleniumProxyHandler {
             OkHttpClient okHttpClient = getUnsafeOkHttpClient();
             okHttpClient.setFollowRedirects(false);
             okHttpClient.setFollowSslRedirects(false);
+            okHttpClient.setConnectTimeout(60, TimeUnit.SECONDS);
+            okHttpClient.setReadTimeout(60, TimeUnit.SECONDS);
+            okHttpClient.setWriteTimeout(60, TimeUnit.SECONDS);
 
             Request.Builder okRequestBuilder = new Request.Builder();
 
