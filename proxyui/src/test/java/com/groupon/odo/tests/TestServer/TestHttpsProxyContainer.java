@@ -19,6 +19,8 @@ package com.groupon.odo.tests.TestServer;
 import org.apache.catalina.Context;
 import org.apache.catalina.connector.Connector;
 import org.apache.coyote.http11.Http11NioProtocol;
+import org.apache.tomcat.JarScanFilter;
+import org.apache.tomcat.JarScanType;
 import org.apache.tomcat.JarScanner;
 import org.apache.tomcat.JarScannerCallback;
 import org.springframework.boot.context.embedded.EmbeddedServletContainerFactory;
@@ -46,8 +48,17 @@ public class TestHttpsProxyContainer extends GenericTestProxyContainer {
             public void customize(Context context) {
                 JarScanner jarScanner = new JarScanner() {
                     @Override
-                    public void scan(ServletContext arg0, ClassLoader arg1,
-                                     JarScannerCallback arg2, Set<String> arg3) {
+                    public void scan(JarScanType jarScanType, ServletContext servletContext, JarScannerCallback jarScannerCallback) {
+
+                    }
+
+                    @Override
+                    public JarScanFilter getJarScanFilter() {
+                        return null;
+                    }
+
+                    @Override
+                    public void setJarScanFilter(JarScanFilter jarScanFilter) {
                     }
                 };
                 context.setJarScanner(jarScanner);
