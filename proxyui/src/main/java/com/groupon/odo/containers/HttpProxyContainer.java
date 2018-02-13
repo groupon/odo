@@ -47,7 +47,7 @@ public class HttpProxyContainer extends GenericProxyContainer {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true);
-        config.addAllowedOrigin("http://localhost:8888");
+        config.addAllowedOrigin("http://localhost:8052");
         config.addAllowedHeader("*");
         config.addAllowedMethod("*");
         source.registerCorsConfiguration("/*", config);

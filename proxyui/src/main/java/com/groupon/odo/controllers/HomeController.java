@@ -100,7 +100,7 @@ public class HomeController {
     /**
      * Simply selects the home view to render by returning its name.
      */
-    @CrossOrigin(origins = "http://localhost:8888")
+    @CrossOrigin(origins = "http://localhost:8052")
     @RequestMapping(value = "/", method = RequestMethod.GET)
     public String home(Locale locale, Model model) {
         return "redirect:profiles";
