@@ -115,7 +115,7 @@ public class SQLService {
 
             // initialize connection pool
             PoolProperties p = new PoolProperties();
-            String connectString = "jdbc:h2:tcp://" + _instance.databaseHost + ":" + String.valueOf(_instance.port) + "/" +
+            String connectString = "jdbc:h2:tcp://" + _instance.databaseHost + ":" + String.valueOf(_instance.port) + "/~/" +
                 _instance.databaseName + "/proxydb;MULTI_THREADED=true;AUTO_RECONNECT=TRUE;AUTOCOMMIT=ON";
             p.setUrl(connectString);
             p.setDriverClassName("org.h2.Driver");
