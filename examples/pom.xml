@@ -9,7 +9,7 @@
   <packaging>pom</packaging>
 
   <properties>
-    <org.springframework-version>4.2.6.RELEASE</org.springframework-version>
+    <org.springframework-version>4.0.9.RELEASE</org.springframework-version>
     <java-version>1.8</java-version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>

@@ -26,36 +26,16 @@ import javax.servlet.ServletContext;
 import org.apache.catalina.Context;
 import org.apache.catalina.connector.Connector;
 import org.apache.coyote.http11.Http11NioProtocol;
-import org.apache.tomcat.JarScanFilter;
-import org.apache.tomcat.JarScanType;
 import org.apache.tomcat.JarScanner;
 import org.apache.tomcat.JarScannerCallback;
 import org.springframework.boot.context.embedded.EmbeddedServletContainerFactory;
-import org.springframework.boot.context.embedded.FilterRegistrationBean;
 import org.springframework.boot.context.embedded.tomcat.TomcatContextCustomizer;
 import org.springframework.boot.context.embedded.tomcat.TomcatEmbeddedServletContainerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import org.springframework.web.filter.CorsFilter;
 
 @Configuration
 public class HttpProxyContainer extends GenericProxyContainer {
-    @Bean
-    public FilterRegistrationBean corsFilter() {
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        CorsConfiguration config = new CorsConfiguration();
-        config.setAllowCredentials(true);
-        config.addAllowedOrigin("http://localhost:8052");
-        config.addAllowedHeader("*");
-        config.addAllowedMethod("*");
-        source.registerCorsConfiguration("/*", config);
-        FilterRegistrationBean bean = new FilterRegistrationBean(new CorsFilter(source));
-        bean.setOrder(0);
-        return bean;
-    }
-
     @Bean
     public EmbeddedServletContainerFactory servletContainer() {
         TomcatEmbeddedServletContainerFactory factory = new TomcatEmbeddedServletContainerFactory();
@@ -74,17 +54,8 @@ public class HttpProxyContainer extends GenericProxyContainer {
             public void customize(Context context) {
                 JarScanner jarScanner = new JarScanner() {
                     @Override
-                    public void scan(JarScanType jarScanType, ServletContext servletContext, JarScannerCallback jarScannerCallback) {
-
-                    }
-
-                    @Override
-                    public JarScanFilter getJarScanFilter() {
-                        return null;
-                    }
-
-                    @Override
-                    public void setJarScanFilter(JarScanFilter jarScanFilter) {
+                    public void scan(ServletContext context, ClassLoader loader,
+                                     JarScannerCallback scannerCallback, Set<String> args) {
                     }
                 };
                 context.setJarScanner(jarScanner);

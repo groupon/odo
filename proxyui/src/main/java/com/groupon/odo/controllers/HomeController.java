@@ -51,7 +51,6 @@ import org.springframework.context.annotation.PropertySources;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.filter.HiddenHttpMethodFilter;
@@ -79,7 +78,7 @@ public class HomeController {
     public void init() {
         // update SQL schema
         try {
-            SQLService.getInstance().updateSchema("./migrations");
+            SQLService.getInstance().updateSchema("/migrations");
         } catch (Exception e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -100,7 +99,6 @@ public class HomeController {
     /**
      * Simply selects the home view to render by returning its name.
      */
-    @CrossOrigin(origins = "http://localhost:8052")
     @RequestMapping(value = "/", method = RequestMethod.GET)
     public String home(Locale locale, Model model) {
         return "redirect:profiles";
