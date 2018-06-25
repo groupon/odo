@@ -21,7 +21,6 @@ import java.security.cert.X509Certificate;
 
 import org.apache.commons.io.FileUtils;
 
-import net.lightbody.bmp.proxy.selenium.KeyStoreManager;
 
 public class Utils {
 	
