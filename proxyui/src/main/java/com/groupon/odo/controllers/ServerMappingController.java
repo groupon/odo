@@ -23,7 +23,7 @@ import com.groupon.odo.proxylib.hostsedit.rmi.Client;
 import com.groupon.odo.proxylib.models.ServerGroup;
 import com.groupon.odo.proxylib.models.ServerRedirect;
 
-import net.lightbody.bmp.proxy.selenium.KeyStoreManager;
+import com.groupon.odo.bmp.KeyStoreManager;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
