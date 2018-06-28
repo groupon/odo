@@ -266,7 +266,7 @@ import net.lightbody.bmp.proxy.jetty.http.SslListener;
 import net.lightbody.bmp.proxy.jetty.jetty.Server;
 import net.lightbody.bmp.proxy.jetty.util.InetAddrPort;
 import net.lightbody.bmp.proxy.jetty.util.URI;
-import net.lightbody.bmp.proxy.selenium.KeyStoreManager;
+import com.groupon.odo.bmp.KeyStoreManager;
 import net.lightbody.bmp.proxy.selenium.LauncherUtils;
 import net.lightbody.bmp.proxy.selenium.SeleniumProxyHandler;
 import net.lightbody.bmp.proxy.util.Log;
