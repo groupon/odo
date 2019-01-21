@@ -22,7 +22,7 @@
     </script>
 
      <style type="text/css">
-    
+
     .has-switch {height: 30px}
 
     .altRowClass { background: #EEEEEE; }
@@ -46,7 +46,7 @@
 <nav class="navbar navbar-default" role="navigation">
     <div class="container-fluid">
         <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-           <div class="form-group navbar-form navbar-left">
+           <div class="form-group navbar-form navbar-header navbar-left">
              <li class="navbar-brand">Odo</li>
              <input type="text" class="form-control" placeholder="Search" id="searchFilter">
              <button class="btn btn-default" onclick='uriFilter()'>Apply Filter</button>
@@ -61,17 +61,12 @@
                 </ul>
              </li>
            </ul>
-          
-          <ul class="nav navbar-nav navbar-right">
-            <li class="dropdown">
-              <a href="#" class="dropdown-toggle" data-toggle="dropdown">Options <b class="caret"></b></a>
-              <ul class="dropdown-menu">
-                <li><a href="#" onclick='clearHistory()'>Clear History</a></li>
-                <li ><a href="#" onclick='navigateScripts()'>Edit Scripts</a></li>
-                <li ><a href="#" onclick='openGridOptions()'>Grid Options</a></li>
-              </ul>
-            </li>
-          </ul>
+
+           <ul class="nav navbar-nav navbar-right">
+             <li><a href="#" onclick='clearHistory()'>Clear History</a></li>
+             <li><a href="#" onclick='navigateScripts()'>Edit Scripts</a></li>
+             <li><a href="#" onclick='openGridOptions()'>Grid Options</a></li>
+           </ul>
         </div>
     </div>
 </nav>
@@ -265,7 +260,7 @@
                     clientUUID : clientUUID,
                     _method : 'DELETE'
                 }),
-                success : function(data) { //this is the data that comes back from the server (the array<array<object>>) 
+                success : function(data) { //this is the data that comes back from the server (the array<array<object>>)
                     historyList.trigger("reloadGrid");
                 },
                 error : function(xhr, ajaxOptions, thrownError) {
@@ -356,7 +351,7 @@
             document.getElementById("showOriginalResponseButton").className = "btn btn-primary";
             document.getElementById("showModifiedResponseButton").className = "btn btn-default";
         }
-        
+
         var dmp = new diff_match_patch();
         function showChangedData(originalData, changedData, originalID, changedID, modifiedID){
             var d = dmp.diff_main(originalData, changedData);
@@ -368,7 +363,7 @@
             $("#"+changedID).show();
             $("#"+modifiedID).hide();
         }
-        
+
         function showChangedResponse(){
             showFormattedResponseData(true);
         }
@@ -379,7 +374,7 @@
             document.getElementById("showOriginalResponseButton").className = "btn btn-default";
             document.getElementById("showModifiedResponseButton").className = "btn btn-default";
         }
-        
+
         function showModifiedResponse(){
             originalResponseFlag = 0;
             $("#responseHeaders").val(historyData.history.responseHeaders);
@@ -404,7 +399,7 @@
             document.getElementById("showChangedResponseButton").className = "btn btn-default";
             document.getElementById("showModifiedResponseButton").className = "btn btn-primary";
         }
-        
+
         var responseRaw, originalResponseRaw;
         function showFormattedResponseData(forDiff) {
             $.ajax({
@@ -466,7 +461,7 @@
             document.getElementById("showChangedButton").className = "btn btn-default";
             document.getElementById("showModifiedRequestButton").className = "btn btn-default";
         }
-        
+
         function showChangedRequestData(){
             showChangedData(historyData.history.originalRequestURL, historyData.history.requestURL, "originalRequestQuery", "originalRequestQueryChange", "requestQuery");
             showChangedData(historyData.history.originalRequestParams, historyData.history.requestParams, "originalRequestParameters", "originalRequestParametersChanged", "requestParameters");
@@ -476,7 +471,7 @@
             document.getElementById("showOriginalButton").className = "btn btn-default";
             document.getElementById("showModifiedRequestButton").className = "btn btn-default";
         }
-        
+
         function showModifiedRequestData(){
             $("#originalRequestQuery").hide();
             $("#originalRequestQueryChange").hide();
@@ -816,7 +811,7 @@
             newCellValue += ' disabled=true>';
             return newCellValue;
         }
-        
+
         function showPathTester() {
             // map request type
             console.log(historyData);
