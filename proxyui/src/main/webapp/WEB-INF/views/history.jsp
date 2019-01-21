@@ -45,9 +45,12 @@
 
 <nav class="navbar navbar-default" role="navigation">
     <div class="container-fluid">
+        <div class="navbar-header">
+            <a class="navbar-brand" href="#">Odo</a>
+        </div>
+
         <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
            <div class="form-group navbar-form navbar-header navbar-left">
-             <li class="navbar-brand">Odo</li>
              <input type="text" class="form-control" placeholder="Search" id="searchFilter">
              <button class="btn btn-default" onclick='uriFilter()'>Apply Filter</button>
              <button class="btn btn-default" onclick='clearFilter()'>Clear Filters</button>
