@@ -43,7 +43,7 @@
 <nav class="navbar navbar-default" role="navigation">
     <div class="container-fluid">
         <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-           <div class="form-group navbar-form navbar-left">
+           <div class="form-group navbar-form navbar-header navbar-left">
              <li class="navbar-brand">Odo</li>
              <input type="text" class="form-control" placeholder="Search" id="searchFilter">
              <button class="btn btn-default" onclick='uriFilter()'>Apply Filter</button>
@@ -59,16 +59,11 @@
              </li>
            </ul>
 
-          <ul class="nav navbar-nav navbar-right">
-            <li class="dropdown">
-              <a href="#" class="dropdown-toggle" data-toggle="dropdown">Options <b class="caret"></b></a>
-              <ul class="dropdown-menu">
-                <li><a href="#" onclick='clearHistory()'>Clear History</a></li>
-                <li ><a href="#" onclick='navigateScripts()'>Edit Scripts</a></li>
-                <li ><a href="#" onclick='openGridOptions()'>Grid Options</a></li>
-              </ul>
-            </li>
-          </ul>
+           <ul class="nav navbar-nav navbar-right">
+             <li><a href="#" onclick='clearHistory()'>Clear History</a></li>
+             <li><a href="#" onclick='navigateScripts()'>Edit Scripts</a></li>
+             <li><a href="#" onclick='openGridOptions()'>Grid Options</a></li>
+           </ul>
         </div>
     </div>
 </nav>
