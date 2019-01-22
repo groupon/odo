@@ -46,20 +46,22 @@
             <a class="navbar-brand" href="#">Odo</a>
         </div>
 
-        <div class="form-group navbar-form navbar-header navbar-left">
+        <div class="form-group navbar-form navbar-left">
             <input type="text" class="form-control" placeholder="Search" id="searchFilter">
-            <button class="btn btn-default" onclick='uriFilter()'>Apply Filter</button>
-            <button class="btn btn-default" onclick='clearFilter()'>Clear Filters</button>
+            <button class="btn btn-default" type="button" onclick='uriFilter()'>Apply Filter</button>
+            <button class="btn btn-default" type="button" onclick='clearFilter()'>Clear Filters</button>
+
+            <span class="dropdown">
+                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Filter By <span class="caret"></span>
+                </button>
+
+                <ul class="dropdown-menu">
+                    <li><a href="#" onclick='showItemsWithMessages()'>Items With Messages</a></li>
+                </ul>
+            </span>
         </div>
 
-       <ul class="nav navbar-nav">
-         <li class="dropdown">
-            <a href="#" class="dropdown-toggle" data-toggle="dropdown">Filter By <b class="caret"></b></a>
-            <ul class="dropdown-menu">
-                <li><a href="#" onclick='showItemsWithMessages()'>Items With Messages</a></li>
-            </ul>
-         </li>
-       </ul>
 
        <ul class="nav navbar-nav navbar-right">
          <li><a href="#" onclick='clearHistory()'>Clear History</a></li>
