@@ -107,11 +107,9 @@
     <body>
         <nav class="navbar navbar-default" role="navigation">
             <div class="container-fluid">
-                <div class="collapse navbar-collapse">
-                    <ul id="status2" class="nav navbar-nav">
-                        <li><a href="#" onClick="navigateProfiles()">Profiles</a></li>
-                    </ul>
-                </div>
+                <ul id="status2" class="nav navbar-nav navbar-left">
+                    <li><a href="#" onClick="navigateProfiles()">Profiles</a></li>
+                </ul>
             </div>
         </nav>
         <div class="ui-widget-content ui-corner-all" style="width: 90%;">

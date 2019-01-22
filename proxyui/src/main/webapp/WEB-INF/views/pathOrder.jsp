@@ -1,5 +1,5 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-<%@ page language="java" contentType="text/html; charset=ISO-8859-1" pageEncoding="ISO-8859-1" isELIgnored="false" %> 
+<%@ page language="java" contentType="text/html; charset=ISO-8859-1" pageEncoding="ISO-8859-1" isELIgnored="false" %>
 <%@ page session="false" %>
 <html>
 
@@ -7,17 +7,17 @@
 <head>
 <title>Update Path Order</title>
   <%@ include file="/resources/js/webjars.include" %>
-  
+
   <link rel="stylesheet" type="text/css" media="screen"
 	 href="<c:url value="/resources/css/odo.css"/>" />
-  
+
   <style>
 	#sortable { list-style-type: none; margin: 1px; padding: 1px; width: 60%; }
 	#sortable li { margin: 0 3px 3px 3px; padding: 0.4em; padding-left: 1.5em; font-size: 1em; height: 18px; width:150% }
 	#sortable li span { position: absolute; margin-left: -1.3em; }
 	.ui-state-highlight { height: 1.5em; line-height: 1.2em; }
   </style>
-  
+
   <script>
   $(document).ready(function() {
     $("#sortable").sortable({
@@ -46,20 +46,22 @@
 
 <nav class="navbar navbar-default" role="navigation">
     <div class="container-fluid">
-        <div class="collapse navbar-collapse">
-            <ul id="status2" class="nav navbar-nav">
-				<li class="navbar-brand">Odo</li>
-                <li><a href="#" onClick="window.location='<c:url value = '/profiles' />'">All Profiles</a></li>
-                <li><a href="#" onClick="window.location='<c:url value = '/edit/${profile_id}' />'">${profile_name}</a></li>
-                <li><a href="#" onClick="navigatePathTester()">Path Tester</a></li>
-            </ul>
-        </div>
+      <div class="navbar-header">
+        <a class="navbar-brand" href="#">Odo</a>
+      </div>
+
+      <ul id="status2" class="nav navbar-nav navbar-left">
+        <li class="navbar-brand">Odo</li>
+        <li><a href="#" onClick="window.location='<c:url value = '/profiles' />'">All Profiles</a></li>
+        <li><a href="#" onClick="window.location='<c:url value = '/edit/${profile_id}' />'">${profile_name}</a></li>
+        <li><a href="#" onClick="navigatePathTester()">Path Tester</a></li>
+      </ul>
     </div>
 </nav>
 <div>
 	<div class="ui-widget-header ui-corner-all">
 		<h3>Drag items to set priority</h3>
-		The ordering of paths impacts how requests are handled.  In general if a higher priority path matches a request then further paths will not be evaluated.  The only exception is Global paths.  In the case that a global path is matched the matcher will continue to search for a non-global matching path.	
+		The ordering of paths impacts how requests are handled.  In general if a higher priority path matches a request then further paths will not be evaluated.  The only exception is Global paths.  In the case that a global path is matched the matcher will continue to search for a non-global matching path.
 	</div>
 	<div class="ui-widget-content ui-corner-all">
 		<ul id="sortable">
@@ -69,7 +71,7 @@
 				</li>
 			</c:forEach>
 		</ul>
-	</div> 
+	</div>
 </div>
 </body>
 </html>

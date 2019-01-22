@@ -1,5 +1,5 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-<%@ page language="java" contentType="text/html; charset=ISO-8859-1" pageEncoding="ISO-8859-1" isELIgnored="false" %> 
+<%@ page language="java" contentType="text/html; charset=ISO-8859-1" pageEncoding="ISO-8859-1" isELIgnored="false" %>
 <%@ page session="false" %>
 <html>
     <head>
@@ -217,10 +217,10 @@
                     sortname : 'idString',
                     sortorder: 'asc',
                     viewrecords : true,
-                    onSelectRow: function(id, status){ 
+                    onSelectRow: function(id, status){
                     	if (selectedGroupId === "" || selectingRows == true)
                     		return;
-                    	
+
                     	if (status == true) {
                     		$.ajax({
                                 type:"POST",
@@ -253,12 +253,13 @@
     <body>
         <nav class="navbar navbar-default" role="navigation">
             <div class="container-fluid">
-                <div class="collapse navbar-collapse">
-                    <ul id="status2" class="nav navbar-nav">
-                        <li class="navbar-brand">Odo</li>
-                        <li><a href="#" onClick="navigateProfiles()">Profiles</a></li>
-                    </ul>
+                <div class="navbar-header">
+                    <a class="navbar-brand" href="#">Odo</a>
                 </div>
+
+                <ul id="status2" class="nav navbar-nav navbar-left">
+                    <li><a href="#" onClick="navigateProfiles()">Profiles</a></li>
+                </ul>
             </div>
         </nav>
         <div>
