@@ -23,7 +23,7 @@
 
      <style type="text/css">
 
-    .has-switch {height: 30px}
+    .has-switch { height: 30px; }
 
     .altRowClass { background: #EEEEEE; }
 
