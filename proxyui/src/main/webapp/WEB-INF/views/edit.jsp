@@ -128,6 +128,13 @@
             }
 
             function updateStatus() {
+                // var button = $("<button>")
+                //     .id("make_active")
+                //     .class("btn btn-default")
+                //     .prop("onclick", "changeActive(\'" + (${isActive} ? "true" : "false") + "\')")
+                //     .html((${isActive} ? "Deactivate" : "Activate") + " Profile");
+
+                // $("#status").empty().append(button);
                 var status = $("#status");
                 if (${isActive} == true) {
                     status.html('<button id="make_active" class="btn btn-default" onclick="changeActive(\'false\')">Deactivate Profile</button>');
@@ -488,7 +495,7 @@
             function downloadCert(serverHost) {
                 window.location = '<c:url value="/cert/"/>' + serverHost;
             }
-            
+
             function destinationHostFormatter (cellvalue, options, rowObject)
             {
             	if (cellvalue === "") {
@@ -496,7 +503,7 @@
             	}
             	return cellvalue;
             }
-            
+
             function destinationHostUnFormatter (cellvalue, options, rowObject)
             {
             	// "hidden" is hidden text in the input box
@@ -986,7 +993,7 @@
                         }
                     }
                 });
-                
+
                 var group = $("#groupTable");
                 group.jqGrid({
                     url : '<c:url value="/api/group"/>',
@@ -1859,45 +1866,44 @@
                 <button id="configurationUploadFileButton" type="submit" style="display: none;"></button>
             </form>
         </div>
-        
+
         <%@ include file="clients_part.jsp" %>
         <%@ include file="pathtester_part.jsp" %>
 
         <nav class="navbar navbar-default" role="navigation">
-            <div class="container-fluid">
-                <div id="statusBar" class="collapse navbar-collapse">
-                    <ul id="status2"  class="nav navbar-nav navbar-left">
-                        <li class="navbar-brand">Odo</li>
-                        <li><a href="#" onClick="navigateProfiles()">Profiles</a> </li>
-                        <li><a href="#" onClick="navigateRequestHistory()">Request History</a></li>
-                        <li><a href="#" onClick="navigatePathTester()">Path Tester</a></li>
-                        <li><a href="#" onClick="navigateEditGroups()">Edit Groups</a></li>
-                        <li class="dropdown">
-                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">Import/Export <b class="caret"></b></a>
-                            <ul class="dropdown-menu">
-                                <li><a href="#" onclick='exportConfigurationFile()'
-                                       data-toggle="tooltip" data-placement="right"
-                                       title="Click here to export active overrides and active server group">Export Override Configuration</a></li>
-                                <li><a href="#" onclick='importConfiguration()'
-                                       data-toggle="tooltip" data-placement="right"
-                                       title="Click here to import active overrides and server group">Import Override Configuration</a></li>
-                            </ul>
-                        </li>
-                    </ul>
-                    <div id="status" class="form-group navbar-form navbar-left" ></div>
-                    <div class="form-group navbar-form navbar-left">
-                        <button id="resetProfileButton" class="btn btn-danger" onclick="resetProfile()"
-                                data-toggle="tooltip" data-placement="bottom" title="Click here to reset all path settings in this profile.">Reset Profile</button>
-                    </div>
-                    <!-- TO FIND HELP -->
-                    <div class="form-group navbar-form navbar-left">
-                        <button id="helpButton" class="btn btn-info" onclick="navigateHelp()"
-                                target="_blank" data-toggle="tooltip" data-placement="bottom" title="Click here to read the readme.">Need Help?</button>
-                    </div>
-
-                    <ul id="clientInfo" class="nav navbar-nav navbar-right">
-                    </ul>
+            <div id="statusBar" class="container-fluid">
+                <div class="navbar-header">
+                    <a class="navbar-brand" href="#">Odo</a>
                 </div>
+
+                <ul id="status2" class="nav navbar-nav navbar-left">
+                    <li><a href="#" onClick="navigateProfiles()">Profiles</a> </li>
+                    <li><a href="#" onClick="navigateRequestHistory()">Request History</a></li>
+                    <li><a href="#" onClick="navigatePathTester()">Path Tester</a></li>
+                    <li><a href="#" onClick="navigateEditGroups()">Edit Groups</a></li>
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Import/Export <b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="#" onclick='exportConfigurationFile()'
+                                   data-toggle="tooltip" data-placement="right"
+                                   title="Click here to export active overrides and active server group">Export Override Configuration</a></li>
+                            <li><a href="#" onclick='importConfiguration()'
+                                   data-toggle="tooltip" data-placement="right"
+                                   title="Click here to import active overrides and server group">Import Override Configuration</a></li>
+                        </ul>
+                    </li>
+                </ul>
+
+                <div class="form-group navbar-form navbar-left">
+                    <span id="status"></span>
+                    <button id="resetProfileButton" class="btn btn-danger" onclick="resetProfile()"
+                            data-toggle="tooltip" data-placement="bottom" title="Click here to reset all path settings in this profile.">Reset Profile</button>
+                    <!-- TO FIND HELP -->
+                    <button id="helpButton" class="btn btn-info" onclick="navigateHelp()"
+                            target="_blank" data-toggle="tooltip" data-placement="bottom" title="Click here to read the readme.">Need Help?</button>
+                </div>
+
+                <ul id="clientInfo" class="nav navbar-nav navbar-right"></ul>
             </div>
         </nav>
 
