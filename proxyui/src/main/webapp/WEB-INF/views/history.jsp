@@ -40,46 +40,40 @@
     </table>
 </div>
 
-<nav class="navbar navbar-default" role="navigation">
+<nav class="navbar navbar-default smaller-center" role="navigation">
     <div class="container-fluid">
         <div class="navbar-header">
             <a class="navbar-brand" href="#">Odo</a>
         </div>
 
-        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-           <div class="form-group navbar-form navbar-header navbar-left">
-             <input type="text" class="form-control" placeholder="Search" id="searchFilter">
-             <button class="btn btn-default" onclick='uriFilter()'>Apply Filter</button>
-             <button class="btn btn-default" onclick='clearFilter()'>Clear Filters</button>
-           </div>
-
-           <ul class="nav navbar-nav">
-             <li class="dropdown">
-                <a href="#" class="dropdown-toggle" data-toggle="dropdown">Filter By <b class="caret"></b></a>
-                <ul class="dropdown-menu">
-                    <li><a href="#" onclick='showItemsWithMessages()'>Items With Messages</a></li>
-                </ul>
-             </li>
-           </ul>
-
-           <ul class="nav navbar-nav navbar-right">
-             <li><a href="#" onclick='clearHistory()'>Clear History</a></li>
-             <li><a href="#" onclick='navigateScripts()'>Edit Scripts</a></li>
-             <li><a href="#" onclick='openGridOptions()'>Grid Options</a></li>
-           </ul>
+        <div class="form-group navbar-form navbar-header navbar-left">
+            <input type="text" class="form-control" placeholder="Search" id="searchFilter">
+            <button class="btn btn-default" onclick='uriFilter()'>Apply Filter</button>
+            <button class="btn btn-default" onclick='clearFilter()'>Clear Filters</button>
         </div>
+
+       <ul class="nav navbar-nav">
+         <li class="dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown">Filter By <b class="caret"></b></a>
+            <ul class="dropdown-menu">
+                <li><a href="#" onclick='showItemsWithMessages()'>Items With Messages</a></li>
+            </ul>
+         </li>
+       </ul>
+
+       <ul class="nav navbar-nav navbar-right">
+         <li><a href="#" onclick='clearHistory()'>Clear History</a></li>
+         <li><a href="#" onclick='navigateScripts()'>Edit Scripts</a></li>
+         <li><a href="#" onclick='openGridOptions()'>Grid Options</a></li>
+       </ul>
     </div>
 </nav>
-
-<div style="margin-left: 20px; margin-right: 20px;" id="historyGridDiv">
+<div class="smaller-center" id="historyGridDiv">
     <table id="historylist"></table>
     <div id="historynavGrid"></div>
 </div>
-
 <br />
-
-<div style="margin-left: 20px; margin-right: 20px;"
-        id="historyContentDiv">
+    <div class="smaller-center" id="historyContentDiv">
         <div id="tabs" style="overflow: scroll;">
             <ul>
                 <li><a href="#tabs-1">Response</a></li>
