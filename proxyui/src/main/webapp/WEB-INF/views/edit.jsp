@@ -59,6 +59,10 @@
                 margin-right: 20px;
             }
 
+            #listContainer>div {
+                margin-bottom: 20px;
+            }
+
             #editDiv {
                 width: 50vw;
                 max-width: 50vw; /* ALLOWS FOR SCROLLING TO THE END OF THE DIV IF LARGER THAN WINDOW */
