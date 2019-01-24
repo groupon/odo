@@ -1,5 +1,5 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-<%@ page language="java" contentType="text/html; charset=ISO-8859-1" pageEncoding="ISO-8859-1" isELIgnored="false" %> 
+<%@ page language="java" contentType="text/html; charset=ISO-8859-1" pageEncoding="ISO-8859-1" isELIgnored="false" %>
 <%@ page session="false" %>
 <html>
     <head>
@@ -18,13 +18,13 @@
 
             //called to add a new group name. theoretically want to go to the editgroup page after
             function SubmitNewGroup(){
-                var groupname = document.getElementById("groupname").value;
+                var groupname = $("#groupname").val();
                 $.ajax({
                     type:"POST",
                     url: 'api/group',
                     data: "groupName=" + groupname,
                     success: function(){
-                        document.getElementById("groupname").value = "";
+                        $("#groupname").val("");
                         reloadGrid("#groupsList");
                     }
                 });
@@ -217,10 +217,10 @@
                     sortname : 'idString',
                     sortorder: 'asc',
                     viewrecords : true,
-                    onSelectRow: function(id, status){ 
+                    onSelectRow: function(id, status){
                     	if (selectedGroupId === "" || selectingRows == true)
                     		return;
-                    	
+
                     	if (status == true) {
                     		$.ajax({
                                 type:"POST",

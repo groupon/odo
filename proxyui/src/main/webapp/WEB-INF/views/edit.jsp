@@ -94,14 +94,11 @@
                 background-color:#696969 !important;
                 color: black !important;
             }
-
         </style>
 
         <script type="text/javascript">
             $.jgrid.no_legacy_api = true;
             $.jgrid.useJSON = true;
-        </script>
-        <script type="text/javascript">
 
             var clientUUID = '${clientUUID}';
             var currentPathId = -1;
@@ -180,12 +177,12 @@
 
             window.onload = function () {
                 // Adapted from: http://blog.teamtreehouse.com/uploading-files-ajax
-                document.getElementById('configurationUploadForm').onsubmit = function(event) {
+                $('#configurationUploadForm').submit(function(event) {
                     event.preventDefault();
 
-                    var file = document.getElementById('configurationUploadFile').files[0];
+                    var file = $("#configurationUploadFile").files[0];
                     importConfigurationRequest(file);
-                }
+                })
             }
 
             function exportConfigurationFile() {
@@ -453,7 +450,7 @@
                         reloadGrid("#serverlist");
                     },
                     error: function(xhr) {
-                        document.getElementById("serverEnabled_" + id).checked = origEnabled;
+                        $("#serverEnabled_" + id).prop("checked", origEnabled);
 
                         alert("Error updating host entry.  Please make sure the hostsedit RMI server is running");
                     }
@@ -461,7 +458,7 @@
             }
 
             // formats the enable/disable check box
-            function serverEnabledFormatter( cellvalue, options, rowObject ) {
+            function serverEnabledFormatter(cellvalue, options, rowObject) {
                 var checkedValue = 0;
                 if (cellvalue == true) {
                     checkedValue = 1;
@@ -488,7 +485,7 @@
             function downloadCert(serverHost) {
                 window.location = '<c:url value="/cert/"/>' + serverHost;
             }
-            
+
             function destinationHostFormatter (cellvalue, options, rowObject)
             {
             	if (cellvalue === "") {
@@ -496,7 +493,7 @@
             	}
             	return cellvalue;
             }
-            
+
             function destinationHostUnFormatter (cellvalue, options, rowObject)
             {
             	// "hidden" is hidden text in the input box
@@ -986,7 +983,7 @@
                         }
                     }
                 });
-                
+
                 var group = $("#groupTable");
                 group.jqGrid({
                     url : '<c:url value="/api/group"/>',
@@ -1859,7 +1856,7 @@
                 <button id="configurationUploadFileButton" type="submit" style="display: none;"></button>
             </form>
         </div>
-        
+
         <%@ include file="clients_part.jsp" %>
         <%@ include file="pathtester_part.jsp" %>
 
