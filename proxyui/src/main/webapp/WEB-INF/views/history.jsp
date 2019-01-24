@@ -435,16 +435,6 @@
         $("#showRawFormattedDataButton").attr("class", "btn btn-default");
     }
 
-    //http://stackoverflow.com/questions/3938270/jquery-ui-tabs-javascript-click-function-not-working
-    $(function() {
-        $("#tabs").tabs();
-
-        $("a[href=#tabs-2]").click(function() {
-            $("#requestParameters").css("height" , "");
-            $("#requestParameters").height($("#requestParameters")[0].scrollHeight + "px");
-        });
-     });
-
     function showOriginalRequestData(){
         $("#originalRequestQuery").show();
         $("#originalRequestQueryChange").hide();

@@ -204,37 +204,37 @@
     <dependency>
       <groupId>org.webjars</groupId>
       <artifactId>jquery</artifactId>
-      <version>1.9.0</version>
+      <version>3.3.1</version>
     </dependency>
     <dependency>
       <groupId>org.webjars</groupId>
       <artifactId>jquery-ui</artifactId>
-      <version>1.9.2</version>
+      <version>1.12.1</version>
     </dependency>
     <dependency>
       <groupId>org.webjars</groupId>
       <artifactId>jquery-ui-themes</artifactId>
-      <version>1.10.0</version>
+      <version>1.12.1</version>
     </dependency>
     <dependency>
       <groupId>org.webjars</groupId>
       <artifactId>jqgrid</artifactId>
-      <version>4.4.5</version>
+      <version>4.7.0</version>
     </dependency>
     <dependency>
       <groupId>org.webjars</groupId>
       <artifactId>jquery-migrate</artifactId>
-      <version>1.2.1</version>
+      <version>3.0.0</version>
     </dependency>
     <dependency>
       <groupId>org.webjars</groupId>
       <artifactId>select2</artifactId>
-      <version>3.4.5</version>
+      <version>3.5.4</version>
     </dependency>
     <dependency>
       <groupId>org.webjars</groupId>
       <artifactId>bootstrap</artifactId>
-      <version>3.1.1</version>
+      <version>3.4.0</version>
     </dependency>
     <dependency>
       <groupId>org.webjars</groupId>
