@@ -59,6 +59,10 @@
                 margin-right: 20px;
             }
 
+            #listContainer>div {
+                margin-bottom: 20px;
+            }
+
             #editDiv {
                 width: 50vw;
                 max-width: 50vw; /* ALLOWS FOR SCROLLING TO THE END OF THE DIV IF LARGER THAN WINDOW */
@@ -1861,40 +1865,39 @@
         <%@ include file="pathtester_part.jsp" %>
 
         <nav class="navbar navbar-default" role="navigation">
-            <div class="container-fluid">
-                <div id="statusBar" class="collapse navbar-collapse">
-                    <ul id="status2"  class="nav navbar-nav navbar-left">
-                        <li class="navbar-brand">Odo</li>
-                        <li><a href="#" onClick="navigateProfiles()">Profiles</a> </li>
-                        <li><a href="#" onClick="navigateRequestHistory()">Request History</a></li>
-                        <li><a href="#" onClick="navigatePathTester()">Path Tester</a></li>
-                        <li><a href="#" onClick="navigateEditGroups()">Edit Groups</a></li>
-                        <li class="dropdown">
-                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">Import/Export <b class="caret"></b></a>
-                            <ul class="dropdown-menu">
-                                <li><a href="#" onclick='exportConfigurationFile()'
-                                       data-toggle="tooltip" data-placement="right"
-                                       title="Click here to export active overrides and active server group">Export Override Configuration</a></li>
-                                <li><a href="#" onclick='importConfiguration()'
-                                       data-toggle="tooltip" data-placement="right"
-                                       title="Click here to import active overrides and server group">Import Override Configuration</a></li>
-                            </ul>
-                        </li>
-                    </ul>
-                    <div id="status" class="form-group navbar-form navbar-left" ></div>
-                    <div class="form-group navbar-form navbar-left">
-                        <button id="resetProfileButton" class="btn btn-danger" onclick="resetProfile()"
-                                data-toggle="tooltip" data-placement="bottom" title="Click here to reset all path settings in this profile.">Reset Profile</button>
-                    </div>
-                    <!-- TO FIND HELP -->
-                    <div class="form-group navbar-form navbar-left">
-                        <button id="helpButton" class="btn btn-info" onclick="navigateHelp()"
-                                target="_blank" data-toggle="tooltip" data-placement="bottom" title="Click here to read the readme.">Need Help?</button>
-                    </div>
-
-                    <ul id="clientInfo" class="nav navbar-nav navbar-right">
-                    </ul>
+            <div id="statusBar" class="container-fluid">
+                <div class="navbar-header">
+                    <a class="navbar-brand" href="#">Odo</a>
                 </div>
+
+                <ul id="status2" class="nav navbar-nav navbar-left">
+                    <li><a href="#" onClick="navigateProfiles()">Profiles</a> </li>
+                    <li><a href="#" onClick="navigateRequestHistory()">Request History</a></li>
+                    <li><a href="#" onClick="navigatePathTester()">Path Tester</a></li>
+                    <li><a href="#" onClick="navigateEditGroups()">Edit Groups</a></li>
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Import/Export <b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="#" onclick='exportConfigurationFile()'
+                                   data-toggle="tooltip" data-placement="right"
+                                   title="Click here to export active overrides and active server group">Export Override Configuration</a></li>
+                            <li><a href="#" onclick='importConfiguration()'
+                                   data-toggle="tooltip" data-placement="right"
+                                   title="Click here to import active overrides and server group">Import Override Configuration</a></li>
+                        </ul>
+                    </li>
+                </ul>
+
+                <div class="form-group navbar-form navbar-left">
+                    <span id="status"></span>
+                    <button id="resetProfileButton" class="btn btn-danger" onclick="resetProfile()"
+                            data-toggle="tooltip" data-placement="bottom" title="Click here to reset all path settings in this profile.">Reset Profile</button>
+                    <!-- TO FIND HELP -->
+                    <button id="helpButton" class="btn btn-info" onclick="navigateHelp()"
+                            target="_blank" data-toggle="tooltip" data-placement="bottom" title="Click here to read the readme.">Need Help?</button>
+                </div>
+
+                <ul id="clientInfo" class="nav navbar-nav navbar-right"></ul>
             </div>
         </nav>
 

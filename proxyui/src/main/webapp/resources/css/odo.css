@@ -16,8 +16,14 @@ body {
 
 .center
 {
-    margin-left:auto;
-    margin-right:auto;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.smaller-center
+{
+    margin-left: 20px;
+    margin-right: 20px;
 }
 
 .reorderbox

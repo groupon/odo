@@ -267,27 +267,30 @@
 
         <nav class="navbar navbar-default" role="navigation">
             <div class="container-fluid">
-                <div class="collapse navbar-collapse">
-                    <ul class="nav navbar-nav navbar-left">
-                        <li class="navbar-brand">Odo</li>
-                        <li class="dropdown">
-                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">Options <b class="caret"></b></a>
-                            <ul class="dropdown-menu">
-                                <li><a href="#" onclick='exportConfiguration()'>Export Configuration</a></li>
-                                <li><a href="#" onclick='importConfiguration()'>Import Configuration</a></li>
-                            </ul>
-                        </li>
-                    </ul>
-                    <div class="form-group navbar-form navbar-left">
-                        <button id="helpButton" class="btn btn-info" onclick="navigateHelp()"
-                                target="_blank" data-toggle="tooltip" data-placement="bottom" title="Click here to read the readme.">Need Help?</button>
-                    </div>
-                    <ul class="nav navbar-nav navbar-right">
-                        <li>
-                            <p class="navbar-text">Odo Version: <c:out value = "${version}"/></p>
-                        </li>
-                    </ul>
+                <div class="navbar-header">
+                    <a class="navbar-brand" href="#">Odo</a>
                 </div>
+
+                <ul class="nav navbar-nav navbar-left">
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Options <b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="#" onclick='exportConfiguration()'>Export Configuration</a></li>
+                            <li><a href="#" onclick='importConfiguration()'>Import Configuration</a></li>
+                        </ul>
+                    </li>
+                </ul>
+
+                <div class="form-group navbar-form navbar-left">
+                    <button id="helpButton" class="btn btn-info" onclick="navigateHelp()"
+                            target="_blank" data-toggle="tooltip" data-placement="bottom" title="Click here to read the readme.">Need Help?</button>
+                </div>
+
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <p class="navbar-text">Odo Version: <c:out value = "${version}"/></p>
+                    </li>
+                </ul>
             </div>
         </nav>
 
