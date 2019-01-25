@@ -129,13 +129,6 @@
             }
 
             function updateStatus() {
-                // var button = $("<button>")
-                //     .id("make_active")
-                //     .class("btn btn-default")
-                //     .prop("onclick", "changeActive(\'" + (${isActive} ? "true" : "false") + "\')")
-                //     .html((${isActive} ? "Deactivate" : "Activate") + " Profile");
-
-                // $("#status").empty().append(button);
                 var status = $("#status");
                 if (${isActive} == true) {
                     status.html('<button id="make_active" class="btn btn-default" onclick="changeActive(\'false\')">Deactivate Profile</button>');
