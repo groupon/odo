@@ -1,36 +1,79 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ page session="false" %>
+<!DOCTYPE html>
 <html>
 <head>
     <title>History: ${profile_name}</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
     <%@ include file="/resources/js/webjars.include" %>
     <script src="<c:url value="/resources/js/diff_match_patch_uncompressed.js" />"></script>
-    <link rel="stylesheet" type="text/css" media="screen"
-             href="<c:url value="/resources/css/odo.css"/>" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <script type="text/javascript">
         $.jgrid.no_legacy_api = true;
         $.jgrid.useJSON = true;
     </script>
 
-     <style type="text/css">
-         ul, li {
-             list-style-type: none;
-         }
+    <script type="text/javascript" src="<c:url value="/webjars/clipboard.js/2.0.0/clipboard.min.js"/>"></script>
 
-        .has-switch {height: 30px}
+    <style type="text/css">
+        ul, li { list-style-type: none; }
 
-        .altRowClass { background: #EEEEEE; }
+        .has-switch { height: 30px; }
+
+        .altRowClass { background: #eee; }
+
+        .ui-jqgrid tr.jqgrow .break-all {
+            white-space: normal;
+            word-break: break-all;
+        }
+
+        .preformatted, textarea.preformatted { font-family: monospace; }
+
+        #historyGridDiv {
+            margin-bottom: 1em;
+        }
+
+        #historyGridDiv .ui-jqgrid .ui-jqgrid-bdiv {
+            font-size: 14px;
+        }
+
+        #historyContentDiv textarea {
+            background-color: #eee;
+            transition: background-color .15s;
+        }
+
+        #historyContentDiv textarea:focus {
+            background-color: initial;
+        }
+
+        .diffarea
+        {
+            overflow-y: scroll;
+            resize: vertical;
+            display: none;
+            font-family: monospace;
+            background-color: #eee;
+        }
+
+        .copy-only {
+            font-size: 0;
+        }
+
+        @media print {
+            .copy-only {
+                font-size: initial;
+            }
+        }
      </style>
 </head>
 <body>
 <%@ include file="pathtester_part.jsp" %>
 
 <!-- Hidden div for grid options -->
-<div id="gridOptionsDialog" style="display:none;">
+<div id="gridOptionsDialog" style="display: none;">
     <table>
     <tr><td>
         Number of Rows:
@@ -40,176 +83,148 @@
     </table>
 </div>
 
-<nav class="navbar navbar-default smaller-center" role="navigation">
+<nav class="navbar navbar-default" role="navigation">
     <div class="container-fluid">
         <div class="navbar-header">
             <a class="navbar-brand" href="#">Odo</a>
         </div>
 
-        <div class="form-group navbar-form navbar-left">
-            <input type="text" class="form-control" placeholder="Search" id="searchFilter">
-            <button class="btn btn-default" type="button" onclick='uriFilter()'>Apply Filter</button>
-            <button class="btn btn-default" type="button" onclick='clearFilter()'>Clear Filters</button>
+        <form class="navbar-form navbar-left" onsubmit="uriFilter();">
+            <div class="form-group">
 
-            <span class="dropdown">
-                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    Filter By <span class="caret"></span>
-                </button>
+                <input type="text" class="form-control" placeholder="Filter (f)" id="searchFilter">
+                <button class="btn btn-default" type="submit">Apply Filter</button>
+                <button class="btn btn-default" type="button" onclick='clearFilter()'>Clear Filters</button>
 
-                <ul class="dropdown-menu">
-                    <li><a href="#" onclick='showItemsWithMessages()'>Items With Messages</a></li>
-                </ul>
-            </span>
-        </div>
+                <span class="dropdown">
+                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Filter By <span class="caret"></span>
+                    </button>
 
+                    <ul class="dropdown-menu">
+                        <li><a href="#" onclick='showItemsWithMessages()'>Items With Messages</a></li>
+                    </ul>
+                </span>
+            </div>
+        </form>
 
-       <ul class="nav navbar-nav navbar-right">
-         <li><a href="#" onclick='clearHistory()'>Clear History</a></li>
-         <li><a href="#" onclick='navigateScripts()'>Edit Scripts</a></li>
-         <li><a href="#" onclick='openGridOptions()'>Grid Options</a></li>
-       </ul>
+        <ul class="nav navbar-nav navbar-right">
+            <li><a href="#" onclick='clearHistory()'>Clear History</a></li>
+            <li><a href="#" onclick='navigateScripts()'>Edit Scripts</a></li>
+            <li><a href="#" onclick='openGridOptions()'>Grid Options</a></li>
+        </ul>
     </div>
 </nav>
-<div class="smaller-center" id="historyGridDiv">
+
+<div id="historyGridDiv">
     <table id="historylist"></table>
     <div id="historynavGrid"></div>
 </div>
-<br />
-    <div class="smaller-center" id="historyContentDiv">
-        <div id="tabs" style="overflow: scroll;">
-            <ul>
-                <li><a href="#tabs-1">Response</a></li>
-                <li><a href="#tabs-2">Request</a></li>
-                <li><a href="#tabs-3">Other</a></li>
-            </ul>
 
-            <div id="tabs-1">
-                <div class="" style="width: 100%">
-                    <h3 style="display: inline">
-                        <span class="label label-default">Headers</span>
-                    </h3>
-                    <h3 style="display: inline;">
-                        <div class="btn-group btn-group-sm" style="float:right" id="responseButtons">
-                            <button type="button" class="btn btn-default"
-                                id="showModifiedResponseButton" onClick="showModifiedResponse()">Modified</button>
-                            <button type="button" class="btn btn-default"
-                                id="showOriginalResponseButton" onClick="showOriginalResponse()">Original</button>
-                            <button type="button" class="btn btn-default"
-                                id="showChangedResponseButton" onClick="showChangedResponse()">View Diff</button>
-                        </div>
-                    </h3>
-                    <textarea class="form-control" rows="3" style="width: 100%; margin-top: 6px"
-                        id="responseHeaders"></textarea>
-                    <textarea class="form-control" rows="3" style="width: 100%; display:none"
-                        id="originalResponseHeaders"></textarea>
-                    <div class="form-control" id = "originalResponseHeaderChange" style="width: 100%; height: 80px;overflow-y: scroll; resize:both; display:none"></div>
-                    <div style="clear: both"></div>
-                    <h3 style="display: inline;">
-                        <span class="label label-default">Data</span>
-                    </h3>
-                    <h3 style="display: inline;">
-                        <div class="btn-group btn-group-sm">
-                            <button type="button" class="btn btn-default"
-                                id="showRawResponseDataButton" onClick="showRawResponseData()">Raw</button>
-                            <button type="button" class="btn btn-default"
-                                id="showRawFormattedDataButton" onClick="showFormattedResponseData(false)">Formatted</button>
-                        </div>
-                    </h3>
-                    <h3 style="display: inline;">
-                        <span class="label label-info" id="responseTypeLabel"></span>
-                    </h3>
-                    <h3 style="display: inline;">
-                        <span class="label label-info" id="responseDataDecodedLabel" style="background-color: #5b7fde"></span>
-                    </h3>
-                    <h3 style="display: inline;">
-                        <div class="btn-group btn-group-sm">
-                            <button type="button" class="btn btn-default"
-                                id="downloadResponseDataButton" onClick="downloadResponseData()">Export Response</button>
-                        </div>
-                    </h3>
-                    <textarea class="form-control" rows="20" style="width: 100%"
-                        id="responseRaw"></textarea>
-                    <textarea class="form-control" rows="20" style="width: 100%; display:none"
-                        id="originalResponseRaw"></textarea>
-                    <div class="form-control" id = "originalResponseChange" style="width: 100%; height: 450px;overflow-y: scroll;  resize:both; display:none"></div>
+<div id="historyContentDiv">
+    <div id="tabs">
+        <ul>
+            <li><a href="#tabs-1">Response <kbd>1</kbd></a></li>
+            <li><a href="#tabs-2">Request <kbd>2</kbd></a></li>
+            <li><a href="#tabs-3">Other <kbd>3</kbd></a></li>
+        </ul>
+
+        <div id="tabs-1">
+            <div class="btn-group btn-group-sm pull-right history-diff-tools" id="responseButtons">
+                <button type="button" class="btn btn-default history-modified" id="showModifiedResponseButton" onClick="showModifiedResponse()">Modified <kbd>m</kbd></button>
+                <button type="button" class="btn btn-default history-original" id="showOriginalResponseButton" onClick="showOriginalResponse()">Original <kbd>o</kbd></button>
+                <button type="button" class="btn btn-default history-diff" id="showChangedResponseButton" onClick="showChangedResponse()">View Diff <kbd>d</kbd></button>
+            </div>
+
+            <h3 style="display: inline-block">Headers</h3>
+            <div class="btn-group btn-group-sm">
+                <button type="button" id="copyResponseHeaders" class="btn btn-default copy-to-clipboard">Copy <kbd>c</kbd>&nbsp;<kbd>h</kbd></button>
+            </div>
+            <textarea class="form-control preformatted" data-copy-trigger="copyResponseHeaders" rows="4" id="responseHeaders"></textarea>
+            <textarea class="form-control preformatted" data-copy-trigger="copyResponseHeaders" rows="4" style="display: none;" id="originalResponseHeaders"></textarea>
+            <div class="form-control diffarea" id="originalResponseHeaderChange" data-copy-trigger="copyResponseHeaders"></div>
+
+            <h3>Data <span class="label label-info label-small" id="responseTypeLabel"></span> <span class="label label-primary label-small" id="responseDataDecodedLabel"></span></h3>
+
+            <div class="btn-toolbar">
+                <div class="btn-group btn-group-sm">
+                    <button type="button" id="copyResponseData" class="btn btn-default copy-to-clipboard">Copy <kbd>c</kbd>&nbsp;<kbd>d</kbd></button>
+                </div>
+
+                <div class="btn-group btn-group-sm">
+                    <button type="button" class="btn btn-default" id="showRawResponseDataButton" onClick="showRawResponseData()">Raw</button>
+                    <button type="button" class="btn btn-default" id="showRawFormattedDataButton" onClick="showFormattedResponseData(false)">Formatted</button>
+                </div>
+
+                <div class="btn-group btn-group-sm">
+                    <button type="button" class="btn btn-default" id="downloadResponseDataButton" onClick="downloadResponseData()">Export Response</button>
                 </div>
             </div>
-            <div id="tabs-2">
-                <div class="" style="float: left; width: 100%">
-                    <h3 style="display: inline;">
-                        <span class="label label-default">URL</span>
-                        <div class="btn-group btn-group-sm">
-                            <button type="button" class="btn btn-default" onClick="showPathTester()">Test Path</button>
-                        </div>
-                    </h3>
-                    <h3 style="display: inline">
-                        <div class="btn-group btn-group-sm" style="float:right" id="requestButtons">
-                            <button type="button" class="btn btn-default"
-                                id="showModifiedRequestButton" onClick="showModifiedRequestData()">Modified</button>
-                            <button type="button" class="btn btn-default"
-                                id="showOriginalButton" onClick="showOriginalRequestData()">Original</button>
-                            <button type="button" class="btn btn-default"
-                                id="showChangedButton" onClick="showChangedRequestData()">View Diff</button>
-                        </div>
-                    </h3>
-                    <textarea class="form-control" rows="1" style="width: 100%; margin-top: 6px"
-                        id="requestQuery"></textarea>
-                    <textarea class="form-control" rows="1" style="width: 100%; display: none"
-                        id="originalRequestQuery"></textarea>
-                    <div class="form-control" id = "originalRequestQueryChange" style="width: 100%; height: 40px;overflow-y: scroll; resize:both; display: none"></div>
-                    <div style="clear: both"></div>
-                    <h3>
-                        <span class="label label-default">Parameters</span>
-                    </h3>
-                    <textarea class="form-control" rows="1" style="width: 100%; overflow-y: scroll; float:left"
-                        id="requestParameters"></textarea>
-                    <textarea class="form-control" rows="1" style="width: 100%; float: left; overflow-y: scroll; display: none"
-                        id="originalRequestParameters"></textarea>
-                    <div class="form-control" style="width: 100%; float: left; display: none; overflow-y: scroll; resize:both"
-                        id="originalRequestParametersChanged"></div>
-                    <div style="clear: both"></div>
-                    <h3>
-                        <span class="label label-default">Headers</span>
-                    </h3>
-                    <textarea class="form-control" rows="3" style="width: 100%; float:left"
-                        id="requestHeaders"></textarea>
-                    <textarea class="form-control" rows="3" style="width: 100%; float: left; display: none"
-                        id="originalRequestHeaders"></textarea>
-                    <div class="form-control" style="width: 100%; height: 80px; float: left; display: none; overflow-y: scroll; resize:both"
-                        id="originalRequestHeadersChanged"></div>
-                    <div style="clear: both"></div>
-                    <div style="padding-bottom: 10px; padding-top: 10px">
-                        <h3 style="display: inline;">
-                            <span class="label label-default">POST Data</span>
-                        </h3>
-                        <h3 style="display: inline;">
-                            <span class="label label-info" id="requestDataDecodedLabel" style="background-color: #5b7fde"></span>
-                        </h3>
-                    </div>
-                    <textarea class="form-control" rows="10" style="width: 100%; float:left"
-                        id="requestPOSTData"></textarea>
-                    <textarea class="form-control" rows="10" style="width: 100%; float: left; display: none"
-                        id="originalRequestPOSTData"></textarea>
-                    <div class="form-control" style="width: 100%; height: 80px; float: left; display: none; overflow-y: scroll; resize:both"
-                        id="originalRequestPOSTDataChanged"></div>
+
+            <textarea class="form-control preformatted" rows="20" data-copy-trigger="copyResponseData" id="responseRaw"></textarea>
+            <textarea class="form-control preformatted" rows="20" data-copy-trigger="copyResponseData" style="display: none;" id="originalResponseRaw"></textarea>
+            <div class="form-control diffarea" data-copy-trigger="copyResponseData" id="originalResponseChange"></div>
+        </div><!-- /#tabs-1 -->
+
+        <div id="tabs-2">
+            <div class="btn-group btn-group-sm pull-right history-diff-tools" id="requestButtons">
+                <button type="button" class="btn btn-default history-modified" id="showModifiedRequestButton" onClick="showModifiedRequestData()">Modified <kbd>m</kbd></button>
+                <button type="button" class="btn btn-default history-original" id="showOriginalButton" onClick="showOriginalRequestData()">Original <kbd>o</kbd></button>
+                <button type="button" class="btn btn-default history-diff" id="showChangedButton" onClick="showChangedRequestData()">View Diff <kbd>d</kbd></button>
+            </div>
+
+            <h3>URL</h3>
+            <div class="btn-toolbar">
+                <div class="btn-group btn-group-sm">
+                    <button type="button" id="copyRequestQuery" class="btn btn-default copy-to-clipboard">Copy <kbd>c</kbd>&nbsp;<kbd>u</kbd></button>
+                </div>
+                <div class="btn-group btn-group-sm">
+                    <button type="button" class="btn btn-default" onClick="showPathTester()">Test Path</button>
                 </div>
             </div>
-            <div id="tabs-3">
-                <div class="" style="float: left; width: 100%; overflow: scroll;">
-                    <div>
-                        <h3>
-                            <span class="label label-default">CURL Command</span>
-                        </h3>
-                    </div>
-                </div>
-                <textarea class="form-control" rows="3" style="width: 100%"
-                    id="curlCommand"></textarea>
+            <textarea class="form-control preformatted" rows="1" data-copy-trigger="copyRequestQuery" id="requestQuery"></textarea>
+            <textarea class="form-control preformatted" rows="1" data-copy-trigger="copyRequestQuery" style="display: none;" id="originalRequestQuery"></textarea>
+            <div class="form-control diffarea" data-copy-trigger="copyRequestQuery" id="originalRequestQueryChange"></div>
+
+            <h3 style="display: inline-block;">Parameters</h3>
+            <div class="btn-group btn-group-sm">
+                <button type="button" id="copyRequestParameters" class="btn btn-default copy-to-clipboard">Copy <kbd>c</kbd>&nbsp;<kbd>p</kbd></button>
             </div>
-        </div>
+            <textarea class="form-control preformatted" rows="3" data-copy-trigger="copyRequestParameters" id="requestParameters"></textarea>
+            <textarea class="form-control preformatted" rows="3" data-copy-trigger="copyRequestParameters" style="display: none;" id="originalRequestParameters"></textarea>
+            <div class="form-control diffarea" data-copy-trigger="copyRequestParameters" id="originalRequestParametersChanged"></div>
+
+            <h3 style="display: inline-block;">Headers</h3>
+            <div class="btn-group btn-group-sm">
+                <button type="button" id="copyRequestHeaders" class="btn btn-default copy-to-clipboard">Copy <kbd>c</kbd>&nbsp;<kbd>h</kbd></button>
+            </div>
+            <textarea class="form-control preformatted" rows="3" data-copy-trigger="copyRequestHeaders" id="requestHeaders"></textarea>
+            <textarea class="form-control preformatted" rows="3" data-copy-trigger="copyRequestHeaders" style="display: none;" id="originalRequestHeaders"></textarea>
+            <div class="form-control diffarea" data-copy-trigger="copyRequestHeaders" id="originalRequestHeadersChanged"></div>
+
+            <h3 style="display: inline-block;">POST Data</h3>
+            <div class="btn-group btn-group-sm">
+                <button type="button" id="copyPOSTData" class="btn btn-default copy-to-clipboard">Copy <kbd>c</kbd>&nbsp;<kbd>d</kbd></button>
+            </div>
+            <span class="label label-primary" id="requestDataDecodedLabel"></span>
+            <textarea class="form-control preformatted" data-copy-trigger="copyPOSTData" rows="10" id="requestPOSTData"></textarea>
+            <textarea class="form-control preformatted" data-copy-trigger="copyPOSTData" rows="10" style="display: none" id="originalRequestPOSTData"></textarea>
+            <div class="form-control diffarea" data-copy-trigger="copyPOSTData" id="originalRequestPOSTDataChanged"></div>
+        </div><!-- /#tabs-2 -->
+
+        <div id="tabs-3">
+            <h3>cURL Command</h3>
+            <div class="btn-group btn-group-sm">
+                <button type="button" id="copyCURLCommand" class="btn btn-default copy-to-clipboard">Copy <kbd>c</kbd>&nbsp;<kbd>c</kbd></button>
+            </div>
+            <textarea class="form-control preformatted" rows="29" data-copy-trigger="copyCURLCommand" id="curlCommand"></textarea>
+        </div><!-- /#tabs-3 -->
     </div>
+</div>
 
-<script>
+<script type="text/javascript">
     var clientUUID = '${clientUUID}';
+    var historyFilter;
 
     function openGridOptions() {
         $("#gridOptionsDialog").dialog({
@@ -236,20 +251,11 @@
     }
 
     function getNumberOfRows() {
-        var numRows = 10;
-        if ($.cookie("historyGridRows") != null) {
-            numRows = $.cookie("historyGridRows");
-        }
-
-        return numRows;
+        return $.cookie("historyGridRows") || 10;
     }
 
     function navigateScripts() {
         window.open('<c:url value = '/scripts' />');
-    }
-
-    function noenter() {
-        return !(window.event && window.event.keyCode == 13);
     }
 
     function clearHistory() {
@@ -260,8 +266,8 @@
                 clientUUID : clientUUID,
                 _method : 'DELETE'
             }),
-            success : function(data) { //this is the data that comes back from the server (the array<array<object>>)
-                historyList.trigger("reloadGrid");
+            success : function(data) {
+                $("#historylist").trigger("reloadGrid");
             },
             error : function(xhr, ajaxOptions, thrownError) {
                 $('#info').html("Whoops!");
@@ -270,15 +276,17 @@
     }
 
     function uriFilter() {
-        var filter = $("#searchFilter").val();
+        historyFilter = $("#searchFilter").val();
         jQuery("#historylist")
-                .jqGrid(
-                        'setGridParam',
-                        {
-                            url : '<c:url value="/api/history/${profile_id}"/>?clientUUID=${clientUUID}&source_uri[]='
-                                    + filter,
-                            page : 1
-                        }).trigger("reloadGrid");
+            .jqGrid(
+                'setGridParam',
+                {
+                    url : '<c:url value="/api/history/${profile_id}"/>?clientUUID=${clientUUID}&source_uri[]=' + historyFilter,
+                    page : 1
+                })
+            .jqGrid('setCaption', historyCaption())
+            .trigger("reloadGrid")
+        return false; // prevent form redirection
     }
 
     function showItemsWithMessages() {
@@ -292,21 +300,16 @@
     }
 
     function clearFilter() {
+        historyFilter = null;
         jQuery("#historylist")
-                .jqGrid(
-                        'setGridParam',
-                        {
-                            url : '<c:url value="/api/history/${profile_id}"/>?clientUUID=${clientUUID}',
-                            page : 1
-                        }).trigger("reloadGrid");
-    }
-
-    function scrollableFormatter(cellvalue, options, rowObject) {
-        // this divId will be used to get pop over content
-        var divId = options.colModel.name + '_' + currentHistoryId;
-        var scrollView = '<div id="' + divId + '" style="overflow-y:scroll;">';
-        scrollView += cellvalue + '</div>';
-        return scrollView;
+            .jqGrid(
+                'setGridParam',
+                {
+                    url : '<c:url value="/api/history/${profile_id}"/>?clientUUID=${clientUUID}',
+                    page : 1
+                })
+            .jqGrid("setCaption", historyCaption())
+            .trigger("reloadGrid")
     }
 
     var currentHistoryId = -1;
@@ -317,9 +320,20 @@
         return cellvalue;
     }
 
+    function dateFormatter(cellvalue, options, rowObject) {
+      var date = new Date(cellvalue)
+
+      if (date instanceof Date && isFinite(date)) {
+        var options = { hour: '2-digit', minute: '2-digit', second: '2-digit', month: 'short', day: 'numeric' };
+        return date.toLocaleDateString("en-US", options);
+      }
+
+      return cellvalue;
+    }
+
     var invalidRows = []
     function validFormatter(cellvalue, options, rowObject) {
-        if (cellvalue == false) {
+        if (!cellvalue) {
             invalidRows[invalidRows.length] = options.rowId;
         }
         return cellvalue;
@@ -327,7 +341,7 @@
 
     var originalResponseFlag = 0;
 
-    function showOriginalResponse(){
+    function showOriginalResponse() {
         originalResponseFlag = 1;
         $("#originalResponseHeaders").val(historyData.history.originalResponseHeaders);
         if(historyData.history.responseContentType == null ||
@@ -335,7 +349,7 @@
             historyData.history.responseData == "" || $.cookie("formatted") == "false"){
                 $("#originalResponseRaw").val(originalResponseRaw);
         } else {
-            if(historyData.history.formattedOriginalResponseData == "") {
+            if (historyData.history.formattedOriginalResponseData == "") {
                 showFormattedResponseData(false);
             } else {
                 $("#originalResponseRaw").val(historyData.history.formattedOriginalResponseData);
@@ -347,8 +361,8 @@
         $("#originalResponseChange").hide();
         $("#responseRaw").hide();
         $("#responseHeaders").hide();
-        $("#showChangedResponseButton, #showModifiedResponseButton").attr("class", "btn btn-default");
-        $("#showOriginalResponseButton").attr("class", "btn btn-primary");
+        $("#showChangedResponseButton, #showModifiedResponseButton").removeClass("btn-primary").addClass("btn-default");
+        $("#showOriginalResponseButton").removeClass("btn-default").addClass("btn-primary");
     }
 
     var dmp = new diff_match_patch();
@@ -356,24 +370,28 @@
         var d = dmp.diff_main(originalData, changedData);
         dmp.diff_cleanupSemantic(d);
         var ds = diff_prettyHtml(d);
+        var patchdiff = dmp.patch_toText(dmp.patch_make(originalData, changedData));
         //$("#" + changedID).html(ds.replace(/[^\x00-\x7F]/g, ""));
-        $("#" + changedID).html(ds);
-        $("#" + originalID).hide();
-        $("#" + changedID).show();
-        $("#" + modifiedID).hide();
+        $("#" + changedID)
+            .height($("#" + originalID).height())
+            .attr("data-copy-content", patchdiff)
+            .html(ds)
+            .show();
+        $("#" + originalID + ", #" + modifiedID).hide();
     }
 
-    function showChangedResponse(){
+    function showChangedResponse() {
         showFormattedResponseData(true);
     }
 
     function showChangedResponsePostFormattedAJAX() {
+        showChangedData(historyData.history.originalResponseHeaders, historyData.history.responseHeaders, "originalResponseHeaders", "originalResponseHeaderChange", "responseHeaders");
         showChangedData(historyData.history.formattedOriginalResponseData, historyData.history.formattedResponseData, "originalResponseRaw", "originalResponseChange", "responseRaw");
-        $("#showChangedResponseButton").attr("class", "btn btn-primary");
-        $("#showOriginalResponseButton, #showModifiedResponseButton").attr("class", "btn btn-default");
+        $("#showChangedResponseButton").removeClass("btn-default").addClass("btn-primary");
+        $("#showOriginalResponseButton, #showModifiedResponseButton").removeClass("btn-primary").addClass("btn-default");
     }
 
-    function showModifiedResponse(){
+    function showModifiedResponse() {
         originalResponseFlag = 0;
         $("#responseHeaders").val(historyData.history.responseHeaders);
         if(historyData.history.responseContentType == null ||
@@ -381,7 +399,7 @@
             historyData.history.responseData == "" || $.cookie("formatted") == "false") {
                 $("#responseRaw").val(responseRaw);
         } else {
-            if(historyData.history.formattedResponseData == "") {
+            if (historyData.history.formattedResponseData == "") {
                 showFormattedResponseData(false);
             } else {
                 $("#responseRaw").val(historyData.history.formattedResponseData);
@@ -393,27 +411,26 @@
         $("#originalResponseChange").hide();
         $("#originalResponseRaw").hide();
         $("#originalResponseHeaders").hide();
-        $("#showOriginalResponseButton, #showChangedResponseButton").attr("class", "btn btn-default");
-        $("#showModifiedResponseButton").attr("class", "btn btn-primary");
+        $("#showOriginalResponseButton, #showChangedResponseButton").removeClass("btn-primary").addClass("btn-default");
+        $("#showModifiedResponseButton").removeClass("btn-default").addClass("btn-primary");
     }
 
     var responseRaw, originalResponseRaw;
     function showFormattedResponseData(forDiff) {
         $.ajax({
             type : "GET",
-            url : '<c:url value="/api/history/${profile_id}/"/>'
-                + currentHistoryId,
+            url : '<c:url value="/api/history/${profile_id}/"/>' + currentHistoryId,
             data : 'clientUUID=${clientUUID}&format=formattedAll',
             success : function(data) {
                 historyData = data;
-                if (forDiff == true) {
+                if (forDiff) {
                     showChangedResponsePostFormattedAJAX();
                 } else {
                     $("#responseRaw").val(data.history.formattedResponseData);
                     $("#originalResponseRaw").val(data.history.formattedOriginalResponseData);
                     $.cookie("formatted", "true");
-                    $("#showRawFormattedDataButton").attr("class", "btn btn-primary");
-                    $("#showRawResponseDataButton").attr("class", "btn btn-default");
+                    $("#showRawFormattedDataButton").removeClass("btn-default").addClass("btn-primary");
+                    $("#showRawResponseDataButton").removeClass("btn-primary").addClass("btn-default");
                 }
             }
         });
@@ -425,8 +442,8 @@
         $("#responseRaw").val(responseRaw);
         $("#originalResponseRaw").val(originalResponseRaw);
         $.cookie("formatted", "false");
-        $("#showRawResponseDataButton").attr("class", "btn btn-primary");
-        $("#showRawFormattedDataButton").attr("class", "btn btn-default");
+        $("#showRawResponseDataButton").removeClass("btn-default").addClass("btn-primary");
+        $("#showRawFormattedDataButton").removeClass("btn-primary").addClass("btn-default");
     }
 
     function showOriginalRequestData(){
@@ -434,8 +451,6 @@
         $("#originalRequestQueryChange").hide();
         $("#requestQuery").hide();
         $("#originalRequestParameters").show();
-        $("#originalRequestParameters").css("height" , "");
-        $("#originalRequestParameters").height($("#originalRequestParameters")[0].scrollHeight + "px");
         $("#originalRequestParametersChanged").hide();
         $("#requestParameters").hide();
         $("#originalRequestHeaders").show();
@@ -444,8 +459,8 @@
         $("#originalRequestPOSTData").show();
         $("#originalRequestPOSTDataChanged").hide();
         $("#requestPOSTData").hide();
-        $("#showOriginalButton").attr("class", "btn btn-primary");
-        $("#showChangedButton, #showModifiedRequestButton").attr("class", "btn btn-default");
+        $("#showOriginalButton").removeClass("btn-default").addClass("btn-primary");
+        $("#showChangedButton, #showModifiedRequestButton").removeClass("btn-primary").addClass("btn-default");
     }
 
     function showChangedRequestData(){
@@ -453,8 +468,8 @@
         showChangedData(historyData.history.originalRequestParams, historyData.history.requestParams, "originalRequestParameters", "originalRequestParametersChanged", "requestParameters");
         showChangedData(historyData.history.originalRequestHeaders, historyData.history.requestHeaders, "originalRequestHeaders", "originalRequestHeadersChanged", "requestHeaders");
         showChangedData(historyData.history.originalRequestPostData, historyData.history.requestPostData, "originalRequestPOSTData", "originalRequestPOSTDataChanged", "requestPOSTData");
-        $("#showChangedButton").attr("class", "btn btn-primary");
-        $("#showOriginalButton, #showModifiedRequestButton").attr("class", "btn btn-default");
+        $("#showChangedButton").removeClass("btn-default").addClass("btn-primary");
+        $("#showOriginalButton, #showModifiedRequestButton").removeClass("btn-primary").addClass("btn-default");
     }
 
     function showModifiedRequestData(){
@@ -464,16 +479,14 @@
         $("#originalRequestParameters").hide();
         $("#originalRequestParametersChanged").hide();
         $("#requestParameters").show();
-        $("#requestParameters").css("height" , "");
-        $("#requestParameters").height($("#requestParameters")[0].scrollHeight + "px");
         $("#originalRequestHeaders").hide();
         $("#originalRequestHeadersChanged").hide();
         $("#requestHeaders").show();
         $("#originalRequestPOSTData").hide();
         $("#originalRequestPOSTDataChanged").hide();
         $("#requestPOSTData").show();
-        $("#showOriginalButton, #showChangedButton").attr("class", "btn btn-default");
-        $("#showModifiedRequestButton").attr("class", "btn btn-primary");
+        $("#showOriginalButton, #showChangedButton").removeClass("btn-primary").addClass("btn-default");
+        $("#showModifiedRequestButton").removeClass("btn-default").addClass("btn-primary");
     }
 
 
@@ -482,8 +495,8 @@
         var requestType = historyData.history.requestType;
 
         var commandLine = "curl --insecure -X " + requestType;
-        for ( var x in headers) {
-            if(headers[x].toLowerCase().lastIndexOf("content-length",0) === 0) {
+        for (var x in headers) {
+            if(headers[x].toLowerCase().lastIndexOf("content-length", 0) === 0) {
                 continue;
             }
             commandLine += " -H '" + headers[x].replace("'", "\\u0027") + "'";
@@ -571,7 +584,7 @@
                     $("#originalRequestPOSTData").val(data.history.originalRequestPostData);
                     $("#responseButtons").show();
                     $("#requestButtons").show();
-                    $("#showModifiedResponseButton, #showModifiedRequestButton").attr("class", "btn btn-primary");
+                    $("#showModifiedResponseButton, #showModifiedRequestButton").removeClass("btn-default").addClass("btn-primary");
                 } else {
                     // set the query back to the original query data
                     $("#requestQuery").val(data.history.originalRequestURL);
@@ -589,7 +602,6 @@
                     var headerParts = data.history.responseHeaders.split('\n');
                     for (var x in headerParts) {
                         var parts = headerParts[x].split(": ");
-                        console.log(parts[0].toLowerCase());
                         if (parts[0].toLowerCase() === "content-encoding") {
                             $("#responseDataDecodedLabel").html("decoded: " + parts[1]);
                             break;
@@ -618,23 +630,109 @@
         $("#tabs").css("overflow", "scroll");
         $("#radioset").buttonset();
 
-        $('#searchFilter').keydown(function(event) {
-            if (event.keyCode == 13) {
-                uriFilter();
-                return false;
-            }
-        });
-
         // bind window resize to fix grid width
         $(window).bind('resize', function() {
             $("#historylist").setGridWidth($("#historyGridDiv").width());
         });
-    });
 
-    var selectRowUsed = false;
-    var historyList = jQuery("#historylist");
+        $(".copy-to-clipboard")
+            .tooltip({
+                    "placement": "top",
+                    "trigger": "manual"
+                })
+            .on("shown.bs.tooltip", function(event) {
+                setTimeout(function() {
+                    $(event.target).tooltip("hide");
+                }, 1500);
+            });
 
-    historyList
+        new ClipboardJS(".copy-to-clipboard", {
+            text: function(trigger) {
+                var $target = $("[data-copy-trigger=\"" + trigger.id + "\"]").filter(function(index) {
+                    return $(this).is(":visible");
+                }).first();
+
+                var copytext;
+
+                if ($target.is('textarea')) {
+                    copytext = $target.val();
+                } else if ($target.attr('data-copy-content')) {
+                    copytext = decodeURIComponent($target.attr('data-copy-content'));
+                } else {
+                    copytext = $target.text();
+                }
+
+                if (copytext.length === 0) {
+                    $(trigger).data('bs.tooltip').options.title = "Nothing copied.";
+                    $(trigger).tooltip('show')
+                }
+
+                return copytext;
+            }
+        }).on('success', function(e) {
+            $(e.trigger).data('bs.tooltip').options.title = "Copied!";
+            $(e.trigger).tooltip("show");
+
+            e.clearSelection();
+        }).on('error', function(e) {
+            $(e.trigger).data('bs.tooltip').options.title = "Could not copy text.";
+            $(e.trigger).tooltip("show");
+
+            e.clearSelection();
+        });
+
+        var selectRowUsed = false;
+
+        /* Keyboard shortcuts configuration */
+        // Tabs: response/request/other navigation
+        Mousetrap.bind('1', function() {
+            $("[href=\"#tabs-1\"]:visible").click();
+        });
+        Mousetrap.bind('2', function() {
+            $("[href=\"#tabs-2\"]:visible").click();
+        });
+        Mousetrap.bind('3', function() {
+            $("[href=\"#tabs-3\"]:visible").click();
+        });
+        // Filter
+        Mousetrap.bind('f', function(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            $("#searchFilter").focus();
+        });
+        // View data modified/original/diff
+        Mousetrap.bind('m', function() { // shared by Response/Request
+            $(getActiveTabId() + " .history-diff-tools:visible .history-modified").click();
+        });
+        Mousetrap.bind('o', function() { // shared by Response/Request
+            $(getActiveTabId() + " .history-diff-tools:visible .history-original").click();
+        });
+        Mousetrap.bind('d', function() { // shared by Response/Request
+            var selectedTabId = $("#tabs .ui-state-active a.ui-tabs-anchor").attr("href");
+            $(getActiveTabId() + " .history-diff-tools:visible .history-diff").click();
+        });
+        // Refresh history
+        Mousetrap.bind('r', function() {
+            jQuery("#historylist").trigger("reloadGrid");
+        });
+        // Copy operations
+        Mousetrap.bind('c u', function() { // Request URL
+            $("#copyRequestQuery:visible").click();
+        });
+        Mousetrap.bind('c p', function() { // Request Params
+            $("#copyRequestParameters:visible").click();
+        });
+        Mousetrap.bind('c h', function() { // Request/Response Headers
+            $("#copyRequestHeaders:visible, #copyResponseHeaders:visible").first().click();
+        });
+        Mousetrap.bind('c d', function() { // Request/Response Data
+            $("#copyPOSTData:visible, #copyResponseData:visible").first().click();
+        });
+        Mousetrap.bind('c c', function() { // cURL command
+            $("#copyCURLCommand:visible").click();
+        });
+
+        $("#historylist")
             .jqGrid({
                 url : '<c:url value="/api/history/${profile_id}"/>?clientUUID=${clientUUID}',
                 autowidth : true,
@@ -642,78 +740,82 @@
                 pgtext : null,
                 datatype : "json",
                 page : "${page}",
+                toppager: true,
+                gridview: true,
                 rowNum: getNumberOfRows(),
                 altRows: true,
                 altclass: 'altRowClass',
                 colNames : [ 'ID', 'Created At', 'Method', 'Query',
-                        'Query Params', 'Code', 'Valid', 'Message', 'Modified' ],
-                colModel : [{
-                    name : 'id',
-                    index : 'id',
-                    width : 55,
-                    hidden : true,
-                    formatter : idFormatter
-                }, {
-                    name : 'createdAt',
-                    index : 'createdAt',
-                    width : 150,
-                    editable : false,
-                    align : 'center'
-                }, {
-                    name : 'requestType',
-                    index : 'requestType',
-                    width : 50,
-                    editable : false,
-                    align : 'center'
-                }, {
-                    name : 'originalRequestURL',
-                    index : 'originalRequestURL',
-                    width : 375,
-                    editable : false,
-                    formatter : scrollableFormatter,
-                    cellattr: function (rowId, tv, rawObject, cm, rdata) {
-                        return 'style="white-space: normal;'
+                        'Query Params', 'Code', 'Valid', 'Message', 'Modified?' ],
+                colModel : [
+                    {
+                        name : 'id',
+                        index : 'id',
+                        hidden : true,
+                        formatter : idFormatter,
+                        sortable: false
+                    }, {
+                        name : 'createdAt',
+                        index : 'createdAt',
+                        width : 125,
+                        editable : false,
+                        sortable: false,
+                        align : 'center',
+                        formatter : dateFormatter,
+                    }, {
+                        name : 'requestType',
+                        index : 'requestType',
+                        width : 60,
+                        editable : false,
+                        sortable: false,
+                        align : 'center'
+                    }, {
+                        name : 'originalRequestURL',
+                        index : 'originalRequestURL',
+                        width : 375,
+                        editable : false,
+                        sortable: false,
+                        classes: 'break-all'
+                    }, {
+                        name : 'requestParams',
+                        index : 'requestParams',
+                        width : 300,
+                        editable : false,
+                        sortable: false,
+                        classes: 'break-all preformatted'
+                    }, {
+                        name : 'responseCode',
+                        index : 'responseCode',
+                        width : 50,
+                        editable : false,
+                        sortable: false,
+                        align : 'center'
+                    }, {
+                        name : 'valid',
+                        index : 'valid',
+                        width : 55,
+                        hidden : true,
+                        sortable: false,
+                        formatter : validFormatter
+                    }, {
+                        name : 'validationMessage',
+                        index : 'validationMessage',
+                        width : 200,
+                        hidden : false,
+                        sortable: false,
+                        cellattr: function (rowId, tv, rawObject, cm, rdata) {
+                            return 'style="white-space: normal;'
+                        }
+                    }, {
+                        name : 'modified',
+                        index : 'modified',
+                        width : 50,
+                        editable: false,
+                        sortable: false,
+                        align: 'center',
+                        formatter: modifiedFormatter
                     }
-                }, {
-                    name : 'requestParams',
-                    index : 'requestParams',
-                    width : 300,
-                    editable : false,
-                    formatter : scrollableFormatter,
-                    cellattr: function (rowId, tv, rawObject, cm, rdata) {
-                        return 'style="white-space: normal;'
-                    }
-                }, {
-                    name : 'responseCode',
-                    index : 'responseCode',
-                    width : 50,
-                    editable : false,
-                    align : 'center'
-                }, {
-                    name : 'valid',
-                    index : 'valid',
-                    width : 55,
-                    hidden : true,
-                    formatter : validFormatter
-                }, {
-                    name : 'validationMessage',
-                    index : 'validationMessage',
-                    width : 200,
-                    hidden : false,
-                    cellattr: function (rowId, tv, rawObject, cm, rdata) {
-                        return 'style="white-space: normal;'
-                    }
-                }, {
-                    name : 'modified',
-                    index : 'modified',
-                    width : 50,
-                    editable: false,
-                    edittype: 'checkbox',
-                    align: 'center',
-                    editoptions: { value:"True:False" },
-                    formatter: modifiedFormatter,
-                    formatoptions: {disabled: false}
-                }, ],
+                ],
                 jsonReader : {
                     page : "page",
                     total : "total",
@@ -723,16 +825,14 @@
                 },
                 gridComplete : function() {
                     for (var i = 0; i < invalidRows.length; i++) {
-                        $("#" + invalidRows[i]).find("td").addClass(
-                            "ui-state-error");
+                        $("#" + invalidRows[i]).find("td").addClass("ui-state-error");
                     }
 
                     if("${historyID}" != -1 && !selectRowUsed) {
                         jQuery("#historylist").setSelection("${historyID}", true);
                         selectRowUsed = true;
                     } else {
-                        jQuery("#historylist").setSelection(
-                        $("#historylist").getDataIDs()[0], true);
+                        jQuery("#historylist").setSelection($("#historylist").getDataIDs()[0], true);
                     }
                 },
                 loadComplete : function() {
@@ -750,7 +850,6 @@
                         minHeight:300,
                         maxHeight:1000,
                         stop: function( event, ui ) {
-                            console.log(ui.size.height);
                             $.cookie("historyGridHeight", ui.size.height, { expires: 10000, path: '/testproxy/history' });
                         }
                     });
@@ -759,12 +858,11 @@
                     var grid = $("#historylist");
                     var ids = grid.getDataIDs();
                     for (var i = 0; i < ids.length; i++) {
-                        grid.setRowData ( ids[i], false, {height: 20+i*2} );
+                        grid.setRowData(ids[i], false, {height: 20+i*2});
                     }
                 },
                 onSelectRow : function(id) {
-                    var data = jQuery("#historylist").jqGrid('getRowData',
-                        id);
+                    var data = jQuery("#historylist").jqGrid('getRowData', id);
                     currentHistoryId = data.id;
                     loadData(data.id);
                 },
@@ -773,32 +871,53 @@
                 sortname : 'id',
                 viewrecords : true,
                 sortorder : "desc",
-                caption : '<font size="5">History: ${profile_name}</font>'
+                caption : historyCaption()
             });
 
-    historyList.jqGrid('navGrid', '#historynavGrid', {
-        edit : false,
-        add : false,
-        del : false
-    }, {}, {}, {});
+        $("#historylist").jqGrid('navGrid', '#historynavGrid', {
+            edit : false,
+            add : false,
+            del : false,
+            refreshtext: 'Refresh <kbd>r</kbd>',
+            searchtext: 'Search',
+            cloneToTop: true
+        });
+    });
 
-    function modifiedFormatter( cellvalue, options, rowObject ) {
-        var checkedValue = 0;
-        if (cellvalue == true) {
-            checkedValue = 1;
+    function modifiedFormatter(cellvalue, options, rowObject) {
+        return $('<div>').append($('<span>')
+                .addClass("glyphicon " + (cellvalue ? "glyphicon-ok text-success" : "glyphicon-remove"))
+                .attr("style", cellvalue ? "" : "opacity: 0.15;"))
+            .append($('<span>')
+                .addClass('copy-only')
+                .text(cellvalue ? 'Yes' : 'No'))
+            .html();
+    }
+
+    function getActiveTabId() {
+        return $("#tabs .ui-state-active a.ui-tabs-anchor").attr("href");
+    }
+
+    function historyCaption() {
+        let $container = $("<div>"); // necessary
+        let $baseCaption = $("<h1>")
+            .attr("style", "font-weight: bold; font-size: 2em; margin: 0.25em;")
+            .text("History: ${profile_name}");
+        if (historyFilter) {
+            $baseCaption
+                .append($("<span>").text(" "))
+                .append($("<span>")
+                .attr({
+                    class: "label label-success label-small",
+                    title: historyFilter
+                })
+                .text("Filtered"));
         }
-        var newCellValue = '<input id="modified_' + rowObject.pathId + '"type="checkbox" offval="0" value="' + checkedValue + '"';
-        if (checkedValue == 1) {
-            newCellValue += 'checked="checked"';
-        }
-        newCellValue += ' disabled=true>';
-        return newCellValue;
+        return $container.append($baseCaption).html();
     }
 
     function showPathTester() {
         // map request type
-        console.log(historyData);
-        console.log(historyData.history.requestType);
         switch(historyData.history.requestType) {
             case 'ALL':
                 $('#pathTesterRequestType').val(0);
@@ -847,29 +966,29 @@
      * @return {string} HTML representation.
      */
     diff_prettyHtml = function(diffs) {
-      var html = [];
-      var pattern_amp = /&/g;
-      var pattern_lt = /</g;
-      var pattern_gt = />/g;
-      var pattern_para = /\n/g;
-      for (var x = 0; x < diffs.length; x++) {
-        var op = diffs[x][0];    // Operation (insert, delete, equal)
-        var data = diffs[x][1];  // Text of change.
-        var text = data.replace(pattern_amp, '&amp;').replace(pattern_lt, '&lt;')
-            .replace(pattern_gt, '&gt;').replace(pattern_para, '<br>');
-        switch (op) {
-          case DIFF_INSERT:
-            html[x] = '<ins style="background:#e6ffe6;">' + text + '</ins>';
-            break;
-          case DIFF_DELETE:
-            html[x] = '<del style="background:#ffe6e6;">' + text + '</del>';
-            break;
-          case DIFF_EQUAL:
-            html[x] = '<span>' + text + '</span>';
-            break;
+        var html = [];
+        var pattern_amp = /&/g;
+        var pattern_lt = /</g;
+        var pattern_gt = />/g;
+        var pattern_para = /\n/g;
+        for (var x = 0; x < diffs.length; x++) {
+            var op = diffs[x][0];    // Operation (insert, delete, equal)
+            var data = diffs[x][1];  // Text of change.
+            var text = data.replace(pattern_amp, '&amp;').replace(pattern_lt, '&lt;')
+                .replace(pattern_gt, '&gt;').replace(pattern_para, '<br>');
+            switch (op) {
+                case DIFF_INSERT:
+                    html[x] = '<ins style="background:#e6ffe6;">' + text + '</ins>';
+                    break;
+                case DIFF_DELETE:
+                    html[x] = '<del style="background:#ffe6e6;">' + text + '</del>';
+                    break;
+                case DIFF_EQUAL:
+                    html[x] = '<span>' + text + '</span>';
+                    break;
+            }
         }
-      }
-      return html.join('');
+        return html.join('');
     };
 </script>
 </body>

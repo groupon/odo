@@ -1,11 +1,13 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ page session="false" %>
+<!DOCTYPE html>
 <html>
     <head>
-        <%@ include file="/resources/js/webjars.include" %>
-        <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>Certificates</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <%@ include file="/resources/js/webjars.include" %>
     </head>
 
     <body>

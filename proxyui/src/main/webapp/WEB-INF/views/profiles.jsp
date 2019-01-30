@@ -1,12 +1,15 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<!DOCTYPE html>
+<html>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ page session="false" %>
     <head>
-        <%@ include file="/resources/js/webjars.include" %>
-
         <title>API Profiles</title>
+
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+        <%@ include file="/resources/js/webjars.include" %>
         <style type="text/css">
             .ui-jqgrid tr.jqgrow td, #jqgh_profilelist_name { /* MAKE PROFILE NAMES BIGGER */
                 font-size: medium;
@@ -251,7 +254,7 @@
     <body>
         <!-- Hidden div for configuration file upload -->
         <div id="configurationUploadDialog" style="display:none;">
-            <form id="configurationUploadForm" action="<c:url value="/api/backup"/>" method="POST">
+            <form id="configurationUploadForm" action="<c:url value="/api/backup"/>" method="post">
                 <input id="configurationUploadFile" type="file" name="fileData" />
                 <button id="configurationUploadFileButton" type="submit" style="display: none;"></button>
             </form>

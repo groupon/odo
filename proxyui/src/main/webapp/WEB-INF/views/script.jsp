@@ -2,11 +2,14 @@
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1"
     pageEncoding="ISO-8859-1" isELIgnored="false"%>
 <%@ page session="false"%>
+<!DOCTYPE html>
 <html>
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
-<%@ include file="/resources/js/webjars.include" %>
+<title>Scripts</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 
+<%@ include file="/resources/js/webjars.include" %>
 <style type="text/css">
     div.left {
         width: 50%;
@@ -22,8 +25,6 @@
     div.edit textarea { display: block; }
     div.hidden { display: none; }
 </style>
-
-<title>Scripts</title>
 </head>
 <body>
 

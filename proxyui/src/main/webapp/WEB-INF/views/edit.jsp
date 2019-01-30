@@ -1,17 +1,14 @@
-
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<!DOCTYPE html>
+<html>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1"
 	pageEncoding="ISO-8859-1" isELIgnored="false"%>
 <%@ page session="false"%>
     <head>
         <title>Edit Profile: ${profile_name}</title>
-        <%@ include file="/resources/js/webjars.include" %>
-        <link rel="stylesheet" type="text/css" media="screen"
-             href="<c:url value="/resources/css/odo.css"/>" />
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <%@ include file="/resources/js/webjars.include" %>
 
         <style type="text/css">
             .detailsLeft
@@ -532,6 +529,16 @@
                 updateStatus();
                 $("#responseOverrideSelect").select2({dropdownAutoWidth : true});
                 $("#requestOverrideSelect").select2({dropdownAutoWidth : true});
+
+                Mousetrap.bind('1', function() {
+                    $("[href=\"#tabs-1\"]").click();
+                });
+                Mousetrap.bind('2', function() {
+                    $("[href=\"#tabs-2\"]").click();
+                });
+                Mousetrap.bind('3', function() {
+                    $("[href=\"#tabs-3\"]").click();
+                });
 
                 var serverList = jQuery("#serverlist");
                 var initServerWidth = 0;
@@ -1947,9 +1954,9 @@
                     </div>
                     <div id="tabs">
                         <ul>
-                            <li><a href="#tabs-1">Response</a></li>
-                            <li><a href="#tabs-2">Request</a></li>
-                            <li><a href="#tabs-3">Configuration</a></li>
+                            <li><a href="#tabs-1">Response <kbd>1</kbd></a></li>
+                            <li><a href="#tabs-2">Request <kbd>2</kbd></a></li>
+                            <li><a href="#tabs-3">Configuration <kbd>3</kbd></a></li>
                         </ul>
 
                         <div id="tabs-1" >

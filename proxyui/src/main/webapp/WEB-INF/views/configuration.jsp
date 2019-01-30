@@ -1,12 +1,16 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ page session="false" %>
+<!DOCTYPE html>
 <html>
     <head>
+        <title>Configuration Page</title>
+
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+
         <link href="<c:url value="/resources/css/profiles.css" />" rel="stylesheet" type="text/css" media="screen" />
         <%@ include file="/resources/js/webjars.include" %>
-        <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-        <title>Configuration Page</title>
 
         <script type="text/javascript">
 

@@ -1,14 +1,3 @@
-div.left {
-	width: 50%;
-	float: left;
-}
-
-div.right {
-	width: 50%;
-}
-
-div.hidden { display: none; }
-
 body {
     background-color: #3E3E3E;
     padding: 20px;
@@ -20,10 +9,10 @@ body {
     margin-right: auto;
 }
 
-.smaller-center
+.label-small
 {
-    margin-left: 20px;
-    margin-right: 20px;
+    font-size: 50%;
+    vertical-align: middle;
 }
 
 .reorderbox
@@ -33,6 +22,6 @@ body {
     box-sizing: content-box;
 }
 
-ul > li{
-    size
+textarea {
+    resize: vertical;
 }

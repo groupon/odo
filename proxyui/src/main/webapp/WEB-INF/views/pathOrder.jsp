@@ -1,15 +1,15 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1" pageEncoding="ISO-8859-1" isELIgnored="false" %>
 <%@ page session="false" %>
+<!DOCTYPE html>
 <html>
 
 <!-- Used a lot of code from: http://jqueryui.com/demos/sortable/default.html -->
 <head>
 <title>Update Path Order</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
   <%@ include file="/resources/js/webjars.include" %>
-
-  <link rel="stylesheet" type="text/css" media="screen"
-	 href="<c:url value="/resources/css/odo.css"/>" />
 
   <style>
 	#sortable { list-style-type: none; margin: 1px; padding: 1px; width: 60%; }
