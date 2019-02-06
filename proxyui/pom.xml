@@ -251,6 +251,11 @@
       <artifactId>mousetrap</artifactId>
       <version>1.6.0</version>
     </dependency>
+	<dependency>
+      <groupId>org.webjars.bower</groupId>
+      <artifactId>downloadjs</artifactId>
+      <version>1.4.8</version>
+    </dependency>
   </dependencies>
 
   <dependencyManagement>

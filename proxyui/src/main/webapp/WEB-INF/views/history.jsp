@@ -55,7 +55,6 @@
             resize: vertical;
             display: none;
             font-family: monospace;
-            background-color: #eee;
         }
 
         .copy-only {
@@ -115,114 +114,125 @@
         </ul>
     </div>
 </nav>
-
-<div id="historyGridDiv">
-    <table id="historylist"></table>
-    <div id="historynavGrid"></div>
-</div>
-
-<div id="historyContentDiv">
-    <div id="tabs">
-        <ul>
-            <li><a href="#tabs-1">Response <kbd>1</kbd></a></li>
-            <li><a href="#tabs-2">Request <kbd>2</kbd></a></li>
-            <li><a href="#tabs-3">Other <kbd>3</kbd></a></li>
-        </ul>
-
-        <div id="tabs-1">
-            <div class="btn-group btn-group-sm pull-right history-diff-tools" id="responseButtons">
-                <button type="button" class="btn btn-default history-modified" id="showModifiedResponseButton" onClick="showModifiedResponse()">Modified <kbd>m</kbd></button>
-                <button type="button" class="btn btn-default history-original" id="showOriginalResponseButton" onClick="showOriginalResponse()">Original <kbd>o</kbd></button>
-                <button type="button" class="btn btn-default history-diff" id="showChangedResponseButton" onClick="showChangedResponse()">View Diff <kbd>d</kbd></button>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-xs-12">
+            <div id="historyGridDiv">
+                <table id="historylist"></table>
+                <div id="historynavGrid"></div>
             </div>
+        </div>
+    </div>
 
-            <h3 style="display: inline-block">Headers</h3>
-            <div class="btn-group btn-group-sm">
-                <button type="button" id="copyResponseHeaders" class="btn btn-default copy-to-clipboard">Copy <kbd>c</kbd>&nbsp;<kbd>h</kbd></button>
-            </div>
-            <textarea class="form-control preformatted" data-copy-trigger="copyResponseHeaders" rows="4" id="responseHeaders"></textarea>
-            <textarea class="form-control preformatted" data-copy-trigger="copyResponseHeaders" rows="4" style="display: none;" id="originalResponseHeaders"></textarea>
-            <div class="form-control diffarea" id="originalResponseHeaderChange" data-copy-trigger="copyResponseHeaders"></div>
+    <div class="row">
+        <div class="col-xs-12">
 
-            <h3>Data <span class="label label-info label-small" id="responseTypeLabel"></span> <span class="label label-primary label-small" id="responseDataDecodedLabel"></span></h3>
+            <div id="historyContentDiv">
+                <div id="tabs">
+                    <ul>
+                        <li><a href="#tabs-1">Response <kbd>1</kbd></a></li>
+                        <li><a href="#tabs-2">Request <kbd>2</kbd></a></li>
+                        <li><a href="#tabs-3">Other <kbd>3</kbd></a></li>
+                    </ul>
 
-            <div class="btn-toolbar">
-                <div class="btn-group btn-group-sm">
-                    <button type="button" id="copyResponseData" class="btn btn-default copy-to-clipboard">Copy <kbd>c</kbd>&nbsp;<kbd>d</kbd></button>
+                    <div id="tabs-1">
+                        <div class="btn-group btn-group-sm pull-right history-diff-tools" id="responseButtons">
+                            <button type="button" class="btn btn-default history-modified" id="showModifiedResponseButton" onClick="showModifiedResponse()">Modified <kbd>m</kbd></button>
+                            <button type="button" class="btn btn-default history-original" id="showOriginalResponseButton" onClick="showOriginalResponse()">Original <kbd>o</kbd></button>
+                            <button type="button" class="btn btn-default history-diff" id="showChangedResponseButton" onClick="showChangedResponse()">View Diff <kbd>d</kbd></button>
+                        </div>
+
+                        <h3 style="display: inline-block">Headers</h3>
+                        <div class="btn-group btn-group-sm">
+                            <button type="button" id="copyResponseHeaders" class="btn btn-default copy-to-clipboard">Copy <kbd>c</kbd>&nbsp;<kbd>h</kbd></button>
+                        </div>
+                        <textarea class="form-control preformatted" data-copy-trigger="copyResponseHeaders" rows="4" id="responseHeaders"></textarea>
+                        <textarea class="form-control preformatted" data-copy-trigger="copyResponseHeaders" rows="4" style="display: none;" id="originalResponseHeaders"></textarea>
+                        <div class="form-control diffarea" id="originalResponseHeaderChange" data-copy-trigger="copyResponseHeaders"></div>
+
+                        <h3>Data <span class="label label-info label-small" id="responseTypeLabel"></span> <span class="label label-primary label-small" id="responseDataDecodedLabel"></span></h3>
+
+                        <div class="btn-toolbar">
+                            <div class="btn-group btn-group-sm">
+                                <button type="button" id="copyResponseData" class="btn btn-default copy-to-clipboard">Copy <kbd>c</kbd>&nbsp;<kbd>d</kbd></button>
+                            </div>
+
+                            <div class="btn-group btn-group-sm">
+                                <button type="button" class="btn btn-default" id="showRawResponseDataButton" onClick="showRawResponseData()">Raw</button>
+                                <button type="button" class="btn btn-default" id="showRawFormattedDataButton" onClick="showFormattedResponseData(false)">Formatted</button>
+                            </div>
+
+                            <div class="btn-group btn-group-sm">
+                                <button type="button" class="btn btn-default" id="downloadResponseDataButton" onClick="downloadResponseData()">Export Response</button>
+                            </div>
+                        </div>
+
+                        <textarea class="form-control preformatted" rows="20" data-copy-trigger="copyResponseData" id="responseRaw"></textarea>
+                        <textarea class="form-control preformatted" rows="20" data-copy-trigger="copyResponseData" style="display: none;" id="originalResponseRaw"></textarea>
+                        <div class="form-control diffarea" data-copy-trigger="copyResponseData" id="originalResponseChange"></div>
+                    </div><!-- /#tabs-1 -->
+
+                    <div id="tabs-2">
+                        <div class="btn-group btn-group-sm pull-right history-diff-tools" id="requestButtons">
+                            <button type="button" class="btn btn-default history-modified" id="showModifiedRequestButton" onClick="showModifiedRequestData()">Modified <kbd>m</kbd></button>
+                            <button type="button" class="btn btn-default history-original" id="showOriginalButton" onClick="showOriginalRequestData()">Original <kbd>o</kbd></button>
+                            <button type="button" class="btn btn-default history-diff" id="showChangedButton" onClick="showChangedRequestData()">View Diff <kbd>d</kbd></button>
+                        </div>
+
+                        <h3>URL</h3>
+                        <div class="btn-toolbar">
+                            <div class="btn-group btn-group-sm">
+                                <button type="button" id="copyRequestQuery" class="btn btn-default copy-to-clipboard">Copy <kbd>c</kbd>&nbsp;<kbd>u</kbd></button>
+                            </div>
+                            <div class="btn-group btn-group-sm">
+                                <button type="button" class="btn btn-default" onClick="showPathTester()">Test Path</button>
+                            </div>
+                        </div>
+                        <textarea class="form-control preformatted" rows="1" data-copy-trigger="copyRequestQuery" id="requestQuery"></textarea>
+                        <textarea class="form-control preformatted" rows="1" data-copy-trigger="copyRequestQuery" style="display: none;" id="originalRequestQuery"></textarea>
+                        <div class="form-control diffarea" data-copy-trigger="copyRequestQuery" id="originalRequestQueryChange"></div>
+
+                        <h3 style="display: inline-block;">Parameters</h3>
+                        <div class="btn-group btn-group-sm">
+                            <button type="button" id="copyRequestParameters" class="btn btn-default copy-to-clipboard">Copy <kbd>c</kbd>&nbsp;<kbd>p</kbd></button>
+                        </div>
+                        <textarea class="form-control preformatted" rows="3" data-copy-trigger="copyRequestParameters" id="requestParameters"></textarea>
+                        <textarea class="form-control preformatted" rows="3" data-copy-trigger="copyRequestParameters" style="display: none;" id="originalRequestParameters"></textarea>
+                        <div class="form-control diffarea" data-copy-trigger="copyRequestParameters" id="originalRequestParametersChanged"></div>
+
+                        <h3 style="display: inline-block;">Headers</h3>
+                        <div class="btn-group btn-group-sm">
+                            <button type="button" id="copyRequestHeaders" class="btn btn-default copy-to-clipboard">Copy <kbd>c</kbd>&nbsp;<kbd>h</kbd></button>
+                        </div>
+                        <textarea class="form-control preformatted" rows="3" data-copy-trigger="copyRequestHeaders" id="requestHeaders"></textarea>
+                        <textarea class="form-control preformatted" rows="3" data-copy-trigger="copyRequestHeaders" style="display: none;" id="originalRequestHeaders"></textarea>
+                        <div class="form-control diffarea" data-copy-trigger="copyRequestHeaders" id="originalRequestHeadersChanged"></div>
+
+                        <h3 style="display: inline-block;">POST Data</h3>
+                        <div class="btn-group btn-group-sm">
+                            <button type="button" id="copyPOSTData" class="btn btn-default copy-to-clipboard">Copy <kbd>c</kbd>&nbsp;<kbd>d</kbd></button>
+                        </div>
+                        <span class="label label-primary" id="requestDataDecodedLabel"></span>
+                        <textarea class="form-control preformatted" data-copy-trigger="copyPOSTData" rows="10" id="requestPOSTData"></textarea>
+                        <textarea class="form-control preformatted" data-copy-trigger="copyPOSTData" rows="10" style="display: none" id="originalRequestPOSTData"></textarea>
+                        <div class="form-control diffarea" data-copy-trigger="copyPOSTData" id="originalRequestPOSTDataChanged"></div>
+                    </div><!-- /#tabs-2 -->
+
+                    <div id="tabs-3">
+                        <h3>cURL Command</h3>
+                        <div class="btn-group btn-group-sm">
+                            <button type="button" id="copyCURLCommand" class="btn btn-default copy-to-clipboard">Copy <kbd>c</kbd>&nbsp;<kbd>c</kbd></button>
+                        </div>
+                        <textarea class="form-control preformatted" rows="29" data-copy-trigger="copyCURLCommand" id="curlCommand"></textarea>
+                    </div><!-- /#tabs-3 -->
                 </div>
-
-                <div class="btn-group btn-group-sm">
-                    <button type="button" class="btn btn-default" id="showRawResponseDataButton" onClick="showRawResponseData()">Raw</button>
-                    <button type="button" class="btn btn-default" id="showRawFormattedDataButton" onClick="showFormattedResponseData(false)">Formatted</button>
-                </div>
-
-                <div class="btn-group btn-group-sm">
-                    <button type="button" class="btn btn-default" id="downloadResponseDataButton" onClick="downloadResponseData()">Export Response</button>
-                </div>
             </div>
-
-            <textarea class="form-control preformatted" rows="20" data-copy-trigger="copyResponseData" id="responseRaw"></textarea>
-            <textarea class="form-control preformatted" rows="20" data-copy-trigger="copyResponseData" style="display: none;" id="originalResponseRaw"></textarea>
-            <div class="form-control diffarea" data-copy-trigger="copyResponseData" id="originalResponseChange"></div>
-        </div><!-- /#tabs-1 -->
-
-        <div id="tabs-2">
-            <div class="btn-group btn-group-sm pull-right history-diff-tools" id="requestButtons">
-                <button type="button" class="btn btn-default history-modified" id="showModifiedRequestButton" onClick="showModifiedRequestData()">Modified <kbd>m</kbd></button>
-                <button type="button" class="btn btn-default history-original" id="showOriginalButton" onClick="showOriginalRequestData()">Original <kbd>o</kbd></button>
-                <button type="button" class="btn btn-default history-diff" id="showChangedButton" onClick="showChangedRequestData()">View Diff <kbd>d</kbd></button>
-            </div>
-
-            <h3>URL</h3>
-            <div class="btn-toolbar">
-                <div class="btn-group btn-group-sm">
-                    <button type="button" id="copyRequestQuery" class="btn btn-default copy-to-clipboard">Copy <kbd>c</kbd>&nbsp;<kbd>u</kbd></button>
-                </div>
-                <div class="btn-group btn-group-sm">
-                    <button type="button" class="btn btn-default" onClick="showPathTester()">Test Path</button>
-                </div>
-            </div>
-            <textarea class="form-control preformatted" rows="1" data-copy-trigger="copyRequestQuery" id="requestQuery"></textarea>
-            <textarea class="form-control preformatted" rows="1" data-copy-trigger="copyRequestQuery" style="display: none;" id="originalRequestQuery"></textarea>
-            <div class="form-control diffarea" data-copy-trigger="copyRequestQuery" id="originalRequestQueryChange"></div>
-
-            <h3 style="display: inline-block;">Parameters</h3>
-            <div class="btn-group btn-group-sm">
-                <button type="button" id="copyRequestParameters" class="btn btn-default copy-to-clipboard">Copy <kbd>c</kbd>&nbsp;<kbd>p</kbd></button>
-            </div>
-            <textarea class="form-control preformatted" rows="3" data-copy-trigger="copyRequestParameters" id="requestParameters"></textarea>
-            <textarea class="form-control preformatted" rows="3" data-copy-trigger="copyRequestParameters" style="display: none;" id="originalRequestParameters"></textarea>
-            <div class="form-control diffarea" data-copy-trigger="copyRequestParameters" id="originalRequestParametersChanged"></div>
-
-            <h3 style="display: inline-block;">Headers</h3>
-            <div class="btn-group btn-group-sm">
-                <button type="button" id="copyRequestHeaders" class="btn btn-default copy-to-clipboard">Copy <kbd>c</kbd>&nbsp;<kbd>h</kbd></button>
-            </div>
-            <textarea class="form-control preformatted" rows="3" data-copy-trigger="copyRequestHeaders" id="requestHeaders"></textarea>
-            <textarea class="form-control preformatted" rows="3" data-copy-trigger="copyRequestHeaders" style="display: none;" id="originalRequestHeaders"></textarea>
-            <div class="form-control diffarea" data-copy-trigger="copyRequestHeaders" id="originalRequestHeadersChanged"></div>
-
-            <h3 style="display: inline-block;">POST Data</h3>
-            <div class="btn-group btn-group-sm">
-                <button type="button" id="copyPOSTData" class="btn btn-default copy-to-clipboard">Copy <kbd>c</kbd>&nbsp;<kbd>d</kbd></button>
-            </div>
-            <span class="label label-primary" id="requestDataDecodedLabel"></span>
-            <textarea class="form-control preformatted" data-copy-trigger="copyPOSTData" rows="10" id="requestPOSTData"></textarea>
-            <textarea class="form-control preformatted" data-copy-trigger="copyPOSTData" rows="10" style="display: none" id="originalRequestPOSTData"></textarea>
-            <div class="form-control diffarea" data-copy-trigger="copyPOSTData" id="originalRequestPOSTDataChanged"></div>
-        </div><!-- /#tabs-2 -->
-
-        <div id="tabs-3">
-            <h3>cURL Command</h3>
-            <div class="btn-group btn-group-sm">
-                <button type="button" id="copyCURLCommand" class="btn btn-default copy-to-clipboard">Copy <kbd>c</kbd>&nbsp;<kbd>c</kbd></button>
-            </div>
-            <textarea class="form-control preformatted" rows="29" data-copy-trigger="copyCURLCommand" id="curlCommand"></textarea>
-        </div><!-- /#tabs-3 -->
+        </div>
     </div>
 </div>
 
 <script type="text/javascript">
+    'use strict';
     var clientUUID = '${clientUUID}';
     var historyFilter;
 
@@ -847,8 +857,7 @@
                     // allow grid resize
                     jQuery("#historylist").jqGrid('gridResize',
                     {
-                        minHeight:300,
-                        maxHeight:1000,
+                        handles: "n, s",
                         stop: function( event, ui ) {
                             $.cookie("historyGridHeight", ui.size.height, { expires: 10000, path: '/testproxy/history' });
                         }
@@ -881,6 +890,22 @@
             refreshtext: 'Refresh <kbd>r</kbd>',
             searchtext: 'Search',
             cloneToTop: true
+        });
+
+        //http://stackoverflow.com/questions/10655202/detect-multiple-keys-on-single-keypress-event-on-jquery
+        //17 = CTRL, 8 = DEL, 46 = Backspace
+        var map = {17: false, 8: false, 46: false};
+        $(document).keydown(function(e) {
+            if (e.keyCode in map) {
+                map[e.keyCode] = true;
+                if (map[17] && (map[8] || map[46])) {
+                    clearHistory();
+                }
+            }
+        }).keyup(function(e) {
+            if (e.keyCode in map) {
+                map[e.keyCode] = false;
+            }
         });
     });
 
@@ -941,22 +966,6 @@
         pathTesterSubmit();
     }
 
-    //http://stackoverflow.com/questions/10655202/detect-multiple-keys-on-single-keypress-event-on-jquery
-    //17 = CTRL, 8 = DEL, 46 = Backspace
-    var map = {17: false, 8: false, 46: false};
-    $(document).keydown(function(e) {
-        if (e.keyCode in map) {
-            map[e.keyCode] = true;
-            if (map[17] && (map[8] || map[46])) {
-                clearHistory();
-            }
-        }
-    }).keyup(function(e) {
-        if (e.keyCode in map) {
-            map[e.keyCode] = false;
-        }
-    });
-
     /**
     This is adapted from https://code.google.com/p/google-diff-match-patch/ as instructed in the api documentation
     */
@@ -965,7 +974,7 @@
      * @param {!Array.<!diff_match_patch.Diff>} diffs Array of diff tuples.
      * @return {string} HTML representation.
      */
-    diff_prettyHtml = function(diffs) {
+    function diff_prettyHtml(diffs) {
         var html = [];
         var pattern_amp = /&/g;
         var pattern_lt = /</g;

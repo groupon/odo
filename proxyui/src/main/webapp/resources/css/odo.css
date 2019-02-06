@@ -25,3 +25,15 @@ body {
 textarea {
     resize: vertical;
 }
+
+.ui-widget-content .selectedRow {
+    color: blue;
+}
+
+.ui-jqgrid .ui-jqgrid-bdiv {
+    overflow-x: hidden;
+}
+
+.paddedtable td {
+    padding: 10px;
+}
