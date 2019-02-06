@@ -287,7 +287,7 @@
 
     function uriFilter() {
         historyFilter = $("#searchFilter").val();
-        jQuery("#historylist")
+        $("#historylist")
             .jqGrid(
                 'setGridParam',
                 {
@@ -300,7 +300,7 @@
     }
 
     function showItemsWithMessages() {
-        jQuery("#historylist")
+        $("#historylist")
             .jqGrid(
                 'setGridParam',
                 {
@@ -311,7 +311,7 @@
 
     function clearFilter() {
         historyFilter = null;
-        jQuery("#historylist")
+        $("#historylist")
             .jqGrid(
                 'setGridParam',
                 {
@@ -723,7 +723,7 @@
         });
         // Refresh history
         Mousetrap.bind('r', function() {
-            jQuery("#historylist").trigger("reloadGrid");
+            $("#historylist").trigger("reloadGrid");
         });
         // Copy operations
         Mousetrap.bind('c u', function() { // Request URL
@@ -839,10 +839,10 @@
                     }
 
                     if("${historyID}" != -1 && !selectRowUsed) {
-                        jQuery("#historylist").setSelection("${historyID}", true);
+                        $("#historylist").setSelection("${historyID}", true);
                         selectRowUsed = true;
                     } else {
-                        jQuery("#historylist").setSelection($("#historylist").getDataIDs()[0], true);
+                        $("#historylist").setSelection($("#historylist").getDataIDs()[0], true);
                     }
                 },
                 loadComplete : function() {
@@ -852,10 +852,10 @@
                         initialGridSize = $.cookie("historyGridHeight");
                     }
 
-                    jQuery("#historylist").jqGrid('setGridHeight', initialGridSize);
+                    $("#historylist").jqGrid('setGridHeight', initialGridSize);
 
                     // allow grid resize
-                    jQuery("#historylist").jqGrid('gridResize',
+                    $("#historylist").jqGrid('gridResize',
                     {
                         handles: "n, s",
                         stop: function( event, ui ) {
@@ -871,7 +871,7 @@
                     }
                 },
                 onSelectRow : function(id) {
-                    var data = jQuery("#historylist").jqGrid('getRowData', id);
+                    var data = $("#historylist").jqGrid('getRowData', id);
                     currentHistoryId = data.id;
                     loadData(data.id);
                 },
@@ -890,22 +890,6 @@
             refreshtext: 'Refresh <kbd>r</kbd>',
             searchtext: 'Search',
             cloneToTop: true
-        });
-
-        //http://stackoverflow.com/questions/10655202/detect-multiple-keys-on-single-keypress-event-on-jquery
-        //17 = CTRL, 8 = DEL, 46 = Backspace
-        var map = {17: false, 8: false, 46: false};
-        $(document).keydown(function(e) {
-            if (e.keyCode in map) {
-                map[e.keyCode] = true;
-                if (map[17] && (map[8] || map[46])) {
-                    clearHistory();
-                }
-            }
-        }).keyup(function(e) {
-            if (e.keyCode in map) {
-                map[e.keyCode] = false;
-            }
         });
     });
 

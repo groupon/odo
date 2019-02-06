@@ -41,7 +41,12 @@ function navigatePathTester() {
     $("#pathTesterDialog").dialog({
         title: "Path Tester",
         width: 750,
-        modal: true
+        modal: true,
+        buttons: {
+            "Close": function() {
+                $("#pathTesterDialog").dialog("close");
+            }
+        }
     });
 }
 </script>

@@ -59,8 +59,6 @@
 
     <script type="text/javascript">
         'use strict';
-        $.jgrid.no_legacy_api = true;
-        $.jgrid.useJSON = true;
 
         var clientUUID = '${clientUUID}';
         var currentPathId = -1;
@@ -188,17 +186,6 @@
             });
         }
 
-        // This overrides the jgrid delete button to be more REST friendly
-        $.extend($.jgrid.del, {
-            mtype: "DELETE",
-            serializeDelData: function () {
-                return ""; // don't send and body for the HTTP DELETE
-            },
-            onclickSubmit: function (params, postdata) {
-                params.url += '/' + encodeURIComponent(postdata);
-            }
-        });
-
         function requestTypeFormatter(cellvalue, options, rowObject) {
             if (cellvalue == 0) {
                 return "ALL";
@@ -252,10 +239,10 @@
                                 .attr({
                                     "href": "#tab" + rowdata.pathId,
                                     "data-toggle": "tab"})
-                                .text(rowdata.pathName).
-                                click(function() {
+                                .text(rowdata.pathName)
+                                .click(function() {
                                     loadPath($(this).parent().attr("id"));
-                                })))
+                                })));
                     }
                 }
             }
@@ -447,6 +434,8 @@
         }
 
         $(document).ready(function() {
+            $.jgrid.no_legacy_api = true;
+            $.jgrid.useJSON = true;
             // Adapted from: http://blog.teamtreehouse.com/uploading-files-ajax
             $('#configurationUploadForm').submit(function(event) {
                 event.preventDefault();
@@ -789,7 +778,8 @@
                         formoptions: {label: "Path name (*)"},
                         search: true,
                         searchoptions: {
-                            clearSearch: false
+                            clearSearch: false,
+                            attr: { placeholder: "Type here to filter columns (f)" }
                         }
                     },
                     {
@@ -810,12 +800,16 @@
                         width: 80,
                         editable: true,
                         edittype: 'select',
-                        editoptions: {defaultValue: 0, value: "0:ALL;1:GET;2:PUT;3:POST;4:DELETE"},
+                        editoptions: {
+                            defaultValue: 0,
+                            value: "0:ALL;1:GET;2:PUT;3:POST;4:DELETE"
+                        },
                         editrules: {edithidden: true},
                         formatter: requestTypeFormatter,
                         search: true,
                         searchoptions: {
-                            clearSearch: false
+                            clearSearch: false,
+                            attr: { placeholder: "0...4" }
                         }
                     },
                     {
@@ -828,7 +822,8 @@
                         formatoptions: {disabled: false},
                         search: true,
                         searchoptions: {
-                            clearSearch: false
+                            clearSearch: false,
+                            attr: { placeholder: "T/F" }
                         }
                     }, {
                         name: 'requestEnabled',
@@ -840,7 +835,8 @@
                         formatoptions: {disabled: false},
                         search: true,
                         searchoptions: {
-                            clearSearch: false
+                            clearSearch: false,
+                            attr: { placeholder: "T/F" }
                         }
                     }
                 ],
@@ -1034,11 +1030,6 @@
                 $("#packages").setGridWidth($("#listContainer").width());
             });
 
-            $("#gs_pathName").attr("placeholder", "Type here to filter columns (f)");
-            $("#gs_requestType").attr("placeholder", "0...4");
-            $("#gs_responseEnabled").attr("placeholder", "t/f");
-            $("#gs_requestEnabled").attr("placeholder", "t/f");
-
             $("#tabs").tabs();
             $("#sel1").select2();
 
@@ -1058,13 +1049,13 @@
                     .append($("<span>").addClass("glyphicon glyphicon-new-window")));
 
             $("#serverGroupSelection").select2({
-                initSelection: function(element, callback){
-                        $.ajax('<c:url value="/api/profile/${profile_id}/clients/${clientUUID}"/>').done(function(data) {
-                            $.ajax('<c:url value="/api/servergroup"/>' + '/' + data.client.activeServerGroup +'?profileId=${profile_id}'
-                            ).done(function(data2) {
+                initSelection: function(element, callback) {
+                    $.ajax('<c:url value="/api/profile/${profile_id}/clients/${clientUUID}"/>').done(function(data) {
+                        $.ajax('<c:url value="/api/servergroup"/>' + '/' + data.client.activeServerGroup +'?profileId=${profile_id}')
+                            .done(function(data2) {
                                 callback({id: data.client.activeServerGroup, text: data2.name});
                             });
-                        });
+                    });
                 },
                 ajax: {
                     url: '<c:url value="/api/servergroup"/>' + '?profileId=${profile_id}',
@@ -1072,7 +1063,7 @@
                     data: function (term, page) {
                         return {search: term};
                     },
-                    results: function(data){
+                    results: function(data) {
                         var myResults = [];
                         myResults.push({id: 0, text: "Default"});
                         $.each(data.servergroups, function(index, value){
@@ -1081,6 +1072,7 @@
                                 text: value.name
                             });
                         });
+
                         return {
                             results: myResults
                         };
@@ -1088,8 +1080,8 @@
                 },
                 createSearchChoice: function(term, data) {
                     if ($(data).filter(function() {
-                        return this.text.localeCompare(term)===0;
-                    }).length===0) {
+                        return this.text.localeCompare(term) === 0;
+                    }).length === 0) {
                         return {id:term, text:term, isNew:true};
                     }
                 },
@@ -1197,8 +1189,6 @@
                     populateEnabledOverrides();
                     changeResponseOverrideDiv();
                     changeRequestOverrideDiv();
-
-                    $("#responseOverrideEnabled:visible, #requestOverrideEnabled:visible").first().focus();
 
                     // reset informational divs
                     $('#applyPathChangeSuccessDiv').hide();
@@ -1526,11 +1516,11 @@
                                 .append($("<dd>")
                                     .append($("<input>")
                                         .attr({
-                                            "id": "setResponseCode",
-                                            "min": 100,
-                                            "max": 599,
-                                            "class": "form-control",
-                                            "type": "number"
+                                            id: "setResponseCode",
+                                            min: 100,
+                                            max: 599,
+                                            class: "form-control",
+                                            type: "number"
                                         })
                                         .val(data.enabledEndpoint.responseCode)));
                         } else {
@@ -1543,9 +1533,9 @@
                                     .text("(" + el + ")"))
                                 .append($("<input>")
                                     .attr({
-                                        "id": inputId,
-                                        "class": "form-control",
-                                        "type": "text",
+                                        id: inputId,
+                                        class: "form-control",
+                                        type: "text",
                                     })
                                     .val(inputValue));
                         }
@@ -1557,10 +1547,10 @@
                             .text("Repeat Count"))
                         .append($("<input>")
                             .attr({
-                                "id": "setRepeatNumber",
-                                "type": "number",
-                                "min": -1,
-                                "class": "form-control"
+                                id: "setRepeatNumber",
+                                type: "number",
+                                min: -1,
+                                class: "form-control"
                             })
                             .val(data.enabledEndpoint.repeatNumber));
 
