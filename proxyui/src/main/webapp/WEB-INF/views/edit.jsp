@@ -525,8 +525,6 @@
                     overrideRemove("request");
                 }
             });
-
-
             $("#serverlist").jqGrid({
                 autowidth : true,
                 caption : 'API Servers',
