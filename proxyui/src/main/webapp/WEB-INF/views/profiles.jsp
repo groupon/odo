@@ -22,10 +22,6 @@
         </style>
         <script type="text/javascript">
 
-        function navigateHelp() {
-            window.open("https://github.com/groupon/odo#readme", "help");
-        }
-
         //makes the specific profile active, goes to the database column
         function makeActive(profile_id){
             $.ajax({
@@ -232,8 +228,10 @@
             <!-- div for status notice -->
             <div class="ui-widget" id="statusNotificationDiv" style="display: none;">
                 <div class="ui-state-highlight ui-corner-all" id="statusNotificationStateDiv" style="margin-top: 10px;  margin-bottom: 10px; padding: 0 .7em;">
-                    <p style="margin-top: 10px; margin-bottom:10px;"><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
-                    <span id="statusNotificationText"/></p>
+                    <p style="margin-top: 10px; margin-bottom: 10px;">
+                        <span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
+                        <span id="statusNotificationText"></span>
+                    </p>
                 </div>
             </div>
         </div>
@@ -250,8 +248,7 @@
                 </ul>
 
                 <div class="form-group navbar-form navbar-left">
-                    <button id="helpButton" class="btn btn-info" onclick="navigateHelp()"
-                            target="_blank" data-toggle="tooltip" data-placement="bottom" title="Click here to read the readme.">Need Help?</button>
+                    <a href="https://github.com/groupon/odo#readme" target="_BLANK" class="btn btn-info" data-toggle="tooltip" data-placement="bottom" title="Click here to read the readme.">Need help?</a>
                 </div>
 
                 <ul class="nav navbar-nav navbar-right">
