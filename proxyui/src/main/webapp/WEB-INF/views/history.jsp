@@ -88,11 +88,18 @@
             <a class="navbar-brand" href="#">Odo</a>
         </div>
 
+        <ul class="nav navbar-nav navbar-left">
+            <%@ include file="navigation_part.jsp" %>
+        </ul>
+
         <form class="navbar-form navbar-left" onsubmit="uriFilter();">
             <div class="form-group">
-
-                <input type="text" class="form-control" placeholder="Filter (f)" id="searchFilter">
-                <button class="btn btn-default" type="submit">Apply Filter</button>
+                <div class="input-group">
+                    <input type="text" class="form-control" placeholder="Filter (f)" size=25 id="searchFilter">
+                    <div class="input-group-btn">
+                        <button class="btn btn-default" type="submit">Apply Filter</button>
+                    </div>
+                </div>
                 <button class="btn btn-default" type="button" onclick='clearFilter()'>Clear Filters</button>
 
                 <span class="dropdown">

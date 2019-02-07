@@ -64,8 +64,7 @@
             </div>
 
             <ul id="status2" class="nav navbar-nav navbar-left">
-                <li><a href="<c:url value='/profiles' />">All Profiles</a></li>
-                <li><a href="<c:url value='/edit/${profile_id}' />">${profile_name}</a></li>
+                <%@ include file="navigation_part.jsp" %>
                 <li><a href="#" onClick="navigatePathTester();">Path Tester</a></li>
             </ul>
         </div>

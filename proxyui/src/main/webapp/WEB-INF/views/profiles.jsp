@@ -243,14 +243,8 @@
                 </div>
 
                 <ul class="nav navbar-nav navbar-left">
-                    <%@ include file="navigation_part.jsp" %>
-                    <li class="dropdown">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Configuration <span class="caret"></span></a>
-                        <ul class="dropdown-menu">
-                            <li><a href="#" onclick='exportConfiguration()'>Export Configuration</a></li>
-                            <li><a href="#" onclick='importConfiguration()'>Import Configuration</a></li>
-                        </ul>
-                    </li>
+                    <li><a href="#" onclick='exportConfiguration()'>Export Configuration</a></li>
+                    <li><a href="#" onclick='importConfiguration()'>Import Configuration</a></li>
                 </ul>
 
                 <ul class="form-group navbar-form navbar-left">

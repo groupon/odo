@@ -212,7 +212,7 @@
             </div>
 
             <ul class="nav navbar-nav navbar-left">
-                <li><a href="<c:url value='/profiles' />" target="_BLANK">Profiles</a></li>
+                <%@ include file="navigation_part.jsp" %>
             </ul>
         </div>
     </nav>
