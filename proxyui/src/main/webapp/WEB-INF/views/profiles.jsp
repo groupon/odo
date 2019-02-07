@@ -1,8 +1,8 @@
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ page language="java" contentType="text/html; charset=utf-8" pageEncoding="utf-8" isELIgnored="false"%>
+<%@ page session="false" %>
 <!DOCTYPE html>
 <html>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
-<%@ page session="false" %>
     <head>
         <title>API Profiles</title>
 
@@ -243,6 +243,18 @@
                 </div>
 
                 <ul class="nav navbar-nav navbar-left">
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><strong>Navigation</strong> <span class="caret"></span></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="<c:url value='/profiles'/>">All Profiles</a></li>
+                            <li><a href="<c:url value='/edit/${profile_id}'/>">Current Profile</a></li>
+                            <li><a href="<c:url value='/history/${profile_id}'/>?clientUUID=${clientUUID}">Request History</a></li>
+                            <li><a href="<c:url value='/group'/>">Edit Groups</a></li>
+                            <li><a href="<c:url value='/pathorder/${profile_id}'/>">Reorder Paths</a></li>
+                            <li><a href="<c:url value='/scripts'/>">Scripts</a></li>
+                            <li><a href="<c:url value='/configuration'/>">Plugins</a></li>
+                        </ul>
+                    </li>
                     <li class="dropdown">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Configuration <span class="caret"></span></a>
                         <ul class="dropdown-menu">
