@@ -100,7 +100,9 @@
                 type: "POST",
                 url: '<c:url value="/api/profile/${profile_id}/clients/${clientUUID}"/>',
                 data: "active=" + value,
-                success: window.location.reload,
+                success: function() {
+                    window.location.reload();
+                },
                 error: function() {
                     alert("Unable to " + (value ? "de" : "") + "activate the profile.");
                 }
@@ -523,8 +525,6 @@
                     overrideRemove("request");
                 }
             });
-
-
             $("#serverlist").jqGrid({
                 autowidth : true,
                 caption : 'API Servers',
@@ -1079,7 +1079,8 @@
                     } else {
                         return term.text;
                     }
-                }
+                },
+                dropdownAutoWidth: true
             });
             $("#serverGroupSelection").on("change", function(e) {
                 if(e.added.isNew) {
@@ -1824,11 +1825,9 @@
                 <a class="navbar-brand" href="#">Odo</a>
             </div>
 
-            <ul id="status2" class="nav navbar-nav navbar-left">
-                <li><a target="_BLANK" href="<c:url value='/profiles'/>">Profiles</a> </li>
-                <li><a target="_BLANK" href="<c:url value='/history/${profile_id}'/>?clientUUID=${clientUUID}">Request History</a></li>
-                <li><a target="_BLANK" href="#" onClick="navigatePathTester()">Path Tester</a></li>
-                <li><a target="_BLANK" href="<c:url value='/group' />">Edit Groups</a></li>
+            <ul class="nav navbar-nav navbar-left">
+                <%@ include file="navigation_part.jsp" %>
+                <li><a href="#" onClick="navigatePathTester()">Path Tester</a></li>
                 <li class="dropdown">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown">Import/Export <b class="caret"></b></a>
                     <ul class="dropdown-menu">

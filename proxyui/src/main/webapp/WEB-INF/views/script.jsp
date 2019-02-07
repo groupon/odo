@@ -26,7 +26,7 @@
             </div>
 
             <ul id="status2" class="nav navbar-nav navbar-left">
-                <li><a target="_BLANK" href="<c:url value='/profiles' />">All Profiles</a></li>
+                <%@ include file="navigation_part.jsp" %>
             </div>
         </div>
     </nav>

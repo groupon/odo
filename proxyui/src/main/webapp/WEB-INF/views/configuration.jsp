@@ -106,7 +106,7 @@
             </div>
 
             <ul class="nav navbar-nav navbar-left">
-                <li><a href="<c:url value = '/profiles' />" target="_BLANK">Profiles</a></li>
+                <%@ include file="navigation_part.jsp" %>
             </ul>
         </div>
     </nav>
@@ -120,20 +120,19 @@
                     </div>
                     <div class="panel-body">
                         <div id="info" class="alert alert-warning" role="alert" style="display: none;"></div>
-
-                        <table id="pluginPathTable" class="table">
-                            <thead>
-                                <tr>
-                                    <th>ID</th>
-                                    <th>Path</th>
-                                    <th>Status</th>
-                                    <th>Delete</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                            </tbody>
-                        </table>
                     </div>
+                    <table id="pluginPathTable" class="table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Path</th>
+                                <th>Status</th>
+                                <th>Delete</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>

@@ -73,13 +73,10 @@
 
 <!-- Hidden div for grid options -->
 <div id="gridOptionsDialog" style="display: none;">
-    <table>
-    <tr><td>
-        Number of Rows:
-    </td><td>
-        <input id="numberOfRows" size=5/>
-    </td></tr>
-    </table>
+    <form class="form-inline" onsubmit="saveGridOptions();">
+        <label for="numberOfRows">Number of rows:</label>
+        <input id="numberOfRows" class="form-control" size=3 type="number" min="1" max="999999" pattern="[0-9]{1,6}" />
+    </form>
 </div>
 
 <nav class="navbar navbar-default" role="navigation">
@@ -88,11 +85,18 @@
             <a class="navbar-brand" href="#">Odo</a>
         </div>
 
+        <ul class="nav navbar-nav navbar-left">
+            <%@ include file="navigation_part.jsp" %>
+        </ul>
+
         <form class="navbar-form navbar-left" onsubmit="uriFilter();">
             <div class="form-group">
-
-                <input type="text" class="form-control" placeholder="Filter (f)" id="searchFilter">
-                <button class="btn btn-default" type="submit">Apply Filter</button>
+                <div class="input-group">
+                    <input type="text" class="form-control" placeholder="Filter (f)" size=25 id="searchFilter">
+                    <div class="input-group-btn">
+                        <button class="btn btn-default" type="submit">Apply Filter</button>
+                    </div>
+                </div>
                 <button class="btn btn-default" type="button" onclick='clearFilter()'>Clear Filters</button>
 
                 <span class="dropdown">
@@ -109,7 +113,6 @@
 
         <ul class="nav navbar-nav navbar-right">
             <li><a href="#" onclick='clearHistory()'>Clear History</a></li>
-            <li><a href="#" onclick='navigateScripts()'>Edit Scripts</a></li>
             <li><a href="#" onclick='openGridOptions()'>Grid Options</a></li>
         </ul>
     </div>
@@ -239,25 +242,31 @@
     function openGridOptions() {
         $("#gridOptionsDialog").dialog({
             title: "Grid Options",
-            width: 750,
             modal: true,
-            position:['top',20],
             buttons: {
-              "Save": function() {
-                  if (! isNaN($("#numberOfRows").val())) {
-                      $.cookie("historyGridRows", $("#numberOfRows").val(), { expires: 10000, path: '/testproxy/history' });
-                  }
-                  $("#gridOptionsDialog").dialog("close");
-                  location.reload();
-              },
-              "Close": function() {
-                  $("#gridOptionsDialog").dialog("close");
-              }
+                Save: saveGridOptions,
+                Cancel: function() {
+                    $("#gridOptionsDialog").dialog("close");
+                }
             },
-            open: function( event, ui ) {
+            open: function() {
                 $("#numberOfRows").val(getNumberOfRows());
             }
         });
+    }
+
+    function saveGridOptions(e) {
+        var historyGridRows = parseInt($("#numberOfRows").val());
+        if (!isNaN(historyGridRows)) {
+            $.cookie("historyGridRows", historyGridRows, {
+                expires: 10000,
+                path: '/testproxy/history'
+            });
+            $("#historylist").setGridParam({rowNum: historyGridRows});
+            $("#historylist").trigger('reloadGrid');
+        }
+        $("#gridOptionsDialog").dialog("close");
+        return false;
     }
 
     function getNumberOfRows() {
@@ -339,6 +348,12 @@
       }
 
       return cellvalue;
+    }
+
+    function requestParamsFormatter(cellvalue) {
+        cellvalue = decodeURIComponent(cellvalue);
+        if (cellvalue.length < 253) { return cellvalue; }
+        return cellvalue.slice(0, 250) + " ...";
     }
 
     var invalidRows = []
@@ -556,8 +571,8 @@
 
                 // optionally turn off the Formatted button
                 if (data.history.responseContentType == null
-                    || data.history.responseContentType.toLowerCase().indexOf(
-                    "application/json") == -1 || data.history.responseData == "") {
+                    || data.history.responseContentType.toLowerCase().indexOf("application/json") == -1
+                    || data.history.responseData == "") {
                         showRawResponseData();
                         showModifiedResponse();
                         $("#showRawFormattedDataButton").attr("disabled", "disabled");
@@ -791,7 +806,8 @@
                     width : 300,
                     editable : false,
                     sortable: false,
-                    classes: 'break-all preformatted'
+                    classes: 'break-all preformatted',
+                    formatter: requestParamsFormatter
                 }, {
                     name : 'responseCode',
                     index : 'responseCode',

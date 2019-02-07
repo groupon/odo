@@ -1,8 +1,8 @@
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ page language="java" contentType="text/html; charset=utf-8" pageEncoding="utf-8" isELIgnored="false"%>
+<%@ page session="false" %>
 <!DOCTYPE html>
 <html>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
-<%@ page session="false" %>
     <head>
         <title>API Profiles</title>
 
@@ -243,12 +243,13 @@
                 </div>
 
                 <ul class="nav navbar-nav navbar-left">
+                    <%@ include file="navigation_part.jsp" %>
                     <li><a href="#" onclick='exportConfiguration()'>Export Configuration</a></li>
                     <li><a href="#" onclick='importConfiguration()'>Import Configuration</a></li>
                 </ul>
 
-                <div class="form-group navbar-form navbar-left">
-                    <a href="https://github.com/groupon/odo#readme" target="_BLANK" class="btn btn-info" data-toggle="tooltip" data-placement="bottom" title="Click here to read the readme.">Need help?</a>
+                <div class="nav navbar-form navbar-left">
+                    <a id="helpButton" href="https://github.com/groupon/odo#readme" target="_BLANK" class="btn btn-info" data-toggle="tooltip" data-placement="bottom" title="Click here to read the readme.">Need help?</a>
                 </div>
 
                 <ul class="nav navbar-nav navbar-right">
