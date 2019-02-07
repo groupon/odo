@@ -742,146 +742,145 @@
             $("#copyCURLCommand:visible").click();
         });
 
-        $("#historylist")
-            .jqGrid({
-                url : '<c:url value="/api/history/${profile_id}"/>?clientUUID=${clientUUID}',
-                autowidth : true,
-                pgbuttons : true, // disable page control like next, back button
-                pgtext : null,
-                datatype : "json",
-                page : "${page}",
-                toppager: true,
-                gridview: true,
-                rowNum: getNumberOfRows(),
-                altRows: true,
-                altclass: 'altRowClass',
-                colNames : [ 'ID', 'Created At', 'Method', 'Query',
-                        'Query Params', 'Code', 'Valid', 'Message', 'Modified?' ],
-                colModel : [
-                    {
-                        name : 'id',
-                        index : 'id',
-                        hidden : true,
-                        formatter : idFormatter,
-                        sortable: false
-                    }, {
-                        name : 'createdAt',
-                        index : 'createdAt',
-                        width : 125,
-                        editable : false,
-                        sortable: false,
-                        align : 'center',
-                        formatter : dateFormatter,
-                    }, {
-                        name : 'requestType',
-                        index : 'requestType',
-                        width : 60,
-                        editable : false,
-                        sortable: false,
-                        align : 'center'
-                    }, {
-                        name : 'originalRequestURL',
-                        index : 'originalRequestURL',
-                        width : 375,
-                        editable : false,
-                        sortable: false,
-                        classes: 'break-all'
-                    }, {
-                        name : 'requestParams',
-                        index : 'requestParams',
-                        width : 300,
-                        editable : false,
-                        sortable: false,
-                        classes: 'break-all preformatted'
-                    }, {
-                        name : 'responseCode',
-                        index : 'responseCode',
-                        width : 50,
-                        editable : false,
-                        sortable: false,
-                        align : 'center'
-                    }, {
-                        name : 'valid',
-                        index : 'valid',
-                        width : 55,
-                        hidden : true,
-                        sortable: false,
-                        formatter : validFormatter
-                    }, {
-                        name : 'validationMessage',
-                        index : 'validationMessage',
-                        width : 200,
-                        hidden : false,
-                        sortable: false,
-                        cellattr: function (rowId, tv, rawObject, cm, rdata) {
-                            return 'style="white-space: normal;'
-                        }
-                    }, {
-                        name : 'modified',
-                        index : 'modified',
-                        width : 50,
-                        editable: false,
-                        sortable: false,
-                        align: 'center',
-                        formatter: modifiedFormatter
+        $("#historylist").jqGrid({
+            url : '<c:url value="/api/history/${profile_id}"/>?clientUUID=${clientUUID}',
+            autowidth : true,
+            pgbuttons : true, // disable page control like next, back button
+            pgtext : null,
+            datatype : "json",
+            page : "${page}",
+            toppager: true,
+            gridview: true,
+            rowNum: getNumberOfRows(),
+            altRows: true,
+            altclass: 'altRowClass',
+            colNames : [ 'ID', 'Created At', 'Method', 'Query',
+                    'Query Params', 'Code', 'Valid', 'Message', 'Modified?' ],
+            colModel : [
+                {
+                    name : 'id',
+                    index : 'id',
+                    hidden : true,
+                    formatter : idFormatter,
+                    sortable: false
+                }, {
+                    name : 'createdAt',
+                    index : 'createdAt',
+                    width : 125,
+                    editable : false,
+                    sortable: false,
+                    align : 'center',
+                    formatter : dateFormatter,
+                }, {
+                    name : 'requestType',
+                    index : 'requestType',
+                    width : 60,
+                    editable : false,
+                    sortable: false,
+                    align : 'center'
+                }, {
+                    name : 'originalRequestURL',
+                    index : 'originalRequestURL',
+                    width : 375,
+                    editable : false,
+                    sortable: false,
+                    classes: 'break-all'
+                }, {
+                    name : 'requestParams',
+                    index : 'requestParams',
+                    width : 300,
+                    editable : false,
+                    sortable: false,
+                    classes: 'break-all preformatted'
+                }, {
+                    name : 'responseCode',
+                    index : 'responseCode',
+                    width : 50,
+                    editable : false,
+                    sortable: false,
+                    align : 'center'
+                }, {
+                    name : 'valid',
+                    index : 'valid',
+                    width : 55,
+                    hidden : true,
+                    sortable: false,
+                    formatter : validFormatter
+                }, {
+                    name : 'validationMessage',
+                    index : 'validationMessage',
+                    width : 200,
+                    hidden : false,
+                    sortable: false,
+                    cellattr: function (rowId, tv, rawObject, cm, rdata) {
+                        return 'style="white-space: normal;'
                     }
-                ],
-                jsonReader : {
-                    page : "page",
-                    total : "total",
-                    records : "records",
-                    root : 'history',
-                    repeatitems : false
-                },
-                gridComplete : function() {
-                    for (var i = 0; i < invalidRows.length; i++) {
-                        $("#" + invalidRows[i]).find("td").addClass("ui-state-error");
-                    }
+                }, {
+                    name : 'modified',
+                    index : 'modified',
+                    width : 50,
+                    editable: false,
+                    sortable: false,
+                    align: 'center',
+                    formatter: modifiedFormatter
+                }
+            ],
+            jsonReader : {
+                page : "page",
+                total : "total",
+                records : "records",
+                root : 'history',
+                repeatitems : false
+            },
+            gridComplete : function() {
+                for (var i = 0; i < invalidRows.length; i++) {
+                    $("#" + invalidRows[i]).find("td").addClass("ui-state-error");
+                }
 
-                    if("${historyID}" != -1 && !selectRowUsed) {
-                        $("#historylist").setSelection("${historyID}", true);
-                        selectRowUsed = true;
-                    } else {
-                        $("#historylist").setSelection($("#historylist").getDataIDs()[0], true);
-                    }
-                },
-                loadComplete : function() {
-                    // this gets/sets a cookie for grid height and makes the grid resizable
-                    var initialGridSize = 300;
-                    if($.cookie("historyGridHeight") != null) {
-                        initialGridSize = $.cookie("historyGridHeight");
-                    }
+                if("${historyID}" != -1 && !selectRowUsed) {
+                    $("#historylist").setSelection("${historyID}", true);
+                    selectRowUsed = true;
+                } else {
+                    $("#historylist").setSelection($("#historylist").getDataIDs()[0], true);
+                }
+            },
+            loadComplete : function() {
+                // this gets/sets a cookie for grid height and makes the grid resizable
+                var initialGridSize = 300;
+                if($.cookie("historyGridHeight") != null) {
+                    initialGridSize = $.cookie("historyGridHeight");
+                }
 
-                    $("#historylist").jqGrid('setGridHeight', initialGridSize);
+                $("#historylist").jqGrid('setGridHeight', initialGridSize);
 
-                    // allow grid resize
-                    $("#historylist").jqGrid('gridResize',
-                    {
-                        handles: "n, s",
-                        stop: function( event, ui ) {
-                            $.cookie("historyGridHeight", ui.size.height, { expires: 10000, path: '/testproxy/history' });
-                        }
-                    });
-
-                    // set row height to be a little larger
-                    var grid = $("#historylist");
-                    var ids = grid.getDataIDs();
-                    for (var i = 0; i < ids.length; i++) {
-                        grid.setRowData(ids[i], false, {height: 20+i*2});
+                // allow grid resize
+                $("#historylist").jqGrid('gridResize',
+                {
+                    handles: "n, s",
+                    stop: function( event, ui ) {
+                        $.cookie("historyGridHeight", ui.size.height, { expires: 10000, path: '/testproxy/history' });
                     }
-                },
-                onSelectRow : function(id) {
-                    var data = $("#historylist").jqGrid('getRowData', id);
-                    currentHistoryId = data.id;
-                    loadData(data.id);
-                },
-                rowList : [],
-                pager : '#historynavGrid',
-                sortname : 'id',
-                viewrecords : true,
-                sortorder : "desc",
-                caption : historyCaption()
-            });
+                });
+
+                // set row height to be a little larger
+                var grid = $("#historylist");
+                var ids = grid.getDataIDs();
+                for (var i = 0; i < ids.length; i++) {
+                    grid.setRowData(ids[i], false, {height: 20+i*2});
+                }
+            },
+            onSelectRow : function(id) {
+                var data = $("#historylist").jqGrid('getRowData', id);
+                currentHistoryId = data.id;
+                loadData(data.id);
+            },
+            rowList : [],
+            pager : '#historynavGrid',
+            sortname : 'id',
+            viewrecords : true,
+            sortorder : "desc",
+            caption : historyCaption()
+        });
 
         $("#historylist").jqGrid('navGrid', '#historynavGrid', {
             edit : false,

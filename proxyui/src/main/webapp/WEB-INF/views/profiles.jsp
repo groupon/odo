@@ -11,7 +11,8 @@
 
         <%@ include file="/resources/js/webjars.include" %>
         <style type="text/css">
-            .ui-jqgrid tr.jqgrow td, #jqgh_profilelist_name { /* MAKE PROFILE NAMES BIGGER */
+            .ui-jqgrid tr.jqgrow td,
+            #jqgh_profilelist_name { /* MAKE PROFILE NAMES BIGGER */
                 font-size: medium;
             }
 
@@ -22,7 +23,7 @@
         <script type="text/javascript">
 
         function navigateHelp() {
-            window.open("https://github.com/groupon/odo#readme","help");
+            window.open("https://github.com/groupon/odo#readme", "help");
         }
 
         //makes the specific profile active, goes to the database column
@@ -43,105 +44,71 @@
             window.location = "edit/" + profile_id;
         }
 
-        function navigateConfiguration() {
-            window.location ='<c:url value = '/configuration' />';
-        }
-
         var currentProfileId = -1;
         // this just sets the current profile ID so that other formatters can use it
-        function idFormatter( cellvalue, options, rowObject ) {
+        function idFormatter(cellvalue, options, rowObject) {
             currentProfileId = cellvalue;
             return cellvalue;
         }
 
         // formatter for the name column
-        function nameFormatter( cellvalue, options, rowObject ) {
-            var cellContents = '<div class="ui-state-default" title="Edit Profile" onClick="editProfile(' + currentProfileId + ')">';
-            cellContents += '<div><span class="ui-icon ui-icon-carat-1-e" style="float:right"></span></div>';
-            cellContents += '<div>' + cellvalue + '</div></div>'
-            return cellContents;
+        function nameFormatter(cellvalue, options, rowObject) {
+            return '<div class="ui-state-default" title="Edit Profile" onClick="editProfile(' + currentProfileId + ')">' + cellvalue + '</div>'
         }
 
-        // formats the active check box
-        function activeFormatter( cellvalue, options, rowObject ) {
-            var checkedValue = 0;
-            if (cellvalue == true) {
-                checkedValue = 1;
-            }
-
-            var newCellValue = '<input id="active_' + currentProfileId + '" onChange="makeActive(' + currentProfileId + ')" type="checkbox" offval="0" value="' + checkedValue + '"';
-
-            if (checkedValue == 1) {
-                newCellValue += 'checked="checked"';
-            }
-
-            newCellValue += '>';
-
-            return newCellValue;
-        }
-
-        // formatter for the options column
-        function optionsFormatter( cellvalue, options, rowObject ) {
-            return '<div class="ui-state-default ui-corner-all"><span class="ui-icon ui-icon-folder-open" title="Edit Groups"></span></div>';
-        }
-
-        $(document).ready(function () {
-
+        $(document).ready(function() {
             $("#helpButton").tooltip();
 
             var profileList = jQuery("#profilelist");
             profileList
             .jqGrid({
                 url : '<c:url value="/api/profile"/>',
-                autowidth : false,
-                sortable:true,
-                sorttext:true,
+                autowidth: false,
+                sortable: true,
+                sorttext: true,
                 multiselect: true,
                 multiboxonly: true,
-                rowList : [], // disable page size dropdown
-                pgbuttons : false, // disable page control like next, back button
-                pgtext : null,
-                cellEdit : true,
-                datatype : "json",
-                colNames : [ 'ID', 'Profile Name', 'Name'],
-                colModel : [ {
-                    name : 'id',
-                    index : 'id',
-                    width : 55,
-                    hidden : true,
+                rowList: [], // disable page size dropdown
+                pgbuttons: false, // disable page control like next, back button
+                pgtext: null,
+                cellEdit: true,
+                datatype: "json",
+                colNames: ['ID', 'Profile Name', 'Name'],
+                colModel: [ {
+                    name: 'id',
+                    index: 'id',
+                    width: 55,
+                    hidden: true,
                     formatter: idFormatter
                 }, {
                     // we have this hidden one so the form Add works properly
-                    name : 'name',
-                    index : 'name',
-                    width : 55,
+                    name: 'name',
+                    index: 'name',
+                    width: 55,
                     editable: true,
-                    hidden : true
+                    hidden: true
                 }, {
-                    name : 'name',
-                    index : 'displayProfileName',
-                    width : 400,
-                    editable : false,
+                    name: 'name',
+                    index: 'displayProfileName',
+                    width: 400,
+                    editable: false,
                     formatter: nameFormatter,
-                    sortable:true
+                    sortable: true
                 }],
                 jsonReader : {
-                    page : "page",
-                    total : "total",
-                    records : "records",
-                    root : 'profiles',
-                    repeatitems : false
+                    page: "page",
+                    total: "total",
+                    records: "records",
+                    root: 'profiles',
+                    repeatitems: false
                 },
-                cellurl : '/testproxy/edit/api/server',
-                rowList : [],
-                pager : '#profilenavGrid',
-                sortname : 'id',
-                viewrecords : true,
-                sortorder : "desc",
-                caption : 'Profiles',
-                sorttype: function(cell){
-                    return profileList.jqGrid('getCell', cell,'Name');
-                }
+                cellurl: '/testproxy/edit/api/server',
+                rowList: [],
+                pager: '#profilenavGrid',
+                sortname: 'id',
+                viewrecords: true,
+                sortorder: "desc",
+                caption: 'Profiles'
             });
             profileList.jqGrid('navGrid', '#profilenavGrid', {
                 edit : false,
@@ -150,14 +117,14 @@
             },
             {},
             {
-                jqModal:true,
+                jqModal: true,
                 url: '<c:url value="/api/profile"/>',
                 beforeShowForm: function(form) {
                     $('#tr_name', form).show();
                 },
                 reloadAfterSubmit: true,
-                closeAfterAdd:true,
-                closeAfterEdit:true,
+                closeAfterAdd: true,
+                closeAfterEdit: true,
                 width: 400
             },
             {
@@ -177,7 +144,6 @@
                     for( var i = 0; i < rowids.length; i++) {
                         var odoId = $(this).jqGrid('getCell', rowids[i], 'id');
                         params += "profileIdentifier=" + odoId + "&";
-
                     }
 
                     rp_ge.url = '<c:url value="/api/profile/delete"/>?' +
@@ -186,22 +152,63 @@
                   }
             });
             profileList.jqGrid('gridResize');
+
+            $('#configurationUploadForm').submit(function(event) {
+                event.preventDefault();
+
+                var file = $('#configurationUploadFile').get(0).files[0];
+                var formData = new FormData();
+                formData.append('fileData', file, file.name);
+
+                $.ajax({
+                    type: "POST",
+                    url: '<c:url value="/api/backup"/>',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    beforeSend: function() {
+                        $("#statusNotificationText").text("Uploading configuration...");
+                        $("#statusNotificationStateDiv")
+                            .removeClass("ui-state-error")
+                            .addClass("ui-state-highlight");
+                        $("#statusNotificationDiv").fadeIn();
+
+                        // disable form buttons
+                        $("#configurationUploadDialog ~ .ui-dialog-buttonpane button")
+                            .prop("disabled", true)
+                            .addClass("ui-state-disabled");
+                    },
+                    success: function() {
+                        window.location.reload();
+                    },
+                    error: function() {
+                        $("#statusNotificationStateDiv")
+                            .removeClass("ui-state-highlight")
+                            .addClass("ui-state-error");
+                        $("#statusNotificationText").text("An error occurred while uploading configuration...");
+
+                        // enable form buttons
+                        $("#configurationUploadDialog ~ .ui-dialog-buttonpane button")
+                            .prop("disabled", false)
+                            .removeClass("ui-state-disabled");
+                    }
+                });
+            });
         });
 
 
         function exportConfiguration() {
-            downloadFile('<c:url value="/api/backup"/>');
+            download('<c:url value="/api/backup"/>');
         }
 
         function importConfiguration() {
             $("#configurationUploadDialog").dialog({
                 title: "Upload New Configuration",
                 modal: true,
-                position:['top',20],
                 buttons: {
                   "Submit": function() {
                     // submit form
-                    $("#configurationUploadFileButton").click();
+                    $("#configurationUploadForm").submit();
                   },
                   "Cancel": function() {
                       $("#configurationUploadDialog").dialog("close");
@@ -209,61 +216,24 @@
                 }
             });
         }
-
-        window.onload = function () {
-            // Adapted from: http://blog.teamtreehouse.com/uploading-files-ajax
-            document.getElementById('configurationUploadForm').onsubmit = function(event) {
-                event.preventDefault();
-
-                var file = document.getElementById('configurationUploadFile').files[0];
-                var formData = new FormData();
-                formData.append('fileData', file, file.name);
-                var xhr = new XMLHttpRequest();
-                xhr.open('POST', '<c:url value="/api/backup"/>', true);
-                xhr.onload = function () {
-                  if (xhr.status === 200) {
-                    location.reload();
-                  } else {
-                    $("#statusNotificationStateDiv").removeClass("ui-state-highlight");
-                    $("#statusNotificationStateDiv").addClass("ui-state-error");
-                    $("#statusNotificationText").html("An error occurred while uploading configuration...");
-
-                    // enable form buttons
-                    $(":button:contains('Submit')").prop("disabled", false).removeClass("ui-state-disabled");
-                    $(":button:contains('Cancel')").prop("disabled", false).removeClass("ui-state-disabled");
-                  }
-                };
-
-                $("#statusNotificationText").html("Uploading configuration...");
-                $("#statusNotificationStateDiv").removeClass("ui-state-error");
-                $("#statusNotificationStateDiv").addClass("ui-state-highlight");
-                $("#statusNotificationDiv").fadeIn();
-
-                // disable form buttons
-                $(":button:contains('Submit')").prop("disabled", true).addClass("ui-state-disabled");
-                $(":button:contains('Cancel')").prop("disabled", true).addClass("ui-state-disabled");
-
-                xhr.send(formData);
-            }
-        }
-
-
         </script>
     </head>
 
     <body>
         <!-- Hidden div for configuration file upload -->
         <div id="configurationUploadDialog" style="display:none;">
-            <form id="configurationUploadForm" action="<c:url value="/api/backup"/>" method="post">
-                <input id="configurationUploadFile" type="file" name="fileData" />
-                <button id="configurationUploadFileButton" type="submit" style="display: none;"></button>
+            <form id="configurationUploadForm" action='<c:url value="/api/backup"/>' method="post">
+                <div class="form-group">
+                    <label for="configurationUploadFile">Configuration file:</label>
+                    <input id="configurationUploadFile" class="form-control" type="file" name="fileData" />
+                </div>
             </form>
 
             <!-- div for status notice -->
             <div class="ui-widget" id="statusNotificationDiv" style="display: none;">
                 <div class="ui-state-highlight ui-corner-all" id="statusNotificationStateDiv" style="margin-top: 10px;  margin-bottom: 10px; padding: 0 .7em;">
                     <p style="margin-top: 10px; margin-bottom:10px;"><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
-                    <span id="statusNotificationText"/>gfdgfd</p>
+                    <span id="statusNotificationText"/></p>
                 </div>
             </div>
         </div>
@@ -275,13 +245,8 @@
                 </div>
 
                 <ul class="nav navbar-nav navbar-left">
-                    <li class="dropdown">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Options <b class="caret"></b></a>
-                        <ul class="dropdown-menu">
-                            <li><a href="#" onclick='exportConfiguration()'>Export Configuration</a></li>
-                            <li><a href="#" onclick='importConfiguration()'>Import Configuration</a></li>
-                        </ul>
-                    </li>
+                    <li><a href="#" onclick='exportConfiguration()'>Export Configuration</a></li>
+                    <li><a href="#" onclick='importConfiguration()'>Import Configuration</a></li>
                 </ul>
 
                 <div class="form-group navbar-form navbar-left">
@@ -297,7 +262,7 @@
             </div>
         </nav>
 
-        <div style="width:400px;">
+        <div>
             <table id="profilelist"></table>
             <div id="profilenavGrid"></div>
         </div>

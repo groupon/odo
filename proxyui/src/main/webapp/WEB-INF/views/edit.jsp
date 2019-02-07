@@ -68,18 +68,6 @@
             window.open("https://github.com/groupon/odo#readme","help");
         }
 
-        function navigateEditGroups() {
-            window.open('<c:url value = '/group' />', "edit-groups");
-        }
-
-        function navigateRequestHistory() {
-            window.open('<c:url value='/history/${profile_id}'/>?clientUUID=${clientUUID}', '<c:url value='/history/${profile_id}'/>?clientUUID=${clientUUID}');
-        }
-
-        function navigateProfiles() {
-            window.location = '<c:url value='/profiles'/>';
-        }
-
         function updateStatus() {
             var active = ${isActive};
 
@@ -1818,7 +1806,7 @@
         <form id="configurationUploadForm">
             <div class="form-group">
                 <label for="configurationUploadFile">Configuration file:</label>
-                <input id="configurationUploadFile" class="form-control" type="file" accept=".json,application/json" name="fileData" />
+                <input id="configurationUploadFile" class="form-control" type="file" name="fileData" />
             </div>
             <div class="form-group form-check">
                 <label for="includeOdoConfiguration" class="form-check-label">Also Import Odo Configuration</label>
@@ -1837,10 +1825,10 @@
             </div>
 
             <ul id="status2" class="nav navbar-nav navbar-left">
-                <li><a href="#" onClick="navigateProfiles()">Profiles</a> </li>
-                <li><a href="#" onClick="navigateRequestHistory()">Request History</a></li>
-                <li><a href="#" onClick="navigatePathTester()">Path Tester</a></li>
-                <li><a href="#" onClick="navigateEditGroups()">Edit Groups</a></li>
+                <li><a target="_BLANK" href="<c:url value='/profiles'/>">Profiles</a> </li>
+                <li><a target="_BLANK" href="<c:url value='/history/${profile_id}'/>?clientUUID=${clientUUID}">Request History</a></li>
+                <li><a target="_BLANK" href="#" onClick="navigatePathTester()">Path Tester</a></li>
+                <li><a target="_BLANK" href="<c:url value='/group' />">Edit Groups</a></li>
                 <li class="dropdown">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown">Import/Export <b class="caret"></b></a>
                     <ul class="dropdown-menu">
