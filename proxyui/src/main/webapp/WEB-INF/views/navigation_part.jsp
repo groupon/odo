@@ -1,3 +1,4 @@
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <li class="dropdown">
     <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
         <span class="glyphicon glyphicon-globe"></span>
@@ -10,26 +11,38 @@
                 <span class="glyphicon glyphicon-book"></span>&nbsp;&nbsp;All Profiles
             </a>
         </li>
-        <li>
-            <a href="<c:url value='/edit/${profile_id}'/>">
-                <span class="glyphicon glyphicon-briefcase"></span>&nbsp;&nbsp;Current Profile
-            </a>
-        </li>
-        <li>
-            <a href="<c:url value='/history/${profile_id}'/>?clientUUID=${clientUUID}">
-                <span class="glyphicon glyphicon-time"></span>&nbsp;&nbsp;Request History
-            </a>
-        </li>
+        <c:choose>
+            <c:when test="${not empty profile_id}">
+                <li>
+                    <a href="<c:url value='/edit/${profile_id}'/>">
+                        <span class="glyphicon glyphicon-briefcase"></span>&nbsp;&nbsp;Current Profile
+                    </a>
+                </li>
+                <c:choose>
+                    <c:when test="${not empty clientUUID}">
+                        <li>
+                            <a href="<c:url value='/history/${profile_id}'/>?clientUUID=${clientUUID}">
+                                <span class="glyphicon glyphicon-time"></span>&nbsp;&nbsp;Request History
+                            </a>
+                        </li>
+                    </c:when>
+                </c:choose>
+            </c:when>
+        </c:choose>
         <li>
             <a href="<c:url value='/group'/>">
                 <span class="glyphicon glyphicon-blackboard"></span>&nbsp;&nbsp;Edit Groups
             </a>
         </li>
-        <li>
-            <a href="<c:url value='/pathorder/${profile_id}'/>">
-                <span class="glyphicon glyphicon-th-list"></span>&nbsp;&nbsp;Reorder Paths
-            </a>
-        </li>
+        <c:choose>
+            <c:when test="${not empty profile_id}">
+                <li>
+                    <a href="<c:url value='/pathorder/${profile_id}'/>">
+                        <span class="glyphicon glyphicon-th-list"></span>&nbsp;&nbsp;Reorder Paths
+                    </a>
+                </li>
+            </c:when>
+        </c:choose>
         <li>
             <a href="<c:url value='/scripts'/>">
                 <span class="glyphicon glyphicon-list-alt"></span>&nbsp;&nbsp;Scripts

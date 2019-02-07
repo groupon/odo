@@ -243,6 +243,7 @@
                 </div>
 
                 <ul class="nav navbar-nav navbar-left">
+                    <%@ include file="navigation_part.jsp" %>
                     <li><a href="#" onclick='exportConfiguration()'>Export Configuration</a></li>
                     <li><a href="#" onclick='importConfiguration()'>Import Configuration</a></li>
                 </ul>
