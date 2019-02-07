@@ -353,7 +353,7 @@
     function requestParamsFormatter(cellvalue) {
         cellvalue = decodeURIComponent(cellvalue);
         if (cellvalue.length < 253) { return cellvalue; }
-        return cellvalue.slice(0, 250) + "\u2026";
+        return cellvalue.slice(0, 250) + " ...";
     }
 
     var invalidRows = []
