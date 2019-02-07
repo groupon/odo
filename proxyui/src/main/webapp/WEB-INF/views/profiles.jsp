@@ -243,13 +243,18 @@
                 </div>
 
                 <ul class="nav navbar-nav navbar-left">
-                    <li><a href="#" onclick='exportConfiguration()'>Export Configuration</a></li>
-                    <li><a href="#" onclick='importConfiguration()'>Import Configuration</a></li>
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Configuration <span class="caret"></span></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="#" onclick='exportConfiguration()'>Export Configuration</a></li>
+                            <li><a href="#" onclick='importConfiguration()'>Import Configuration</a></li>
+                        </ul>
+                    </li>
                 </ul>
 
-                <div class="form-group navbar-form navbar-left">
+                <ul class="form-group navbar-form navbar-left">
                     <a href="https://github.com/groupon/odo#readme" target="_BLANK" class="btn btn-info" data-toggle="tooltip" data-placement="bottom" title="Click here to read the readme.">Need help?</a>
-                </div>
+                </ul>
 
                 <ul class="nav navbar-nav navbar-right">
                     <li>
