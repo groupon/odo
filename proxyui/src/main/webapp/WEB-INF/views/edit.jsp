@@ -1079,7 +1079,8 @@
                     } else {
                         return term.text;
                     }
-                }
+                },
+                dropdownAutoWidth: true
             });
             $("#serverGroupSelection").on("change", function(e) {
                 if(e.added.isNew) {

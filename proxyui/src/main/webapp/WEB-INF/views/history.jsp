@@ -350,6 +350,12 @@
       return cellvalue;
     }
 
+    function requestParamsFormatter(cellvalue) {
+        cellvalue = decodeURIComponent(cellvalue);
+        if (cellvalue.length < 253) { return cellvalue; }
+        return cellvalue.slice(0, 250) + "\u2026";
+    }
+
     var invalidRows = []
     function validFormatter(cellvalue, options, rowObject) {
         if (!cellvalue) {
@@ -565,8 +571,8 @@
 
                 // optionally turn off the Formatted button
                 if (data.history.responseContentType == null
-                    || data.history.responseContentType.toLowerCase().indexOf(
-                    "application/json") == -1 || data.history.responseData == "") {
+                    || data.history.responseContentType.toLowerCase().indexOf("application/json") == -1
+                    || data.history.responseData == "") {
                         showRawResponseData();
                         showModifiedResponse();
                         $("#showRawFormattedDataButton").attr("disabled", "disabled");
@@ -800,7 +806,8 @@
                     width : 300,
                     editable : false,
                     sortable: false,
-                    classes: 'break-all preformatted'
+                    classes: 'break-all preformatted',
+                    formatter: requestParamsFormatter
                 }, {
                     name : 'responseCode',
                     index : 'responseCode',
