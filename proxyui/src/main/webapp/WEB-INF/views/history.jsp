@@ -73,13 +73,10 @@
 
 <!-- Hidden div for grid options -->
 <div id="gridOptionsDialog" style="display: none;">
-    <table>
-    <tr><td>
-        Number of Rows:
-    </td><td>
-        <input id="numberOfRows" size=5/>
-    </td></tr>
-    </table>
+    <form class="form-inline" onsubmit="saveGridOptions();">
+        <label for="numberOfRows">Number of rows:</label>
+        <input id="numberOfRows" class="form-control" size=3 type="number" min="1" max="999999" pattern="[0-9]{1,6}" />
+    </form>
 </div>
 
 <nav class="navbar navbar-default" role="navigation">
@@ -247,21 +244,29 @@
             title: "Grid Options",
             modal: true,
             buttons: {
-              "Save": function() {
-                  if (! isNaN($("#numberOfRows").val())) {
-                      $.cookie("historyGridRows", $("#numberOfRows").val(), { expires: 10000, path: '/testproxy/history' });
-                  }
-                  $("#gridOptionsDialog").dialog("close");
-                  location.reload();
-              },
-              "Close": function() {
-                  $("#gridOptionsDialog").dialog("close");
-              }
+                Save: saveGridOptions,
+                Cancel: function() {
+                    $("#gridOptionsDialog").dialog("close");
+                }
             },
-            open: function( event, ui ) {
+            open: function() {
                 $("#numberOfRows").val(getNumberOfRows());
             }
         });
+    }
+
+    function saveGridOptions(e) {
+        var historyGridRows = parseInt($("#numberOfRows").val());
+        if (!isNaN(historyGridRows)) {
+            $.cookie("historyGridRows", historyGridRows, {
+                expires: 10000,
+                path: '/testproxy/history'
+            });
+            $("#historylist").setGridParam({rowNum: historyGridRows});
+            $("#historylist").trigger('reloadGrid');
+        }
+        $("#gridOptionsDialog").dialog("close");
+        return false;
     }
 
     function getNumberOfRows() {
