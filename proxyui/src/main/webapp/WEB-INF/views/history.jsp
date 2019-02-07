@@ -116,7 +116,6 @@
 
         <ul class="nav navbar-nav navbar-right">
             <li><a href="#" onclick='clearHistory()'>Clear History</a></li>
-            <li><a href="#" onclick='navigateScripts()'>Edit Scripts</a></li>
             <li><a href="#" onclick='openGridOptions()'>Grid Options</a></li>
         </ul>
     </div>
@@ -246,9 +245,7 @@
     function openGridOptions() {
         $("#gridOptionsDialog").dialog({
             title: "Grid Options",
-            width: 750,
             modal: true,
-            position:['top',20],
             buttons: {
               "Save": function() {
                   if (! isNaN($("#numberOfRows").val())) {

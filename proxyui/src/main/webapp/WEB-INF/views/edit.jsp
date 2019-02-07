@@ -1826,7 +1826,7 @@
 
             <ul class="nav navbar-nav navbar-left">
                 <%@ include file="navigation_part.jsp" %>
-                <li><a target="_BLANK" href="#" onClick="navigatePathTester()">Path Tester</a></li>
+                <li><a href="#" onClick="navigatePathTester()">Path Tester</a></li>
                 <li class="dropdown">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown">Import/Export <b class="caret"></b></a>
                     <ul class="dropdown-menu">
