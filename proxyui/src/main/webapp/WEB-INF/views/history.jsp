@@ -112,7 +112,8 @@
         </form>
 
         <ul class="nav navbar-nav navbar-right">
-            <li><a href="#" onclick='clearHistory()'>Clear History</a></li>
+            <li><a href="#" onclick='clearHistory()'>Clear History <kbd>alt+del</kbd></a></li>
+            <li><a href="<c:url value='/scripts'/>">Edit Scripts</a></li>
             <li><a href="#" onclick='openGridOptions()'>Grid Options</a></li>
         </ul>
     </div>
@@ -545,17 +546,12 @@
         $("#curlCommand").val(commandLine);
     }
 
-    //http://stackoverflow.com/questions/17564103/using-javascript-to-download-file-as-a-csv-file
     function downloadResponseData() {
-        var responseDownload = $("<a>")
-            .attr("download", "response");
         if (originalResponseFlag == 1) {
-            responseDownload.attr("href", "data:text/json;charset=utf-8," + historyData.history.originalResponseData);
+            download(historyData.history.originalResponseData, "response.txt", "text/json");
         } else {
-            responseDownload.attr("href", "data:text/json;charset=utf-8," + historyData.history.responseData);
+            download(historyData.history.responseData, "response.txt", "text/json");
         }
-        $("body").append(responseDownload)
-        responseDownload.click();
     }
 
     var historyData;
@@ -756,6 +752,7 @@
         Mousetrap.bind('c c', function() { // cURL command
             $("#copyCURLCommand:visible").click();
         });
+        Mousetrap.bind('alt+del', clearHistory);
 
         $("#historylist").jqGrid({
             url : '<c:url value="/api/history/${profile_id}"/>?clientUUID=${clientUUID}',
@@ -764,7 +761,6 @@
             pgtext : null,
             datatype : "json",
             page : "${page}",
-            toppager: true,
             gridview: true,
             rowNum: getNumberOfRows(),
             altRows: true,
