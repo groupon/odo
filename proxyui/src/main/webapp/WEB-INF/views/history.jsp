@@ -113,6 +113,7 @@
 
         <ul class="nav navbar-nav navbar-right">
             <li><a href="#" onclick='clearHistory()'>Clear History <kbd>alt+del</kbd></a></li>
+            <li><a href="<c:url value='/scripts'/>">Edit Scripts</a></li>
             <li><a href="#" onclick='openGridOptions()'>Grid Options</a></li>
         </ul>
     </div>
