@@ -759,7 +759,6 @@
             pgtext : null,
             datatype : "json",
             page : "${page}",
-            toppager: true,
             gridview: true,
             rowNum: getNumberOfRows(),
             altRows: true,
