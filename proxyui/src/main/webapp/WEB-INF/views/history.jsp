@@ -112,7 +112,7 @@
         </form>
 
         <ul class="nav navbar-nav navbar-right">
-            <li><a href="#" onclick='clearHistory()'>Clear History</a></li>
+            <li><a href="#" onclick='clearHistory()'>Clear History <kbd>alt+del</kbd></a></li>
             <li><a href="#" onclick='openGridOptions()'>Grid Options</a></li>
         </ul>
     </div>
@@ -751,6 +751,7 @@
         Mousetrap.bind('c c', function() { // cURL command
             $("#copyCURLCommand:visible").click();
         });
+        Mousetrap.bind('alt+del', clearHistory);
 
         $("#historylist").jqGrid({
             url : '<c:url value="/api/history/${profile_id}"/>?clientUUID=${clientUUID}',
