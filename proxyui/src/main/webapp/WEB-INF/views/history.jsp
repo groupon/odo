@@ -545,17 +545,12 @@
         $("#curlCommand").val(commandLine);
     }
 
-    //http://stackoverflow.com/questions/17564103/using-javascript-to-download-file-as-a-csv-file
     function downloadResponseData() {
-        var responseDownload = $("<a>")
-            .attr("download", "response");
         if (originalResponseFlag == 1) {
-            responseDownload.attr("href", "data:text/json;charset=utf-8," + historyData.history.originalResponseData);
+            download(historyData.history.originalResponseData, "response.txt", "text/json");
         } else {
-            responseDownload.attr("href", "data:text/json;charset=utf-8," + historyData.history.responseData);
+            download(historyData.history.responseData, "response.txt", "text/json");
         }
-        $("body").append(responseDownload)
-        responseDownload.click();
     }
 
     var historyData;
