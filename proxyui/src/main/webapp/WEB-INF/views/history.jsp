@@ -16,8 +16,6 @@
         $.jgrid.useJSON = true;
     </script>
 
-    <script type="text/javascript" src="<c:url value="/webjars/clipboard.js/2.0.0/clipboard.min.js"/>"></script>
-
     <style type="text/css">
         ul, li { list-style-type: none; }
 
@@ -397,7 +395,6 @@
         dmp.diff_cleanupSemantic(d);
         var ds = diff_prettyHtml(d);
         var patchdiff = dmp.patch_toText(dmp.patch_make(originalData, changedData));
-        //$("#" + changedID).html(ds.replace(/[^\x00-\x7F]/g, ""));
         $("#" + changedID)
             .height($("#" + originalID).height())
             .attr("data-copy-content", patchdiff)
@@ -665,18 +662,13 @@
                 setTimeout(function() {
                     $(event.target).tooltip("hide");
                 }, 1500);
-            });
-
-        new ClipboardJS(".copy-to-clipboard", {
-            text: function(trigger) {
-                var $target = $("[data-copy-trigger=\"" + trigger.id + "\"]").filter(function(index) {
+            }).click(function(trigger) {
+                var $target = $("[data-copy-trigger=\"" + $(this).attr('id') + "\"]").filter(function(index) {
                     return $(this).is(":visible");
                 }).first();
-
                 var copytext;
-
                 if ($target.is('textarea')) {
-                    copytext = $target.val();
+                    copytext = $target.val().toString();
                 } else if ($target.attr('data-copy-content')) {
                     copytext = decodeURIComponent($target.attr('data-copy-content'));
                 } else {
@@ -684,23 +676,21 @@
                 }
 
                 if (copytext.length === 0) {
-                    $(trigger).data('bs.tooltip').options.title = "Nothing copied.";
-                    $(trigger).tooltip('show')
+                    $(this).data("bs.tooltip").options.title = "Nothing to copy.";
+                    $(this).tooltip("show");
+                    trigger.target.focus();
+                    return;
                 }
 
-                return copytext;
-            }
-        }).on('success', function(e) {
-            $(e.trigger).data('bs.tooltip').options.title = "Copied!";
-            $(e.trigger).tooltip("show");
+                $("body").append($("<textarea>").attr("id", "copyFromHere"));
+                $("#copyFromHere").val(copytext).select();
+                document.execCommand("Copy");
+                $("#copyFromHere").remove();
 
-            e.clearSelection();
-        }).on('error', function(e) {
-            $(e.trigger).data('bs.tooltip').options.title = "Could not copy text.";
-            $(e.trigger).tooltip("show");
-
-            e.clearSelection();
-        });
+                $(this).data("bs.tooltip").options.title = "Copied!";
+                $(this).tooltip("show");
+                trigger.target.focus();
+            });
 
         var selectRowUsed = false;
 
