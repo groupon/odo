@@ -30,6 +30,11 @@ textarea {
     color: blue;
 }
 
+/* jquery ui dialogs will screw with your bootstrap buttons otherwise! */
+.ui-widget .ui-dialog-content button.btn {
+  font-size: 14px;
+}
+
 .ui-jqgrid .ui-jqgrid-bdiv {
     overflow-x: hidden;
 }
@@ -37,3 +42,5 @@ textarea {
 .paddedtable td {
     padding: 10px;
 }
+
+.preformatted, textarea.preformatted { font-family: monospace; }
