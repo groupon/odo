@@ -11,7 +11,6 @@ function pathTesterSubmit() {
         data: 'profileIdentifier=${profile_id}&requestType=' + requestType + '&url=' + encoded,
         success: function(data) {
             // build up grid
-            // $("#friendlyNameError").html(json.error.message);
             var grid = "<table id=\"pathTesterTable\" class=\"paddedtable\"><tr><td class=\"ui-widget-header\">#</td>";
             grid = grid + "<td class=\"ui-widget-header\">Path Name</td>";
             grid = grid + "<td class=\"ui-widget-header\">Path</td>";

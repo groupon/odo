@@ -453,10 +453,10 @@
                 success : function(data) {
                     if (data.client == null || (data.client.uuid == -1 && $.cookie("UUID") != null)) {
                         $.removeCookie("UUID", { expires: 10000, path: '/testproxy/' });
-                        document.location.href =  "http://" + document.location.hostname + ":" +  document.location.port + document.location.pathname;
+                        document.location.href =  document.location.protocol + "//" + document.location.hostname + ":" +  document.location.port + document.location.pathname;
                     } else {
                         if ("${clientUUID}" == "-1" && $.cookie("UUID") != null) {
-                            document.location.href =  "http://" + document.location.hostname + ":" +  document.location.port + document.location.pathname +
+                            document.location.href =  document.location.protocol + "//" + document.location.hostname + ":" +  document.location.port + document.location.pathname +
                                 "?" + 'clientUUID='+$.cookie("UUID");
                         } else if ("${clientUUID}" != "-1") {
                             $.cookie("UUID", "${clientUUID}", { expires: 10000, path: '/testproxy/' });
