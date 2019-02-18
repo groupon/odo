@@ -516,6 +516,15 @@
                     overrideMoveDown("request");
                 }
             });
+            Mousetrap.bind(['command+a', 'ctrl+a'], function(event) {
+                if ($("#responseOverrideEnabled").is(":visible:focus")) {
+                    event.preventDefault();
+                    $("#responseOverrideEnabled option").prop("selected", true);
+                } else if ($("#requestOverrideEnabled").is(":visible:focus")) {
+                    event.preventDefault();
+                    $("#requestOverrideEnabled option").prop("selected", true);
+                }
+            });
             Mousetrap.bind(['backspace', 'del'], function(event) {
                 if ($("#responseOverrideEnabled").is(":visible:focus")) {
                     event.preventDefault();
