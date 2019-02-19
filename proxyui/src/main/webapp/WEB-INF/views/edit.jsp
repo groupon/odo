@@ -1581,14 +1581,14 @@
 
         function applyGeneralPathChanges() {
             event.preventDefault();
-            var pathName = $("#pathName").attr("value");
-            var path = $("#pathValue").attr("value");
-            var contentType = $("#contentType").attr("value");
-            var global = $("#pathGlobal").attr("checked") == "checked";
+            var pathName = $("#pathName").val();
+            var path = $("#pathValue").val();
+            var contentType = $("#contentType").val();
+            var isGlobal = $("#pathGlobal").is(":checked");
             var requestType = $("#requestType").val();
             var bodyFilter = $("#postBodyFilter").val();
-            var repeat = $("#pathRepeatCount").attr("value");
-            var code = $("#pathResponseCode").attr("value");
+            var repeat = $("#pathRepeatCount").val();
+            var code = $("#pathResponseCode").val();
 
             var groupArray = $("#groupTable").jqGrid("getGridParam", "selarrrow");
 
@@ -1600,7 +1600,18 @@
                 type: "POST",
                 async: false,
                 url: '<c:url value="/api/path/"/>' + currentPathId,
-                data: ({clientUUID: "${clientUUID}", pathName: pathName, path: path, bodyFilter: bodyFilter, contentType: contentType, repeatNumber: repeat, requestType: requestType, global: global, responseCode: code, 'groups[]': groupArray}),
+                data: {
+                    clientUUID: "${clientUUID}",
+                    pathName: pathName,
+                    path: path,
+                    bodyFilter: bodyFilter,
+                    contentType: contentType,
+                    repeatNumber: repeat,
+                    requestType: requestType,
+                    global: isGlobal,
+                    responseCode: code,
+                    'groups[]': groupArray
+                },
                 success: function() {
                     $('#applyPathChangeSuccessDiv').show();
                 },
