@@ -480,6 +480,7 @@
             });
             Mousetrap.bind('3', function() {
                 $("[href=\"#tabs-3\"]").click();
+                $("#pathGlobal").focus();
             });
             // Filter
             Mousetrap.bind('f', function(event) {
@@ -1610,14 +1611,22 @@
                     requestType: requestType,
                     global: isGlobal,
                     responseCode: code,
-                    'groups[]': groupArray
+                    "groups[]": groupArray
                 },
                 success: function() {
-                    $('#applyPathChangeSuccessDiv').show();
+                    $("#applyPathChangeSuccessDiv").show(0, function() {
+                        setTimeout(function() {
+                            $("#applyPathChangeSuccessDiv").fadeOut(250);
+                        }, 3000);
+                    });
                 },
                 error: function(jqXHR) {
-                    $('#applyPathChangeAlertDiv').show();
-                    $('#applyPathChangeAlertTextDiv').html(jqXHR.responseText);
+                    $("#applyPathChangeAlertTextDiv").text(jqXHR.responseText);
+                    $("#applyPathChangeAlertDiv").show(0, function() {
+                        setTimeout(function() {
+                            $("#applyPathChangeAlertDiv").fadeOut(250);
+                        }, 3000);
+                    });
                 }
             });
         }
@@ -1995,7 +2004,7 @@
                                 <div class="form-group form-check row">
                                     <label for="pathGlobal" class="col-sm-3 form-check-label mousetrap">Global?</label>
                                     <div class="col-sm-9">
-                                        <input id="pathGlobal" type="checkbox" class="form-check-input" />
+                                        <input id="pathGlobal" autofocus type="checkbox" class="form-check-input" />
                                     </div>
                                 </div>
                                 <div class="form-group row">
@@ -2054,17 +2063,21 @@
                                 <div class="form-group row">
                                     <div class="col-sm-9 col-sm-offset-3">
                                         <input type="submit" class="btn btn-primary" value="Apply" />
-                                        <div class="ui-widget" style="display:none;" id="applyPathChangeAlertDiv">
-                                            <div class="ui-state-error ui-corner-all" style="padding: 0 .7em;">
-                                                <p><span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span>
-                                                <strong>Alert: </strong><span id="applyPathChangeAlertTextDiv"/></p>
-                                            </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-group row" style="margin-bottom: 0;">
+                                    <div class="col-sm-12">
+                                        <div id="applyPathChangeSuccessDiv" class="alert alert-success" role="alert" style="display: none;">
+                                            <span class="glyphicon glyphicon-info-sign"></span>
+                                            <strong>Success:</strong>
+                                            Configuration saved.
                                         </div>
-                                        <div class="ui-widget" style="display:none;" id="applyPathChangeSuccessDiv">
-                                            <div class="ui-state-highlight ui-corner-all" style="padding: 0 .7em;">
-                                                <p><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
-                                                <strong>Success: </strong>Configuration saved.</p>
-                                            </div>
+
+                                        <div id="applyPathChangeAlertDiv" class="alert alert-danger" role="alert" style="display: none;">
+                                            <span class="glyphicon glyphicon-exclamation-sign"></span>
+                                            <strong>Alert:</strong>
+                                            <span id="applyPathChangeAlertTextDiv"></span>
                                         </div>
                                     </div>
                                 </div>
