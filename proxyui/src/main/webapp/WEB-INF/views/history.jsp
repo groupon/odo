@@ -292,17 +292,15 @@
     }
 
     function uriFilter() {
+        event.preventDefault();
         historyFilter = $("#searchFilter").val();
         $("#historylist")
-            .jqGrid(
-                'setGridParam',
-                {
-                    url : '<c:url value="/api/history/${profile_id}"/>?clientUUID=${clientUUID}&source_uri[]=' + historyFilter,
-                    page : 1
-                })
+            .jqGrid("setGridParam", {
+                url: '<c:url value="/api/history/${profile_id}"/>?clientUUID=${clientUUID}&source_uri[]=' + historyFilter,
+                page: 1
+            })
             .jqGrid('setCaption', historyCaption())
-            .trigger("reloadGrid")
-        return false; // prevent form redirection
+            .trigger("reloadGrid");
     }
 
     function showItemsWithMessages() {
