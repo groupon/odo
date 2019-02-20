@@ -2039,7 +2039,7 @@
                                 <div class="form-group form-check row">
                                     <label for="pathGlobal" class="col-sm-3 form-check-label mousetrap">Global?</label>
                                     <div class="col-sm-9">
-                                        <input id="pathGlobal" autofocus type="checkbox" class="form-check-input" />
+                                        <input id="pathGlobal" autofocus type="checkbox" class="form-check-input mousetrap" />
                                     </div>
                                 </div>
                                 <div class="form-group row">
