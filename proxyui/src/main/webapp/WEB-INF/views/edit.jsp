@@ -10,8 +10,7 @@
     <%@ include file="/resources/js/webjars.include" %>
 
     <style type="text/css">
-        #details {
-            position: sticky;
+        #editDiv.affix {
             top: 12px;
         }
 
@@ -1123,10 +1122,27 @@
                 }
             }
 
+            $("#editDiv").affix({
+                offset: {
+                    top: function() {
+                        return $("nav.navbar").position().top + $("nav.navbar").height() + parseInt($("nav.navbar").css("margin-bottom")) - 12;
+                    }
+                }
+            });
+
+            $("#editDiv").on("affix.bs.affix", function(event) {
+                var pctWidth = $(event.target).width() / $(window).width() * 100;
+                $(event.target).css("width", pctWidth + "%");
+            });
+
+            $("#editDiv").on("affix-top.bs.affix", function(event) {
+                $(event.target).css("width", "");
+            });
+
             // temporary kludge to get the sizes right
             setTimeout(function() {
                 $("#serverlist").setGridWidth($("#listContainer").width());
-            }, 100);
+            }, 150);
         });
 
         function getPlaceholderText(item) {
@@ -1908,8 +1924,8 @@
                 </div>
             </div>
 
-            <div id="details" data-spy="affix" class="col-xs-7">
-                <div class="detailsView" id="editDiv" style="display: none;">
+            <div id="details" class="col-xs-7">
+                <div id="editDiv" style="display: none;">
                     <div style="position: relative;">
                         <ul class="nav nav-pills" id="nav">
                         </ul>
