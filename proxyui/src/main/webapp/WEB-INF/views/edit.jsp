@@ -196,7 +196,7 @@
             // first get the data of all of the existing pills
             // this will be used to mark which pills are kept/deleted
             var existingPills = [];
-            $(".nav-pills > li").each( function( index, element ) {
+            $(".nav-pills > li").each(function(index, element) {
                 var id = $(this).attr("id");
                 existingPills.push(id)
             });
@@ -931,8 +931,8 @@
                 update: function(event, ui) {
                     var pathOrder = "";
                     var paths = $("#packages").jqGrid('getRowData');
-                    for( var i = 0; i < paths.length; i++ ) {
-                        if( i === paths.length - 1 ) {
+                    for (var i = 0; i < paths.length; i++) {
+                        if (i === paths.length - 1) {
                             pathOrder += paths[i]["pathId"];
                         } else {
                             pathOrder += paths[i]["pathId"] + ",";
@@ -941,7 +941,7 @@
                     $.ajax({
                         type: "POST",
                         url: '<c:url value="/pathorder/"/>${profile_id}',
-                        data: ({pathOrder : pathOrder}),
+                        data: {pathOrder: pathOrder},
                         success: function() {
                             $('#info').html('Path Order Updated');
                             $('#info').fadeOut(1).delay(50).fadeIn(150);
@@ -960,7 +960,7 @@
                 onClickButton: function() {
                     sortableAllowed = !sortableAllowed;
 
-                    if( sortableAllowed ) {
+                    if (sortableAllowed) {
                         /* ALLOWS THE PATH PRIORITY TO BE SET INSIDE OF THE PATH TABLE, INSTEAD OF ON A SEPARATE PAGE */
                         $("#packages").jqGrid('sortableRows', options);
                         $("#reorder_packages").addClass("ui-state-highlight");
@@ -1096,8 +1096,11 @@
                     $.ajax({
                         type: "POST",
                         url: '<c:url value="/api/servergroup" />',
-                        data: ({name : e.added.id, profileId: "${profile_id}"}),
-                        success: function(data){
+                        data: {
+                            name: e.added.id,
+                            profileId: "${profile_id}"
+                        },
+                        success: function(data) {
                             setActiveServerGroup(data.id);
                             reloadGrid("#serverGroupList");
                         }
@@ -1162,10 +1165,13 @@
             $.ajax({
                 type: "POST",
                 url: '<c:url value="/api/servergroup/" />' + groupId,
-                data: ({activate: true, profileId: "${profile_id}", clientUUID: "${clientUUID}" }),
+                data: {
+                    activate: true,
+                    profileId: "${profile_id}",
+                    clientUUID: "${clientUUID}"
+                },
                 success: function(data) {
                     reloadGrid("#serverlist");
-
                 }
             });
         }
@@ -1237,7 +1243,11 @@
                 $.ajax({
                     type: 'POST',
                     url: '<c:url value="/api/path/"/>' + id + '/' + methodId,
-                    data: ({ordinal: ordinal, clientUUID: clientUUID, _method: 'DELETE'}),
+                    data: {
+                        ordinal: ordinal,
+                        clientUUID: clientUUID,
+                        _method: 'DELETE'
+                    },
                     success: function() {
                         if(type == "response") {
                             selectedResponseOverride = 0;
@@ -1265,7 +1275,10 @@
                 $.ajax({
                     type: 'POST',
                     url: '<c:url value="/api/path/"/>' + id,
-                    data: ({enabledMoveUp : selected.value, clientUUID : clientUUID}),
+                    data: {
+                        enabledMoveUp: selected.value,
+                        clientUUID : clientUUID
+                    },
                     success: function(){
                         if(type == "response") {
                             populateEnabledResponseOverrides();
@@ -1286,7 +1299,10 @@
                 $.ajax({
                     type:"POST",
                     url: '<c:url value="/api/path/"/>' + id,
-                    data: ({enabledMoveDown : selected.value, clientUUID : clientUUID}),
+                    data: {
+                        enabledMoveDown: selected.value,
+                        clientUUID: clientUUID
+                    },
                     success: function(){
                         if(type == "response") {
                             populateEnabledResponseOverrides();
@@ -1390,7 +1406,10 @@
                 $.ajax({
                     type:"POST",
                     url: '<c:url value="/api/path/"/>' + currentPathId,
-                    data: ({addOverride : selected.value, clientUUID: clientUUID}),
+                    data: {
+                        addOverride: selected.value,
+                        clientUUID: clientUUID
+                    },
                     success: function() {
                         populateEnabledOverrides(true);
                         if(enabledCount == 0) {
