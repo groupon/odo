@@ -738,7 +738,7 @@
         Mousetrap.bind('c c', function() { // cURL command
             $("#copyCURLCommand:visible").click();
         });
-        Mousetrap.bind('alt+del', clearHistory);
+        Mousetrap.bind(['alt+del', 'alt+backspace'], clearHistory);
 
         $("#historylist").jqGrid({
             url : '<c:url value="/api/history/${profile_id}"/>?clientUUID=${clientUUID}',
