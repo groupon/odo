@@ -191,7 +191,7 @@
 
         // Keeps the list of pills updated
         function updateDetailPills() {
-            var ids = $("#packages").jqGrid('getDataIDs');
+            var ids = $("#packages").jqGrid('getRowData');
 
             $(".nav-pills > li").remove();
             if (ids.length === 0) {
@@ -199,34 +199,13 @@
                 return;
             }
 
-            var overridesToShow = []; // keep track of active and selected overrides
-
-            // Add the active override as the first item
-            if (currentPathId > -1) {
-                var rowId = $("#response_enabled_" + currentPathId).attr("data-row");
-                var currentRowData = $("#packages").jqGrid("getRowData", rowId);
-                if (currentRowData !== undefined) {
-                    overridesToShow.push(currentRowData);
-                    ids.splice(ids.indexOf(rowId), 1);
-                }
-            }
-
             // TODO: Use foreach?
+            var selectedRow = $("#packages").jqGrid("getGridParam", "selrow");
             $.each(ids, function(index, el) {
-                var rowdata = $("#packages").getRowData(el);
-                // TODO: If possible to glean from rowdata alone vs. expensive dom checks
-                if ($("#request_enabled_" + rowdata.pathId).is(":checked") || $("#response_enabled_" + rowdata.pathId).is(":checked")) {
-                    overridesToShow.push(rowdata);
-                }
-            });
-
-            if (!overridesToShow.length) {
-                loadPath(-1);
-                return;
-            }
-
-            $.each(overridesToShow, function(index, el) {
-                $("#nav").append($("<li>")
+                // TODO: Need cleaner way to do this
+                if (el.requestEnabled.indexOf("checked") + el.responseEnabled.indexOf("checked") > -2
+                    || index + 1 == selectedRow) {
+                    $("#nav").append($("<li>")
                     .attr("id", el.pathId)
                     .append($("<a>")
                         .attr({
@@ -236,6 +215,7 @@
                         .click(function() {
                             loadPath($(this).parent().attr("id"));
                         })));
+                }
             });
 
             $("#nav").find("#" + currentPathId).addClass("active"); // TODO: Grey out the response pane if this is not found
