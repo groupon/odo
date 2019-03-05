@@ -225,8 +225,14 @@
                 return;
             }
 
-            $("#nav").find("#" + currentPathId).addClass("active");
-            loadPath(currentPathId);
+            let $currentPathPill = $("#nav").find("#" + currentPathId);
+
+            if ($currentPathPill.length) {
+                $currentPathPill.addClass("active");
+                loadPath(currentPathId);
+            } else {
+                loadPath(-1);
+            }
         }
 
         // common function for grid reload
