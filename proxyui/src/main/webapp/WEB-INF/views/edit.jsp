@@ -191,10 +191,11 @@
 
         // Keeps the list of pills updated
         function updateDetailPills() {
-            var ids = $("#packages").jqGrid('getRowData');
+            var rowData = $("#packages").jqGrid('getGridParam', 'data'); // all rows and data
+            var rowIds = $("#packages").jqGrid('getDataIDs'); // visible rows IDs
 
             $(".nav-pills > li").remove();
-            if (ids.length === 0) {
+            if (rowIds.length === 0) {
                 loadPath(-1);
                 return;
             }
@@ -202,19 +203,18 @@
             // TODO: Use foreach?
             var selectedRow = $("#packages").jqGrid("getGridParam", "selrow");
             var pillsShown = false;
-            $.each(ids, function(index, el) {
-                // TODO: Need cleaner way to do this
-                if (el.requestEnabled.indexOf("checked") + el.responseEnabled.indexOf("checked") > -2
-                    || index + 1 == selectedRow) {
+            $.each(rowIds, function(_index_, rowId) {
+                var rowInfo = rowData[parseInt(rowId) - 1];
+                if (rowInfo.requestEnabled || rowInfo.responseEnabled || rowId == selectedRow) {
                     $("#nav").append($("<li>")
-                        .attr("id", el.pathId)
+                        .attr("id", rowInfo.pathId)
                         .append($("<a>")
                             .attr({
-                                "href": "#tab" + el.pathId,
+                                "href": "#tab" + rowInfo.pathId,
                                 "data-toggle": "tab"})
-                            .text(el.pathName)
+                            .text(rowInfo.pathName)
                             .click(function() {
-                                $("#packages").setSelection(index + 1, true);
+                                $("#packages").setSelection(rowId, true);
                             })));
 
                     pillsShown = true;
