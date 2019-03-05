@@ -831,9 +831,25 @@
                 ignoreCase: true,
                 loadonce: true,
                 onSelectRow: function (id) {
-                    var data = $("#packages").jqGrid('getRowData',id);
+                    var data = $("#packages").jqGrid('getRowData', id);
                     currentPathId = data.pathId;
                     updateDetailPills();
+
+                    var $rowElement = $("tr#" + id);
+
+                    var docViewTop = $(window).scrollTop();
+                    var docViewBottom = docViewTop + $(window).height();
+
+                    var elemTop = $rowElement.offset().top;
+                    var elemBottom = elemTop + $rowElement.height();
+
+                    if ((elemBottom <= docViewBottom) && (elemTop >= docViewTop)) {
+                        return;
+                    }
+
+                    $([document.documentElement, document.body]).animate({
+                        scrollTop: $rowElement.offset().top - $(window).height() / 2
+                    }, 100);
                 },
                 loadComplete: function() {
                     updateDetailPills();
