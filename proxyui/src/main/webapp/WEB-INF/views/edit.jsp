@@ -200,7 +200,6 @@
                 return;
             }
 
-            // TODO: Use foreach?
             var selectedRow = $("#packages").jqGrid("getGridParam", "selrow");
             var pillsShown = false;
             $.each(rowIds, function(_index_, rowId) {
@@ -226,7 +225,7 @@
                 return;
             }
 
-            $("#nav").find("#" + currentPathId).addClass("active"); // TODO: Grey out the response pane if this is not found
+            $("#nav").find("#" + currentPathId).addClass("active");
             loadPath(currentPathId);
         }
 
@@ -1208,7 +1207,6 @@
                     changeResponseOverrideDiv();
                     changeRequestOverrideDiv();
 
-                    // TODO: Move elsewhere
                     setResponseOverrideActiveIndication(data.responseEnabled);
                     setRequestOverrideActiveIndication(data.requestEnabled);
 
