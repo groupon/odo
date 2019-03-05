@@ -201,26 +201,33 @@
 
             // TODO: Use foreach?
             var selectedRow = $("#packages").jqGrid("getGridParam", "selrow");
+            var pillsShown = false;
             $.each(ids, function(index, el) {
                 // TODO: Need cleaner way to do this
                 if (el.requestEnabled.indexOf("checked") + el.responseEnabled.indexOf("checked") > -2
                     || index + 1 == selectedRow) {
                     $("#nav").append($("<li>")
-                    .attr("id", el.pathId)
-                    .append($("<a>")
-                        .attr({
-                            "href": "#tab" + el.pathId,
-                            "data-toggle": "tab"})
-                        .text(el.pathName)
-                        .click(function() {
-                            loadPath($(this).parent().attr("id"));
-                        })));
+                        .attr("id", el.pathId)
+                        .append($("<a>")
+                            .attr({
+                                "href": "#tab" + el.pathId,
+                                "data-toggle": "tab"})
+                            .text(el.pathName)
+                            .click(function() {
+                                $("#packages").setSelection(index + 1, true);
+                            })));
+
+                    pillsShown = true;
                 }
             });
 
+            if (!pillsShown) {
+                loadPath(-1);
+                return;
+            }
+
             $("#nav").find("#" + currentPathId).addClass("active"); // TODO: Grey out the response pane if this is not found
             loadPath(currentPathId);
-            $("#editDiv").show();
         }
 
         // common function for grid reload
@@ -452,10 +459,20 @@
             });
             // Active paths navigation
             Mousetrap.bind('alt+right', function(event) {
-                $("#nav .active").next().find("a").click();
+                var $activeTab = $("#nav .active");
+                if ($activeTab.length) {
+                    $activeTab.next().find("a").click();
+                } else {
+                    $("#nav li").first().find("a").click();
+                }
             });
             Mousetrap.bind('alt+left', function(event) {
-                $("#nav .active").prev().find("a").click();
+                var $activeTab = $("#nav .active");
+                if ($activeTab.length) {
+                    $activeTab.prev().find("a").click();
+                } else {
+                    $("#nav li").first().find("a").click();
+                }
             });
             // Overrides navigation
             Mousetrap.bind('+', function(event) {
