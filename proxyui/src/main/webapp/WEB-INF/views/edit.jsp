@@ -1184,8 +1184,7 @@
                 type: "GET",
                 url: '<c:url value="/api/path/"/>' + pathId,
                 data: 'clientUUID=${clientUUID}',
-                success: function(data){
-
+                success: function(data) {
                     // populate Configuration values
                     $("#editDiv").show();
                     $("#pathName").attr("value", data.pathName);
@@ -1208,6 +1207,10 @@
                     populateEnabledOverrides();
                     changeResponseOverrideDiv();
                     changeRequestOverrideDiv();
+
+                    // TODO: Move elsewhere
+                    setResponseOverrideActiveIndication(data.responseEnabled);
+                    setRequestOverrideActiveIndication(data.requestEnabled);
 
                     // reset informational divs
                     $('#applyPathChangeSuccessDiv').hide();
@@ -1356,6 +1359,34 @@
                 selectedRequestOverride = 0;
                 $("#requestOverrideParameters").empty();
                 $("#requestOverrideDetails").hide();
+            }
+        }
+
+        function setResponseOverrideActiveIndication(isEnabled) {
+            $("#tabs-1 .panel-title").empty();
+
+            if (isEnabled) {
+                $("#tabs-1 .panel").removeClass("panel-default").addClass("panel-info");
+                $("#tabs-1 .panel-title").text("Response Overrides");
+            } else {
+                $("#tabs-1 .panel").removeClass("panel-info").addClass("panel-default");
+                $("#tabs-1 .panel-title")
+                    .text("Response Overrides ")
+                    .append($("<span>").attr("class", "label label-default").text("Inactive"));
+            }
+        }
+
+        function setRequestOverrideActiveIndication(isEnabled) {
+            $("#tabs-2 .panel-title").empty();
+
+            if (isEnabled) {
+                $("#tabs-2 .panel").removeClass("panel-default").addClass("panel-info");
+                $("#tabs-2 .panel-title").text("Request Overrides");
+            } else {
+                $("#tabs-2 .panel").removeClass("panel-info").addClass("panel-default");
+                $("#tabs-2 .panel-title")
+                    .text("Request Overrides ")
+                    .append($("<span>").attr("class", "label label-default").text("Inactive"));
             }
         }
 
@@ -1960,7 +1991,7 @@
                         <div id="tabs-1" class="container-flex">
                             <div class="row">
                                 <div class="col-xs-5">
-                                    <div class="panel panel-info">
+                                    <div class="panel">
                                         <div class="panel-heading">
                                             <h3 class="panel-title">Response Overrides</h3>
                                         </div>
@@ -1998,7 +2029,7 @@
                         <div id="tabs-2" class="container-flex">
                             <div class="row">
                                 <div class="col-xs-5">
-                                    <div class="panel panel-info">
+                                    <div class="panel">
                                         <div class="panel-heading">
                                             <h3 class="panel-title">Request Overrides</h3>
                                         </div>
