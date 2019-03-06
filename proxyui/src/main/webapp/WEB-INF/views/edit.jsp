@@ -277,15 +277,17 @@
             $(gridId).setGridParam({datatype:'json', page:1}).trigger("reloadGrid");
         }
 
-        function responseEnabledFormatter(cellvalue, options, rowObject) {
-            var elementId = "response_enabled_" + rowObject.pathId;
+        function overrideEnabledFormatter(cellvalue, options, rowObject) {
+            var overrideType = options.colModel.name === "requestEnabled" ? "request" : "response";
+
+            var elementId = overrideType + "_enabled_" + rowObject.pathId;
 
             return $("<div>")
                 .append($("<input>")
                     .attr({
                         type: "checkbox",
                         id: elementId,
-                        onchange: "responseEnabledChanged(" + elementId + ")",
+                        onchange: "overrideEnabledChanged(" + elementId + ", \"" + overrideType + "\")",
                         checked: cellvalue,
                         offval: "0",
                         "data-path": rowObject.pathId,
@@ -297,14 +299,14 @@
                 .html();
         }
 
-        function responseEnabledChanged(element) {
+        function overrideEnabledChanged(element, overrideType) {
             var pathId = $(element).data("path");
             var enabled = element.checked ? 1 : 0;
 
             $.ajax({
                 type: "POST",
                 url: '<c:url value="/api/path/"/>' + pathId,
-                data: 'responseEnabled=' + enabled + '&clientUUID=' + clientUUID,
+                data: overrideType + 'Enabled=' + enabled + '&clientUUID=' + clientUUID,
                 rowId: $(element).data("row"),
                 isEnabled: element.checked,
                 error: function() {
@@ -312,48 +314,7 @@
                 },
                 success: function() {
                     var rowData = $("#packages").getLocalRow(this.rowId);
-                    rowData.responseEnabled = this.isEnabled;
-                    $("#packages").setRowData(this.rowId, rowData);
-                    $("#packages").setSelection(this.rowId, true);
-                }
-            });
-        }
-
-        function requestEnabledFormatter(cellvalue, options, rowObject) {
-            var elementId = "request_enabled_" + rowObject.pathId;
-            return $("<div>")
-                .append($("<input>")
-                    .attr({
-                        type: "checkbox",
-                        id: elementId,
-                        onchange: "requestEnabledChanged(" + elementId + ")",
-                        checked: cellvalue,
-                        offval: "0",
-                        "data-path": rowObject.pathId,
-                        "data-row": options.rowId
-                    })
-                    .addClass("mousetrap")
-                    .val(cellvalue ? "1" : "0"))
-                .append($("<label>").attr("for", elementId))
-                .html();
-        }
-
-        function requestEnabledChanged(element) {
-            var pathId = $(element).data("path");
-            var enabled = element.checked ? 1 : 0;
-
-            $.ajax({
-                type: "POST",
-                url: '<c:url value="/api/path/"/>' + pathId,
-                data: 'requestEnabled=' + enabled + '&clientUUID=' + clientUUID,
-                rowId: $(element).data("row"),
-                isEnabled: element.checked,
-                error: function() {
-                    alert("Could not properly set value");
-                },
-                success: function() {
-                    var rowData = $("#packages").getLocalRow(this.rowId);
-                    rowData.requestEnabled = this.isEnabled;
+                    rowData[overrideType + "Enabled"] = this.isEnabled;
                     $("#packages").setRowData(this.rowId, rowData);
                     $("#packages").setSelection(this.rowId, true);
                 }
@@ -831,7 +792,7 @@
                         width: 50,
                         align: 'center',
                         editable: false,
-                        formatter: responseEnabledFormatter,
+                        formatter: overrideEnabledFormatter,
                         formatoptions: {disabled: false},
                         search: true,
                         searchoptions: {
@@ -844,7 +805,7 @@
                         width: 50,
                         align: 'center',
                         editable: false,
-                        formatter: requestEnabledFormatter,
+                        formatter: overrideEnabledFormatter,
                         formatoptions: {disabled: false},
                         search: true,
                         searchoptions: {
