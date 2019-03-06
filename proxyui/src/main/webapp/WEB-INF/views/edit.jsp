@@ -29,6 +29,43 @@
             width: auto !important;
         }
 
+        /* custom styling for response/request enabled cells */
+        #packages td input[type=checkbox] {
+            position: absolute;
+            z-index: -9999;
+            width: 0;
+            height: 0;
+        }
+
+        #packages td label[for] {
+            display: block;
+            font-weight: normal;
+            height: 100%;
+            width: 100%;
+            margin-bottom: 0;
+            cursor: pointer;
+            font-size: 1.333333333em;
+        }
+
+        #packages td input[type=checkbox]:focus  + label,
+        #packages td input[type=checkbox]:active + label {
+            outline: 2px solid blue;
+        }
+
+        #packages td input[type=checkbox] + label:before {
+            content: "✗";
+            color: #aaa;
+        }
+
+        #packages td input[type=checkbox]:checked + label {
+            background-color: green;
+        }
+
+        #packages td input[type=checkbox]:checked + label:before {
+            content: "✔";
+            color: white;
+        }
+
         #nav > li > a {
             padding-top: 3px;
             padding-bottom: 3px;
@@ -242,24 +279,21 @@
 
         function responseEnabledFormatter(cellvalue, options, rowObject) {
             var elementId = "response_enabled_" + rowObject.pathId;
-            return $("<div>").append(
-                $("<label>")
+
+            return $("<div>")
+                .append($("<input>")
                     .attr({
-                        for: elementId,
-                        style: "display: inline-block; height: 100%; width: 100%; margin: 0; padding: 0;"
+                        type: "checkbox",
+                        id: elementId,
+                        onchange: "responseEnabledChanged(" + elementId + ")",
+                        checked: cellvalue,
+                        offval: "0",
+                        "data-path": rowObject.pathId,
+                        "data-row": options.rowId
                     })
-                    .append($("<input>")
-                        .attr({
-                            type: "checkbox",
-                            id: elementId,
-                            onchange: "responseEnabledChanged(" + elementId + ")",
-                            checked: cellvalue,
-                            offval: "0",
-                            "data-path": rowObject.pathId,
-                            "data-row": options.rowId
-                        })
-                        .addClass("mousetrap")
-                        .val(cellvalue ? "1" : "0")))
+                    .addClass("mousetrap")
+                    .val(cellvalue ? "1" : "0"))
+                .append($("<label>").attr("for", elementId))
                 .html();
         }
 
@@ -287,24 +321,20 @@
 
         function requestEnabledFormatter(cellvalue, options, rowObject) {
             var elementId = "request_enabled_" + rowObject.pathId;
-            return $("<div>").append(
-                $("<label>")
+            return $("<div>")
+                .append($("<input>")
                     .attr({
-                        for: elementId,
-                        style: "display: inline-block; height: 100%; width: 100%; margin: 0; padding: 0;"
+                        type: "checkbox",
+                        id: elementId,
+                        onchange: "requestEnabledChanged(" + elementId + ")",
+                        checked: cellvalue,
+                        offval: "0",
+                        "data-path": rowObject.pathId,
+                        "data-row": options.rowId
                     })
-                    .append($("<input>")
-                        .attr({
-                            type: "checkbox",
-                            id: elementId,
-                            onchange: "requestEnabledChanged(" + elementId + ")",
-                            checked: cellvalue,
-                            offval: "0",
-                            "data-path": rowObject.pathId,
-                            "data-row": options.rowId
-                        })
-                        .addClass("mousetrap")
-                        .val(cellvalue ? "1" : "0")))
+                    .addClass("mousetrap")
+                    .val(cellvalue ? "1" : "0"))
+                .append($("<label>").attr("for", elementId))
                 .html();
         }
 
@@ -798,7 +828,7 @@
                     {
                         name: 'responseEnabled',
                         index: 'responseEnabled',
-                        width: "60",
+                        width: 50,
                         align: 'center',
                         editable: false,
                         formatter: responseEnabledFormatter,
@@ -811,7 +841,7 @@
                     }, {
                         name: 'requestEnabled',
                         index: 'requestEnabled',
-                        width: "60",
+                        width: 50,
                         align: 'center',
                         editable: false,
                         formatter: requestEnabledFormatter,
