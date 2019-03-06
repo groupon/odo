@@ -832,6 +832,7 @@
                     updateDetailPills();
 
                     var $rowElement = $("tr#" + id);
+                    $rowElement.find("input[type=checkbox]").first().focus();
 
                     var docViewTop = $(window).scrollTop();
                     var docViewBottom = docViewTop + $(window).height();
