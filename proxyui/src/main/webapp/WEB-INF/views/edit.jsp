@@ -75,21 +75,20 @@
         }
 
         #packages td input[type=checkbox]:focus  + label {
-            /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#0a0e0a+0,0a0809+100&0+0,0+93,1+94,1+100 */
-            background: linear-gradient(135deg, rgba(0,0,0,0) 0%,rgba(0,0,0,0) 88%,black 90%,black 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+            background: linear-gradient(135deg, rgba(0,0,0,0) 88%, #cc1111 90%);
         }
 
         #packages td input[type=checkbox]:focus:active  + label {
-            background: linear-gradient(135deg, #bbddee 0%,#bbddee 88%,black 90%,black 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+            background: linear-gradient(135deg, #bbddee 88%, #cc1111 90%);
         }
 
         #packages td input[type=checkbox]:checked:focus  + label {
             /* gradient with blue background */
-            background: linear-gradient(135deg, #3399cc 0%,#3399cc 88%,black 90%,black 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+            background: linear-gradient(135deg, #3399cc 88%, white 90%);
         }
 
         #packages td input[type=checkbox]:checked:focus:active  + label {
-            background: linear-gradient(135deg, #cce6f2 0%,#cce6f2 88%,black 90%,black 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+            background: linear-gradient(135deg, #cce6f2 88%, white 90%);
         }
 
         #nav > li > a {
@@ -483,6 +482,40 @@
                 event.preventDefault();
                 $("#gs_pathName").focus();
             });
+            // Request/response override toggle navigation
+            Mousetrap.bind(['left', 'right', 'up', 'down'], function(event) {
+                var $focusedCheckbox = $("#packages td input[type=checkbox]:focus");
+                if (!$focusedCheckbox.length) return;
+
+                var $closestTd = $focusedCheckbox.closest("td");
+                switch (event.key) {
+                    case "ArrowLeft":
+                        if ($closestTd.attr("aria-describedby") == "packages_requestEnabled") { // todo: use indexof matching instead?
+                            $closestTd.prev("td").find("input:checkbox").focus();
+                        } else {
+                            $closestTd.closest("tr").prev("tr").find("td[aria-describedby=packages_requestEnabled] input:checkbox").focus();
+                        }
+                        break;
+                    case "ArrowRight":
+                        if ($closestTd.attr("aria-describedby") == "packages_responseEnabled") { // todo: use indexof matching instead?
+                            $closestTd.next("td").find("input:checkbox").focus();
+                        } else {
+                            $closestTd.closest("tr").next("tr").find("td[aria-describedby=packages_responseEnabled] input:checkbox").focus();
+                        }
+                        break;
+                    case "ArrowUp":
+                        var describedBy = $closestTd.attr("aria-describedby");
+                        $closestTd.closest("tr").prev("tr").find("td[aria-describedby=" + describedBy + "] input:checkbox").focus();
+                        break;
+                    case "ArrowDown":
+                        var describedBy = $closestTd.attr("aria-describedby");
+                        $closestTd.closest("tr").next("tr").find("td[aria-describedby=" + describedBy + "] input:checkbox").focus();
+                        break;
+                    default: return; break;
+                }
+
+                event.preventDefault();
+            });
             // Active paths navigation
             Mousetrap.bind('alt+right', function(event) {
                 var $activeTab = $("#nav .active");
@@ -774,7 +807,7 @@
                     {
                         name: 'pathName',
                         index: 'pathName',
-                        width: 330,
+                        width: 400,
                         editable: true,
                         editrules: {
                             required: true
@@ -801,7 +834,7 @@
                         name: 'requestType',
                         index: 'requestType',
                         align: 'center',
-                        width: 80,
+                        width: 60,
                         editable: true,
                         edittype: 'select',
                         editoptions: {
