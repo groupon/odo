@@ -47,23 +47,49 @@
             font-size: 1.333333333em;
         }
 
-        #packages td input[type=checkbox]:focus  + label,
-        #packages td input[type=checkbox]:active + label {
-            outline: 2px solid blue;
-        }
-
-        #packages td input[type=checkbox] + label:before {
-            content: "✗";
+        #packages td input[type=checkbox] + label {
             color: #aaa;
         }
 
-        #packages td input[type=checkbox]:checked + label {
-            background-color: green;
+        #packages td input[type=checkbox]:active + label {
+            background-color: #bbddee;
         }
 
+        #packages td input[type=checkbox]:active:checked + label:before,
+        #packages td input[type=checkbox] + label:before {
+            content: "✗";
+        }
+
+        #packages td input[type=checkbox]:checked + label {
+            background-color: #3399cc;
+            color: white;
+        }
+
+        #packages td input[type=checkbox]:active:checked + label {
+            background-color: #cce6f2;
+        }
+
+        #packages td input[type=checkbox]:active + label:before,
         #packages td input[type=checkbox]:checked + label:before {
             content: "✔";
-            color: white;
+        }
+
+        #packages td input[type=checkbox]:focus  + label {
+            /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#0a0e0a+0,0a0809+100&0+0,0+93,1+94,1+100 */
+            background: linear-gradient(135deg, rgba(0,0,0,0) 0%,rgba(0,0,0,0) 88%,black 90%,black 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+        }
+
+        #packages td input[type=checkbox]:focus:active  + label {
+            background: linear-gradient(135deg, #bbddee 0%,#bbddee 88%,black 90%,black 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+        }
+
+        #packages td input[type=checkbox]:checked:focus  + label {
+            /* gradient with blue background */
+            background: linear-gradient(135deg, #3399cc 0%,#3399cc 88%,black 90%,black 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+        }
+
+        #packages td input[type=checkbox]:checked:focus:active  + label {
+            background: linear-gradient(135deg, #cce6f2 0%,#cce6f2 88%,black 90%,black 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
         }
 
         #nav > li > a {
