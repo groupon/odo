@@ -287,7 +287,7 @@
                     .attr({
                         type: "checkbox",
                         id: elementId,
-                        onchange: "overrideEnabledChanged(" + elementId + ", \"" + overrideType + "\")",
+                        onchange: "overrideEnabledChanged(event, " + "\"" + overrideType + "\")",
                         checked: cellvalue,
                         offval: "0",
                         "data-path": rowObject.pathId,
@@ -299,16 +299,17 @@
                 .html();
         }
 
-        function overrideEnabledChanged(element, overrideType) {
-            var pathId = $(element).data("path");
-            var enabled = element.checked ? 1 : 0;
+        function overrideEnabledChanged(event, overrideType) {
+            var $checkbox = $(event.target);
+            var pathId = $checkbox.data("path");
+            var enabled = $checkbox.is(":checked") ? 1 : 0;
 
             $.ajax({
                 type: "POST",
                 url: '<c:url value="/api/path/"/>' + pathId,
                 data: overrideType + 'Enabled=' + enabled + '&clientUUID=' + clientUUID,
-                rowId: $(element).data("row"),
-                isEnabled: element.checked,
+                rowId: $checkbox.data("row"),
+                isEnabled: $checkbox.is(":checked"),
                 error: function() {
                     alert("Could not properly set value");
                 },
@@ -826,6 +827,10 @@
                 height: "auto",
                 ignoreCase: true,
                 loadonce: true,
+                beforeSelectRow: function(rowid, event) {
+                    var $target = $(event.target);
+                    return !($target.is(":checkbox") || $target.is("label[for]"));
+                },
                 onSelectRow: function (id) {
                     var data = $("#packages").jqGrid('getRowData', id);
                     currentPathId = data.pathId;
