@@ -1282,8 +1282,8 @@
                     changeResponseOverrideDiv();
                     changeRequestOverrideDiv();
 
-                    setResponseOverrideActiveIndication(data.responseEnabled);
-                    setRequestOverrideActiveIndication(data.requestEnabled);
+                    setResponseOverridesActiveIndicator(data.responseEnabled);
+                    setRequestOverridesActiveIndicator(data.requestEnabled);
 
                     // reset informational divs
                     $('#applyPathChangeSuccessDiv').hide();
@@ -1435,32 +1435,14 @@
             }
         }
 
-        function setResponseOverrideActiveIndication(isEnabled) {
-            $("#tabs-1 .panel-title").empty();
-
-            if (isEnabled) {
-                $("#tabs-1 .panel").removeClass("panel-default").addClass("panel-info");
-                $("#tabs-1 .panel-title").text("Response Overrides");
-            } else {
-                $("#tabs-1 .panel").removeClass("panel-info").addClass("panel-default");
-                $("#tabs-1 .panel-title")
-                    .text("Response Overrides ")
-                    .append($("<span>").attr("class", "label label-default").text("Inactive"));
-            }
+        function setResponseOverridesActiveIndicator(isResponseEnabled) {
+            $("#tabs-1 .panel").toggleClass("panel-default", !isResponseEnabled).toggleClass("panel-info", isResponseEnabled);
+            $("#tabs-1 .panel-title .label").toggle(!isResponseEnabled);
         }
 
-        function setRequestOverrideActiveIndication(isEnabled) {
-            $("#tabs-2 .panel-title").empty();
-
-            if (isEnabled) {
-                $("#tabs-2 .panel").removeClass("panel-default").addClass("panel-info");
-                $("#tabs-2 .panel-title").text("Request Overrides");
-            } else {
-                $("#tabs-2 .panel").removeClass("panel-info").addClass("panel-default");
-                $("#tabs-2 .panel-title")
-                    .text("Request Overrides ")
-                    .append($("<span>").attr("class", "label label-default").text("Inactive"));
-            }
+        function setRequestOverridesActiveIndicator(isRequestEnabled) {
+            $("#tabs-2 .panel").toggleClass("panel-default", !isRequestEnabled).toggleClass("panel-info", isRequestEnabled);
+            $("#tabs-2 .panel-title .label").toggle(!isRequestEnabled);
         }
 
         // get the next available ordinal for methodId on a specific path
@@ -2098,7 +2080,10 @@
                                 <div class="col-xs-5">
                                     <div class="panel">
                                         <div class="panel-heading">
-                                            <h3 class="panel-title">Response Overrides</h3>
+                                            <h3 class="panel-title">
+                                                <span>Response Overrides</span>
+                                                <span class="label label-default label-medsmall">Inactive</span>
+                                            </h3>
                                         </div>
                                         <div class="panel-body">
                                             <select id="responseOverrideEnabled" class="form-control mousetrap" multiple="multiple" style="height: 200px; resize: vertical;" onChange="changeResponseOverrideDiv()"></select>
@@ -2136,7 +2121,10 @@
                                 <div class="col-xs-5">
                                     <div class="panel">
                                         <div class="panel-heading">
-                                            <h3 class="panel-title">Request Overrides</h3>
+                                            <h3 class="panel-title">
+                                                <span>Request Overrides</span>
+                                                <span class="label label-default label-medsmall">Inactive</span>
+                                            </h3>
                                         </div>
                                         <div class="panel-body">
                                             <select id="requestOverrideEnabled" class="form-control mousetrap" multiple="multiple" style="height: 200px; resize: vertical;" onChange="changeRequestOverrideDiv()"></select>

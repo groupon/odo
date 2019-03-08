@@ -15,6 +15,12 @@ body {
     vertical-align: middle;
 }
 
+.label-medsmall
+{
+    font-size: 70%;
+    vertical-align: middle;
+}
+
 .reorderbox
 {
     -webkit-box-sizing: content-box;
