@@ -1699,8 +1699,8 @@
                             .attr("type", "reset")
                             .text("Clear"))
                         .submit(function(e) {
-                            submitOverrideData(type, parseInt(pathId), parseInt(methodId), parseInt(ordinal), data.enabledEndpoint.methodInformation.methodArguments.length);
                             e.preventDefault();
+                            submitOverrideData(type, parseInt(pathId), parseInt(methodId), parseInt(ordinal), data.enabledEndpoint.methodInformation.methodArguments.length);
                         });
 
                     $("#" + type + "OverrideParameters").empty().append($formData).show();
@@ -1735,7 +1735,6 @@
 
             $.ajax({
                 type: "POST",
-                async: false,
                 url: '<c:url value="/api/path/"/>' + currentPathId,
                 data: {
                     clientUUID: "${clientUUID}",
@@ -1768,45 +1767,11 @@
         }
 
         function submitOverrideData(type, pathId, methodId, ordinal, numArgs) {
-            submitEndPointArgs(type, pathId, methodId, ordinal, numArgs);
-            submitOverrideRepeatCountAndResponseCode(type, pathId, methodId, ordinal);
-            loadPath(currentPathId);
-        }
-
-        function submitOverrideRepeatCountAndResponseCode(type, pathId, methodId, ordinal) {
-            var repeatNumberValue = $("#setRepeatNumber").val();
-            var responseCodeValue = $("#setResponseCode").val();
-
-            $.ajax({
-                type:"POST",
-                url: '<c:url value="/api/path/"/>' + pathId + '/' + methodId,
-                data: {
-                    repeatNumber: repeatNumberValue,
-                    responseCode: responseCodeValue,
-                    ordinal: ordinal,
-                    clientUUID: clientUUID
-                },
-                async: false,
-                success: function(){
-                    populateEnabledResponseOverrides();
-                    populateEnabledRequestOverrides();
-                }
-            });
-        }
-
-        function submitEndPointArgs(type, pathId, methodId, ordinal, numArgs) {
-            var args = new Array();
-            for (var x = 0; x < numArgs; x++) {
-                var selector = "#" + type + "_args_" + x;
-                var value = $(selector).val();
-                args[x] = value;
-            }
-
             var formData = new FormData();
             formData.append("ordinal", ordinal);
             formData.append("clientUUID", clientUUID);
-            for (var i = 0; i < args.length; i++) {
-                formData.append('arguments[]', args[i]);
+            for (var i = 0; i < numArgs; i++) {
+                formData.append('arguments[]', $("#" + type + "_args_" + i).val());
             }
 
             $.ajax({
@@ -1816,9 +1781,23 @@
                 cache: false,
                 processData: false,
                 contentType: false,
-                async: false,
-                success: function(){
+                success: function() {
+                    var repeatNumberValue = $("#setRepeatNumber").val();
+                    var responseCodeValue = $("#setResponseCode").val();
 
+                    $.ajax({
+                        type:"POST",
+                        url: '<c:url value="/api/path/"/>' + pathId + '/' + methodId,
+                        data: {
+                            repeatNumber: repeatNumberValue,
+                            responseCode: responseCodeValue,
+                            ordinal: ordinal,
+                            clientUUID: clientUUID
+                        },
+                        success: function() {
+                            loadPath(currentPathId);
+                        }
+                    });
                 }
             });
         }
