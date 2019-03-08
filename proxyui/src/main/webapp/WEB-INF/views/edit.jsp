@@ -1243,7 +1243,7 @@
 
         function loadPath(pathId) {
             if(pathId < 0) {
-                $("#editDiv").hide();
+                $("#tabs").hide();
                 return;
             }
 
@@ -1253,7 +1253,7 @@
                 data: 'clientUUID=${clientUUID}',
                 success: function(data) {
                     // populate Configuration values
-                    $("#editDiv").show();
+                    $("#tabs").show();
                     $("#pathName").attr("value", data.pathName);
                     $("#pathValue").attr("value", data.path);
                     $("#contentType").attr("value", data.contentType);
@@ -1638,20 +1638,19 @@
                                         class: "form-control",
                                         rows: 10
                                     })
-                                    .text(inputValue))
+                                    .val(inputValue))
                                 .append($("<label>")
                                     .attr("for", "setResponseCode")
                                     .text("Response Code"))
-                                .append($("<dd>")
-                                    .append($("<input>")
-                                        .attr({
-                                            id: "setResponseCode",
-                                            min: 100,
-                                            max: 599,
-                                            class: "form-control",
-                                            type: "number"
-                                        })
-                                        .val(data.enabledEndpoint.responseCode)));
+                                .append($("<input>")
+                                    .attr({
+                                        id: "setResponseCode",
+                                        min: 100,
+                                        max: 599,
+                                        class: "form-control",
+                                        type: "number"
+                                    })
+                                    .val(data.enabledEndpoint.responseCode));
                         } else {
                             $formDiv
                                 .append($("<label>")
@@ -2039,7 +2038,7 @@
             </div>
 
             <div id="details" class="col-xs-7">
-                <div id="editDiv" style="display: none;">
+                <div id="editDiv">
                     <div style="position: relative;">
                         <ul class="nav nav-pills" id="nav">
                         </ul>
