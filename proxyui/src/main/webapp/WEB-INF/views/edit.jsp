@@ -1645,7 +1645,15 @@
                                         class: "form-control",
                                         rows: 10
                                     })
-                                    .val(inputValue))
+                                    .val(inputValue)
+                                    .on("input", function(event) {
+                                        $(event.target)
+                                            .closest("form")
+                                            .find(":submit")
+                                            .text("Apply")
+                                            .attr("class", "btn btn-primary")
+                                            .attr("disabled", false);
+                                    }))
                                 .append($("<label>")
                                     .attr("for", "setResponseCode")
                                     .text("Response Code"))
@@ -1654,10 +1662,19 @@
                                         id: "setResponseCode",
                                         min: 100,
                                         max: 599,
+                                        default: data.enabledEndpoint.responseCode,
                                         class: "form-control",
                                         type: "number"
                                     })
-                                    .val(data.enabledEndpoint.responseCode));
+                                    .val(data.enabledEndpoint.responseCode)
+                                    .on("input", function(event) {
+                                        $(event.target)
+                                            .closest("form")
+                                            .find(":submit")
+                                            .text("Apply")
+                                            .attr("class", "btn btn-primary")
+                                            .attr("disabled", false);
+                                    }));
                         } else {
                             $formDiv
                                 .append($("<label>")
@@ -1672,7 +1689,15 @@
                                         class: "form-control",
                                         type: "text",
                                     })
-                                    .val(inputValue));
+                                    .val(inputValue)
+                                    .on("input", function(event) {
+                                        $(event.target)
+                                            .closest("form")
+                                            .find(":submit")
+                                            .text("Apply")
+                                            .attr("class", "btn btn-primary")
+                                            .attr("disabled", false);
+                                    }));
                         }
                     });
 
@@ -1685,9 +1710,19 @@
                                 id: "setRepeatNumber",
                                 type: "number",
                                 min: -1,
+                                default: data.enabledEndpoint.repeatNumber,
+                                required: true,
                                 class: "form-control"
                             })
-                            .val(data.enabledEndpoint.repeatNumber));
+                            .val(data.enabledEndpoint.repeatNumber)
+                            .on("input", function(event) {
+                                $(event.target)
+                                .closest("form")
+                                .find(":submit")
+                                .text("Apply")
+                                .attr("class", "btn btn-primary")
+                                .attr("disabled", false);
+                            }));
 
                     $formData
                         .append($formDiv)
@@ -1698,9 +1733,23 @@
                             .addClass("btn btn-default")
                             .attr("type", "reset")
                             .text("Clear"))
-                        .submit(function(e) {
-                            e.preventDefault();
-                            submitOverrideData(type, parseInt(pathId), parseInt(methodId), parseInt(ordinal), data.enabledEndpoint.methodInformation.methodArguments.length);
+                        .on("reset", function(event) {
+                            $(event.target)
+                                .find(":submit")
+                                .text("Apply")
+                                .attr("class", "btn btn-primary")
+                                .attr("disabled", false);
+
+                            $(":input", event.target)
+                                .not(':button, :submit, :reset, :hidden, [default]')
+                                .removeAttr('checked')
+                                .removeAttr('selected')
+                                .not(':checkbox, :radio, select')
+                                .val('');
+                            event.preventDefault();
+                        })
+                        .submit(function(event) {
+                            submitOverrideData(event, type, parseInt(pathId), parseInt(methodId), parseInt(ordinal), data.enabledEndpoint.methodInformation.methodArguments.length);
                         });
 
                     $("#" + type + "OverrideParameters").empty().append($formData).show();
@@ -1766,7 +1815,8 @@
             });
         }
 
-        function submitOverrideData(type, pathId, methodId, ordinal, numArgs) {
+        function submitOverrideData(event, type, pathId, methodId, ordinal, numArgs) {
+            event.preventDefault();
             var formData = new FormData();
             formData.append("ordinal", ordinal);
             formData.append("clientUUID", clientUUID);
@@ -1795,9 +1845,21 @@
                             clientUUID: clientUUID
                         },
                         success: function() {
-                            loadPath(currentPathId);
+                            $(event.target)
+                                .find(":submit")
+                                .text("Saved!")
+                                .attr("class", "btn btn-success")
+                                .attr("disabled", true);
+                        },
+                        error: function(err) {
+                            debugger;
+                            alert("We were unable to save your override. Please try again.");
                         }
                     });
+                },
+                error: function(err) {
+                    debugger;
+                    alert("We were unable to save your override. Please try again.");
                 }
             });
         }
