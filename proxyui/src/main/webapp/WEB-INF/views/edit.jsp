@@ -51,10 +51,6 @@
             color: #aaa;
         }
 
-        #packages td input[type=checkbox]:active + label {
-            background-color: #bbddee;
-        }
-
         #packages td input[type=checkbox]:active:checked + label:before,
         #packages td input[type=checkbox] + label:before {
             content: "✗";
@@ -65,8 +61,9 @@
             color: white;
         }
 
+        #packages td input[type=checkbox]:active + label,
         #packages td input[type=checkbox]:active:checked + label {
-            background-color: #cce6f2;
+            background-color: #bbddee;
         }
 
         #packages td input[type=checkbox]:active + label:before,
@@ -74,21 +71,31 @@
             content: "✔";
         }
 
-        #packages td input[type=checkbox]:focus  + label {
-            background: linear-gradient(135deg, rgba(0,0,0,0) 88%, #cc1111 90%);
+        #packages td input[type=checkbox]:focus  + label,
+        #packages td input[type=checkbox]:hover  + label {
+            color: #777;
         }
 
-        #packages td input[type=checkbox]:focus:active  + label {
-            background: linear-gradient(135deg, #bbddee 88%, #cc1111 90%);
+        #packages td input[type=checkbox]:focus  + label {
+            background: linear-gradient(315deg, #cc1111 5px, rgba(0,0,0,0) 6px);
+        }
+
+        #packages td input[type=checkbox]:checked:hover  + label {
+            background-color: #1177aa;
+            color: white;
         }
 
         #packages td input[type=checkbox]:checked:focus  + label {
-            /* gradient with blue background */
-            background: linear-gradient(135deg, #3399cc 88%, white 90%);
+            background: linear-gradient(315deg, white 5px, #1177aa 6px);
+            color: #eee;
         }
 
-        #packages td input[type=checkbox]:checked:focus:active  + label {
-            background: linear-gradient(135deg, #cce6f2 88%, white 90%);
+        #packages td input[type=checkbox]:focus:active  + label,
+        #packages td input[type=checkbox]:hover:active  + label,
+        #packages td input[type=checkbox]:checked:focus:active  + label,
+        #packages td input[type=checkbox]:checked:focus:hover:active  + label,
+        #packages td input[type=checkbox]:checked:hover:active  + label {
+            background: linear-gradient(315deg, white 5px, #bbddee 6px);
         }
 
         #nav > li > a {
