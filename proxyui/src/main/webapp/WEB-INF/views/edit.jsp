@@ -1606,163 +1606,159 @@
         }
 
         // called to load the edit endpoint args
-        function populateEditOverrideArgs(pathId, methodId, ordinal, type, autofocusOnForm) {
+        function populateEditOverrideArgs(pathId, methodId, ordinal, overrideType, autofocusOnForm) {
             $.ajax({
                 type: "GET",
                 url: '<c:url value="/api/path/"/>' + pathId + '/' + methodId,
                 data: 'ordinal=' + ordinal + '&clientUUID=${clientUUID}',
                 success: function(data) {
-                    if(data.enabledEndpoint == null) {
-                        return;
-                    }
-
-                    $("#" + type + "OverrideDetails .panel-title")
-                        .text(data.enabledEndpoint.methodInformation.className + " " + data.enabledEndpoint.methodInformation.methodName);
-
-                    var $formData = $("<form>");
-                    var $formDiv = $("<div>").addClass("form-group");
-                    $.each(data.enabledEndpoint.methodInformation.methodArguments, function(i, el) {
-                        var inputId = type + "_args_" + i;
-                        var inputValue;
-                        if (data.enabledEndpoint.arguments.length > i) {
-                            inputValue = data.enabledEndpoint.arguments[i];
-                        } else if (data.enabledEndpoint.methodInformation.methodDefaultArguments[i] != null) {
-                            inputValue = data.enabledEndpoint.methodInformation.methodDefaultArguments[i];
-                        }
-
-                        if (typeof data.enabledEndpoint.methodInformation.methodArgumentNames[i] != 'undefined') {
-                            $formDiv
-                                .append($("<label>")
-                                    .attr("for", inputId)
-                                    .text(data.enabledEndpoint.methodInformation.methodArgumentNames[i]));
-                        }
-
-                        if (methodId == -1) {
-                            $formDiv
-                                .append($("<textarea>")
-                                    .attr({
-                                        id: inputId,
-                                        class: "form-control",
-                                        rows: 10
-                                    })
-                                    .val(inputValue)
-                                    .on("input", function(event) {
-                                        $(event.target)
-                                            .closest("form")
-                                            .find(":submit")
-                                            .text("Apply")
-                                            .attr("class", "btn btn-primary")
-                                            .attr("disabled", false);
-                                    }))
-                                .append($("<label>")
-                                    .attr("for", "setResponseCode")
-                                    .text("Response Code"))
-                                .append($("<input>")
-                                    .attr({
-                                        id: "setResponseCode",
-                                        min: 100,
-                                        max: 599,
-                                        default: data.enabledEndpoint.responseCode,
-                                        class: "form-control",
-                                        type: "number"
-                                    })
-                                    .val(data.enabledEndpoint.responseCode)
-                                    .on("input", function(event) {
-                                        $(event.target)
-                                            .closest("form")
-                                            .find(":submit")
-                                            .text("Apply")
-                                            .attr("class", "btn btn-primary")
-                                            .attr("disabled", false);
-                                    }));
-                        } else {
-                            $formDiv
-                                .append($("<label>")
-                                    .attr({
-                                        for: inputId,
-                                        style: "font-weight: normal; font-style: italic;"
-                                    })
-                                    .text("(" + el + ")"))
-                                .append($("<input>")
-                                    .attr({
-                                        id: inputId,
-                                        class: "form-control",
-                                        type: "text",
-                                    })
-                                    .val(inputValue)
-                                    .on("input", function(event) {
-                                        $(event.target)
-                                            .closest("form")
-                                            .find(":submit")
-                                            .text("Apply")
-                                            .attr("class", "btn btn-primary")
-                                            .attr("disabled", false);
-                                    }));
-                        }
-                    });
-
-                    $formDiv
-                        .append($("<label>")
-                            .attr("for", "setRepeatNumber")
-                            .text("Repeat Count"))
-                        .append($("<input>")
-                            .attr({
-                                id: "setRepeatNumber",
-                                type: "number",
-                                min: -1,
-                                default: data.enabledEndpoint.repeatNumber,
-                                required: true,
-                                class: "form-control"
-                            })
-                            .val(data.enabledEndpoint.repeatNumber)
-                            .on("input", function(event) {
-                                $(event.target)
-                                .closest("form")
-                                .find(":submit")
-                                .text("Apply")
-                                .attr("class", "btn btn-primary")
-                                .attr("disabled", false);
-                            }));
-
-                    $formData
-                        .append($formDiv)
-                        .append($("<button>")
-                            .addClass("btn btn-primary")
-                            .text("Apply"))
-                        .append($("<button>")
-                            .addClass("btn btn-default")
-                            .attr("type", "reset")
-                            .text("Clear"))
-                        .on("reset", function(event) {
-                            $(event.target)
-                                .find(":submit")
-                                .text("Apply")
-                                .attr("class", "btn btn-primary")
-                                .attr("disabled", false);
-
-                            $(":input", event.target)
-                                .not(':button, :submit, :reset, :hidden, [default]')
-                                .removeAttr('checked')
-                                .removeAttr('selected')
-                                .not(':checkbox, :radio, select')
-                                .val('');
-                            event.preventDefault();
-                        })
-                        .submit(function(event) {
-                            submitOverrideData(event, type, parseInt(pathId), parseInt(methodId), parseInt(ordinal), data.enabledEndpoint.methodInformation.methodArguments.length);
-                        });
-
-                    $("#" + type + "OverrideParameters").empty().append($formData).show();
-                    $("#" + type + "OverrideDetails").show();
-
-                    if (autofocusOnForm === true) {
-                        $("#" + type + "OverrideDetails form")
-                            .find("input, textarea")
-                            .first()
-                            .focus();
-                    }
+                    populateEditOverrideArgsSuccess(data, pathId, methodId, ordinal, overrideType, autofocusOnForm);
                 }
             });
+        }
+
+        function populateEditOverrideArgsSuccess(data, pathId, methodId, ordinal, overrideType, autofocusOnForm) {
+            if (data.enabledEndpoint == null) {
+                return;
+            }
+
+            $("#" + overrideType + "OverrideDetails .panel-title")
+                .text(data.enabledEndpoint.methodInformation.className + " " + data.enabledEndpoint.methodInformation.methodName);
+
+            var $formData = $("<form>");
+            var $formDiv = $("<div>").addClass("form-group");
+            $.each(data.enabledEndpoint.methodInformation.methodArguments, function(i, el) {
+                var inputId = overrideType + "_args_" + i;
+                var inputValue;
+                if (data.enabledEndpoint.arguments.length > i) {
+                    inputValue = data.enabledEndpoint.arguments[i];
+                } else if (data.enabledEndpoint.methodInformation.methodDefaultArguments[i] != null) {
+                    inputValue = data.enabledEndpoint.methodInformation.methodDefaultArguments[i];
+                }
+
+                if (typeof data.enabledEndpoint.methodInformation.methodArgumentNames[i] != 'undefined') {
+                    $formDiv
+                        .append($("<label>")
+                            .attr("for", inputId)
+                            .text(data.enabledEndpoint.methodInformation.methodArgumentNames[i]));
+                }
+
+                if (methodId == -1) {
+                    $formDiv
+                        .append($("<textarea>")
+                            .attr({
+                                id: inputId,
+                                class: "form-control",
+                                rows: 10
+                            })
+                            .val(inputValue)
+                            .on("input", function(event) {
+                                toggleFormSubmitEnabled($(event.target).closest("form"), true);
+                            }))
+                        .append($("<label>")
+                            .attr("for", "setResponseCode")
+                            .text("Response Code"))
+                        .append($("<input>")
+                            .attr({
+                                id: "setResponseCode",
+                                min: 100,
+                                max: 599,
+                                default: data.enabledEndpoint.responseCode,
+                                class: "form-control",
+                                type: "number"
+                            })
+                            .val(data.enabledEndpoint.responseCode)
+                            .on("input", function(event) {
+                                toggleFormSubmitEnabled($(event.target).closest("form"), true);
+                            }));
+                } else {
+                    $formDiv
+                        .append($("<label>")
+                            .attr({
+                                for: inputId,
+                                style: "font-weight: normal; font-style: italic;"
+                            })
+                            .text("(" + el + ")"))
+                        .append($("<input>")
+                            .attr({
+                                id: inputId,
+                                class: "form-control",
+                                type: "text",
+                            })
+                            .val(inputValue)
+                            .on("input", function(event) {
+                                toggleFormSubmitEnabled($(event.target).closest("form"), true);
+                            }));
+                }
+            });
+
+            $formDiv
+                .append($("<label>")
+                    .attr("for", "setRepeatNumber")
+                    .text("Repeat Count"))
+                .append($("<input>")
+                    .attr({
+                        id: "setRepeatNumber",
+                        type: "number",
+                        min: -1,
+                        default: data.enabledEndpoint.repeatNumber,
+                        required: true,
+                        class: "form-control"
+                    })
+                    .val(data.enabledEndpoint.repeatNumber)
+                    .on("input", function(event) {
+                        toggleFormSubmitEnabled($(event.target).closest("form"), true);
+                    }));
+
+            $formData
+                .append($formDiv)
+                .append($("<button>")
+                    .addClass("btn btn-primary")
+                    .text("Apply"))
+                .append($("<button>")
+                    .addClass("btn btn-default")
+                    .attr("type", "reset")
+                    .text("Clear"))
+                .on("reset", function(event) {
+                    toggleFormSubmitEnabled($(event.target), true);
+
+                    $(":input", event.target)
+                        .not(':button, :submit, :reset, :hidden, [default]')
+                        .removeAttr('checked')
+                        .removeAttr('selected')
+                        .not(':checkbox, :radio, select')
+                        .val('');
+
+                    event.preventDefault();
+                })
+                .submit(function(event) {
+                    submitOverrideData(event, overrideType, parseInt(pathId), parseInt(methodId), parseInt(ordinal), data.enabledEndpoint.methodInformation.methodArguments.length);
+                });
+
+            $("#" + overrideType + "OverrideParameters").empty().append($formData).show();
+            $("#" + overrideType + "OverrideDetails").show();
+
+            if (autofocusOnForm === true) {
+                $("#" + overrideType + "OverrideDetails form")
+                    .find("input, textarea")
+                    .first()
+                    .focus();
+            }
+        }
+
+        function toggleFormSubmitEnabled($formElement, isEnabled) {
+            var $submitButton = $formElement.find(":submit")
+
+            if (isEnabled) {
+                $submitButton
+                    .text("Apply")
+                    .attr("class", "btn btn-primary");
+            } else {
+                $submitButton
+                    .text("Saved!")
+                    .attr("class", "btn btn-success");
+            }
+            $submitButton.attr("disabled", !isEnabled)
         }
 
         function applyGeneralPathChanges() {
@@ -1845,11 +1841,7 @@
                             clientUUID: clientUUID
                         },
                         success: function() {
-                            $(event.target)
-                                .find(":submit")
-                                .text("Saved!")
-                                .attr("class", "btn btn-success")
-                                .attr("disabled", true);
+                            toggleFormSubmitEnabled($(event.target), false);
                         },
                         error: function(err) {
                             debugger;
