@@ -308,6 +308,7 @@
                 type: "POST",
                 url: '<c:url value="/api/path/"/>' + pathId,
                 data: overrideType + 'Enabled=' + enabled + '&clientUUID=' + clientUUID,
+                originalTargetId: $checkbox.attr("id"),
                 rowId: $checkbox.data("row"),
                 isEnabled: $checkbox.is(":checked"),
                 error: function() {
@@ -318,6 +319,8 @@
                     rowData[overrideType + "Enabled"] = this.isEnabled;
                     $("#packages").setRowData(this.rowId, rowData);
                     $("#packages").setSelection(this.rowId, true);
+                    // maintain focus on checkbox
+                    $("#" + this.originalTargetId).focus();
                 }
             });
         }
@@ -831,13 +834,16 @@
                     var $target = $(event.target);
                     return !($target.is(":checkbox") || $target.is("label[for]"));
                 },
-                onSelectRow: function (id) {
+                onSelectRow: function(id) {
                     var data = $("#packages").jqGrid('getRowData', id);
                     currentPathId = data.pathId;
                     updateDetailPills();
 
                     var $rowElement = $("tr#" + id);
-                    $rowElement.find("input[type=checkbox]").first().focus();
+
+                    if(!$rowElement.find(":checkbox").is(":focus").length) {
+                        $rowElement.find(":checkbox").first().focus();
+                    }
 
                     var docViewTop = $(window).scrollTop();
                     var docViewBottom = docViewTop + $(window).height();
