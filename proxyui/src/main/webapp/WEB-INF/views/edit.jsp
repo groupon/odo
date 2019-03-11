@@ -353,6 +353,14 @@
                     $("#packages").setSelection(this.rowId, true);
                     // maintain focus on checkbox
                     $("#" + this.originalTargetId).focus();
+
+                    if (!this.isEnabled) return;
+
+                    if (overrideType == "response") {
+                        $("[href=\"#tabs-1\"]").click();
+                    } else {
+                        $("[href=\"#tabs-2\"]").click();
+                    }
                 }
             });
         }
