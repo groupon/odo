@@ -273,20 +273,21 @@
             var pillsShown = false;
             $.each(rowIds, function(_index_, rowId) {
                 var rowInfo = rowData[parseInt(rowId) - 1];
-                if (rowInfo.requestEnabled || rowInfo.responseEnabled || rowId == selectedRow) {
-                    $("#nav").append($("<li>")
-                        .attr("id", rowInfo.pathId)
-                        .append($("<a>")
-                            .attr({
-                                "href": "#tab" + rowInfo.pathId,
-                                "data-toggle": "tab"})
-                            .text(rowInfo.pathName)
-                            .click(function() {
-                                $("#packages").setSelection(rowId, true);
-                            })));
-
-                    pillsShown = true;
+                if (!(rowInfo.requestEnabled || rowInfo.responseEnabled || rowId == selectedRow)) {
+                    return;
                 }
+                $("#nav").append($("<li>")
+                    .attr("id", rowInfo.pathId)
+                    .append($("<a>")
+                        .attr({
+                            href: "#tab" + rowInfo.pathId,
+                            "data-toggle": "tab"})
+                        .text(rowInfo.pathName)
+                        .click(function() {
+                            $("#packages").setSelection(rowId, true);
+                        })));
+
+                pillsShown = true;
             });
 
             if (!pillsShown) {
