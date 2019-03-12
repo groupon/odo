@@ -160,7 +160,7 @@
                             title: "Click here to manage clients.",
                         })
                         .text("Client UUID: " + (clientUUID == "-1" ? "Default" : clientUUID))
-                        .click(manageClientPopup)))
+                        .click(manageClientPopup)));
         }
 
         function changeActive(value) {
@@ -272,7 +272,7 @@
             var selectedRow = $("#packages").jqGrid("getGridParam", "selrow");
             var pillsShown = false;
             $.each(rowIds, function(_index_, rowId) {
-                var rowInfo = rowData[parseInt(rowId) - 1];
+                var rowInfo = rowData[parseInt(rowId, 10) - 1];
                 if (!(rowInfo.requestEnabled || rowInfo.responseEnabled || rowId == selectedRow)) {
                     return;
                 }
@@ -1209,7 +1209,7 @@
             $("#editDiv").affix({
                 offset: {
                     top: function() {
-                        return $("nav.navbar").position().top + $("nav.navbar").height() + parseInt($("nav.navbar").css("margin-bottom")) - 12;
+                        return $("nav.navbar").position().top + $("nav.navbar").height() + parseInt($("nav.navbar").css("margin-bottom"), 10) - 12;
                     }
                 }
             });
@@ -1287,9 +1287,8 @@
                     highlightSelectedGroups(data.groupIds);
                     populateResponseOverrideList(data.possibleEndpoints);
                     populateRequestOverrideList(data.possibleEndpoints);
-                    populateEnabledOverrides();
-                    changeResponseOverrideDiv();
-                    changeRequestOverrideDiv();
+                    populateEnabledRequestOverrides();
+                    populateEnabledResponseOverrides();
 
                     setResponseOverridesActiveIndicator(data.responseEnabled);
                     setRequestOverridesActiveIndicator(data.requestEnabled);
@@ -1303,11 +1302,7 @@
 
         function pathRequestTypeChanged() {
             var requestType = $("#requestType").val();
-            if(requestType != "1" && requestType != "4") {
-                $("#postGeneral").show();
-            } else {
-                $("#postGeneral").hide();
-            }
+            $("#postGeneral").toggle(requestType != 1 && requestType != 4);
         }
 
         function overrideRemove(type) {
@@ -1316,9 +1311,8 @@
             var selection = $(selector);
 
             selection.each(function(i, selected){
-                var splitId = selected.value.split(",");
-                var methodId = splitId[0];
-                var ordinal = splitId[1];
+                var methodId = $(selected).data("override-id");
+                var ordinal = $(selected).data("ordinal");
 
                 var args = '?ordinal=' + ordinal;
                 args += '&clientUUID=' + clientUUID;
@@ -1332,15 +1326,11 @@
                         _method: 'DELETE'
                     },
                     success: function() {
-                        if(type == "response") {
+                        if (type == "response") {
                             selectedResponseOverride = 0;
-                        } else {
-                            selectedRequestOverride = 0;
-                        }
-
-                        if(type == "response") {
                             populateEnabledResponseOverrides();
                         } else {
+                            selectedRequestOverride = 0;
                             populateEnabledRequestOverrides();
                         }
                     }
@@ -1363,7 +1353,7 @@
                         clientUUID : clientUUID
                     },
                     success: function(){
-                        if(type == "response") {
+                        if (type == "response") {
                             populateEnabledResponseOverrides();
                         } else {
                             populateEnabledRequestOverrides();
@@ -1387,7 +1377,7 @@
                         clientUUID: clientUUID
                     },
                     success: function(){
-                        if(type == "response") {
+                        if (type == "response") {
                             populateEnabledResponseOverrides();
                         }
                         else {
@@ -1406,12 +1396,11 @@
                 $("#responseOverrideDetails").hide();
                 selectedResponseOverride = 0;
             } else if (selections.length == 1) {
-                var id = selections[0].value;
+                var id = selections.val();
                 selectedResponseOverride = id;
-                var splitId = id.split(",");
-                var methodId = splitId[0];
-                var ordinal = splitId[1];
-                populateEditOverrideArgs(currentPathId, methodId, ordinal, "response", autofocusOnForm);
+                var methodId = selections.data("override-id");
+                var ordinal = selections.data("ordinal");
+                populateEditOverrideConfiguration(currentPathId, methodId, ordinal, "response", autofocusOnForm);
             }
             else {
                 // nothing selected
@@ -1429,12 +1418,11 @@
                 $("#requestOverrideDetails").hide();
                 selectedRequestOverride = 0;
             } else if (selections.length == 1) {
-                var id = selections[0].value;
+                var id = selections.val();
                 selectedRequestOverride = id;
-                var splitId = id.split(",");
-                var methodId = splitId[0];
-                var ordinal = splitId[1];
-                populateEditOverrideArgs(currentPathId, methodId, ordinal, "request", autofocusOnForm);
+                var methodId = selections.data("override-id");
+                var ordinal = selections.data("ordinal");
+                populateEditOverrideConfiguration(currentPathId, methodId, ordinal, "request", autofocusOnForm);
             }
             else {
                 // nothing selected
@@ -1456,22 +1444,8 @@
 
         // get the next available ordinal for methodId on a specific path
         function getNextOrdinal(selectId, methodId) {
-            var selector = "select#" + selectId + " option";
-            var selection = $(selector);
-            var lastOrdinal = 0;
-
-            selection.each(function(i, selected){
-                var splitId = selected.value.split(",");
-                var foundMethodId = splitId[0];
-                var foundOrdinal = splitId[1];
-
-                if (methodId == foundMethodId)
-                    lastOrdinal = foundOrdinal;
-            });
-
-            return parseInt(lastOrdinal, 10) + 1;
+            return (parseInt($("select#" + selectId + " option[data-override-id=" + methodId + "]").last().data("ordinal"), 10) + 1) || 1;
         }
-
 
         var selectedResponseOverride = 0;
         var selectedRequestOverride = 0;
@@ -1491,31 +1465,27 @@
                 // get the next ordinal so we can pop up the argument dialogue
                 var ordinal = getNextOrdinal(type + "OverrideEnabled", selected.value);
 
-
-                if(isNaN(ordinal)) {
-                    ordinal = 1;
-                }
-
                 $.ajax({
-                    type:"POST",
+                    type: "POST",
                     url: '<c:url value="/api/path/"/>' + currentPathId,
                     data: {
                         addOverride: selected.value,
                         clientUUID: clientUUID
                     },
                     success: function() {
-                        populateEnabledOverrides(true);
-                        if(enabledCount == 0) {
+                        if (enabledCount == 0) {
                             // automatically enable the response if a first override is added
                             if($("#" + type + "_enabled_" + currentPathId).attr("checked") != "checked") {
                                 enablePath(type, currentPathId);
                             }
                         }
-                        if(type == "response") {
+                        if (type == "response") {
+                            populateEnabledResponseOverrides(true);
                             selectedResponseOverride = selected.value + "," + ordinal;
                             $("#responseOverrideSelect").val(-999).trigger("change");
                         }
                         else {
+                            populateEnabledRequestOverrides(true);
                             selectedRequestOverride = selected.value + "," + ordinal;
                             $("#requestOverrideSelect").val(-999).trigger("change");
                         }
@@ -1596,19 +1566,18 @@
             return argString.join("");
         }
 
-        // called to load the edit endpoint args
-        function populateEditOverrideArgs(pathId, methodId, ordinal, overrideType, autofocusOnForm) {
+        function populateEditOverrideConfiguration(pathId, methodId, ordinal, overrideType, autofocusOnForm) {
             $.ajax({
                 type: "GET",
                 url: '<c:url value="/api/path/"/>' + pathId + '/' + methodId,
                 data: 'ordinal=' + ordinal + '&clientUUID=${clientUUID}',
                 success: function(data) {
-                    populateEditOverrideArgsSuccess(data, pathId, methodId, ordinal, overrideType, autofocusOnForm);
+                    populateEditOverrideConfigurationSuccess(data, pathId, methodId, ordinal, overrideType, autofocusOnForm);
                 }
             });
         }
 
-        function populateEditOverrideArgsSuccess(data, pathId, methodId, ordinal, overrideType, autofocusOnForm) {
+        function populateEditOverrideConfigurationSuccess(data, pathId, methodId, ordinal, overrideType, autofocusOnForm) {
             if (data.enabledEndpoint == null) {
                 return;
             }
@@ -1723,7 +1692,7 @@
                     event.preventDefault();
                 })
                 .submit(function(event) {
-                    submitOverrideData(event, overrideType, parseInt(pathId), parseInt(methodId), parseInt(ordinal), data.enabledEndpoint.methodInformation.methodArguments.length);
+                    submitOverrideData(event, overrideType, parseInt(pathId, 10), parseInt(methodId, 10), parseInt(ordinal, 10), data.enabledEndpoint.methodInformation.methodArguments.length);
                 });
 
             $("#" + overrideType + "OverrideParameters").empty().append($formData).show();
@@ -1852,11 +1821,6 @@
             });
         }
 
-        function populateEnabledOverrides(autofocusOnForm) {
-            populateEnabledResponseOverrides(autofocusOnForm);
-            populateEnabledRequestOverrides(autofocusOnForm);
-        }
-
         function populateEnabledResponseOverrides(autofocusOnForm) {
             $.ajax({
                 type: "GET",
@@ -1898,9 +1862,14 @@
                 var repeat = this.repeatNumber >= 0 ? this.repeatNumber + "x " : "";
 
                 // custom response/request
+                var dataValue = enabledId + ',' + usedIndexes[enabledId];
                 if (enabledId < 0) {
                     $("#" + type + "OverrideEnabled").append($("<option>")
-                        .val(enabledId + ',' + usedIndexes[enabledId])
+                        .val(dataValue)
+                        .attr({
+                            "data-override-id": enabledId,
+                            "data-ordinal": usedIndexes[enabledId]
+                        })
                         .text(repeat + requestOverrideText(enabledId, this.arguments)));
                 } else {
                     var method = data.possibleEndpoints.find(function(endpoint) {
@@ -1916,7 +1885,11 @@
                     }
 
                     $("#" + type + "OverrideEnabled").append($("<option>")
-                        .val(enabledId + ',' + usedIndexes[enabledId])
+                        .val(dataValue)
+                        .attr({
+                            "data-override-id": enabledId,
+                            "data-ordinal": usedIndexes[enabledId]
+                        })
                         .text(repeat + methodName));
                 }
             });

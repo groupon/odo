@@ -253,7 +253,7 @@
     }
 
     function saveGridOptions(e) {
-        var historyGridRows = parseInt($("#numberOfRows").val());
+        var historyGridRows = parseInt($("#numberOfRows").val(), 10);
         if (!isNaN(historyGridRows)) {
             $.cookie("historyGridRows", historyGridRows, {
                 expires: 10000,
