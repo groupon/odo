@@ -1350,9 +1350,9 @@
                     },
                     success: function() {
                         if (type == "response") {
-                            getEnabledResponseOverrides(populateEnabledResponseOverrides());
+                            getEnabledResponseOverrides(refreshSelectedResponseOverride());
                         } else {
-                            getEnabledRequestOverrides(populateEnabledRequestOverrides());
+                            getEnabledRequestOverrides(refreshSelectedRequestOverride());
                         }
                     }
                 });
@@ -1370,9 +1370,9 @@
                     },
                     success: function() {
                         if (type == "response") {
-                            getEnabledResponseOverrides(populateEnabledResponseOverrides());
+                            getEnabledResponseOverrides(refreshSelectedResponseOverride());
                         } else {
-                            getEnabledRequestOverrides(populateEnabledRequestOverrides());
+                            getEnabledRequestOverrides(refreshSelectedRequestOverride());
                         }
                    }
                 });
@@ -1540,7 +1540,7 @@
             }
 
             // show actual args
-            $.each(args, function(methodArgsX, methodArg) {
+            $.each(args, function(i, methodArg) {
                 var displayStr = methodArg;
                 if (methodArg.length > 10) {
                     // truncate methodArg if it is > 10 char
@@ -1795,9 +1795,9 @@
                             toggleFormSubmitEnabled($(event.target), false);
                             // TODO: *MANUALLY* change the active overrides select
                             if (overrideType == "response") {
-                                getEnabledResponseOverrides(populateEnabledResponseOverridesWithoutChangingResponseOverrideDiv());
+                                getEnabledResponseOverrides(refreshSelectedResponseOverride());
                             } else {
-                                getEnabledRequestOverrides(populateEnabledRequestOverridesWithoutChangingRequestOverrideDiv());
+                                getEnabledRequestOverrides(refreshSelectedRequestOverride());
                             }
                         },
                         error: function(err) {
@@ -1831,7 +1831,7 @@
             };
         }
 
-        function populateEnabledResponseOverridesWithoutChangingResponseOverrideDiv() {
+        function refreshSelectedResponseOverride() {
             return function(data) {
                 // TODO: Consider changing only the text of the <option> that is selected.
                 // Then we do not have to execute .val()
@@ -1860,7 +1860,7 @@
             };
         }
 
-        function populateEnabledRequestOverridesWithoutChangingRequestOverrideDiv() {
+        function refreshSelectedRequestOverride() {
             return function(data) {
                 // TODO: Consider changing only the text of the <option> that is selected.
                 // Then we do not have to execute .val()
@@ -1876,43 +1876,45 @@
 
             $("#" + type + "OverrideEnabled").empty();
             $.each(data.enabledEndpoints, function() {
+                var name = getEndpointDisplayString(this);
+                if (!name) return;
+
                 var enabledId = this.overrideId;
-
                 usedIndexes[enabledId] = (usedIndexes[enabledId] || 0) + 1;
-                var repeat = this.repeatNumber >= 0 ? this.repeatNumber + "x " : "";
-
                 var dataValue = enabledId + ',' + usedIndexes[enabledId];
-                // custom response/request
-                if (enabledId < 0) {
-                    $("#" + type + "OverrideEnabled").append($("<option>")
-                        .val(dataValue)
-                        .attr({
-                            "data-override-id": enabledId,
-                            "data-ordinal": usedIndexes[enabledId]
-                        })
-                        .text(repeat + requestOverrideText(enabledId, this.arguments)));
-                } else {
-                    var method = data.possibleEndpoints.find(function(endpoint) {
-                        return endpoint.id == enabledId;
-                    });
-                    if (!method) { return; }
 
-                    var methodName = method.methodName;
-
-                    // Add arguments to method name if they exist
-                    if (method.methodArguments.length > 0) {
-                        methodName += "(" + getFormattedArguments(this.arguments, method.methodArguments.length) + ")";
-                    }
-
-                    $("#" + type + "OverrideEnabled").append($("<option>")
-                        .val(dataValue)
-                        .attr({
-                            "data-override-id": enabledId,
-                            "data-ordinal": usedIndexes[enabledId]
-                        })
-                        .text(repeat + methodName));
-                }
+                $("#" + type + "OverrideEnabled").append($("<option>")
+                    .val(dataValue)
+                    .attr({
+                        "data-override-id": enabledId,
+                        "data-ordinal": usedIndexes[enabledId]
+                    })
+                    .text(name));
             });
+        }
+
+        function getEndpointDisplayString(endpoint) {
+            var enabledId = endpoint.overrideId;
+            var repeat = endpoint.repeatNumber >= 0 ? endpoint.repeatNumber + "x " : "";
+
+            // custom response/request
+            if (enabledId < 0) {
+                return repeat + requestOverrideText(enabledId, endpoint.arguments);
+            }
+
+            var method = data.possibleEndpoints.find(function(endpoint) {
+                return endpoint.id == enabledId;
+            });
+            if (!method) { return; }
+
+            var methodName = method.methodName;
+
+            // Add arguments to method name if they exist
+            if (method.methodArguments.length > 0) {
+                methodName += "(" + getFormattedArguments(endpoint.arguments, method.methodArguments.length) + ")";
+            }
+
+            return repeat + methodName;
         }
 
         function requestOverrideText(enabledId, enabledArgs) {
