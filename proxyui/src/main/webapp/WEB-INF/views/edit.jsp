@@ -506,14 +506,14 @@
                 var $closestTd = $focusedCheckbox.closest("td");
                 switch (event.key) {
                     case "ArrowLeft":
-                        if ($closestTd.attr("aria-describedby") == "packages_requestEnabled") { // todo: use indexof matching instead?
+                        if ($closestTd.attr("aria-describedby") == "packages_requestEnabled") {
                             $closestTd.prev("td").find("input:checkbox").focus();
                         } else {
                             $closestTd.closest("tr").prev("tr").find("td[aria-describedby=packages_requestEnabled] input:checkbox").focus();
                         }
                         break;
                     case "ArrowRight":
-                        if ($closestTd.attr("aria-describedby") == "packages_responseEnabled") { // todo: use indexof matching instead?
+                        if ($closestTd.attr("aria-describedby") == "packages_responseEnabled") {
                             $closestTd.next("td").find("input:checkbox").focus();
                         } else {
                             $closestTd.closest("tr").next("tr").find("td[aria-describedby=packages_responseEnabled] input:checkbox").focus();
@@ -1287,8 +1287,8 @@
                     highlightSelectedGroups(data.groupIds);
                     populateResponseOverrideList(data.possibleEndpoints);
                     populateRequestOverrideList(data.possibleEndpoints);
-                    populateEnabledRequestOverrides();
-                    populateEnabledResponseOverrides();
+                    getEnabledResponseOverrides(populateEnabledResponseOverrides());
+                    getEnabledRequestOverrides(populateEnabledRequestOverrides());
 
                     setResponseOverridesActiveIndicator(data.responseEnabled);
                     setRequestOverridesActiveIndicator(data.requestEnabled);
@@ -1328,10 +1328,10 @@
                     success: function() {
                         if (type == "response") {
                             selectedResponseOverride = 0;
-                            populateEnabledResponseOverrides();
+                            getEnabledResponseOverrides(populateEnabledResponseOverrides());
                         } else {
                             selectedRequestOverride = 0;
-                            populateEnabledRequestOverrides();
+                            getEnabledRequestOverrides(populateEnabledRequestOverrides());
                         }
                     }
                 });
@@ -1340,23 +1340,19 @@
         }
 
         function overrideMoveUp(type) {
-            var id = currentPathId;
-            var selector = "select#" + type + "OverrideEnabled" + " option:selected";
-            var selection = $(selector);
-
-            selection.each(function(i, selected) {
+            $("select#" + type + "OverrideEnabled" + " option:selected").each(function(i, selected) {
                 $.ajax({
                     type: 'POST',
-                    url: '<c:url value="/api/path/"/>' + id,
+                    url: '<c:url value="/api/path/"/>' + currentPathId,
                     data: {
                         enabledMoveUp: selected.value,
                         clientUUID : clientUUID
                     },
-                    success: function(){
+                    success: function() {
                         if (type == "response") {
-                            populateEnabledResponseOverrides();
+                            getEnabledResponseOverrides(populateEnabledResponseOverrides());
                         } else {
-                            populateEnabledRequestOverrides();
+                            getEnabledRequestOverrides(populateEnabledRequestOverrides());
                         }
                     }
                 });
@@ -1364,24 +1360,19 @@
         }
 
         function overrideMoveDown(type) {
-            var id = currentPathId;
-            var selector = "select#" + type + "OverrideEnabled" + " option:selected";
-            var selection = $(selector);
-
-            selection.each(function(i, selected) {
+            $("select#" + type + "OverrideEnabled" + " option:selected").each(function(i, selected) {
                 $.ajax({
                     type:"POST",
-                    url: '<c:url value="/api/path/"/>' + id,
+                    url: '<c:url value="/api/path/"/>' + currentPathId,
                     data: {
                         enabledMoveDown: selected.value,
                         clientUUID: clientUUID
                     },
-                    success: function(){
+                    success: function() {
                         if (type == "response") {
-                            populateEnabledResponseOverrides();
-                        }
-                        else {
-                            populateEnabledRequestOverrides();
+                            getEnabledResponseOverrides(populateEnabledResponseOverrides());
+                        } else {
+                            getEnabledRequestOverrides(populateEnabledRequestOverrides());
                         }
                    }
                 });
@@ -1480,12 +1471,12 @@
                             }
                         }
                         if (type == "response") {
-                            populateEnabledResponseOverrides(true);
+                            getEnabledResponseOverrides(populateEnabledResponseOverrides(true));
                             selectedResponseOverride = selected.value + "," + ordinal;
                             $("#responseOverrideSelect").val(-999).trigger("change");
                         }
                         else {
-                            populateEnabledRequestOverrides(true);
+                            getEnabledRequestOverrides(populateEnabledRequestOverrides(true));
                             selectedRequestOverride = selected.value + "," + ordinal;
                             $("#requestOverrideSelect").val(-999).trigger("change");
                         }
@@ -1771,13 +1762,13 @@
             });
         }
 
-        function submitOverrideData(event, type, pathId, methodId, ordinal, numArgs) {
+        function submitOverrideData(event, overrideType, pathId, methodId, ordinal, numArgs) {
             event.preventDefault();
             var formData = new FormData();
             formData.append("ordinal", ordinal);
             formData.append("clientUUID", clientUUID);
             for (var i = 0; i < numArgs; i++) {
-                formData.append('arguments[]', $("#" + type + "_args_" + i).val());
+                formData.append('arguments[]', $("#" + overrideType + "_args_" + i).val());
             }
 
             $.ajax({
@@ -1802,10 +1793,11 @@
                         },
                         success: function() {
                             toggleFormSubmitEnabled($(event.target), false);
-                            if (type == "request") {
-                                populateEnabledRequestOverrides();
+                            // TODO: *MANUALLY* change the active overrides select
+                            if (overrideType == "response") {
+                                getEnabledResponseOverrides(populateEnabledResponseOverridesWithoutChangingResponseOverrideDiv());
                             } else {
-                                populateEnabledResponseOverrides();
+                                getEnabledRequestOverrides(populateEnabledRequestOverridesWithoutChangingRequestOverrideDiv());
                             }
                         },
                         error: function(err) {
@@ -1821,34 +1813,62 @@
             });
         }
 
+        function getEnabledResponseOverrides(cb) {
+             $.ajax({
+                type: "GET",
+                url: '<c:url value="/api/path/"/>' + currentPathId + '?profileIdentifier=${profile_id}&typeFilter[]=ResponseOverride&typeFilter[]=ResponseHeaderOverride&clientUUID=${clientUUID}',
+                success: cb
+            });
+        }
+
         function populateEnabledResponseOverrides(autofocusOnForm) {
+            return function(data) {
+                enabledOverridesSuccess('response', data);
+                if (selectedResponseOverride != 0) {
+                    $("#responseOverrideEnabled").val(selectedResponseOverride);
+                }
+                changeResponseOverrideDiv(autofocusOnForm);
+            };
+        }
+
+        function populateEnabledResponseOverridesWithoutChangingResponseOverrideDiv() {
+            return function(data) {
+                // TODO: Consider changing only the text of the <option> that is selected.
+                // Then we do not have to execute .val()
+                enabledOverridesSuccess('response', data);
+                if (selectedResponseOverride != 0) {
+                    $("#responseOverrideEnabled").val(selectedResponseOverride);
+                }
+            };
+        }
+
+        function getEnabledRequestOverrides(cb) {
             $.ajax({
                 type: "GET",
-                url : '<c:url value="/api/path/"/>' + currentPathId + '?profileIdentifier=${profile_id}&typeFilter[]=ResponseOverride&typeFilter[]=ResponseHeaderOverride&clientUUID=${clientUUID}',
-                autofocusOnForm: autofocusOnForm,
-                success: function(data) {
-                    enabledOverridesSuccess('response', data);
-                    if (selectedResponseOverride != 0) {
-                        $("#responseOverrideEnabled").val(selectedResponseOverride);
-                    }
-                    changeResponseOverrideDiv(this.autofocusOnForm);
-                }
+                url: '<c:url value="/api/path/"/>' + currentPathId + '?profileIdentifier=${profile_id}&typeFilter[]=RequestOverride&typeFilter[]=RequestHeaderOverride&clientUUID=${clientUUID}',
+                success: cb
             });
         }
 
         function populateEnabledRequestOverrides(autofocusOnForm) {
-            $.ajax({
-                type: "GET",
-                url : '<c:url value="/api/path/"/>' + currentPathId + '?profileIdentifier=${profile_id}&typeFilter[]=RequestOverride&typeFilter[]=RequestHeaderOverride&clientUUID=${clientUUID}',
-                autofocusOnForm: autofocusOnForm,
-                success: function(data) {
-                    enabledOverridesSuccess('request', data);
-                    if (selectedRequestOverride != 0) {
-                        $("#requestOverrideEnabled").val(selectedRequestOverride);
-                    }
-                    changeRequestOverrideDiv(this.autofocusOnForm);
+            return function(data) {
+                enabledOverridesSuccess('request', data);
+                if (selectedRequestOverride != 0) {
+                    $("#requestOverrideEnabled").val(selectedRequestOverride);
                 }
-            });
+                changeRequestOverrideDiv(autofocusOnForm);
+            };
+        }
+
+        function populateEnabledRequestOverridesWithoutChangingRequestOverrideDiv() {
+            return function(data) {
+                // TODO: Consider changing only the text of the <option> that is selected.
+                // Then we do not have to execute .val()
+                enabledOverridesSuccess('request', data);
+                if (selectedRequestOverride != 0) {
+                    $("#requestOverrideEnabled").val(selectedRequestOverride);
+                }
+            };
         }
 
         function enabledOverridesSuccess(type, data) {
@@ -1861,8 +1881,8 @@
                 usedIndexes[enabledId] = (usedIndexes[enabledId] || 0) + 1;
                 var repeat = this.repeatNumber >= 0 ? this.repeatNumber + "x " : "";
 
-                // custom response/request
                 var dataValue = enabledId + ',' + usedIndexes[enabledId];
+                // custom response/request
                 if (enabledId < 0) {
                     $("#" + type + "OverrideEnabled").append($("<option>")
                         .val(dataValue)
