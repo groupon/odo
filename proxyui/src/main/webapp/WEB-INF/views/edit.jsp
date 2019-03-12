@@ -1341,42 +1341,25 @@
         }
 
         function overrideMoveUp(type) {
-            var defer = $.Deferred();
-            defer.resolve();
-
-            $("select#" + type + "OverrideEnabled" + " option:selected").each(function(i, selected) {
-                defer = defer.pipe(function() {
-                    return overrideMoveUpRequest(selected.value);
-                });
-            });
-
-            defer.done(function() {
-                if (type == "response") {
-                    getEnabledResponseOverrides(refreshSelectedResponseOverride());
-                } else {
-                    getEnabledRequestOverrides(refreshSelectedRequestOverride());
-                }
-            });
-        }
-
-        function overrideMoveUpRequest(value) {
-            return $.ajax({
-                type: "POST",
-                url: '<c:url value="/api/path/"/>' + currentPathId,
-                data: {
-                    enabledMoveUp: value,
-                    clientUUID : clientUUID
-                }
-            });
+            return overrideMove(type, "Up");
         }
 
         function overrideMoveDown(type) {
+            return overrideMove(type, "Down");
+        }
+
+        function overrideMove(type, direction) {
             var defer = $.Deferred();
             defer.resolve();
 
-            $($("select#" + type + "OverrideEnabled" + " option:selected").get().reverse()).each(function(i, selected) {
+            var $options = $("select#" + type + "OverrideEnabled" + " option:selected");
+            if (direction == "Down") {
+                $options = $($options.get().reverse());
+            }
+
+            $options.each(function(i, selected) {
                 defer = defer.pipe(function() {
-                    return overrideMoveDownRequest(selected.value);
+                    return overrideMoveRequest(selected.value, direction);
                 });
             });
 
@@ -1389,14 +1372,14 @@
             });
         }
 
-        function overrideMoveDownRequest(value) {
+        function overrideMoveRequest(value, direction) {
+            var data = { clientUUID: clientUUID };
+            data["enabledMove" + direction] = value;
+
             return $.ajax({
                 type: "POST",
                 url: '<c:url value="/api/path/"/>' + currentPathId,
-                data: {
-                    enabledMoveDown: value,
-                    clientUUID: clientUUID
-                }
+                data: data
             });
         }
 
