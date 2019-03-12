@@ -1306,76 +1306,97 @@
         }
 
         function overrideRemove(type) {
-            var id = currentPathId;
-            var selector = "select#" + type + "OverrideEnabled" + " option:selected";
-            var selection = $(selector);
+            var defer = $.Deferred();
+            defer.resolve();
 
-            selection.each(function(i, selected){
+            $("select#" + type + "OverrideEnabled" + " option:selected").each(function(i, selected) {
                 var methodId = $(selected).data("override-id");
                 var ordinal = $(selected).data("ordinal");
-
-                var args = '?ordinal=' + ordinal;
-                args += '&clientUUID=' + clientUUID;
-
-                $.ajax({
-                    type: 'POST',
-                    url: '<c:url value="/api/path/"/>' + id + '/' + methodId,
-                    data: {
-                        ordinal: ordinal,
-                        clientUUID: clientUUID,
-                        _method: 'DELETE'
-                    },
-                    success: function() {
-                        if (type == "response") {
-                            selectedResponseOverride = 0;
-                            getEnabledResponseOverrides(populateEnabledResponseOverrides());
-                        } else {
-                            selectedRequestOverride = 0;
-                            getEnabledRequestOverrides(populateEnabledRequestOverrides());
-                        }
-                    }
+                defer = defer.pipe(function() {
+                    return overrideRemoveRequest(methodId, ordinal);
                 });
             });
 
+            defer.done(function() {
+                if (type == "response") {
+                    selectedResponseOverride = 0;
+                    getEnabledResponseOverrides(populateEnabledResponseOverrides());
+                } else {
+                    selectedRequestOverride = 0;
+                    getEnabledRequestOverrides(populateEnabledRequestOverrides());
+                }
+            });
+        }
+
+        function overrideRemoveRequest(methodId, ordinal) {
+            $.ajax({
+                type: 'POST',
+                url: '<c:url value="/api/path/"/>' + currentPathId + '/' + methodId,
+                data: {
+                    ordinal: ordinal,
+                    clientUUID: clientUUID,
+                    _method: 'DELETE'
+                }
+            });
         }
 
         function overrideMoveUp(type) {
+            var defer = $.Deferred();
+            defer.resolve();
+
             $("select#" + type + "OverrideEnabled" + " option:selected").each(function(i, selected) {
-                $.ajax({
-                    type: 'POST',
-                    url: '<c:url value="/api/path/"/>' + currentPathId,
-                    data: {
-                        enabledMoveUp: selected.value,
-                        clientUUID : clientUUID
-                    },
-                    success: function() {
-                        if (type == "response") {
-                            getEnabledResponseOverrides(refreshSelectedResponseOverride());
-                        } else {
-                            getEnabledRequestOverrides(refreshSelectedRequestOverride());
-                        }
-                    }
+                defer = defer.pipe(function() {
+                    return overrideMoveUpRequest(selected.value);
                 });
+            });
+
+            defer.done(function() {
+                if (type == "response") {
+                    getEnabledResponseOverrides(refreshSelectedResponseOverride());
+                } else {
+                    getEnabledRequestOverrides(refreshSelectedRequestOverride());
+                }
+            });
+        }
+
+        function overrideMoveUpRequest(value) {
+            return $.ajax({
+                type: "POST",
+                url: '<c:url value="/api/path/"/>' + currentPathId,
+                data: {
+                    enabledMoveUp: value,
+                    clientUUID : clientUUID
+                }
             });
         }
 
         function overrideMoveDown(type) {
-            $("select#" + type + "OverrideEnabled" + " option:selected").each(function(i, selected) {
-                $.ajax({
-                    type:"POST",
-                    url: '<c:url value="/api/path/"/>' + currentPathId,
-                    data: {
-                        enabledMoveDown: selected.value,
-                        clientUUID: clientUUID
-                    },
-                    success: function() {
-                        if (type == "response") {
-                            getEnabledResponseOverrides(refreshSelectedResponseOverride());
-                        } else {
-                            getEnabledRequestOverrides(refreshSelectedRequestOverride());
-                        }
-                   }
+            var defer = $.Deferred();
+            defer.resolve();
+
+            $($("select#" + type + "OverrideEnabled" + " option:selected").get().reverse()).each(function(i, selected) {
+                defer = defer.pipe(function() {
+                    return overrideMoveDownRequest(selected.value);
                 });
+            });
+
+            defer.done(function() {
+                if (type == "response") {
+                    getEnabledResponseOverrides(refreshSelectedResponseOverride());
+                } else {
+                    getEnabledRequestOverrides(refreshSelectedRequestOverride());
+                }
+            });
+        }
+
+        function overrideMoveDownRequest(value) {
+            return $.ajax({
+                type: "POST",
+                url: '<c:url value="/api/path/"/>' + currentPathId,
+                data: {
+                    enabledMoveDown: value,
+                    clientUUID: clientUUID
+                }
             });
         }
 
@@ -1876,7 +1897,7 @@
 
             $("#" + type + "OverrideEnabled").empty();
             $.each(data.enabledEndpoints, function() {
-                var name = getEndpointDisplayString(this);
+                var name = getEndpointDisplayString(this, data);
                 if (!name) return;
 
                 var enabledId = this.overrideId;
@@ -1893,7 +1914,7 @@
             });
         }
 
-        function getEndpointDisplayString(endpoint) {
+        function getEndpointDisplayString(endpoint, data) {
             var enabledId = endpoint.overrideId;
             var repeat = endpoint.repeatNumber >= 0 ? endpoint.repeatNumber + "x " : "";
 
