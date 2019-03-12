@@ -335,34 +335,37 @@
         function overrideEnabledChanged(event, overrideType) {
             var $checkbox = $(event.target);
             var pathId = $checkbox.data("path");
-            var enabled = $checkbox.is(":checked") ? 1 : 0;
+            var isEnabled = $checkbox.is(":checked") ? 1 : 0;
 
-            $.ajax({
+            toggleOverride(pathId, overrideType, isEnabled, function() {
+                var rowId = $checkbox.data("row");
+                var originalTargetId = $checkbox.attr("id");
+                var isEnabled = $checkbox.is(":checked");
+
+                var rowData = $("#packages").getLocalRow(rowId);
+                rowData[overrideType + "Enabled"] = isEnabled;
+                $("#packages").setRowData(rowId, rowData);
+                $("#packages").setSelection(rowId, true);
+                // maintain focus on checkbox
+                $("#" + originalTargetId).focus();
+
+                if (!isEnabled) return;
+
+                if (overrideType == "response") {
+                    $("[href=\"#tabs-1\"]").click();
+                } else {
+                    $("[href=\"#tabs-2\"]").click();
+                }
+            }, function() { alert("Could not properly set value"); });
+        }
+
+        function toggleOverride(pathId, overrideType, isEnabled, successCb, errorCb) {
+            return $.ajax({
                 type: "POST",
                 url: '<c:url value="/api/path/"/>' + pathId,
-                data: overrideType + 'Enabled=' + enabled + '&clientUUID=' + clientUUID,
-                originalTargetId: $checkbox.attr("id"),
-                rowId: $checkbox.data("row"),
-                isEnabled: $checkbox.is(":checked"),
-                error: function() {
-                    alert("Could not properly set value");
-                },
-                success: function() {
-                    var rowData = $("#packages").getLocalRow(this.rowId);
-                    rowData[overrideType + "Enabled"] = this.isEnabled;
-                    $("#packages").setRowData(this.rowId, rowData);
-                    $("#packages").setSelection(this.rowId, true);
-                    // maintain focus on checkbox
-                    $("#" + this.originalTargetId).focus();
-
-                    if (!this.isEnabled) return;
-
-                    if (overrideType == "response") {
-                        $("[href=\"#tabs-1\"]").click();
-                    } else {
-                        $("[href=\"#tabs-2\"]").click();
-                    }
-                }
+                data: overrideType + 'Enabled=' + isEnabled + '&clientUUID=' + clientUUID,
+                success: successCb,
+                error: errorCb
             });
         }
 
@@ -916,7 +919,7 @@
 
                     var $rowElement = $("tr#" + id);
 
-                    if(!$rowElement.find(":checkbox").is(":focus").length) {
+                    if (!$rowElement.find(":checkbox").is(":focus").length) {
                         $rowElement.find(":checkbox").first().focus();
                     }
 
@@ -1446,19 +1449,15 @@
         var selectedRequestOverride = 0;
 
         // Called when a different override is selected from the select box
-        function overrideSelectChanged(type) {
-            var selector = "select#"+type+"OverrideSelect option:selected";
-            var selection = $(selector);
+        function overrideSelectChanged(overrideType) {
+            var enabledCount = $("select#" + overrideType + "OverrideEnabled option").length;
 
-            var overrides = $("select#" + type + "OverrideEnabled option");
-            var enabledCount = overrides.length;
-
-            selection.each(function(i, selected){
+            $("select#" + overrideType + "OverrideSelect option:selected").each(function(i, selected) {
                 if (selected.value == -999)
                     return true;
 
                 // get the next ordinal so we can pop up the argument dialogue
-                var ordinal = getNextOrdinal(type + "OverrideEnabled", selected.value);
+                var ordinal = getNextOrdinal(overrideType + "OverrideEnabled", selected.value);
 
                 $.ajax({
                     type: "POST",
@@ -1470,11 +1469,23 @@
                     success: function() {
                         if (enabledCount == 0) {
                             // automatically enable the response if a first override is added
-                            if($("#" + type + "_enabled_" + currentPathId).attr("checked") != "checked") {
-                                enablePath(type, currentPathId);
-                            }
+                            toggleOverride(currentPathId, overrideType, true, function() {
+                                var rowId = $("#" + overrideType + "_enabled_" + currentPathId).data("row");
+                                var rowData = $("#packages").getLocalRow(rowId);
+                                if (!rowData[overrideType + "Enabled"]) {
+                                    rowData[overrideType + "Enabled"] = true;
+                                    $("#packages").setRowData(rowId, rowData);
+
+                                    if (overrideType == "response") {
+                                        setResponseOverridesActiveIndicator(true);
+                                    } else {
+                                        setRequestOverridesActiveIndicator(true);
+                                    }
+                                }
+                            });
                         }
-                        if (type == "response") {
+
+                        if (overrideType == "response") {
                             getEnabledResponseOverrides(populateEnabledResponseOverrides(true));
                             selectedResponseOverride = selected.value + "," + ordinal;
                             $("#responseOverrideSelect").val(-999).trigger("change");
@@ -1487,10 +1498,6 @@
                     }
                 });
             });
-        }
-
-        function enablePath(type, pathId) {
-            $("#" + type + "_enabled_" + pathId).click();
         }
 
         function populateResponseOverrideList(possibleEndpoints) {
