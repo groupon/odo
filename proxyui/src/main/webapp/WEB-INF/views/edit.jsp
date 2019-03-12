@@ -1833,6 +1833,11 @@
                         },
                         success: function() {
                             toggleFormSubmitEnabled($(event.target), false);
+                            if (type == "request") {
+                                populateEnabledRequestOverrides();
+                            } else {
+                                populateEnabledResponseOverrides();
+                            }
                         },
                         error: function(err) {
                             debugger;
