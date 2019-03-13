@@ -1580,29 +1580,31 @@
         }
 
         function populateEditOverrideConfigurationSuccess(data, pathId, methodId, ordinal, overrideType, autofocusOnForm) {
-            if (data.enabledEndpoint == null) {
+            var endpoint = data.enabledEndpoint;
+            if (endpoint == null) {
                 return;
             }
+            var methodInfo = endpoint.methodInformation;
 
             $("#" + overrideType + "OverrideDetails .panel-title")
-                .text(data.enabledEndpoint.methodInformation.className + " " + data.enabledEndpoint.methodInformation.methodName);
+                .text(methodInfo.className + " " + methodInfo.methodName);
 
             var $formData = $("<form>");
             var $formDiv = $("<div>").addClass("form-group");
-            $.each(data.enabledEndpoint.methodInformation.methodArguments, function(i, el) {
+            $.each(methodInfo.methodArguments, function(i, el) {
                 var inputId = overrideType + "_args_" + i;
                 var inputValue;
-                if (data.enabledEndpoint.arguments.length > i) {
-                    inputValue = data.enabledEndpoint.arguments[i];
-                } else if (data.enabledEndpoint.methodInformation.methodDefaultArguments[i] != null) {
-                    inputValue = data.enabledEndpoint.methodInformation.methodDefaultArguments[i];
+                if (endpoint.arguments.length > i) {
+                    inputValue = endpoint.arguments[i];
+                } else if (methodInfo.methodDefaultArguments[i] != null) {
+                    inputValue = methodInfo.methodDefaultArguments[i];
                 }
 
-                if (typeof data.enabledEndpoint.methodInformation.methodArgumentNames[i] != 'undefined') {
+                if (typeof methodInfo.methodArgumentNames[i] != 'undefined') {
                     $formDiv
                         .append($("<label>")
                             .attr("for", inputId)
-                            .text(data.enabledEndpoint.methodInformation.methodArgumentNames[i]));
+                            .text(methodInfo.methodArgumentNames[i]));
                 }
 
                 if (methodId == -1) {
@@ -1610,6 +1612,7 @@
                         .append($("<textarea>")
                             .attr({
                                 id: inputId,
+                                name: inputId,
                                 class: "form-control",
                                 rows: 10
                             })
@@ -1623,13 +1626,14 @@
                         .append($("<input>")
                             .attr({
                                 id: "setResponseCode",
+                                name: "setResponseCode",
                                 min: 100,
                                 max: 599,
-                                default: data.enabledEndpoint.responseCode,
+                                default: endpoint.responseCode,
                                 class: "form-control",
                                 type: "number"
                             })
-                            .val(data.enabledEndpoint.responseCode)
+                            .val(endpoint.responseCode)
                             .on("input", function(event) {
                                 toggleFormSubmitEnabled($(event.target).closest("form"), true);
                             }));
@@ -1644,6 +1648,7 @@
                         .append($("<input>")
                             .attr({
                                 id: inputId,
+                                name: inputId,
                                 class: "form-control",
                                 type: "text",
                             })
@@ -1661,13 +1666,14 @@
                 .append($("<input>")
                     .attr({
                         id: "setRepeatNumber",
+                        name: "setRepeatNumber",
                         type: "number",
                         min: -1,
-                        default: data.enabledEndpoint.repeatNumber,
+                        default: endpoint.repeatNumber,
                         required: true,
                         class: "form-control"
                     })
-                    .val(data.enabledEndpoint.repeatNumber)
+                    .val(endpoint.repeatNumber)
                     .on("input", function(event) {
                         toggleFormSubmitEnabled($(event.target).closest("form"), true);
                     }));
@@ -1694,6 +1700,7 @@
                     event.preventDefault();
                 })
                 .submit(function(event) {
+                    event.preventDefault();
                     submitOverrideData(event, overrideType, parseInt(pathId, 10), parseInt(methodId, 10), parseInt(ordinal, 10));
                 });
 
@@ -1774,21 +1781,19 @@
         }
 
         function submitOverrideData(event, overrideType, pathId, methodId, ordinal) {
-            event.preventDefault();
-            var repeatNumberValue = $("#setRepeatNumber").val();
-            var responseCodeValue = $("#setResponseCode").val();
-
             $.ajax({
                 type: "POST",
                 url: '<c:url value="/api/path/"/>' + pathId + '/' + methodId,
                 data: {
                     clientUUID: clientUUID,
                     ordinal: ordinal,
-                    repeatNumber: repeatNumberValue,
-                    responseCode: responseCodeValue,
-                    'arguments[]': $("[id^=\"" + overrideType + "_args_\"]").map(function() {
-                            return $(this).val();
-                        }).get()
+                    repeatNumber: $("#setRepeatNumber").val(),
+                    responseCode: $("#setResponseCode").val(),
+                    'arguments[]': $(event.target).serializeArray().filter(function(arg) {
+                            return arg.name.startsWith(overrideType + "_args_");
+                        }).map(function(arg) {
+                            return arg.value;
+                        })
                 },
                 success: function() {
                     toggleFormSubmitEnabled($(event.target), false);
