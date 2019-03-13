@@ -1694,7 +1694,7 @@
                     event.preventDefault();
                 })
                 .submit(function(event) {
-                    submitOverrideData(event, overrideType, parseInt(pathId, 10), parseInt(methodId, 10), parseInt(ordinal, 10), data.enabledEndpoint.methodInformation.methodArguments.length);
+                    submitOverrideData(event, overrideType, parseInt(pathId, 10), parseInt(methodId, 10), parseInt(ordinal, 10));
                 });
 
             $("#" + overrideType + "OverrideParameters").empty().append($formData).show();
@@ -1773,52 +1773,32 @@
             });
         }
 
-        function submitOverrideData(event, overrideType, pathId, methodId, ordinal, numArgs) {
+        function submitOverrideData(event, overrideType, pathId, methodId, ordinal) {
             event.preventDefault();
-            var formData = new FormData();
-            formData.append("ordinal", ordinal);
-            formData.append("clientUUID", clientUUID);
-            for (var i = 0; i < numArgs; i++) {
-                formData.append('arguments[]', $("#" + overrideType + "_args_" + i).val());
-            }
+            var repeatNumberValue = $("#setRepeatNumber").val();
+            var responseCodeValue = $("#setResponseCode").val();
 
             $.ajax({
-                type:"POST",
+                type: "POST",
                 url: '<c:url value="/api/path/"/>' + pathId + '/' + methodId,
-                data: formData,
-                cache: false,
-                processData: false,
-                contentType: false,
+                data: {
+                    clientUUID: clientUUID,
+                    ordinal: ordinal,
+                    repeatNumber: repeatNumberValue,
+                    responseCode: responseCodeValue,
+                    'arguments[]': $("[id^=\"" + overrideType + "_args_\"]").map(function() {
+                            return $(this).val();
+                        }).get()
+                },
                 success: function() {
-                    var repeatNumberValue = $("#setRepeatNumber").val();
-                    var responseCodeValue = $("#setResponseCode").val();
-
-                    $.ajax({
-                        type:"POST",
-                        url: '<c:url value="/api/path/"/>' + pathId + '/' + methodId,
-                        data: {
-                            repeatNumber: repeatNumberValue,
-                            responseCode: responseCodeValue,
-                            ordinal: ordinal,
-                            clientUUID: clientUUID
-                        },
-                        success: function() {
-                            toggleFormSubmitEnabled($(event.target), false);
-                            // TODO: *MANUALLY* change the active overrides select
-                            if (overrideType == "response") {
-                                getEnabledResponseOverrides(refreshSelectedResponseOverride());
-                            } else {
-                                getEnabledRequestOverrides(refreshSelectedRequestOverride());
-                            }
-                        },
-                        error: function(err) {
-                            debugger;
-                            alert("We were unable to save your override. Please try again.");
-                        }
-                    });
+                    toggleFormSubmitEnabled($(event.target), false);
+                    if (overrideType == "response") {
+                        getEnabledResponseOverrides(refreshSelectedResponseOverride());
+                    } else {
+                        getEnabledRequestOverrides(refreshSelectedRequestOverride());
+                    }
                 },
                 error: function(err) {
-                    debugger;
                     alert("We were unable to save your override. Please try again.");
                 }
             });
