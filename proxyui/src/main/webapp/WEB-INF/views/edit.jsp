@@ -905,7 +905,7 @@
                     root : 'paths',
                     repeatitems : false
                 },
-                height: "auto",
+                height: "50vh",
                 ignoreCase: true,
                 loadonce: true,
                 beforeSelectRow: function(rowid, event) {
@@ -918,20 +918,24 @@
                     updateDetailPills();
 
                     var $rowElement = $("tr#" + id);
-
-                    if (!$rowElement.find(":checkbox").is(":focus") &&
-                        !$(this).closest(".ui-jqgrid-view").find(".ui-search-toolbar input").is(":focus")) {
-                        $rowElement.find(":checkbox").first().focus();
-                    }
-
-                    var docViewTop = $(window).scrollTop();
-                    var docViewBottom = docViewTop + $(window).height();
+                    var $packageScroller = $(this).closest(".ui-jqgrid-bdiv");
 
                     var elemTop = $rowElement.offset().top;
                     var elemBottom = elemTop + $rowElement.height();
 
-                    if ((elemBottom <= docViewBottom) && (elemTop >= docViewTop)) {
-                        return;
+                    var packagesScrollerTop = $packageScroller.offset().top;
+                    var packagesScrollerBottom = packagesScrollerTop + $packageScroller.height();
+
+                    if (elemBottom >= packagesScrollerBottom || elemTop <= packagesScrollerTop) {
+                        var scrollDiff = $rowElement.offset().top - $packageScroller.offset().top;
+                        $packageScroller.animate({
+                            scrollTop: $packageScroller.scrollTop() + scrollDiff - $packageScroller.height() / 2
+                        }, 100);
+                    }
+
+                    if (!$rowElement.find(":checkbox").is(":focus") &&
+                        !$(this).closest(".ui-jqgrid-view").find(".ui-search-toolbar input").is(":focus")) {
+                        $rowElement.find(":checkbox").first().focus();
                     }
                 },
                 loadComplete: function() {
