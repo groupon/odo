@@ -117,6 +117,11 @@
             background-color: #696969;
         }
 
+        #tabs-1 .panel-default .panel-heading,
+        #tabs-2 .panel-default .panel-heading {
+            color: #777;
+        }
+
         #requestOverrideDetails form .form-group label,
         #responseOverrideDetails form .form-group label,
         #requestOverrideDetails form button,
@@ -1460,12 +1465,12 @@
 
         function setResponseOverridesActiveIndicator(isResponseEnabled) {
             $("#tabs-1 .panel").toggleClass("panel-default", !isResponseEnabled).toggleClass("panel-info", isResponseEnabled);
-            $("#tabs-1 .panel-title .label").toggle(!isResponseEnabled);
+            $("#tabs-1 .panel-title .override-inactive").toggle(!isResponseEnabled);
         }
 
         function setRequestOverridesActiveIndicator(isRequestEnabled) {
             $("#tabs-2 .panel").toggleClass("panel-default", !isRequestEnabled).toggleClass("panel-info", isRequestEnabled);
-            $("#tabs-2 .panel-title .label").toggle(!isRequestEnabled);
+            $("#tabs-2 .panel-title .override-inactive").toggle(!isRequestEnabled);
         }
 
         // get the next available ordinal for methodId on a specific path
@@ -2115,7 +2120,7 @@
                                         <div class="panel-heading">
                                             <h3 class="panel-title">
                                                 <span>Response Overrides</span>
-                                                <span class="label label-default label-medsmall">Inactive</span>
+                                                <span class="override-inactive" style="display: none; font-style: italic;">(inactive)</span>
                                             </h3>
                                         </div>
                                         <div class="panel-body">
@@ -2156,7 +2161,7 @@
                                         <div class="panel-heading">
                                             <h3 class="panel-title">
                                                 <span>Request Overrides</span>
-                                                <span class="label label-default label-medsmall">Inactive</span>
+                                                <span class="override-inactive" style="display: none; font-style: italic;">(inactive)</span>
                                             </h3>
                                         </div>
                                         <div class="panel-body">
