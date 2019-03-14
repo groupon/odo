@@ -345,10 +345,8 @@
       return cellvalue;
     }
 
-    function requestParamsFormatter(cellvalue) {
-        cellvalue = decodeURIComponent(cellvalue);
-        if (cellvalue.length < 253) { return cellvalue; }
-        return cellvalue.slice(0, 250) + " ...";
+    function requestParamsFormatter(cellvalue, options) {
+        return "<div style='overflow: scroll;'>" + cellvalue + "</div>";
     }
 
     var invalidRows = []
@@ -789,7 +787,10 @@
                     editable : false,
                     sortable: false,
                     classes: 'break-all preformatted',
-                    formatter: requestParamsFormatter
+                    formatter: requestParamsFormatter,
+                    cellattr: function () {
+                        return 'style="word-break: inherit;"'
+                    }
                 }, {
                     name : 'responseCode',
                     index : 'responseCode',
