@@ -271,7 +271,7 @@
 
             var selectedRow = $("#packages").jqGrid("getGridParam", "selrow");
             var pillsShown = false;
-            $.each(rowIds, function(_index_, rowId) {
+            $.each(rowIds, function(_index, rowId) {
                 var rowInfo = rowData[parseInt(rowId, 10) - 1];
                 if (!(rowInfo.requestEnabled || rowInfo.responseEnabled || rowId == selectedRow)) {
                     return;
@@ -913,13 +913,14 @@
                     return !($target.is(":checkbox") || $target.is("label[for]"));
                 },
                 onSelectRow: function(id) {
-                    var data = $("#packages").jqGrid('getRowData', id);
+                    var data = $(this).jqGrid('getRowData', id);
                     currentPathId = data.pathId;
                     updateDetailPills();
 
                     var $rowElement = $("tr#" + id);
 
-                    if (!$rowElement.find(":checkbox").is(":focus").length) {
+                    if (!$rowElement.find(":checkbox").is(":focus") &&
+                        !$(this).closest(".ui-jqgrid-view").find(".ui-search-toolbar input").is(":focus")) {
                         $rowElement.find(":checkbox").first().focus();
                     }
 
@@ -932,13 +933,36 @@
                     if ((elemBottom <= docViewBottom) && (elemTop >= docViewTop)) {
                         return;
                     }
-
-                    $([document.documentElement, document.body]).animate({
-                        scrollTop: $rowElement.offset().top - $(window).height() / 2
-                    }, 100);
                 },
                 loadComplete: function() {
-                    updateDetailPills();
+                    // select the first row that is response or request enabled, if such a row exists
+                    var rowData = $(this).jqGrid('getGridParam', 'data'); // all rows and data
+                    var rowIds = $(this).jqGrid('getDataIDs'); // visible rows IDs
+
+                    var rowToSelect;
+
+                    for (var i = 0; i < rowIds.length; i++) {
+                        var rowId = rowIds[i];
+                        var rowInfo = rowData[parseInt(rowId, 10) - 1];
+
+                        // Priority 1: find the previously selected row if it's available
+                        if (rowInfo.pathId == currentPathId) {
+                            rowToSelect = rowId;
+                            break;
+                        }
+                        // Priority 2: Select first active row
+                        else if (!rowToSelect && (rowInfo.requestEnabled || rowInfo.responseEnabled)) {
+                            rowToSelect = rowId;
+                            if (currentPathId <= -1) break;
+                        }
+                    }
+
+                    if (rowToSelect) {
+                        $(this).setSelection(rowToSelect, true);
+                    } else {
+                        currentPathId = -1;
+                        updateDetailPills();
+                    }
                 },
                 pager: '#packagePager',
                 pgbuttons: false,
