@@ -1144,7 +1144,17 @@
                 $("#packages").setGridWidth($("#listContainer").width());
             });
 
-            $("#tabs").tabs();
+            $("#tabs").tabs({
+                activate: function (event, ui) {
+                    ui.newTab.blur();
+                },
+            });
+            $("#tabs a").click(function () {
+                $(this).blur();
+            });
+            $(".ui-tabs-tab").focus(function() {
+                $(this).blur();
+            });
             $("#sel1").select2();
 
             $("#gview_serverlist .ui-jqgrid-titlebar")
