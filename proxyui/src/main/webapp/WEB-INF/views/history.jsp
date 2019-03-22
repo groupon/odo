@@ -253,7 +253,7 @@
     }
 
     function saveGridOptions(e) {
-        var historyGridRows = parseInt($("#numberOfRows").val());
+        var historyGridRows = parseInt($("#numberOfRows").val(), 10);
         if (!isNaN(historyGridRows)) {
             $.cookie("historyGridRows", historyGridRows, {
                 expires: 10000,
@@ -345,10 +345,8 @@
       return cellvalue;
     }
 
-    function requestParamsFormatter(cellvalue) {
-        cellvalue = decodeURIComponent(cellvalue);
-        if (cellvalue.length < 253) { return cellvalue; }
-        return cellvalue.slice(0, 250) + " ...";
+    function requestParamsFormatter(cellvalue, options) {
+        return "<div style='overflow: scroll;'>" + cellvalue + "</div>";
     }
 
     var invalidRows = []
@@ -738,7 +736,7 @@
         Mousetrap.bind('c c', function() { // cURL command
             $("#copyCURLCommand:visible").click();
         });
-        Mousetrap.bind('alt+del', clearHistory);
+        Mousetrap.bind(['alt+del', 'alt+backspace'], clearHistory);
 
         $("#historylist").jqGrid({
             url : '<c:url value="/api/history/${profile_id}"/>?clientUUID=${clientUUID}',
@@ -789,7 +787,10 @@
                     editable : false,
                     sortable: false,
                     classes: 'break-all preformatted',
-                    formatter: requestParamsFormatter
+                    formatter: requestParamsFormatter,
+                    cellattr: function () {
+                        return 'style="word-break: inherit;"'
+                    }
                 }, {
                     name : 'responseCode',
                     index : 'responseCode',

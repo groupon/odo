@@ -29,6 +29,75 @@
             width: auto !important;
         }
 
+        /* custom styling for response/request enabled cells */
+        #packages td input[type=checkbox] {
+            position: absolute;
+            z-index: -9999;
+            width: 0;
+            height: 0;
+        }
+
+        #packages td label[for] {
+            display: block;
+            font-weight: normal;
+            height: 100%;
+            width: 100%;
+            margin-bottom: 0;
+            cursor: pointer;
+            font-size: 1.333333333em;
+        }
+
+        #packages td input[type=checkbox] + label {
+            color: #aaa;
+        }
+
+        #packages td input[type=checkbox]:active:checked + label:before,
+        #packages td input[type=checkbox] + label:before {
+            content: "✗";
+        }
+
+        #packages td input[type=checkbox]:checked + label {
+            background-color: #3399cc;
+            color: white;
+        }
+
+        #packages td input[type=checkbox]:active + label,
+        #packages td input[type=checkbox]:active:checked + label {
+            background-color: #bbddee;
+        }
+
+        #packages td input[type=checkbox]:active + label:before,
+        #packages td input[type=checkbox]:checked + label:before {
+            content: "✔";
+        }
+
+        #packages td input[type=checkbox]:focus  + label,
+        #packages td input[type=checkbox]:hover  + label {
+            color: #777;
+        }
+
+        #packages td input[type=checkbox]:focus  + label {
+            background: linear-gradient(315deg, #cc1111 5px, rgba(0,0,0,0) 6px);
+        }
+
+        #packages td input[type=checkbox]:checked:hover  + label {
+            background-color: #1177aa;
+            color: white;
+        }
+
+        #packages td input[type=checkbox]:checked:focus  + label {
+            background: linear-gradient(315deg, white 5px, #1177aa 6px);
+            color: #eee;
+        }
+
+        #packages td input[type=checkbox]:focus:active  + label,
+        #packages td input[type=checkbox]:hover:active  + label,
+        #packages td input[type=checkbox]:checked:focus:active  + label,
+        #packages td input[type=checkbox]:checked:focus:hover:active  + label,
+        #packages td input[type=checkbox]:checked:hover:active  + label {
+            background: linear-gradient(315deg, white 5px, #bbddee 6px);
+        }
+
         #nav > li > a {
             padding-top: 3px;
             padding-bottom: 3px;
@@ -46,6 +115,11 @@
         #nav > li > a:hover,
         #nav > li > a:focus {
             background-color: #696969;
+        }
+
+        #tabs-1 .panel-default .panel-heading,
+        #tabs-2 .panel-default .panel-heading {
+            color: #777;
         }
 
         #requestOverrideDetails form .form-group label,
@@ -91,7 +165,7 @@
                             title: "Click here to manage clients.",
                         })
                         .text("Client UUID: " + (clientUUID == "-1" ? "Default" : clientUUID))
-                        .click(manageClientPopup)))
+                        .click(manageClientPopup)));
         }
 
         function changeActive(value) {
@@ -191,72 +265,49 @@
 
         // Keeps the list of pills updated
         function updateDetailPills() {
-            var pathToLoad = currentPathId;
+            var rowData = $("#packages").jqGrid('getGridParam', 'data'); // all rows and data
+            var rowIds = $("#packages").jqGrid('getDataIDs'); // visible rows IDs
 
-            // first get the data of all of the existing pills
-            // this will be used to mark which pills are kept/deleted
-            var existingPills = [];
-            $(".nav-pills > li").each(function(index, element) {
-                var id = $(this).attr("id");
-                existingPills.push(id)
+            $(".nav-pills > li").remove();
+            if (rowIds.length === 0) {
+                loadPath(-1);
+                return;
+            }
+
+            var selectedRow = $("#packages").jqGrid("getGridParam", "selrow");
+            var pillsShown = false;
+            $.each(rowIds, function(_index, rowId) {
+                var rowInfo = rowData[parseInt(rowId, 10) - 1];
+                if (!(rowInfo.requestEnabled || rowInfo.responseEnabled || rowId == selectedRow)) {
+                    return;
+                }
+                $("#nav").append($("<li>")
+                    .attr("id", rowInfo.pathId)
+                    .append($("<a>")
+                        .attr({
+                            href: "#tab" + rowInfo.pathId,
+                            "data-toggle": "tab"})
+                        .text(rowInfo.pathName)
+                        .click(function() {
+                            $("#packages").setSelection(rowId, true);
+                        })));
+
+                pillsShown = true;
             });
 
-            // look through the overrides list to see which are enabled/active
-            var ids = $("#packages").jqGrid('getDataIDs');
-            for (var i = 0; i < ids.length; i++) {
-                var rowdata = $("#packages").getRowData(ids[i]);
-
-                // check to see if response or request is enabled
-                // or if this is the currently selected row
-                if ($("#request_enabled_" + rowdata.pathId).prop("checked") === true ||
-                    $("#response_enabled_" + rowdata.pathId).prop("checked") === true ||
-                    rowdata.pathId === currentPathId) {
-
-                    if (pathToLoad === -1) {
-                        pathToLoad = rowdata.pathId;
-                    }
-
-                    if ($.inArray(rowdata.pathId, existingPills) !== -1) {
-                        // mark as seen in the existingpills array
-                        // since it exists we don't need to add it
-                        existingPills[$.inArray(rowdata.pathId, existingPills)] = -1;
-                    } else {
-                        // add it to the <ul> pill nav
-                        $("#nav").append($("<li>")
-                            .attr("id", rowdata.pathId)
-                            .append($("<a>")
-                                .attr({
-                                    "href": "#tab" + rowdata.pathId,
-                                    "data-toggle": "tab"})
-                                .text(rowdata.pathName)
-                                .click(function() {
-                                    loadPath($(this).parent().attr("id"));
-                                })));
-                    }
-                }
+            if (!pillsShown) {
+                loadPath(-1);
+                return;
             }
 
-            // remove tabs that should no longer exist
-            // at this point the existingPills list is just the pills that need to be removed
-            for (var x = 0; x < existingPills.length; x++) {
-                if (existingPills[x] !== -1) {
-                    $("#nav").find("#" + existingPills[x]).remove();
+            let $currentPathPill = $("#nav").find("#" + currentPathId);
 
-                    // reset pathToLoad if it is equal to the removed path
-                    if (pathToLoad === existingPills[x]) {
-                        pathToLoad = -1;
-                    }
-                }
+            if ($currentPathPill.length) {
+                $currentPathPill.addClass("active");
+                loadPath(currentPathId);
+            } else {
+                loadPath(-1);
             }
-
-            // make all pills non-active
-            $(".nav-pills > li").removeClass("active")
-
-            // make the currently selected pill active
-            $("#nav").find("#" + pathToLoad).addClass("active");
-
-            // load the currently selected path data
-            loadPath(pathToLoad);
         }
 
         // common function for grid reload
@@ -264,93 +315,62 @@
             $(gridId).setGridParam({datatype:'json', page:1}).trigger("reloadGrid");
         }
 
-        function responseEnabledFormatter(cellvalue, options, rowObject) {
-            var elementId = "response_enabled_" + rowObject.pathId;
-            return $("<div>").append(
-                $("<label>")
+        function overrideEnabledFormatter(cellvalue, options, rowObject) {
+            var overrideType = options.colModel.name === "requestEnabled" ? "request" : "response";
+
+            var elementId = overrideType + "_enabled_" + rowObject.pathId;
+
+            return $("<div>")
+                .append($("<input>")
                     .attr({
-                        for: elementId,
-                        style: "display: inline-block; height: 100%; width: 100%; margin: 0; padding: 0;"
+                        type: "checkbox",
+                        id: elementId,
+                        onchange: "overrideEnabledChanged(event, " + "\"" + overrideType + "\")",
+                        checked: cellvalue,
+                        offval: "0",
+                        "data-path": rowObject.pathId,
+                        "data-row": options.rowId
                     })
-                    .append($("<input>")
-                        .attr({
-                            type: "checkbox",
-                            id: elementId,
-                            onchange: "responseEnabledChanged(" + elementId + ")",
-                            checked: cellvalue,
-                            offval: "0",
-                            "data-path": rowObject.pathId,
-                            "data-row": options.rowId
-                        })
-                        .addClass("mousetrap")
-                        .val(cellvalue ? "1" : "0")))
+                    .addClass("mousetrap")
+                    .val(cellvalue ? "1" : "0"))
+                .append($("<label>").attr("for", elementId))
                 .html();
         }
 
-        function responseEnabledChanged(element) {
-            var pathId = $(element).data("path");
-            var enabled = element.checked ? 1 : 0;
+        function overrideEnabledChanged(event, overrideType) {
+            var $checkbox = $(event.target);
+            var pathId = $checkbox.data("path");
+            var isEnabled = $checkbox.is(":checked") ? 1 : 0;
 
-            $.ajax({
-                type: "POST",
-                url: '<c:url value="/api/path/"/>' + pathId,
-                data: 'responseEnabled=' + enabled + '&clientUUID=' + clientUUID,
-                rowId: $(element).data("row"),
-                isEnabled: element.checked,
-                error: function() {
-                    alert("Could not properly set value");
-                },
-                success: function() {
-                    updateDetailPills();
-                    var rowData = $("#packages").getLocalRow(this.rowId);
-                    rowData.responseEnabled = this.isEnabled;
-                    $("#packages").setRowData(this.rowId, rowData);
+            toggleOverride(pathId, overrideType, isEnabled, function() {
+                var rowId = $checkbox.data("row");
+                var originalTargetId = $checkbox.attr("id");
+                var isEnabled = $checkbox.is(":checked");
+
+                var rowData = $("#packages").getLocalRow(rowId);
+                rowData[overrideType + "Enabled"] = isEnabled;
+                $("#packages").setRowData(rowId, rowData);
+                $("#packages").setSelection(rowId, true);
+                // maintain focus on checkbox
+                $("#" + originalTargetId).focus();
+
+                if (!isEnabled) return;
+
+                if (overrideType == "response") {
+                    $("[href=\"#tabs-1\"]").click();
+                } else {
+                    $("[href=\"#tabs-2\"]").click();
                 }
-            });
+            }, function() { alert("Could not properly set value"); });
         }
 
-        function requestEnabledFormatter(cellvalue, options, rowObject) {
-            var elementId = "request_enabled_" + rowObject.pathId;
-            return $("<div>").append(
-                $("<label>")
-                    .attr({
-                        for: elementId,
-                        style: "display: inline-block; height: 100%; width: 100%; margin: 0; padding: 0;"
-                    })
-                    .append($("<input>")
-                        .attr({
-                            type: "checkbox",
-                            id: elementId,
-                            onchange: "requestEnabledChanged(" + elementId + ")",
-                            checked: cellvalue,
-                            offval: "0",
-                            "data-path": rowObject.pathId,
-                            "data-row": options.rowId
-                        })
-                        .addClass("mousetrap")
-                        .val(cellvalue ? "1" : "0")))
-                .html();
-        }
-
-        function requestEnabledChanged(element) {
-            var pathId = $(element).data("path");
-            var enabled = element.checked ? 1 : 0;
-
-            $.ajax({
+        function toggleOverride(pathId, overrideType, isEnabled, successCb, errorCb) {
+            return $.ajax({
                 type: "POST",
                 url: '<c:url value="/api/path/"/>' + pathId,
-                data: 'requestEnabled=' + enabled + '&clientUUID=' + clientUUID,
-                rowId: $(element).data("row"),
-                isEnabled: element.checked,
-                error: function() {
-                    alert("Could not properly set value");
-                },
-                success: function() {
-                    updateDetailPills();
-                    var rowData = $("#packages").getLocalRow(this.rowId);
-                    rowData.requestEnabled = this.isEnabled;
-                    $("#packages").setRowData(this.rowId, rowData);
-                }
+                data: overrideType + 'Enabled=' + isEnabled + '&clientUUID=' + clientUUID,
+                success: successCb,
+                error: errorCb
             });
         }
 
@@ -486,12 +506,56 @@
                 event.preventDefault();
                 $("#gs_pathName").focus();
             });
+            // Request/response override toggle navigation
+            Mousetrap.bind(['left', 'right', 'up', 'down'], function(event) {
+                var $focusedCheckbox = $("#packages td input[type=checkbox]:focus");
+                if (!$focusedCheckbox.length) return;
+
+                var $closestTd = $focusedCheckbox.closest("td");
+                switch (event.key) {
+                    case "ArrowLeft":
+                        if ($closestTd.attr("aria-describedby") == "packages_requestEnabled") {
+                            $closestTd.prev("td").find("input:checkbox").focus();
+                        } else {
+                            $closestTd.closest("tr").prev("tr").find("td[aria-describedby=packages_requestEnabled] input:checkbox").focus();
+                        }
+                        break;
+                    case "ArrowRight":
+                        if ($closestTd.attr("aria-describedby") == "packages_responseEnabled") {
+                            $closestTd.next("td").find("input:checkbox").focus();
+                        } else {
+                            $closestTd.closest("tr").next("tr").find("td[aria-describedby=packages_responseEnabled] input:checkbox").focus();
+                        }
+                        break;
+                    case "ArrowUp":
+                        var describedBy = $closestTd.attr("aria-describedby");
+                        $closestTd.closest("tr").prev("tr").find("td[aria-describedby=" + describedBy + "] input:checkbox").focus();
+                        break;
+                    case "ArrowDown":
+                        var describedBy = $closestTd.attr("aria-describedby");
+                        $closestTd.closest("tr").next("tr").find("td[aria-describedby=" + describedBy + "] input:checkbox").focus();
+                        break;
+                    default: return; break;
+                }
+
+                event.preventDefault();
+            });
             // Active paths navigation
             Mousetrap.bind('alt+right', function(event) {
-                $("#nav .active").next().find("a").click();
+                var $activeTab = $("#nav .active");
+                if ($activeTab.length) {
+                    $activeTab.next().find("a").click();
+                } else {
+                    $("#nav li").first().find("a").click();
+                }
             });
             Mousetrap.bind('alt+left', function(event) {
-                $("#nav .active").prev().find("a").click();
+                var $activeTab = $("#nav .active");
+                if ($activeTab.length) {
+                    $activeTab.prev().find("a").click();
+                } else {
+                    $("#nav li").first().find("a").click();
+                }
             });
             // Overrides navigation
             Mousetrap.bind('+', function(event) {
@@ -767,7 +831,7 @@
                     {
                         name: 'pathName',
                         index: 'pathName',
-                        width: 330,
+                        width: 400,
                         editable: true,
                         editrules: {
                             required: true
@@ -794,7 +858,7 @@
                         name: 'requestType',
                         index: 'requestType',
                         align: 'center',
-                        width: 80,
+                        width: 60,
                         editable: true,
                         edittype: 'select',
                         editoptions: {
@@ -812,10 +876,10 @@
                     {
                         name: 'responseEnabled',
                         index: 'responseEnabled',
-                        width: "60",
+                        width: 50,
                         align: 'center',
                         editable: false,
-                        formatter: responseEnabledFormatter,
+                        formatter: overrideEnabledFormatter,
                         formatoptions: {disabled: false},
                         search: true,
                         searchoptions: {
@@ -825,10 +889,10 @@
                     }, {
                         name: 'requestEnabled',
                         index: 'requestEnabled',
-                        width: "60",
+                        width: 50,
                         align: 'center',
                         editable: false,
-                        formatter: requestEnabledFormatter,
+                        formatter: overrideEnabledFormatter,
                         formatoptions: {disabled: false},
                         search: true,
                         searchoptions: {
@@ -846,16 +910,68 @@
                     root : 'paths',
                     repeatitems : false
                 },
-                height: "auto",
+                height: "50vh",
                 ignoreCase: true,
                 loadonce: true,
-                onSelectRow: function (id) {
-                    var data = $("#packages").jqGrid('getRowData',id);
+                beforeSelectRow: function(rowid, event) {
+                    var $target = $(event.target);
+                    return !($target.is(":checkbox") || $target.is("label[for]"));
+                },
+                onSelectRow: function(id) {
+                    var data = $(this).jqGrid('getRowData', id);
                     currentPathId = data.pathId;
                     updateDetailPills();
+
+                    var $rowElement = $("tr#" + id);
+                    var $packageScroller = $(this).closest(".ui-jqgrid-bdiv");
+
+                    var elemTop = $rowElement.offset().top;
+                    var elemBottom = elemTop + $rowElement.height();
+
+                    var packagesScrollerTop = $packageScroller.offset().top;
+                    var packagesScrollerBottom = packagesScrollerTop + $packageScroller.height();
+
+                    if (elemBottom >= packagesScrollerBottom || elemTop <= packagesScrollerTop) {
+                        var scrollDiff = $rowElement.offset().top - $packageScroller.offset().top;
+                        $packageScroller.animate({
+                            scrollTop: $packageScroller.scrollTop() + scrollDiff - $packageScroller.height() / 2
+                        }, 100);
+                    }
+
+                    if (!$rowElement.find(":checkbox").is(":focus") &&
+                        !$(this).closest(".ui-jqgrid-view").find(".ui-search-toolbar input").is(":focus")) {
+                        $rowElement.find(":checkbox").first().focus();
+                    }
                 },
                 loadComplete: function() {
-                    updateDetailPills();
+                    // select the first row that is response or request enabled, if such a row exists
+                    var rowData = $(this).jqGrid('getGridParam', 'data'); // all rows and data
+                    var rowIds = $(this).jqGrid('getDataIDs'); // visible rows IDs
+
+                    var rowToSelect;
+
+                    for (var i = 0; i < rowIds.length; i++) {
+                        var rowId = rowIds[i];
+                        var rowInfo = rowData[parseInt(rowId, 10) - 1];
+
+                        // Priority 1: find the previously selected row if it's available
+                        if (rowInfo.pathId == currentPathId) {
+                            rowToSelect = rowId;
+                            break;
+                        }
+                        // Priority 2: Select first active row
+                        else if (!rowToSelect && (rowInfo.requestEnabled || rowInfo.responseEnabled)) {
+                            rowToSelect = rowId;
+                            if (currentPathId <= -1) break;
+                        }
+                    }
+
+                    if (rowToSelect) {
+                        $(this).setSelection(rowToSelect, true);
+                    } else {
+                        currentPathId = -1;
+                        updateDetailPills();
+                    }
                 },
                 pager: '#packagePager',
                 pgbuttons: false,
@@ -892,6 +1008,7 @@
                         reloadGrid("#packages");
                         $("#statusNotificationText").html("Path added.  Don't forget to add a hostname <b>above</b> and<br>adjust path priorities by <b>clicking Reorder</b> at the bottom<br>of the path table!");
                         $("#statusNotificationDiv").fadeIn();
+                        updateDetailPills();
                     },
                     beforeShowForm: function(data) {
                         $("#statusNotificationDiv").fadeOut();
@@ -916,8 +1033,9 @@
                     mtype: 'DELETE',
                     reloadAfterSubmit: true,
                     onclickSubmit: function(rp_ge, postdata) {
-                     rp_ge.url = '<c:url value="/api/path/" />' + currentPathId + "?clientUUID=" + clientUUID;
-                    }},
+                        rp_ge.url = '<c:url value="/api/path/" />' + currentPathId + "?clientUUID=" + clientUUID;
+                    }
+                },
                 {});
             $("#packages").jqGrid('filterToolbar', {
                 defaultSearch: 'cn',
@@ -925,7 +1043,6 @@
                 searchOnEnter: false,
             });
             $("#packages").jqGrid('gridResize', { handles: "n, s" });
-
 
             var options = {
                 update: function(event, ui) {
@@ -1027,7 +1144,17 @@
                 $("#packages").setGridWidth($("#listContainer").width());
             });
 
-            $("#tabs").tabs();
+            $("#tabs").tabs({
+                activate: function (event, ui) {
+                    ui.newTab.blur();
+                },
+            });
+            $("#tabs a").click(function () {
+                $(this).blur();
+            });
+            $(".ui-tabs-tab").focus(function() {
+                $(this).blur();
+            });
             $("#sel1").select2();
 
             $("#gview_serverlist .ui-jqgrid-titlebar")
@@ -1128,7 +1255,7 @@
             $("#editDiv").affix({
                 offset: {
                     top: function() {
-                        return $("nav.navbar").position().top + $("nav.navbar").height() + parseInt($("nav.navbar").css("margin-bottom")) - 12;
+                        return $("nav.navbar").position().top + $("nav.navbar").height() + parseInt($("nav.navbar").css("margin-bottom"), 10) - 12;
                     }
                 }
             });
@@ -1178,18 +1305,17 @@
 
         function loadPath(pathId) {
             if(pathId < 0) {
-                $("#editDiv").hide();
+                $("#tabs").hide();
                 return;
             }
 
             $.ajax({
-                type:"GET",
+                type: "GET",
                 url: '<c:url value="/api/path/"/>' + pathId,
                 data: 'clientUUID=${clientUUID}',
-                success: function(data){
-
+                success: function(data) {
                     // populate Configuration values
-                    $("#editDiv").show();
+                    $("#tabs").show();
                     $("#pathName").attr("value", data.pathName);
                     $("#pathValue").attr("value", data.path);
                     $("#contentType").attr("value", data.contentType);
@@ -1207,9 +1333,11 @@
                     highlightSelectedGroups(data.groupIds);
                     populateResponseOverrideList(data.possibleEndpoints);
                     populateRequestOverrideList(data.possibleEndpoints);
-                    populateEnabledOverrides();
-                    changeResponseOverrideDiv();
-                    changeRequestOverrideDiv();
+                    getEnabledResponseOverrides(populateEnabledResponseOverrides());
+                    getEnabledRequestOverrides(populateEnabledRequestOverrides());
+
+                    setResponseOverridesActiveIndicator(data.responseEnabled);
+                    setRequestOverridesActiveIndicator(data.requestEnabled);
 
                     // reset informational divs
                     $('#applyPathChangeSuccessDiv').hide();
@@ -1220,98 +1348,84 @@
 
         function pathRequestTypeChanged() {
             var requestType = $("#requestType").val();
-            if(requestType != "1" && requestType != "4") {
-                $("#postGeneral").show();
-            } else {
-                $("#postGeneral").hide();
-            }
+            $("#postGeneral").toggle(requestType != 1 && requestType != 4);
         }
 
         function overrideRemove(type) {
-            var id = currentPathId;
-            var selector = "select#" + type + "OverrideEnabled" + " option:selected";
-            var selection = $(selector);
+            var defer = $.Deferred();
+            defer.resolve();
 
-            selection.each(function(i, selected){
-                var splitId = selected.value.split(",");
-                var methodId = splitId[0];
-                var ordinal = splitId[1];
-
-                var args = '?ordinal=' + ordinal;
-                args += '&clientUUID=' + clientUUID;
-
-                $.ajax({
-                    type: 'POST',
-                    url: '<c:url value="/api/path/"/>' + id + '/' + methodId,
-                    data: {
-                        ordinal: ordinal,
-                        clientUUID: clientUUID,
-                        _method: 'DELETE'
-                    },
-                    success: function() {
-                        if(type == "response") {
-                            selectedResponseOverride = 0;
-                        } else {
-                            selectedRequestOverride = 0;
-                        }
-
-                        if(type == "response") {
-                            populateEnabledResponseOverrides();
-                        } else {
-                            populateEnabledRequestOverrides();
-                        }
-                    }
+            $("select#" + type + "OverrideEnabled" + " option:selected").each(function(i, selected) {
+                var methodId = $(selected).data("override-id");
+                var ordinal = $(selected).data("ordinal");
+                defer = defer.pipe(function() {
+                    return overrideRemoveRequest(methodId, ordinal);
                 });
             });
 
+            defer.done(function() {
+                if (type == "response") {
+                    selectedResponseOverride = 0;
+                    getEnabledResponseOverrides(populateEnabledResponseOverrides());
+                } else {
+                    selectedRequestOverride = 0;
+                    getEnabledRequestOverrides(populateEnabledRequestOverrides());
+                }
+            });
+        }
+
+        function overrideRemoveRequest(methodId, ordinal) {
+            $.ajax({
+                type: 'POST',
+                url: '<c:url value="/api/path/"/>' + currentPathId + '/' + methodId,
+                data: {
+                    ordinal: ordinal,
+                    clientUUID: clientUUID,
+                    _method: 'DELETE'
+                }
+            });
         }
 
         function overrideMoveUp(type) {
-            var id = currentPathId;
-            var selector = "select#" + type + "OverrideEnabled" + " option:selected";
-            var selection = $(selector);
-
-            selection.each(function(i, selected) {
-                $.ajax({
-                    type: 'POST',
-                    url: '<c:url value="/api/path/"/>' + id,
-                    data: {
-                        enabledMoveUp: selected.value,
-                        clientUUID : clientUUID
-                    },
-                    success: function(){
-                        if(type == "response") {
-                            populateEnabledResponseOverrides();
-                        } else {
-                            populateEnabledRequestOverrides();
-                        }
-                    }
-                });
-            });
+            return overrideMove(type, "Up");
         }
 
         function overrideMoveDown(type) {
-            var id = currentPathId;
-            var selector = "select#" + type + "OverrideEnabled" + " option:selected";
-            var selection = $(selector);
+            return overrideMove(type, "Down");
+        }
 
-            selection.each(function(i, selected) {
-                $.ajax({
-                    type:"POST",
-                    url: '<c:url value="/api/path/"/>' + id,
-                    data: {
-                        enabledMoveDown: selected.value,
-                        clientUUID: clientUUID
-                    },
-                    success: function(){
-                        if(type == "response") {
-                            populateEnabledResponseOverrides();
-                        }
-                        else {
-                            populateEnabledRequestOverrides();
-                        }
-                   }
+        function overrideMove(type, direction) {
+            var defer = $.Deferred();
+            defer.resolve();
+
+            var $options = $("select#" + type + "OverrideEnabled" + " option:selected");
+            if (direction == "Down") {
+                $options = $($options.get().reverse());
+            }
+
+            $options.each(function(i, selected) {
+                defer = defer.pipe(function() {
+                    return overrideMoveRequest(selected.value, direction);
                 });
+            });
+
+            defer.done(function() {
+                if (type == "response") {
+                    getEnabledResponseOverrides(refreshSelectedResponseOverride());
+                } else {
+                    getEnabledRequestOverrides(refreshSelectedRequestOverride());
+                }
+            });
+        }
+
+        function overrideMoveRequest(value, direction) {
+            var data = { clientUUID: clientUUID };
+            data["enabledMove" + direction] = value;
+
+            return $.ajax({
+                type: "POST",
+                url: '<c:url value="/api/path/"/>' + currentPathId,
+                data: data
             });
         }
 
@@ -1323,12 +1437,11 @@
                 $("#responseOverrideDetails").hide();
                 selectedResponseOverride = 0;
             } else if (selections.length == 1) {
-                var id = selections[0].value;
+                var id = selections.val();
                 selectedResponseOverride = id;
-                var splitId = id.split(",");
-                var methodId = splitId[0];
-                var ordinal = splitId[1];
-                populateEditOverrideArgs(currentPathId, methodId, ordinal, "response", autofocusOnForm);
+                var methodId = selections.data("override-id");
+                var ordinal = selections.data("ordinal");
+                populateEditOverrideConfiguration(currentPathId, methodId, ordinal, "response", autofocusOnForm);
             }
             else {
                 // nothing selected
@@ -1346,12 +1459,11 @@
                 $("#requestOverrideDetails").hide();
                 selectedRequestOverride = 0;
             } else if (selections.length == 1) {
-                var id = selections[0].value;
+                var id = selections.val();
                 selectedRequestOverride = id;
-                var splitId = id.split(",");
-                var methodId = splitId[0];
-                var ordinal = splitId[1];
-                populateEditOverrideArgs(currentPathId, methodId, ordinal, "request", autofocusOnForm);
+                var methodId = selections.data("override-id");
+                var ordinal = selections.data("ordinal");
+                populateEditOverrideConfiguration(currentPathId, methodId, ordinal, "request", autofocusOnForm);
             }
             else {
                 // nothing selected
@@ -1361,78 +1473,74 @@
             }
         }
 
-        // get the next available ordinal for methodId on a specific path
-        function getNextOrdinal(selectId, methodId) {
-            var selector = "select#" + selectId + " option";
-            var selection = $(selector);
-            var lastOrdinal = 0;
-
-            selection.each(function(i, selected){
-                var splitId = selected.value.split(",");
-                var foundMethodId = splitId[0];
-                var foundOrdinal = splitId[1];
-
-                if (methodId == foundMethodId)
-                    lastOrdinal = foundOrdinal;
-            });
-
-            return parseInt(lastOrdinal, 10) + 1;
+        function setResponseOverridesActiveIndicator(isResponseEnabled) {
+            $("#tabs-1 .panel").toggleClass("panel-default", !isResponseEnabled).toggleClass("panel-info", isResponseEnabled);
+            $("#tabs-1 .panel-title .override-inactive").toggle(!isResponseEnabled);
         }
 
+        function setRequestOverridesActiveIndicator(isRequestEnabled) {
+            $("#tabs-2 .panel").toggleClass("panel-default", !isRequestEnabled).toggleClass("panel-info", isRequestEnabled);
+            $("#tabs-2 .panel-title .override-inactive").toggle(!isRequestEnabled);
+        }
+
+        // get the next available ordinal for methodId on a specific path
+        function getNextOrdinal(selectId, methodId) {
+            return (parseInt($("select#" + selectId + " option[data-override-id=" + methodId + "]").last().data("ordinal"), 10) + 1) || 1;
+        }
 
         var selectedResponseOverride = 0;
         var selectedRequestOverride = 0;
 
         // Called when a different override is selected from the select box
-        function overrideSelectChanged(type) {
-            var selector = "select#"+type+"OverrideSelect option:selected";
-            var selection = $(selector);
+        function overrideSelectChanged(overrideType) {
+            var enabledCount = $("select#" + overrideType + "OverrideEnabled option").length;
 
-            var overrides = $("select#" + type + "OverrideEnabled option");
-            var enabledCount = overrides.length;
-
-            selection.each(function(i, selected){
+            $("select#" + overrideType + "OverrideSelect option:selected").each(function(i, selected) {
                 if (selected.value == -999)
                     return true;
 
                 // get the next ordinal so we can pop up the argument dialogue
-                var ordinal = getNextOrdinal(type + "OverrideEnabled", selected.value);
-
-
-                if(isNaN(ordinal)) {
-                    ordinal = 1;
-                }
+                var ordinal = getNextOrdinal(overrideType + "OverrideEnabled", selected.value);
 
                 $.ajax({
-                    type:"POST",
+                    type: "POST",
                     url: '<c:url value="/api/path/"/>' + currentPathId,
                     data: {
                         addOverride: selected.value,
                         clientUUID: clientUUID
                     },
                     success: function() {
-                        populateEnabledOverrides(true);
-                        if(enabledCount == 0) {
+                        if (enabledCount == 0) {
                             // automatically enable the response if a first override is added
-                            if($("#" + type + "_enabled_" + currentPathId).attr("checked") != "checked") {
-                                enablePath(type, currentPathId);
-                            }
+                            toggleOverride(currentPathId, overrideType, true, function() {
+                                var rowId = $("#" + overrideType + "_enabled_" + currentPathId).data("row");
+                                var rowData = $("#packages").getLocalRow(rowId);
+                                if (!rowData[overrideType + "Enabled"]) {
+                                    rowData[overrideType + "Enabled"] = true;
+                                    $("#packages").setRowData(rowId, rowData);
+
+                                    if (overrideType == "response") {
+                                        setResponseOverridesActiveIndicator(true);
+                                    } else {
+                                        setRequestOverridesActiveIndicator(true);
+                                    }
+                                }
+                            });
                         }
-                        if(type == "response") {
+
+                        if (overrideType == "response") {
+                            getEnabledResponseOverrides(populateEnabledResponseOverrides(true));
                             selectedResponseOverride = selected.value + "," + ordinal;
                             $("#responseOverrideSelect").val(-999).trigger("change");
                         }
                         else {
+                            getEnabledRequestOverrides(populateEnabledRequestOverrides(true));
                             selectedRequestOverride = selected.value + "," + ordinal;
                             $("#requestOverrideSelect").val(-999).trigger("change");
                         }
                     }
                 });
             });
-        }
-
-        function enablePath(type, pathId) {
-            $("#" + type + "_enabled_" + pathId).click();
         }
 
         function populateResponseOverrideList(possibleEndpoints) {
@@ -1486,7 +1594,7 @@
             }
 
             // show actual args
-            $.each(args, function(methodArgsX, methodArg) {
+            $.each(args, function(i, methodArg) {
                 var displayStr = methodArg;
                 if (methodArg.length > 10) {
                     // truncate methodArg if it is > 10 char
@@ -1503,116 +1611,166 @@
             return argString.join("");
         }
 
-        // called to load the edit endpoint args
-        function populateEditOverrideArgs(pathId, methodId, ordinal, type, autofocusOnForm) {
+        function populateEditOverrideConfiguration(pathId, methodId, ordinal, overrideType, autofocusOnForm) {
             $.ajax({
                 type: "GET",
                 url: '<c:url value="/api/path/"/>' + pathId + '/' + methodId,
                 data: 'ordinal=' + ordinal + '&clientUUID=${clientUUID}',
                 success: function(data) {
-                    if(data.enabledEndpoint == null) {
-                        return;
-                    }
-
-                    $("#" + type + "OverrideDetails .panel-title")
-                        .text(data.enabledEndpoint.methodInformation.className + " " + data.enabledEndpoint.methodInformation.methodName);
-
-                    var $formData = $("<form>");
-                    var $formDiv = $("<div>").addClass("form-group");
-                    $.each(data.enabledEndpoint.methodInformation.methodArguments, function(i, el) {
-                        var inputId = type + "_args_" + i;
-                        var inputValue;
-                        if (data.enabledEndpoint.arguments.length > i) {
-                            inputValue = data.enabledEndpoint.arguments[i];
-                        } else if (data.enabledEndpoint.methodInformation.methodDefaultArguments[i] != null) {
-                            inputValue = data.enabledEndpoint.methodInformation.methodDefaultArguments[i];
-                        }
-
-                        if (typeof data.enabledEndpoint.methodInformation.methodArgumentNames[i] != 'undefined') {
-                            $formDiv
-                                .append($("<label>")
-                                    .attr("for", inputId)
-                                    .text(data.enabledEndpoint.methodInformation.methodArgumentNames[i]));
-                        }
-
-                        if (methodId == -1) {
-                            $formDiv
-                                .append($("<textarea>")
-                                    .attr({
-                                        id: inputId,
-                                        class: "form-control",
-                                        rows: 10
-                                    })
-                                    .text(inputValue))
-                                .append($("<label>")
-                                    .attr("for", "setResponseCode")
-                                    .text("Response Code"))
-                                .append($("<dd>")
-                                    .append($("<input>")
-                                        .attr({
-                                            id: "setResponseCode",
-                                            min: 100,
-                                            max: 599,
-                                            class: "form-control",
-                                            type: "number"
-                                        })
-                                        .val(data.enabledEndpoint.responseCode)));
-                        } else {
-                            $formDiv
-                                .append($("<label>")
-                                    .attr({
-                                        for: inputId,
-                                        style: "font-weight: normal; font-style: italic;"
-                                    })
-                                    .text("(" + el + ")"))
-                                .append($("<input>")
-                                    .attr({
-                                        id: inputId,
-                                        class: "form-control",
-                                        type: "text",
-                                    })
-                                    .val(inputValue));
-                        }
-                    });
-
-                    $formDiv
-                        .append($("<label>")
-                            .attr("for", "setRepeatNumber")
-                            .text("Repeat Count"))
-                        .append($("<input>")
-                            .attr({
-                                id: "setRepeatNumber",
-                                type: "number",
-                                min: -1,
-                                class: "form-control"
-                            })
-                            .val(data.enabledEndpoint.repeatNumber));
-
-                    $formData
-                        .append($formDiv)
-                        .append($("<button>")
-                            .addClass("btn btn-primary")
-                            .text("Apply"))
-                        .append($("<button>")
-                            .addClass("btn btn-default")
-                            .attr("type", "reset")
-                            .text("Clear"))
-                        .submit(function(e) {
-                            submitOverrideData(type, parseInt(pathId), parseInt(methodId), parseInt(ordinal), data.enabledEndpoint.methodInformation.methodArguments.length);
-                            e.preventDefault();
-                        });
-
-                    $("#" + type + "OverrideParameters").empty().append($formData).show();
-                    $("#" + type + "OverrideDetails").show();
-
-                    if (autofocusOnForm === true) {
-                        $("#" + type + "OverrideDetails form")
-                            .find("input, textarea")
-                            .first()
-                            .focus();
-                    }
+                    populateEditOverrideConfigurationSuccess(data, pathId, methodId, ordinal, overrideType, autofocusOnForm);
                 }
             });
+        }
+
+        function populateEditOverrideConfigurationSuccess(data, pathId, methodId, ordinal, overrideType, autofocusOnForm) {
+            var endpoint = data.enabledEndpoint;
+            if (endpoint == null) {
+                return;
+            }
+            var methodInfo = endpoint.methodInformation;
+
+            $("#" + overrideType + "OverrideDetails .panel-title")
+                .text(methodInfo.className + " " + methodInfo.methodName);
+
+            var $formData = $("<form>");
+            var $formDiv = $("<div>").addClass("form-group");
+            $.each(methodInfo.methodArguments, function(i, el) {
+                var inputId = overrideType + "_args_" + i;
+                var inputValue;
+                if (endpoint.arguments.length > i) {
+                    inputValue = endpoint.arguments[i];
+                } else if (methodInfo.methodDefaultArguments[i] != null) {
+                    inputValue = methodInfo.methodDefaultArguments[i];
+                }
+
+                if (typeof methodInfo.methodArgumentNames[i] != 'undefined') {
+                    $formDiv
+                        .append($("<label>")
+                            .attr("for", inputId)
+                            .text(methodInfo.methodArgumentNames[i]));
+                }
+
+                if (methodId == -1) {
+                    $formDiv
+                        .append($("<textarea>")
+                            .attr({
+                                id: inputId,
+                                name: inputId,
+                                class: "form-control",
+                                rows: 10
+                            })
+                            .val(inputValue)
+                            .on("input", function(event) {
+                                toggleFormSubmitEnabled($(event.target).closest("form"), true);
+                            }))
+                        .append($("<label>")
+                            .attr("for", "setResponseCode")
+                            .text("Response Code"))
+                        .append($("<input>")
+                            .attr({
+                                id: "setResponseCode",
+                                name: "setResponseCode",
+                                min: 100,
+                                max: 599,
+                                default: endpoint.responseCode,
+                                class: "form-control",
+                                type: "number"
+                            })
+                            .val(endpoint.responseCode)
+                            .on("input", function(event) {
+                                toggleFormSubmitEnabled($(event.target).closest("form"), true);
+                            }));
+                } else {
+                    $formDiv
+                        .append($("<label>")
+                            .attr({
+                                for: inputId,
+                                style: "font-weight: normal; font-style: italic;"
+                            })
+                            .text("(" + el + ")"))
+                        .append($("<input>")
+                            .attr({
+                                id: inputId,
+                                name: inputId,
+                                class: "form-control",
+                                type: "text",
+                            })
+                            .val(inputValue)
+                            .on("input", function(event) {
+                                toggleFormSubmitEnabled($(event.target).closest("form"), true);
+                            }));
+                }
+            });
+
+            $formDiv
+                .append($("<label>")
+                    .attr("for", "setRepeatNumber")
+                    .text("Repeat Count"))
+                .append($("<input>")
+                    .attr({
+                        id: "setRepeatNumber",
+                        name: "setRepeatNumber",
+                        type: "number",
+                        min: -1,
+                        default: endpoint.repeatNumber,
+                        required: true,
+                        class: "form-control"
+                    })
+                    .val(endpoint.repeatNumber)
+                    .on("input", function(event) {
+                        toggleFormSubmitEnabled($(event.target).closest("form"), true);
+                    }));
+
+            $formData
+                .append($formDiv)
+                .append($("<button>")
+                    .addClass("btn btn-primary")
+                    .text("Apply"))
+                .append($("<button>")
+                    .addClass("btn btn-default")
+                    .attr("type", "reset")
+                    .text("Clear"))
+                .on("reset", function(event) {
+                    toggleFormSubmitEnabled($(event.target), true);
+
+                    $(":input", event.target)
+                        .not(':button, :submit, :reset, :hidden, [default]')
+                        .removeAttr('checked')
+                        .removeAttr('selected')
+                        .not(':checkbox, :radio, select')
+                        .val('');
+
+                    event.preventDefault();
+                })
+                .submit(function(event) {
+                    event.preventDefault();
+                    submitOverrideData(event, overrideType, parseInt(pathId, 10), parseInt(methodId, 10), parseInt(ordinal, 10));
+                });
+
+            $("#" + overrideType + "OverrideParameters").empty().append($formData).show();
+            $("#" + overrideType + "OverrideDetails").show();
+
+            if (autofocusOnForm === true) {
+                $("#" + overrideType + "OverrideDetails form")
+                    .find("input, textarea")
+                    .first()
+                    .focus();
+            }
+        }
+
+        function toggleFormSubmitEnabled($formElement, isEnabled) {
+            var $submitButton = $formElement.find(":submit")
+
+            if (isEnabled) {
+                $submitButton
+                    .text("Apply")
+                    .attr("class", "btn btn-primary");
+            } else {
+                $submitButton
+                    .text("Saved!")
+                    .attr("class", "btn btn-success");
+            }
+            $submitButton.attr("disabled", !isEnabled)
         }
 
         function applyGeneralPathChanges() {
@@ -1634,7 +1792,6 @@
 
             $.ajax({
                 type: "POST",
-                async: false,
                 url: '<c:url value="/api/path/"/>' + currentPathId,
                 data: {
                     clientUUID: "${clientUUID}",
@@ -1666,95 +1823,91 @@
             });
         }
 
-        function submitOverrideData(type, pathId, methodId, ordinal, numArgs) {
-            submitEndPointArgs(type, pathId, methodId, ordinal, numArgs);
-            submitOverrideRepeatCountAndResponseCode(type, pathId, methodId, ordinal);
-            loadPath(currentPathId);
-        }
-
-        function submitOverrideRepeatCountAndResponseCode(type, pathId, methodId, ordinal) {
-            var repeatNumberValue = $("#setRepeatNumber").val();
-            var responseCodeValue = $("#setResponseCode").val();
-
+        function submitOverrideData(event, overrideType, pathId, methodId, ordinal) {
             $.ajax({
-                type:"POST",
+                type: "POST",
                 url: '<c:url value="/api/path/"/>' + pathId + '/' + methodId,
                 data: {
-                    repeatNumber: repeatNumberValue,
-                    responseCode: responseCodeValue,
+                    clientUUID: clientUUID,
                     ordinal: ordinal,
-                    clientUUID: clientUUID
+                    repeatNumber: $("#setRepeatNumber").val(),
+                    responseCode: $("#setResponseCode").val(),
+                    'arguments[]': $(event.target).serializeArray().filter(function(arg) {
+                            return arg.name.startsWith(overrideType + "_args_");
+                        }).map(function(arg) {
+                            return arg.value;
+                        })
                 },
-                async: false,
-                success: function(){
-                    populateEnabledResponseOverrides();
-                    populateEnabledRequestOverrides();
+                success: function() {
+                    toggleFormSubmitEnabled($(event.target), false);
+                    if (overrideType == "response") {
+                        getEnabledResponseOverrides(refreshSelectedResponseOverride());
+                    } else {
+                        getEnabledRequestOverrides(refreshSelectedRequestOverride());
+                    }
+                },
+                error: function(err) {
+                    alert("We were unable to save your override. Please try again.");
                 }
             });
         }
 
-        function submitEndPointArgs(type, pathId, methodId, ordinal, numArgs) {
-            var args = new Array();
-            for (var x = 0; x < numArgs; x++) {
-                var selector = "#" + type + "_args_" + x;
-                var value = $(selector).val();
-                args[x] = value;
-            }
-
-            var formData = new FormData();
-            formData.append("ordinal", ordinal);
-            formData.append("clientUUID", clientUUID);
-            for (var i = 0; i < args.length; i++) {
-                formData.append('arguments[]', args[i]);
-            }
-
-            $.ajax({
-                type:"POST",
-                url: '<c:url value="/api/path/"/>' + pathId + '/' + methodId,
-                data: formData,
-                cache: false,
-                processData: false,
-                contentType: false,
-                async: false,
-                success: function(){
-
-                }
+        function getEnabledResponseOverrides(cb) {
+             $.ajax({
+                type: "GET",
+                url: '<c:url value="/api/path/"/>' + currentPathId + '?profileIdentifier=${profile_id}&typeFilter[]=ResponseOverride&typeFilter[]=ResponseHeaderOverride&clientUUID=${clientUUID}',
+                success: cb
             });
-        }
-
-        function populateEnabledOverrides(autofocusOnForm) {
-            populateEnabledResponseOverrides(autofocusOnForm);
-            populateEnabledRequestOverrides(autofocusOnForm);
         }
 
         function populateEnabledResponseOverrides(autofocusOnForm) {
+            return function(data) {
+                enabledOverridesSuccess('response', data);
+                if (selectedResponseOverride != 0) {
+                    $("#responseOverrideEnabled").val(selectedResponseOverride);
+                }
+                changeResponseOverrideDiv(autofocusOnForm);
+            };
+        }
+
+        function refreshSelectedResponseOverride() {
+            return function(data) {
+                // TODO: Consider changing only the text of the <option> that is selected.
+                // Then we do not have to execute .val()
+                enabledOverridesSuccess('response', data);
+                if (selectedResponseOverride != 0) {
+                    $("#responseOverrideEnabled").val(selectedResponseOverride);
+                }
+            };
+        }
+
+        function getEnabledRequestOverrides(cb) {
             $.ajax({
                 type: "GET",
-                url : '<c:url value="/api/path/"/>' + currentPathId + '?profileIdentifier=${profile_id}&typeFilter[]=ResponseOverride&typeFilter[]=ResponseHeaderOverride&clientUUID=${clientUUID}',
-                autofocusOnForm: autofocusOnForm,
-                success: function(data) {
-                    enabledOverridesSuccess('response', data);
-                    if (selectedResponseOverride != 0) {
-                        $("#responseOverrideEnabled").val(selectedResponseOverride);
-                    }
-                    changeResponseOverrideDiv(this.autofocusOnForm);
-                }
+                url: '<c:url value="/api/path/"/>' + currentPathId + '?profileIdentifier=${profile_id}&typeFilter[]=RequestOverride&typeFilter[]=RequestHeaderOverride&clientUUID=${clientUUID}',
+                success: cb
             });
         }
 
         function populateEnabledRequestOverrides(autofocusOnForm) {
-            $.ajax({
-                type: "GET",
-                url : '<c:url value="/api/path/"/>' + currentPathId + '?profileIdentifier=${profile_id}&typeFilter[]=RequestOverride&typeFilter[]=RequestHeaderOverride&clientUUID=${clientUUID}',
-                autofocusOnForm: autofocusOnForm,
-                success: function(data) {
-                    enabledOverridesSuccess('request', data);
-                    if (selectedRequestOverride != 0) {
-                        $("#requestOverrideEnabled").val(selectedRequestOverride);
-                    }
-                    changeRequestOverrideDiv(this.autofocusOnForm);
+            return function(data) {
+                enabledOverridesSuccess('request', data);
+                if (selectedRequestOverride != 0) {
+                    $("#requestOverrideEnabled").val(selectedRequestOverride);
                 }
-            });
+                changeRequestOverrideDiv(autofocusOnForm);
+            };
+        }
+
+        function refreshSelectedRequestOverride() {
+            return function(data) {
+                // TODO: Consider changing only the text of the <option> that is selected.
+                // Then we do not have to execute .val()
+                enabledOverridesSuccess('request', data);
+                if (selectedRequestOverride != 0) {
+                    $("#requestOverrideEnabled").val(selectedRequestOverride);
+                }
+            };
         }
 
         function enabledOverridesSuccess(type, data) {
@@ -1762,34 +1915,45 @@
 
             $("#" + type + "OverrideEnabled").empty();
             $.each(data.enabledEndpoints, function() {
+                var name = getEndpointDisplayString(this, data);
+                if (!name) return;
+
                 var enabledId = this.overrideId;
-
                 usedIndexes[enabledId] = (usedIndexes[enabledId] || 0) + 1;
-                var repeat = this.repeatNumber >= 0 ? this.repeatNumber + "x " : "";
+                var dataValue = enabledId + ',' + usedIndexes[enabledId];
 
-                // custom response/request
-                if (enabledId < 0) {
-                    $("#" + type + "OverrideEnabled").append($("<option>")
-                        .val(enabledId + ',' + usedIndexes[enabledId])
-                        .text(repeat + requestOverrideText(enabledId, this.arguments)));
-                } else {
-                    var method = data.possibleEndpoints.find(function(endpoint) {
-                        return endpoint.id == enabledId;
-                    });
-                    if (!method) { return; }
-
-                    var methodName = method.methodName;
-
-                    // Add arguments to method name if they exist
-                    if (method.methodArguments.length > 0) {
-                        methodName += "(" + getFormattedArguments(this.arguments, method.methodArguments.length) + ")";
-                    }
-
-                    $("#" + type + "OverrideEnabled").append($("<option>")
-                        .val(enabledId + ',' + usedIndexes[enabledId])
-                        .text(repeat + methodName));
-                }
+                $("#" + type + "OverrideEnabled").append($("<option>")
+                    .val(dataValue)
+                    .attr({
+                        "data-override-id": enabledId,
+                        "data-ordinal": usedIndexes[enabledId]
+                    })
+                    .text(name));
             });
+        }
+
+        function getEndpointDisplayString(endpoint, data) {
+            var enabledId = endpoint.overrideId;
+            var repeat = endpoint.repeatNumber >= 0 ? endpoint.repeatNumber + "x " : "";
+
+            // custom response/request
+            if (enabledId < 0) {
+                return repeat + requestOverrideText(enabledId, endpoint.arguments);
+            }
+
+            var method = data.possibleEndpoints.find(function(endpoint) {
+                return endpoint.id == enabledId;
+            });
+            if (!method) { return; }
+
+            var methodName = method.methodName;
+
+            // Add arguments to method name if they exist
+            if (method.methodArguments.length > 0) {
+                methodName += "(" + getFormattedArguments(endpoint.arguments, method.methodArguments.length) + ")";
+            }
+
+            return repeat + methodName;
         }
 
         function requestOverrideText(enabledId, enabledArgs) {
@@ -1944,7 +2108,7 @@
             </div>
 
             <div id="details" class="col-xs-7">
-                <div id="editDiv" style="display: none;">
+                <div id="editDiv">
                     <div style="position: relative;">
                         <ul class="nav nav-pills" id="nav">
                         </ul>
@@ -1962,9 +2126,12 @@
                         <div id="tabs-1" class="container-flex">
                             <div class="row">
                                 <div class="col-xs-5">
-                                    <div class="panel panel-info">
+                                    <div class="panel">
                                         <div class="panel-heading">
-                                            <h3 class="panel-title">Response Overrides</h3>
+                                            <h3 class="panel-title">
+                                                <span>Response Overrides</span>
+                                                <span class="override-inactive" style="display: none; font-style: italic;">(inactive)</span>
+                                            </h3>
                                         </div>
                                         <div class="panel-body">
                                             <select id="responseOverrideEnabled" class="form-control mousetrap" multiple="multiple" style="height: 200px; resize: vertical;" onChange="changeResponseOverrideDiv()"></select>
@@ -2000,9 +2167,12 @@
                         <div id="tabs-2" class="container-flex">
                             <div class="row">
                                 <div class="col-xs-5">
-                                    <div class="panel panel-info">
+                                    <div class="panel">
                                         <div class="panel-heading">
-                                            <h3 class="panel-title">Request Overrides</h3>
+                                            <h3 class="panel-title">
+                                                <span>Request Overrides</span>
+                                                <span class="override-inactive" style="display: none; font-style: italic;">(inactive)</span>
+                                            </h3>
                                         </div>
                                         <div class="panel-body">
                                             <select id="requestOverrideEnabled" class="form-control mousetrap" multiple="multiple" style="height: 200px; resize: vertical;" onChange="changeRequestOverrideDiv()"></select>
