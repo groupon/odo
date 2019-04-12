@@ -199,7 +199,7 @@
         }
 
         function exportConfigurationFile() {
-            download('<c:url value="/api/backup/profile/${profile_id}/${clientUUID}"/>');
+            download('<c:url value="/api/backup/profile/${profile_id}/${clientUUID}"/>', "Config_and_Profile_Backup.json");
         }
 
         function importConfigurationRequest(file) {
@@ -1316,14 +1316,14 @@
                 success: function(data) {
                     // populate Configuration values
                     $("#tabs").show();
-                    $("#pathName").attr("value", data.pathName);
-                    $("#pathValue").attr("value", data.path);
-                    $("#contentType").attr("value", data.contentType);
-                    $("#pathGlobal").attr("checked", data.global);
+                    $("#pathName").val(data.pathName);
+                    $("#pathValue").val(data.path);
+                    $("#contentType").val(data.contentType);
+                    $("#pathGlobal").prop("checked", data.global);
                     $("#requestType").val(data.requestType);
                     $("#postBodyFilter").val(data.bodyFilter);
-                    $("#pathRepeatCount").attr("value", data.repeatNumber);
-                    $("#pathResponseCode").attr("value", data.responseCode);
+                    $("#pathRepeatCount").val(data.repeatNumber);
+                    $("#pathResponseCode").val(data.responseCode);
                     pathRequestTypeChanged();
                     $("#title").html(data.pathName);
 
