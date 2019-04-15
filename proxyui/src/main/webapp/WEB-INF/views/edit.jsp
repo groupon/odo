@@ -199,7 +199,10 @@
         }
 
         function exportConfigurationFile() {
-            download('<c:url value="/api/backup/profile/${profile_id}/${clientUUID}"/>', "Config_and_Profile_Backup.json");
+            $.ajax({
+                url: '<c:url value="/api/backup/profile/${profile_id}/${clientUUID}"/>',
+                success: download.bind(true, "text/json", "Config_and_Profile_Backup.json")
+            });
         }
 
         function importConfigurationRequest(file) {
@@ -223,10 +226,6 @@
                     $("#configurationUploadDialog").dialog("close");
                 }
             });
-        }
-
-        function exportProfileConfiguration() {
-            download('<c:url value="/api/backup/profile/${profile_id}/${clientUUID}?odoExport=false"/>');
         }
 
         function resetProfile(){
