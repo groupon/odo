@@ -1829,7 +1829,10 @@
                     responseCode: code,
                     "groups[]": groupArray
                 },
-                success: function() {
+                success: function(data) {
+                    var rowData = JSON.parse(data);
+                    var selectedRow = $("#packages").jqGrid("getGridParam", "selrow");
+                    $("#packages").setRowData(selectedRow, rowData);
                     $("#applyPathChangeSuccessDiv").show(0, function() {
                         setTimeout(function() {
                             $("#applyPathChangeSuccessDiv").fadeOut(250);
