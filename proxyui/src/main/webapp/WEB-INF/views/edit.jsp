@@ -128,6 +128,19 @@
         #responseOverrideDetails form button {
             margin-right: .25em;
         }
+
+        #importing-wait {
+            animation: text-color-pulse 1s infinite ease-in-out;
+        }
+
+        @keyframes text-color-pulse {
+            0% {
+                color: #222;
+            }
+            50% {
+                color: #aaa;
+            }
+        }
     </style>
 
     <script type="text/javascript">
@@ -199,34 +212,45 @@
         }
 
         function exportConfigurationFile() {
-            download('<c:url value="/api/backup/profile/${profile_id}/${clientUUID}"/>', "Config_and_Profile_Backup.json");
-        }
-
-        function importConfigurationRequest(file) {
-            download('<c:url value="/api/backup/profile/${profile_id}/${clientUUID}?oldExport=true"/>');
-            var formData = new FormData();
-            formData.append('odoImport', $('[name="IncludeOdoConfiguration"]').is(":checked"));
-            formData.append('fileData', file, file.name);
             $.ajax({
-                type: "POST",
                 url: '<c:url value="/api/backup/profile/${profile_id}/${clientUUID}"/>',
-                data: formData,
-                processData: false,
-                contentType: false,
-                success: function() {
-                    window.location.reload();
-                },
-                error: function(jqXHR, textStatus, errorThrown) {
-                    var errorResponse = JSON.parse(jqXHR.responseText);
-                    var alertText = errorResponse.join("\n");
-                    window.alert(alertText);
-                    $("#configurationUploadDialog").dialog("close");
-                }
+                success: download.bind(true, "text/json", "Config_and_Profile_Backup.json")
             });
         }
 
-        function exportProfileConfiguration() {
-            download('<c:url value="/api/backup/profile/${profile_id}/${clientUUID}?odoExport=false"/>');
+        function importConfigurationRequest(file) {
+            $.ajax({
+                url: '<c:url value="/api/backup/profile/${profile_id}/${clientUUID}?oldExport=true"/>',
+                success: function(data) {
+                    download(data, "Config_and_Profile_Backup_OLD.json", "text/json");
+
+                    var formData = new FormData();
+                    formData.append('odoImport', $('[name="IncludeOdoConfiguration"]').is(":checked"));
+                    formData.append('fileData', file, file.name);
+                    $.ajax({
+                        type: "POST",
+                        url: '<c:url value="/api/backup/profile/${profile_id}/${clientUUID}"/>',
+                        data: formData,
+                        processData: false,
+                        contentType: false,
+                        beforeSend: function() {
+                            $("#importing-wait").show();
+                        },
+                        success: function() {
+                            window.location.reload();
+                        },
+                        error: function(jqXHR, textStatus, errorThrown) {
+                            var errorResponse = JSON.parse(jqXHR.responseText);
+                            var alertText = errorResponse.join("\n");
+                            window.alert(alertText);
+                            $("#configurationUploadDialog").dialog("close");
+                        },
+                        complete: function() {
+                            $("#importing-wait").hide();
+                        }
+                    });
+                }
+            });
         }
 
         function resetProfile(){
@@ -1805,7 +1829,10 @@
                     responseCode: code,
                     "groups[]": groupArray
                 },
-                success: function() {
+                success: function(data) {
+                    var rowData = JSON.parse(data);
+                    var selectedRow = $("#packages").jqGrid("getGridParam", "selrow");
+                    $("#packages").setRowData(selectedRow, rowData);
                     $("#applyPathChangeSuccessDiv").show(0, function() {
                         setTimeout(function() {
                             $("#applyPathChangeSuccessDiv").fadeOut(250);
@@ -2042,6 +2069,7 @@
                 <input id="includeOdoConfiguration" type="checkbox" class="form-check-input" name="IncludeOdoConfiguration" />
             </div>
         </form>
+        <div id="importing-wait" style="display:none;">Importing...</div>
     </div>
 
     <%@ include file="clients_part.jsp" %>

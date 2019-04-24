@@ -146,8 +146,8 @@
                         <div class="btn-group btn-group-sm">
                             <button type="button" id="copyResponseHeaders" class="btn btn-default copy-to-clipboard">Copy <kbd>c</kbd>&nbsp;<kbd>h</kbd></button>
                         </div>
-                        <textarea class="form-control preformatted" data-copy-trigger="copyResponseHeaders" rows="4" id="responseHeaders"></textarea>
-                        <textarea class="form-control preformatted" data-copy-trigger="copyResponseHeaders" rows="4" style="display: none;" id="originalResponseHeaders"></textarea>
+                        <textarea readonly class="form-control preformatted mousetrap" data-copy-trigger="copyResponseHeaders" rows="4" id="responseHeaders"></textarea>
+                        <textarea readonly class="form-control preformatted mousetrap" data-copy-trigger="copyResponseHeaders" rows="4" style="display: none;" id="originalResponseHeaders"></textarea>
                         <div class="form-control diffarea" id="originalResponseHeaderChange" data-copy-trigger="copyResponseHeaders"></div>
 
                         <h3>Data <span class="label label-info label-small" id="responseTypeLabel"></span> <span class="label label-primary label-small" id="responseDataDecodedLabel"></span></h3>
@@ -167,8 +167,8 @@
                             </div>
                         </div>
 
-                        <textarea class="form-control preformatted" rows="20" data-copy-trigger="copyResponseData" id="responseRaw"></textarea>
-                        <textarea class="form-control preformatted" rows="20" data-copy-trigger="copyResponseData" style="display: none;" id="originalResponseRaw"></textarea>
+                        <textarea readonly class="form-control preformatted mousetrap" rows="20" data-copy-trigger="copyResponseData" id="responseRaw"></textarea>
+                        <textarea readonly class="form-control preformatted mousetrap" rows="20" data-copy-trigger="copyResponseData" style="display: none;" id="originalResponseRaw"></textarea>
                         <div class="form-control diffarea" data-copy-trigger="copyResponseData" id="originalResponseChange"></div>
                     </div><!-- /#tabs-1 -->
 
@@ -188,24 +188,24 @@
                                 <button type="button" class="btn btn-default" onClick="showPathTester()">Test Path</button>
                             </div>
                         </div>
-                        <textarea class="form-control preformatted" rows="1" data-copy-trigger="copyRequestQuery" id="requestQuery"></textarea>
-                        <textarea class="form-control preformatted" rows="1" data-copy-trigger="copyRequestQuery" style="display: none;" id="originalRequestQuery"></textarea>
+                        <textarea readonly class="form-control preformatted mousetrap" rows="1" data-copy-trigger="copyRequestQuery" id="requestQuery"></textarea>
+                        <textarea readonly class="form-control preformatted mousetrap" rows="1" data-copy-trigger="copyRequestQuery" style="display: none;" id="originalRequestQuery"></textarea>
                         <div class="form-control diffarea" data-copy-trigger="copyRequestQuery" id="originalRequestQueryChange"></div>
 
                         <h3 style="display: inline-block;">Parameters</h3>
                         <div class="btn-group btn-group-sm">
                             <button type="button" id="copyRequestParameters" class="btn btn-default copy-to-clipboard">Copy <kbd>c</kbd>&nbsp;<kbd>p</kbd></button>
                         </div>
-                        <textarea class="form-control preformatted" rows="3" data-copy-trigger="copyRequestParameters" id="requestParameters"></textarea>
-                        <textarea class="form-control preformatted" rows="3" data-copy-trigger="copyRequestParameters" style="display: none;" id="originalRequestParameters"></textarea>
+                        <textarea readonly class="form-control preformatted mousetrap" rows="3" data-copy-trigger="copyRequestParameters" id="requestParameters"></textarea>
+                        <textarea readonly class="form-control preformatted mousetrap" rows="3" data-copy-trigger="copyRequestParameters" style="display: none;" id="originalRequestParameters"></textarea>
                         <div class="form-control diffarea" data-copy-trigger="copyRequestParameters" id="originalRequestParametersChanged"></div>
 
                         <h3 style="display: inline-block;">Headers</h3>
                         <div class="btn-group btn-group-sm">
                             <button type="button" id="copyRequestHeaders" class="btn btn-default copy-to-clipboard">Copy <kbd>c</kbd>&nbsp;<kbd>h</kbd></button>
                         </div>
-                        <textarea class="form-control preformatted" rows="3" data-copy-trigger="copyRequestHeaders" id="requestHeaders"></textarea>
-                        <textarea class="form-control preformatted" rows="3" data-copy-trigger="copyRequestHeaders" style="display: none;" id="originalRequestHeaders"></textarea>
+                        <textarea readonly class="form-control preformatted mousetrap" rows="3" data-copy-trigger="copyRequestHeaders" id="requestHeaders"></textarea>
+                        <textarea readonly class="form-control preformatted mousetrap" rows="3" data-copy-trigger="copyRequestHeaders" style="display: none;" id="originalRequestHeaders"></textarea>
                         <div class="form-control diffarea" data-copy-trigger="copyRequestHeaders" id="originalRequestHeadersChanged"></div>
 
                         <h3 style="display: inline-block;">POST Data</h3>
@@ -213,8 +213,8 @@
                             <button type="button" id="copyPOSTData" class="btn btn-default copy-to-clipboard">Copy <kbd>c</kbd>&nbsp;<kbd>d</kbd></button>
                         </div>
                         <span class="label label-primary" id="requestDataDecodedLabel"></span>
-                        <textarea class="form-control preformatted" data-copy-trigger="copyPOSTData" rows="10" id="requestPOSTData"></textarea>
-                        <textarea class="form-control preformatted" data-copy-trigger="copyPOSTData" rows="10" style="display: none" id="originalRequestPOSTData"></textarea>
+                        <textarea readonly class="form-control preformatted mousetrap" data-copy-trigger="copyPOSTData" rows="10" id="requestPOSTData"></textarea>
+                        <textarea readonly class="form-control preformatted mousetrap" data-copy-trigger="copyPOSTData" rows="10" style="display: none" id="originalRequestPOSTData"></textarea>
                         <div class="form-control diffarea" data-copy-trigger="copyPOSTData" id="originalRequestPOSTDataChanged"></div>
                     </div><!-- /#tabs-2 -->
 
@@ -223,7 +223,7 @@
                         <div class="btn-group btn-group-sm">
                             <button type="button" id="copyCURLCommand" class="btn btn-default copy-to-clipboard">Copy <kbd>c</kbd>&nbsp;<kbd>c</kbd></button>
                         </div>
-                        <textarea class="form-control preformatted" rows="29" data-copy-trigger="copyCURLCommand" id="curlCommand"></textarea>
+                        <textarea readonly class="form-control preformatted mousetrap" rows="29" data-copy-trigger="copyCURLCommand" id="curlCommand"></textarea>
                     </div><!-- /#tabs-3 -->
                 </div>
             </div>
