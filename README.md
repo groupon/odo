@@ -25,6 +25,24 @@ To try out Odo without needing to download the source and package it, check out 
 5. View the Odo UI at `http://localhost:8090/testproxy`
 
 ## Package Odo
+Ensure that you have [Java 8](https://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html) installed. We currently do not support any other versions of Java due to technical limitations.
+```
+$ java -version
+java version "1.8.0_212"
+Java(TM) SE Runtime Environment (build 1.8.0_212-b10)
+Java HotSpot(TM) 64-Bit Server VM (build 25.212-b10, mixed mode)
+```
+
+Maven should also be installed, check with the following command:
+```
+$ mvn -v
+Apache Maven 3.6.1 (d66c9c0b3152b2e69ee9bac180bb8fcc8e6af555; 2019-04-04T12:00:29-07:00)
+Maven home: /usr/local/Cellar/maven/3.6.1/libexec
+Java version: 1.8.0_212, vendor: Oracle Corporation, runtime: /Library/Java/JavaVirtualMachines/jdk1.8.0_212.jdk/Contents/Home/jre
+Default locale: en_US, platform encoding: UTF-8
+OS name: "mac os x", version: "10.14.5", arch: "x86_64", family: "mac"
+```
+
 From the repo root, run
 
 ```
