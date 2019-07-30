@@ -47,6 +47,7 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.conn.ssl.TrustStrategy;
 import org.apache.http.conn.ssl.X509HostnameVerifier;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -540,9 +541,16 @@ public class BackupService {
 
                         // Enable override and set repeat number and arguments
                         overrideService.enableOverride(overrideId, pathId, clientUUID);
-                        overrideService.updateRepeatNumber(overrideId, pathId, override.getInt(Constants.PRIORITY),
-                                                           override.getInt(Constants.REPEAT_NUMBER), clientUUID);
-                        overrideService.updateArguments(overrideId, pathId, override.getInt(Constants.PRIORITY), override.getString(Constants.ARGUMENTS), clientUUID);
+                        int overrideOrdinal = overrideService.getCurrentMethodOrdinal(overrideId, pathId, clientUUID, null);
+                        overrideService.updateRepeatNumber(overrideId, pathId, overrideOrdinal, override.getInt(Constants.REPEAT_NUMBER), clientUUID);
+                        overrideService.updateArguments(overrideId, pathId, overrideOrdinal, override.getString(Constants.ARGUMENTS), clientUUID);
+
+                        // If it has responseCode then update the override with the responseCode. Otherwise, use 200 as response code
+                        try {
+                            overrideService.updateResponseCode(overrideId, pathId, overrideOrdinal, override.getString(Constants.RESPONSE_CODE), clientUUID);
+                        } catch (JSONException e) {
+                            overrideService.updateResponseCode(overrideId, pathId, overrideOrdinal, "200", clientUUID);
+                        }
                     } catch (Exception e) {
                         errors.put(formErrorJson("Override Error", "Cannot add/update override: '" + overrideNameForError + "' - Check Override Exists"));
                         continue;

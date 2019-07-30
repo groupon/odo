@@ -266,7 +266,7 @@ import net.lightbody.bmp.proxy.jetty.http.SslListener;
 import net.lightbody.bmp.proxy.jetty.jetty.Server;
 import net.lightbody.bmp.proxy.jetty.util.InetAddrPort;
 import net.lightbody.bmp.proxy.jetty.util.URI;
-import net.lightbody.bmp.proxy.selenium.KeyStoreManager;
+import com.groupon.odo.bmp.KeyStoreManager;
 import net.lightbody.bmp.proxy.selenium.LauncherUtils;
 import net.lightbody.bmp.proxy.selenium.SeleniumProxyHandler;
 import net.lightbody.bmp.proxy.util.Log;
@@ -283,6 +283,7 @@ import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLSession;
 import javax.net.ssl.SSLProtocolException;
 import java.security.cert.CertificateException;
+import java.util.concurrent.TimeUnit;
 
 public class BrowserMobProxyHandler extends SeleniumProxyHandler {
     private static final Log LOG = new Log();
@@ -600,6 +601,9 @@ public class BrowserMobProxyHandler extends SeleniumProxyHandler {
             OkHttpClient okHttpClient = getUnsafeOkHttpClient();
             okHttpClient.setFollowRedirects(false);
             okHttpClient.setFollowSslRedirects(false);
+            okHttpClient.setConnectTimeout(60, TimeUnit.SECONDS);
+            okHttpClient.setReadTimeout(60, TimeUnit.SECONDS);
+            okHttpClient.setWriteTimeout(60, TimeUnit.SECONDS);
 
             Request.Builder okRequestBuilder = new Request.Builder();
 

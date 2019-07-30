@@ -607,7 +607,7 @@ public class Proxy extends HttpServlet {
         if (queryString == null) {
             queryString = "";
         } else {
-            queryString = "?" + queryString;
+            queryString = "?" + queryString.replace("|", "%7C").replace("[", "%5B").replace("]", "%5D");
         }
 
         // if this can't be overridden we are going to finish the string and bail
@@ -627,6 +627,9 @@ public class Proxy extends HttpServlet {
         for (Profile tryProfile : ServerRedirectService.getInstance().getProfilesForServerName(origHostName)) {
             logger.info("Trying {}", tryProfile.getName());
             Client tryClient = ClientService.getInstance().findClient(history.getClientUUID(), tryProfile.getId());
+            if (tryClient == null) {
+                continue;
+            }
 
             List<EndpointOverride> trySelectedRequestPaths = PathOverrideService.getInstance().getSelectedPaths(Constants.OVERRIDE_TYPE_REQUEST, tryClient,
                                                                                                                 tryProfile, httpServletRequest.getRequestURL() + queryString, requestType, false);
@@ -1185,6 +1188,10 @@ public class Proxy extends HttpServlet {
                 if (endpoint.getOverrideId() == Constants.PLUGIN_RESPONSE_OVERRIDE_CUSTOM) {
                     // return custom response
                     String response = endpoint.getArguments()[0].toString();
+                    String responseCode = endpoint.getResponseCode();
+                    if (responseCode != null && !responseCode.isEmpty()) {
+                        httpServletResponse.setStatus(Integer.parseInt(responseCode));
+                    }
                     httpServletResponse.setContentType(selectedPath.getContentType());
                     requestInfo.usedCustomResponse = true;
                     requestInfo.modified = true;

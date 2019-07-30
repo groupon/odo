@@ -21,20 +21,26 @@ import com.groupon.odo.client.models.ServerGroup;
 import com.groupon.odo.client.models.ServerRedirect;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.io.File;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.mime.HttpMultipartMode;
+import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.params.HttpConnectionParams;
-import org.apache.http.protocol.HTTP;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -56,6 +62,7 @@ public class Client {
     protected static String HISTORY = "history/";
     protected static String BASE_SERVER = "edit/server";
     protected static String BASE_SERVERGROUP = "servergroup";
+    protected static String BASE_BACKUP_PROFILE = "backup/profile";
 
     protected String _profileName = null;
     protected int _profileId;
@@ -649,6 +656,32 @@ public class Client {
                 new BasicNameValuePair("profileIdentifier", this._profileName),
                 new BasicNameValuePair("ordinal", ordinal.toString()),
                 new BasicNameValuePair("repeatNumber", repeatCount.toString())
+            };
+
+            JSONObject response = new JSONObject(doPost(BASE_PATH + uriEncode(pathName) + "/" + methodId, params));
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    /**
+     * Set the response code of an override at ordinal index
+     *
+     * @param pathName Path name
+     * @param methodName Fully qualified method name
+     * @param ordinal 1-based index of the override within the overrides of type methodName
+     * @param responseCode new response code to set
+     * @return true if success, false otherwise
+     */
+    public boolean setOverrideResponseCode(String pathName, String methodName, Integer ordinal, String responseCode) {
+        try {
+            String methodId = getOverrideIdForMethodName(methodName).toString();
+            BasicNameValuePair[] params = {
+                    new BasicNameValuePair("profileIdentifier", this._profileName),
+                    new BasicNameValuePair("ordinal", ordinal.toString()),
+                    new BasicNameValuePair("responseCode", responseCode)
             };
 
             JSONObject response = new JSONObject(doPost(BASE_PATH + uriEncode(pathName) + "/" + methodId, params));
@@ -1304,6 +1337,50 @@ public class Client {
         return serverGroup;
     }
 
+    /**
+     * Upload file and set odo overrides and configuration of odo
+     *
+     * @param fileName File containing configuration
+     * @param odoImport Import odo configuration in addition to overrides
+     * @return If upload was successful
+     */
+    public boolean uploadConfigurationAndProfile(String fileName, String odoImport) {
+        File file = new File(fileName);
+        MultipartEntityBuilder multipartEntityBuilder = MultipartEntityBuilder.create();
+        FileBody fileBody = new FileBody(file, ContentType.MULTIPART_FORM_DATA);
+        multipartEntityBuilder.setMode(HttpMultipartMode.BROWSER_COMPATIBLE);
+        multipartEntityBuilder.addPart("fileData", fileBody);
+        multipartEntityBuilder.addTextBody("odoImport", odoImport);
+        try {
+            JSONObject response = new JSONObject(doMultipartPost(BASE_BACKUP_PROFILE + "/" + uriEncode(this._profileName) + "/" + this._clientId, multipartEntityBuilder));
+            if (response.length() == 0) {
+                return true;
+            } else {
+                return false;
+            }
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    /**
+     * Export the odo overrides setup and odo configuration
+     *
+     * @param oldExport Whether this is a backup from scratch or backing up because user will upload after (matches API)
+     * @return The odo configuration and overrides in JSON format, can be written to a file after
+     */
+    public JSONObject exportConfigurationAndProfile(String oldExport) {
+        try {
+            BasicNameValuePair[] params = {
+                new BasicNameValuePair("oldExport", oldExport)
+            };
+            String url = BASE_BACKUP_PROFILE + "/" + uriEncode(this._profileName) + "/" + this._clientId;
+            return new JSONObject(doGet(url, new BasicNameValuePair[]{}));
+        } catch (Exception e) {
+            return new JSONObject();
+        }
+    }
+
     protected int getServerGroupId(String groupName) {
         List<ServerGroup> groups = getServerGroups();
         for (ServerGroup group : groups) {
@@ -1419,8 +1496,8 @@ public class Client {
         String fullUrl = BASE_URL + apiUrl;
         HttpPost post = new HttpPost(fullUrl);
 
-        post.setHeader("Content-Type", "application/x-www-form-urlencoded");
-        ArrayList<BasicNameValuePair> dataList = new ArrayList<BasicNameValuePair>();
+        post.setHeader("Content-Type", "application/x-www-form-urlencoded;charset=UTF-8");
+        ArrayList<BasicNameValuePair> dataList = new ArrayList<>();
         if (data != null) {
             dataList.addAll(Arrays.asList(data));
         }
@@ -1432,10 +1509,33 @@ public class Client {
         }
 
         if (dataList.size() > 0) {
-            UrlEncodedFormEntity urlEncodedFormEntity = new UrlEncodedFormEntity(dataList);
-            urlEncodedFormEntity.setContentEncoding(HTTP.UTF_8);
+            UrlEncodedFormEntity urlEncodedFormEntity = new UrlEncodedFormEntity(dataList, StandardCharsets.UTF_8.name());
             post.setEntity(urlEncodedFormEntity);
         }
+
+        HttpClient client = new DefaultHttpClient();
+        HttpConnectionParams.setConnectionTimeout(client.getParams(), _timeout);
+        HttpConnectionParams.setSoTimeout(client.getParams(), _timeout);
+
+        HttpResponse response = client.execute(post);
+        BufferedReader rd = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
+        String accumulator = "";
+        String line = "";
+        while ((line = rd.readLine()) != null) {
+            accumulator += line;
+            accumulator += "\n";
+        }
+        return accumulator;
+    }
+
+    protected String doMultipartPost(String apiUrl, MultipartEntityBuilder multipartEntityBuilder) throws Exception {
+        String boundary = "23ljkw4ljefw093ljk";
+        String fullUrl = BASE_URL + apiUrl;
+        HttpPost post = new HttpPost(fullUrl);
+
+        post.setHeader("Content-Type", "multipart/form-data; boundary=" + boundary);
+        multipartEntityBuilder.setBoundary(boundary);
+        post.setEntity(multipartEntityBuilder.build());
 
         HttpClient client = new DefaultHttpClient();
         HttpConnectionParams.setConnectionTimeout(client.getParams(), _timeout);

@@ -28,6 +28,7 @@ public class Constants {
     public static final String SYS_HTTP_PORT = "ODO_HTTP_PORT";
     public static final String SYS_HTTPS_PORT = "ODO_HTTPS_PORT";
     public static final String SYS_LOGGING_DISABLED = "ODO_DISABLE_HISTORY";
+    public static final String SYS_DATABASE_POOL_SIZE = "ODO_DB_POOL_SIZE";
     public static final int DEFAULT_API_PORT = 8090;
     public static final int DEFAULT_DB_PORT = 9092;
     public static final int DEFAULT_FWD_PORT = 9090;
@@ -37,7 +38,7 @@ public class Constants {
     public static final String ODO_INTERNAL_WEBAPP_URL = "http://odo";
 
     // DB constants
-    public static final int DB_CURRENT_SCHEMA_VERSION = 6;
+    public static final int DB_CURRENT_SCHEMA_VERSION = 9;
     public static final String DB_TABLE_CONFIGURATION = "configuration";
     public static final String DB_TABLE_HISTORY = "history";
     public static final String DB_TABLE_OVERRIDE = "override_db";
@@ -128,6 +129,7 @@ public class Constants {
     public static final String HISTORY_REQUEST_BODY_DECODED = "request_body_decoded";
     public static final String HISTORY_RESPONSE_BODY_DECODED = "response_body_decoded";
     public static final String HISTORY_EXTRA_INFO = "extraInfo";
+    public static final String HISTORY_RAW_POST_DATA = "raw_post_data";
 
     // Client profile constants
     public static final String PROFILE_CLIENT_DEFAULT_ID = "-1";
@@ -196,6 +198,7 @@ public class Constants {
     public static final String ENABLED_OVERRIDES_PRIORITY = "priority";
     public static final String ENABLED_OVERRIDES_ARGUMENTS = "arguments";
     public static final String ENABLED_OVERRIDES_REPEAT_NUMBER = "repeat_number";
+    public static final String ENABLED_OVERRIDES_RESPONSE_CODE = "response_code";
 
     // script_db
     public static final String SCRIPT_NAME = "name";
@@ -216,5 +219,6 @@ public class Constants {
     public static final String CLASS_NAME = "className";
     public static final String OVERRIDE_ID = "overrideId";
     public static final String REPEAT_NUMBER = "repeatNumber";
+    public static final String RESPONSE_CODE = "responseCode";
     public static final String ARGUMENTS = "arguments";
 }

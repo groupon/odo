@@ -51,7 +51,7 @@ public class HistoryTests extends TestBase {
                 "originalRequestParams", "originalRequestPostData",
                 "originalRequestHeaders", "originalResponseCode",
                 "originalResponseHeaders", "originalResponseContentType",
-                "originalResponseData", true, true, false, false, "{}");
+                "originalResponseData", true, true, false, false, "{}", new byte[0]);
         HistoryService.getInstance().addHistory(testHistory);
         ClientService.getInstance().updateActive(newProfile.getId(), "-1", true);
     }
@@ -77,6 +77,7 @@ public class HistoryTests extends TestBase {
         assertTrue(latest.getResponseContentType().equals("responseContentType"));
         assertTrue(latest.getResponseData().equals("responseData"));
         assertTrue(latest.getResponseHeaders().equals("responseHeaders"));
+        assertTrue(latest.getRawPostData().equals("rawPostData"));
     }
 
     @Test
@@ -105,6 +106,7 @@ public class HistoryTests extends TestBase {
         assertTrue(h.getResponseContentType().equals("responseContentType"));
         assertTrue(h.getResponseData().equals("responseData"));
         assertTrue(h.getResponseHeaders().equals("responseHeaders"));
+        assertTrue(h.getRawPostData().equals("rawPostData"));
     }
 
 }

@@ -1,0 +1,2 @@
+ALTER TABLE enabled_overrides_db DROP COLUMN response_code
+ALTER TABLE enabled_overrides_db ADD COLUMN (response_code VARCHAR(128) DEFAULT '200')

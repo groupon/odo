@@ -110,7 +110,7 @@ public class BackupController {
      *
      * @param model
      * @param response
-     * @param profileID Id of profile to backup
+     * @param profileIdentifier Id of profile to backup
      * @param clientUUID Client Id to backup
      * @param oldExport Flag if this is exporting old configuration on a new import, used to change name of file
      * @return
@@ -118,13 +118,14 @@ public class BackupController {
      */
 
     @SuppressWarnings("deprecation")
-    @RequestMapping(value = "/api/backup/profile/{profileID}/{clientUUID}", method = RequestMethod.GET)
+    @RequestMapping(value = "/api/backup/profile/{profileIdentifier}/{clientUUID}", method = RequestMethod.GET)
     public
     @ResponseBody
     String getSingleProfileConfiguration(Model model, HttpServletResponse response,
-                                         @PathVariable int profileID,
+                                         @PathVariable String profileIdentifier,
                                          @PathVariable String clientUUID,
                                          @RequestParam(value = "oldExport", defaultValue = "false") boolean oldExport) throws Exception {
+        int profileID = ControllerUtils.convertProfileIdentifier(profileIdentifier);
         response.setContentType("application/json");
 
         ObjectMapper objectMapper = new ObjectMapper();
@@ -144,19 +145,20 @@ public class BackupController {
      * Set client server configuration and overrides according to backup
      *
      * @param fileData File containing profile overrides and server configuration
-     * @param profileID Profile to update for client
+     * @param profileIdentifier Profile to update for client
      * @param clientUUID Client to apply overrides to
      * @param odoImport Param to determine if an odo config will be imported with the overrides import
      * @return
      * @throws Exception
      */
-    @RequestMapping(value = "/api/backup/profile/{profileID}/{clientUUID}", method = RequestMethod.POST)
+    @RequestMapping(value = "/api/backup/profile/{profileIdentifier}/{clientUUID}", method = RequestMethod.POST)
     public
     @ResponseBody
     ResponseEntity<String> processSingleProfileBackup(@RequestParam("fileData") MultipartFile fileData,
-                         @PathVariable int profileID,
+                         @PathVariable String profileIdentifier,
                          @PathVariable String clientUUID,
                          @RequestParam(value = "odoImport", defaultValue = "true") boolean odoImport) throws Exception {
+        int profileID = ControllerUtils.convertProfileIdentifier(profileIdentifier);
         if (!fileData.isEmpty()) {
             try {
                 // Read in file

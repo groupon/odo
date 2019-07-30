@@ -38,9 +38,9 @@ import org.apache.commons.httpclient.methods.EntityEnclosingMethod;
 import org.apache.commons.httpclient.methods.InputStreamRequestEntity;
 import org.apache.commons.httpclient.methods.RequestEntity;
 import org.apache.commons.io.IOUtils;
-import org.msgpack.MessagePack;
-import org.msgpack.type.Value;
-import org.msgpack.unpacker.Unpacker;
+import org.msgpack.core.MessagePack;
+import org.msgpack.core.MessageUnpacker;
+import org.msgpack.value.ImmutableValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -387,6 +387,7 @@ public class HttpUtilities {
             httpServletRequest.getContentType().contains(STRING_CONTENT_TYPE_FORM_URLENCODED)
             && httpServletRequest.getHeader("content-encoding") == null) {
             requestByteArray = IOUtils.toByteArray(body);
+            history.setRawPostData(requestByteArray);
 
             // this is binary.. just return it as is
             requestEntity = new ByteArrayRequestEntity(requestByteArray);
@@ -438,13 +439,14 @@ public class HttpUtilities {
              * Convert input stream to bytes for it to be read by the deserializer
              * Unpack and iterate the list to see the contents
              */
-            MessagePack msgpack = new MessagePack();
             requestByteArray = IOUtils.toByteArray(body);
+            history.setRawPostData(requestByteArray);
             requestEntity = new ByteArrayRequestEntity(requestByteArray);
             ByteArrayInputStream byteArrayIS = new ByteArrayInputStream(requestByteArray);
-            Unpacker unpacker = msgpack.createUnpacker(byteArrayIS);
+            MessageUnpacker unpacker = MessagePack.newDefaultUnpacker(byteArrayIS);
 
-            for (Value message : unpacker) {
+            while (unpacker.hasNext()) {
+                ImmutableValue message = unpacker.unpackValue();
                 deserialisedMessages += message;
                 deserialisedMessages += "\n";
             }
@@ -453,6 +455,7 @@ public class HttpUtilities {
             requestBody = new StringBuilder(Proxy.processPostDataString(requestBody.toString()).queryString);
         } else {
             requestByteArray = IOUtils.toByteArray(body);
+            history.setRawPostData(requestByteArray);
 
             // this is binary.. just return it as is
             requestEntity = new ByteArrayRequestEntity(requestByteArray);
