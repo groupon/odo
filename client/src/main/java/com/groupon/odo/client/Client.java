@@ -39,7 +39,7 @@ import java.util.Map;
 import java.util.HashMap;
 
 public class Client {
-    OkHttpClient okHttpClient = new OkHttpClient();
+    protected final OkHttpClient okHttpClient = new OkHttpClient();
     protected String ODO_HOST = "localhost";
     protected String BASE_URL = "http://localhost:8090/testproxy/api/";
     protected int API_PORT = 8090;
