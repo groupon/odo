@@ -39,6 +39,7 @@ import java.util.Map;
 import java.util.HashMap;
 
 public class Client {
+    OkHttpClient okHttpClient = new OkHttpClient();
     protected String ODO_HOST = "localhost";
     protected String BASE_URL = "http://localhost:8090/testproxy/api/";
     protected int API_PORT = 8090;
@@ -170,10 +171,8 @@ public class Client {
 
     protected void createNewClientId() throws Exception {
         String uri = BASE_PROFILE + uriEncode(_profileName) + "/" + BASE_CLIENTS;
-        System.out.println("Request Url :"+ uri);
         try {
             JSONObject response = new JSONObject(doPost(uri, null));
-            System.out.println("Response is :"+ response.toString());
             _clientId = response.getJSONObject("client").getString("uuid");
             toggleProfile(true);
         } catch (Exception e) {
@@ -218,7 +217,7 @@ public class Client {
      * @throws Exception exception
      */
     public History[] filterHistory(String... filters) throws Exception {
-        Map<String,String> params = new HashMap<String,String>();
+        final Map<String,String> params = new HashMap<>();
         if (filters.length > 0) {
             for (int i = 0; i < filters.length; i++) {
                 params.put("source_uri[]", filters[i]);
@@ -360,7 +359,7 @@ public class Client {
      */
     public History[] refreshHistory(int limit, int offset) throws Exception {
 
-        Map<String,String> params = new HashMap<>();
+        final Map<String,String> params = new HashMap<>();
         params.put("limit", String.valueOf(limit));
         params.put("offset", String.valueOf(offset));
         return constructHistory(params);
@@ -396,10 +395,8 @@ public class Client {
      * @return true on success, false otherwise
      */
     public boolean toggleProfile(Boolean enabled) {
-        // TODO: make this return values properly
 
-
-        Map<String,String> params = new HashMap<>();
+        final Map<String,String> params = new HashMap<>();
         params.put("active", enabled.toString());
 
         try {
@@ -410,10 +407,8 @@ public class Client {
                 uri += _clientId;
             }
             JSONObject response = new JSONObject(doPost(uri, params));
-            System.out.println("Response is :"+ response.toString());
         } catch (Exception e) {
             // some sort of error
-            System.out.println(e.getMessage());
             return false;
         }
         return true;
@@ -428,7 +423,7 @@ public class Client {
         Boolean enabled = new Boolean(true);
 
 
-        Map<String,String> params = new HashMap<>();
+        final Map<String,String> params = new HashMap<>();
         params.put("reset", enabled.toString());
 
         try {
@@ -439,10 +434,8 @@ public class Client {
                 uri += _clientId;
             }
             JSONObject response = new JSONObject(doPost(uri, params));
-            System.out.println("Response is :"+ response.toString());
         } catch (Exception e) {
             // some sort of error
-            System.out.println(e.getMessage());
             return false;
         }
         return true;
@@ -472,7 +465,7 @@ public class Client {
 
     protected boolean toggleOverride(String pathName, String type, Boolean enabled) {
 
-        Map<String,String> params = new HashMap<>();
+        final Map<String,String> params = new HashMap<>();
         params.put(type, enabled.toString());
         params.put("profileIdentifier", this._profileName);
 
@@ -481,7 +474,6 @@ public class Client {
             if (response.getBoolean(type) == enabled) {
                 return true;
             }
-            System.out.println("Response is :"+ response.toString());
         } catch (Exception e) {
             // some sort of error
             e.printStackTrace();
@@ -511,7 +503,7 @@ public class Client {
 
     protected boolean togglePathReset(String pathName, String type) {
 
-        Map<String,String> params = new HashMap<>();
+        final Map<String,String> params = new HashMap<>();
         params.put(type, "true");
         params.put("profileIdentifier", this._profileName);
         try {
@@ -545,12 +537,11 @@ public class Client {
 
         try {
 
-            Map<String,String> params = new HashMap<>();
+            final Map<String,String> params = new HashMap<>();
             params.put(command, custom);
             params.put("profileIdentifier", this._profileName);
 
             JSONObject response = new JSONObject(doPost(BASE_PATH + uriEncode(pathName), params));
-            System.out.println("Response is :"+ response.toString());
             return true;
         } catch (Exception e) {
             e.printStackTrace();
@@ -623,12 +614,11 @@ public class Client {
             Integer overrideId = getOverrideIdForMethodName(methodName);
 
             // now post to path api to add this is a selected override
-            Map<String,String> params = new HashMap<>();
+            final Map<String,String> params = new HashMap<>();
             params.put("addOverride", overrideId.toString());
             params.put("profileIdentifier", this._profileName);
 
             JSONObject response = new JSONObject(doPost(BASE_PATH + uriEncode(pathName), params));
-            System.out.println("Response is :"+ response.toString());
             // check enabled endpoints array to see if this overrideID exists
             JSONArray enabled = response.getJSONArray("enabledEndpoints");
             for (int x = 0; x < enabled.length(); x++) {
@@ -656,7 +646,7 @@ public class Client {
         try {
             String methodId = getOverrideIdForMethodName(methodName).toString();
 
-            Map<String,String> params = new HashMap<>();
+            final Map<String,String> params = new HashMap<>();
             params.put("profileIdentifier", this._profileName);
             params.put("ordinal", ordinal.toString());
             params.put("repeatNumber", repeatCount.toString());
@@ -682,7 +672,7 @@ public class Client {
         try {
             String methodId = getOverrideIdForMethodName(methodName).toString();
 
-            Map<String,String> params = new HashMap<>();
+           final  Map<String,String> params = new HashMap<>();
             params.put("profileIdentifier", this._profileName);
             params.put("ordinal", ordinal.toString());
             params.put("responseCode", responseCode);
@@ -706,8 +696,7 @@ public class Client {
      */
     public boolean setMethodArguments(String pathName, String methodName, Integer ordinal, Object... arguments) {
         try {
-            //BasicNameValuePair[] params = new BasicNameValuePair[arguments.length + 2];
-            Map<String, String> params = new HashMap<>();
+            final Map<String, String> params = new HashMap<>();
             for (Object argument : arguments) {
                 params.put("arguments[]", argument.toString());
             }
@@ -738,7 +727,7 @@ public class Client {
 
             // now post to path api to add this is a selected override
 
-            Map<String,String> params = new HashMap<>();
+            final Map<String,String> params = new HashMap<>();
             params.put("profileIdentifier", this._profileName);
             params.put("removeOverride", overrideId.toString());
 
@@ -771,7 +760,7 @@ public class Client {
             int type = getRequestTypeFromString(requestType);
             String url = BASE_PATH;
 
-            Map<String,String> params = new HashMap<>();
+            final Map<String,String> params = new HashMap<>();
             params.put("pathName", pathName);
             params.put("path", pathValue);
             params.put("requestType", String.valueOf(type));
@@ -1013,7 +1002,7 @@ public class Client {
     public ServerRedirect addServerMapping(String sourceHost, String destinationHost, String hostHeader) {
         JSONObject response = null;
 
-        Map<String, String> params = new HashMap<>();
+        final Map<String, String> params = new HashMap<>();
         params.put("srcUrl", sourceHost);
         params.put("destUrl", destinationHost);
         params.put("profileIdentifier", this._profileName);
@@ -1089,7 +1078,7 @@ public class Client {
      */
     public ServerRedirect enableServerMapping(int serverMappingId, Boolean enabled) {
         ServerRedirect redirect = new ServerRedirect();
-        Map<String, String> params = new HashMap<>();
+        final Map<String, String> params = new HashMap<>();
         params.put("enabled", enabled.toString());
         params.put("profileIdentifier", this._profileName);
 
@@ -1112,7 +1101,7 @@ public class Client {
      */
     public ServerRedirect updateServerRedirectSrc(int serverMappingId, String sourceHost) {
         ServerRedirect redirect = new ServerRedirect();
-        Map<String, String> params = new HashMap<>();
+        final Map<String, String> params = new HashMap<>();
         params.put("srcUrl", sourceHost);
         params.put("profileIdentifier", this._profileName);
 
@@ -1136,7 +1125,7 @@ public class Client {
     public ServerRedirect updateServerRedirectDest(int serverMappingId, String destinationHost) {
         ServerRedirect redirect = new ServerRedirect();
 
-        Map<String, String> params = new HashMap<>();
+        final Map<String, String> params = new HashMap<>();
         params.put("destUrl", destinationHost);
         params.put("profileIdentifier", this._profileName);
         try {
@@ -1159,7 +1148,7 @@ public class Client {
     public ServerRedirect updateServerRedirectHost(int serverMappingId, String hostHeader) {
         ServerRedirect redirect = new ServerRedirect();
 
-        Map<String, String> params = new HashMap<>();
+        final Map<String, String> params = new HashMap<>();
         params.put("hostHeader", hostHeader);
         params.put("profileIdentifier", this._profileName);
         try {
@@ -1205,7 +1194,7 @@ public class Client {
     public ServerGroup addServerGroup(String groupName) {
         ServerGroup group = new ServerGroup();
 
-        Map<String, String> params = new HashMap<>();
+        final Map<String, String> params = new HashMap<>();
         params.put("name", groupName);
         params.put("profileIdentifier", this._profileName);
 
@@ -1273,7 +1262,7 @@ public class Client {
      */
     public ServerGroup updateServerGroupName(int serverGroupId, String name) {
         ServerGroup serverGroup = null;
-        Map<String, String> params = new HashMap<>();
+        final Map<String, String> params = new HashMap<>();
         params.put("name", name);
         params.put("profileIdentifier", this._profileName);
 
@@ -1296,7 +1285,7 @@ public class Client {
     public ServerGroup activateServerGroup(int serverGroupId) {
         ServerGroup serverGroup = null;
 
-        Map<String, String> params = new HashMap<>();
+        final Map<String, String> params = new HashMap<>();
         params.put("activate", String.valueOf(true));
         params.put("profileIdentifier", this._profileName);
         try {
@@ -1318,7 +1307,7 @@ public class Client {
     public ServerGroup activateServerGroup(String groupName) {
         ServerGroup serverGroup = null;
 
-        Map<String, String> params = new HashMap<>();
+        final Map<String, String> params = new HashMap<>();
         params.put("activate", String.valueOf(true));
         params.put("profileIdentifier", this._profileName);
 
@@ -1345,8 +1334,6 @@ public class Client {
      * @return If upload was successful
      */
     public boolean uploadConfigurationAndProfile(String fileName, String odoImport) throws Exception {
-
-        OkHttpClient okHttpClient = new OkHttpClient();
 
         String boundary = "23ljkw4ljefw093ljk";
         String apiUrl = BASE_BACKUP_PROFILE + "/" + uriEncode(this._profileName) + "/" + this._clientId;
@@ -1424,22 +1411,27 @@ public class Client {
         return response.body().string();
     }
 
-    protected String doGet(String apiUrl, Map<String,String> data) throws Exception {
+    private String getRequestUrlFromMap(String apiUrl, Map<String,String> data) throws Exception{
         String fullUrl = BASE_URL + apiUrl;
+        if ((data != null) && (!data.isEmpty())) {
+            fullUrl += "?";
 
-        if (data != null) {
-            if (data.size() > 0) {
-                fullUrl += "?";
-            }
 
             for (Map.Entry<String,String> entry : data.entrySet()) {
                 fullUrl += entry.getKey() + "=" + uriEncode(entry.getValue()) + "&";
             }
+
         }
+
+        return fullUrl;
+    }
+
+    protected String doGet(String apiUrl, Map<String,String> data) throws Exception {
+        String fullUrl = getRequestUrlFromMap(apiUrl, data);
 
         // add clientUUID if necessary
         if (_clientId != null) {
-            if (data == null || data.size() == 0) {
+            if (data == null || data.isEmpty()) {
                 fullUrl += "?";
             }
             fullUrl += "clientUUID=" + _clientId;
@@ -1447,7 +1439,6 @@ public class Client {
 
         fullUrl += "&profileIdentifier=" + uriEncode(this._profileName);
 
-        OkHttpClient okHttpClient = new OkHttpClient();
         Request request = new Request.Builder()
                 .url(fullUrl)
                 .build();
@@ -1457,21 +1448,12 @@ public class Client {
     }
 
     protected String doDelete(String apiUrl, Map<String,String> data) throws Exception {
-        String fullUrl = BASE_URL + apiUrl;
+        String fullUrl = getRequestUrlFromMap(apiUrl, data);
 
-        if (data != null) {
-            if (data.size() > 0) {
-                fullUrl += "?";
-            }
-
-            for (Map.Entry<String,String> entry : data.entrySet()) {
-                fullUrl += entry.getKey() + "=" + uriEncode(entry.getValue()) + "&";
-            }
-        }
 
         // add clientUUID if necessary
         if (_clientId != null) {
-            if (data == null || data.size() == 0) {
+            if ( data == null || (data.isEmpty())) {
                 fullUrl += "?";
             }
             fullUrl += "clientUUID=" + _clientId;
@@ -1479,7 +1461,6 @@ public class Client {
 
         fullUrl += "&profileIdentifier=" + uriEncode(this._profileName);
 
-        OkHttpClient okHttpClient = new OkHttpClient();
         Request request = new Request.Builder()
                 .url(fullUrl)
                 .delete()
@@ -1492,24 +1473,18 @@ public class Client {
     protected String doPost(String apiUrl, Map<String,String> data) throws Exception {
         String fullUrl = BASE_URL + apiUrl;
 
-        OkHttpClient okHttpClient = new OkHttpClient();
-
         FormBody.Builder formBodyBuilder = new FormBody.Builder();
 
-        if (data!=null) {
-            if (data.size() > 0) {
+        if ((data != null) && !data.isEmpty()) {
                 for (Map.Entry<String,String> entry : data.entrySet()) {
                     formBodyBuilder.add(entry.getKey(), entry.getValue());
                 }
-            }
         }
 
         if (_clientId != null) {
 
             formBodyBuilder.add("clientUUID",  _clientId);
         }
-
-        System.out.println("Full Url is :"+ fullUrl);
 
         RequestBody body = formBodyBuilder.build();
 
