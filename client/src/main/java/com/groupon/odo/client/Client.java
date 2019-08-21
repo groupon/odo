@@ -19,33 +19,27 @@ package com.groupon.odo.client;
 import com.groupon.odo.client.models.History;
 import com.groupon.odo.client.models.ServerGroup;
 import com.groupon.odo.client.models.ServerRedirect;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
 import java.io.File;
 import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.HttpDelete;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.ContentType;
-import org.apache.http.entity.mime.HttpMultipartMode;
-import org.apache.http.entity.mime.content.FileBody;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.params.HttpConnectionParams;
-import org.apache.http.entity.mime.MultipartEntityBuilder;
+import java.util.concurrent.TimeUnit;
+
+import okhttp3.Request;
+import okhttp3.OkHttpClient;
+import okhttp3.FormBody;
+import okhttp3.RequestBody;
+import okhttp3.Response;
+import okhttp3.MultipartBody;
+import okhttp3.MediaType;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import java.util.Map;
+import java.util.HashMap;
 
 public class Client {
+    protected final OkHttpClient okHttpClient = new OkHttpClient();
     protected String ODO_HOST = "localhost";
     protected String BASE_URL = "http://localhost:8090/testproxy/api/";
     protected int API_PORT = 8090;
@@ -183,6 +177,7 @@ public class Client {
             toggleProfile(true);
         } catch (Exception e) {
             // some sort of error
+            e.printStackTrace();
             throw new Exception("Could not create a proxy client");
         }
     }
@@ -222,11 +217,10 @@ public class Client {
      * @throws Exception exception
      */
     public History[] filterHistory(String... filters) throws Exception {
-        BasicNameValuePair[] params;
+        final Map<String,String> params = new HashMap<>();
         if (filters.length > 0) {
-            params = new BasicNameValuePair[filters.length];
             for (int i = 0; i < filters.length; i++) {
-                params[i] = new BasicNameValuePair("source_uri[]", filters[i]);
+                params.put("source_uri[]", filters[i]);
             }
         } else {
             return refreshHistory();
@@ -242,7 +236,7 @@ public class Client {
      * @return array of History items
      * @throws Exception exception
      */
-    protected History[] constructHistory(BasicNameValuePair[] params) throws Exception {
+    protected History[] constructHistory(Map<String,String> params) throws Exception {
         String uri = HISTORY + uriEncode(_profileName);
 
         try {
@@ -364,10 +358,10 @@ public class Client {
      * @throws Exception exception
      */
     public History[] refreshHistory(int limit, int offset) throws Exception {
-        BasicNameValuePair[] params = {
-            new BasicNameValuePair("limit", String.valueOf(limit)),
-            new BasicNameValuePair("offset", String.valueOf(offset))
-        };
+
+        final Map<String,String> params = new HashMap<>();
+        params.put("limit", String.valueOf(limit));
+        params.put("offset", String.valueOf(offset));
         return constructHistory(params);
     }
 
@@ -401,10 +395,10 @@ public class Client {
      * @return true on success, false otherwise
      */
     public boolean toggleProfile(Boolean enabled) {
-        // TODO: make this return values properly
-        BasicNameValuePair[] params = {
-            new BasicNameValuePair("active", enabled.toString())
-        };
+
+        final Map<String,String> params = new HashMap<>();
+        params.put("active", enabled.toString());
+
         try {
             String uri = BASE_PROFILE + uriEncode(this._profileName) + "/" + BASE_CLIENTS + "/";
             if (_clientId == null) {
@@ -415,7 +409,6 @@ public class Client {
             JSONObject response = new JSONObject(doPost(uri, params));
         } catch (Exception e) {
             // some sort of error
-            System.out.println(e.getMessage());
             return false;
         }
         return true;
@@ -428,9 +421,10 @@ public class Client {
      */
     public boolean resetProfile() {
         Boolean enabled = new Boolean(true);
-        BasicNameValuePair[] params = {
-            new BasicNameValuePair("reset", enabled.toString())
-        };
+
+
+        final Map<String,String> params = new HashMap<>();
+        params.put("reset", enabled.toString());
 
         try {
             String uri = BASE_PROFILE + uriEncode(this._profileName) + "/" + BASE_CLIENTS + "/";
@@ -442,7 +436,6 @@ public class Client {
             JSONObject response = new JSONObject(doPost(uri, params));
         } catch (Exception e) {
             // some sort of error
-            System.out.println(e.getMessage());
             return false;
         }
         return true;
@@ -471,10 +464,11 @@ public class Client {
     }
 
     protected boolean toggleOverride(String pathName, String type, Boolean enabled) {
-        BasicNameValuePair[] params = {
-            new BasicNameValuePair(type, enabled.toString()),
-            new BasicNameValuePair("profileIdentifier", this._profileName)
-        };
+
+        final Map<String,String> params = new HashMap<>();
+        params.put(type, enabled.toString());
+        params.put("profileIdentifier", this._profileName);
+
         try {
             JSONObject response = new JSONObject(doPost(BASE_PATH + uriEncode(pathName), params));
             if (response.getBoolean(type) == enabled) {
@@ -508,10 +502,10 @@ public class Client {
     }
 
     protected boolean togglePathReset(String pathName, String type) {
-        BasicNameValuePair[] params = {
-            new BasicNameValuePair(type, "true"),
-            new BasicNameValuePair("profileIdentifier", this._profileName)
-        };
+
+        final Map<String,String> params = new HashMap<>();
+        params.put(type, "true");
+        params.put("profileIdentifier", this._profileName);
         try {
             JSONObject response = new JSONObject(doPost(BASE_PATH + uriEncode(pathName), params));
             return true;
@@ -542,13 +536,12 @@ public class Client {
         }
 
         try {
-            BasicNameValuePair[] params = {
-                new BasicNameValuePair(command, custom),
-                new BasicNameValuePair("profileIdentifier", this._profileName)
-            };
+
+            final Map<String,String> params = new HashMap<>();
+            params.put(command, custom);
+            params.put("profileIdentifier", this._profileName);
 
             JSONObject response = new JSONObject(doPost(BASE_PATH + uriEncode(pathName), params));
-
             return true;
         } catch (Exception e) {
             e.printStackTrace();
@@ -621,10 +614,10 @@ public class Client {
             Integer overrideId = getOverrideIdForMethodName(methodName);
 
             // now post to path api to add this is a selected override
-            BasicNameValuePair[] params = {
-                new BasicNameValuePair("addOverride", overrideId.toString()),
-                new BasicNameValuePair("profileIdentifier", this._profileName)
-            };
+            final Map<String,String> params = new HashMap<>();
+            params.put("addOverride", overrideId.toString());
+            params.put("profileIdentifier", this._profileName);
+
             JSONObject response = new JSONObject(doPost(BASE_PATH + uriEncode(pathName), params));
             // check enabled endpoints array to see if this overrideID exists
             JSONArray enabled = response.getJSONArray("enabledEndpoints");
@@ -652,11 +645,11 @@ public class Client {
     public boolean setOverrideRepeatCount(String pathName, String methodName, Integer ordinal, Integer repeatCount) {
         try {
             String methodId = getOverrideIdForMethodName(methodName).toString();
-            BasicNameValuePair[] params = {
-                new BasicNameValuePair("profileIdentifier", this._profileName),
-                new BasicNameValuePair("ordinal", ordinal.toString()),
-                new BasicNameValuePair("repeatNumber", repeatCount.toString())
-            };
+
+            final Map<String,String> params = new HashMap<>();
+            params.put("profileIdentifier", this._profileName);
+            params.put("ordinal", ordinal.toString());
+            params.put("repeatNumber", repeatCount.toString());
 
             JSONObject response = new JSONObject(doPost(BASE_PATH + uriEncode(pathName) + "/" + methodId, params));
             return true;
@@ -678,11 +671,11 @@ public class Client {
     public boolean setOverrideResponseCode(String pathName, String methodName, Integer ordinal, String responseCode) {
         try {
             String methodId = getOverrideIdForMethodName(methodName).toString();
-            BasicNameValuePair[] params = {
-                    new BasicNameValuePair("profileIdentifier", this._profileName),
-                    new BasicNameValuePair("ordinal", ordinal.toString()),
-                    new BasicNameValuePair("responseCode", responseCode)
-            };
+
+           final  Map<String,String> params = new HashMap<>();
+            params.put("profileIdentifier", this._profileName);
+            params.put("ordinal", ordinal.toString());
+            params.put("responseCode", responseCode);
 
             JSONObject response = new JSONObject(doPost(BASE_PATH + uriEncode(pathName) + "/" + methodId, params));
             return true;
@@ -703,16 +696,14 @@ public class Client {
      */
     public boolean setMethodArguments(String pathName, String methodName, Integer ordinal, Object... arguments) {
         try {
-            BasicNameValuePair[] params = new BasicNameValuePair[arguments.length + 2];
-            int x = 0;
+            final Map<String, String> params = new HashMap<>();
             for (Object argument : arguments) {
-                params[x] = new BasicNameValuePair("arguments[]", argument.toString());
-                x++;
+                params.put("arguments[]", argument.toString());
             }
-            params[x] = new BasicNameValuePair("profileIdentifier", this._profileName);
-            params[x + 1] = new BasicNameValuePair("ordinal", ordinal.toString());
+            params.put("profileIdentifier", this._profileName);
+            params.put("ordinal", ordinal.toString());
 
-            JSONObject response = new JSONObject(doPost(BASE_PATH + uriEncode(pathName) + "/" + methodName, params));
+           JSONObject response = new JSONObject(doPost(BASE_PATH + uriEncode(pathName) + "/" + methodName, params));
 
             return true;
         } catch (Exception e) {
@@ -735,10 +726,10 @@ public class Client {
             Integer overrideId = getOverrideIdForMethodName(methodName);
 
             // now post to path api to add this is a selected override
-            BasicNameValuePair[] params = {
-                new BasicNameValuePair("removeOverride", overrideId.toString()),
-                new BasicNameValuePair("profileIdentifier", this._profileName)
-            };
+
+            final Map<String,String> params = new HashMap<>();
+            params.put("profileIdentifier", this._profileName);
+            params.put("removeOverride", overrideId.toString());
 
             JSONObject response = new JSONObject(doPost(BASE_PATH + uriEncode(pathName), params));
             // check enabled endpoints array to see if this overrideID exists
@@ -768,12 +759,12 @@ public class Client {
         try {
             int type = getRequestTypeFromString(requestType);
             String url = BASE_PATH;
-            BasicNameValuePair[] params = {
-                new BasicNameValuePair("pathName", pathName),
-                new BasicNameValuePair("path", pathValue),
-                new BasicNameValuePair("requestType", String.valueOf(type)),
-                new BasicNameValuePair("profileIdentifier", this._profileName)
-            };
+
+            final Map<String,String> params = new HashMap<>();
+            params.put("pathName", pathName);
+            params.put("path", pathValue);
+            params.put("requestType", String.valueOf(type));
+            params.put("profileIdentifier", this._profileName);
 
             JSONObject response = new JSONObject(doPost(BASE_PATH, params));
         } catch (Exception e) {
@@ -917,7 +908,7 @@ public class Client {
     }
 
     protected Integer getOverrideIdForMethodName(String methodName) throws Exception {
-        String methodInfo = doGet(BASE_METHOD + methodName, new BasicNameValuePair[0]);
+        String methodInfo = doGet(BASE_METHOD + methodName, new HashMap<String, String>());
         JSONObject methodJson = new JSONObject(methodInfo);
         return methodJson.getJSONObject("method").getInt("id");
     }
@@ -930,7 +921,7 @@ public class Client {
      * @throws Exception exception
      */
     private Integer getNextOrdinalForMethodId(int methodId, String pathName) throws Exception {
-        String pathInfo = doGet(BASE_PATH + uriEncode(pathName), new BasicNameValuePair[0]);
+        String pathInfo = doGet(BASE_PATH + uriEncode(pathName), new HashMap<String, String>());
         JSONObject pathResponse = new JSONObject(pathInfo);
 
         JSONArray enabledEndpoints = pathResponse.getJSONArray("enabledEndpoints");
@@ -1011,18 +1002,16 @@ public class Client {
     public ServerRedirect addServerMapping(String sourceHost, String destinationHost, String hostHeader) {
         JSONObject response = null;
 
-        ArrayList<BasicNameValuePair> params = new ArrayList<BasicNameValuePair>();
-        params.add(new BasicNameValuePair("srcUrl", sourceHost));
-        params.add(new BasicNameValuePair("destUrl", destinationHost));
-        params.add(new BasicNameValuePair("profileIdentifier", this._profileName));
+        final Map<String, String> params = new HashMap<>();
+        params.put("srcUrl", sourceHost);
+        params.put("destUrl", destinationHost);
+        params.put("profileIdentifier", this._profileName);
         if (hostHeader != null) {
-            params.add(new BasicNameValuePair("hostHeader", hostHeader));
+            params.put("hostHeader", hostHeader);
         }
 
         try {
-            BasicNameValuePair paramArray[] = new BasicNameValuePair[params.size()];
-            params.toArray(paramArray);
-            response = new JSONObject(doPost(BASE_SERVER, paramArray));
+            response = new JSONObject(doPost(BASE_SERVER, params));
         } catch (Exception e) {
             e.printStackTrace();
             return null;
@@ -1089,10 +1078,10 @@ public class Client {
      */
     public ServerRedirect enableServerMapping(int serverMappingId, Boolean enabled) {
         ServerRedirect redirect = new ServerRedirect();
-        BasicNameValuePair[] params = {
-            new BasicNameValuePair("enabled", enabled.toString()),
-            new BasicNameValuePair("profileIdentifier", this._profileName)
-        };
+        final Map<String, String> params = new HashMap<>();
+        params.put("enabled", enabled.toString());
+        params.put("profileIdentifier", this._profileName);
+
         try {
             JSONObject response = new JSONObject(doPost(BASE_SERVER + "/" + serverMappingId, params));
             redirect = getServerRedirectFromJSON(response);
@@ -1112,10 +1101,10 @@ public class Client {
      */
     public ServerRedirect updateServerRedirectSrc(int serverMappingId, String sourceHost) {
         ServerRedirect redirect = new ServerRedirect();
-        BasicNameValuePair[] params = {
-            new BasicNameValuePair("srcUrl", sourceHost),
-            new BasicNameValuePair("profileIdentifier", this._profileName)
-        };
+        final Map<String, String> params = new HashMap<>();
+        params.put("srcUrl", sourceHost);
+        params.put("profileIdentifier", this._profileName);
+
         try {
             JSONObject response = new JSONObject(doPost(BASE_SERVER + "/" + serverMappingId + "/src", params));
             redirect = getServerRedirectFromJSON(response);
@@ -1135,10 +1124,10 @@ public class Client {
      */
     public ServerRedirect updateServerRedirectDest(int serverMappingId, String destinationHost) {
         ServerRedirect redirect = new ServerRedirect();
-        BasicNameValuePair[] params = {
-            new BasicNameValuePair("destUrl", destinationHost),
-            new BasicNameValuePair("profileIdentifier", this._profileName)
-        };
+
+        final Map<String, String> params = new HashMap<>();
+        params.put("destUrl", destinationHost);
+        params.put("profileIdentifier", this._profileName);
         try {
             JSONObject response = new JSONObject(doPost(BASE_SERVER + "/" + serverMappingId + "/dest", params));
             redirect = getServerRedirectFromJSON(response);
@@ -1158,10 +1147,10 @@ public class Client {
      */
     public ServerRedirect updateServerRedirectHost(int serverMappingId, String hostHeader) {
         ServerRedirect redirect = new ServerRedirect();
-        BasicNameValuePair[] params = {
-            new BasicNameValuePair("hostHeader", hostHeader),
-            new BasicNameValuePair("profileIdentifier", this._profileName)
-        };
+
+        final Map<String, String> params = new HashMap<>();
+        params.put("hostHeader", hostHeader);
+        params.put("profileIdentifier", this._profileName);
         try {
             JSONObject response = new JSONObject(doPost(BASE_SERVER + "/" + serverMappingId + "/host", params));
             redirect = getServerRedirectFromJSON(response);
@@ -1205,10 +1194,10 @@ public class Client {
     public ServerGroup addServerGroup(String groupName) {
         ServerGroup group = new ServerGroup();
 
-        BasicNameValuePair[] params = {
-            new BasicNameValuePair("name", groupName),
-            new BasicNameValuePair("profileIdentifier", this._profileName)
-        };
+        final Map<String, String> params = new HashMap<>();
+        params.put("name", groupName);
+        params.put("profileIdentifier", this._profileName);
+
         try {
             JSONObject response = new JSONObject(doPost(BASE_SERVERGROUP, params));
             group = getServerGroupFromJSON(response);
@@ -1273,10 +1262,10 @@ public class Client {
      */
     public ServerGroup updateServerGroupName(int serverGroupId, String name) {
         ServerGroup serverGroup = null;
-        BasicNameValuePair[] params = {
-            new BasicNameValuePair("name", name),
-            new BasicNameValuePair("profileIdentifier", this._profileName)
-        };
+        final Map<String, String> params = new HashMap<>();
+        params.put("name", name);
+        params.put("profileIdentifier", this._profileName);
+
         try {
             JSONObject response = new JSONObject(doPost(BASE_SERVERGROUP + "/" + serverGroupId, params));
             serverGroup = getServerGroupFromJSON(response);
@@ -1295,10 +1284,10 @@ public class Client {
      */
     public ServerGroup activateServerGroup(int serverGroupId) {
         ServerGroup serverGroup = null;
-        BasicNameValuePair[] params = {
-            new BasicNameValuePair("activate", String.valueOf(true)),
-            new BasicNameValuePair("profileIdentifier", this._profileName)
-        };
+
+        final Map<String, String> params = new HashMap<>();
+        params.put("activate", String.valueOf(true));
+        params.put("profileIdentifier", this._profileName);
         try {
             JSONObject response = new JSONObject(doPost(BASE_SERVERGROUP + "/" + serverGroupId, params));
             serverGroup = getServerGroupFromJSON(response);
@@ -1317,10 +1306,10 @@ public class Client {
      */
     public ServerGroup activateServerGroup(String groupName) {
         ServerGroup serverGroup = null;
-        BasicNameValuePair[] params = {
-            new BasicNameValuePair("activate", String.valueOf(true)),
-            new BasicNameValuePair("profileIdentifier", this._profileName)
-        };
+
+        final Map<String, String> params = new HashMap<>();
+        params.put("activate", String.valueOf(true));
+        params.put("profileIdentifier", this._profileName);
 
         int serverGroupId = getServerGroupId(groupName);
         if (serverGroupId == -1) {
@@ -1344,15 +1333,30 @@ public class Client {
      * @param odoImport Import odo configuration in addition to overrides
      * @return If upload was successful
      */
-    public boolean uploadConfigurationAndProfile(String fileName, String odoImport) {
-        File file = new File(fileName);
-        MultipartEntityBuilder multipartEntityBuilder = MultipartEntityBuilder.create();
-        FileBody fileBody = new FileBody(file, ContentType.MULTIPART_FORM_DATA);
-        multipartEntityBuilder.setMode(HttpMultipartMode.BROWSER_COMPATIBLE);
-        multipartEntityBuilder.addPart("fileData", fileBody);
-        multipartEntityBuilder.addTextBody("odoImport", odoImport);
+    public boolean uploadConfigurationAndProfile(String fileName, String odoImport) throws Exception {
+
+        String boundary = "23ljkw4ljefw093ljk";
+        String apiUrl = BASE_BACKUP_PROFILE + "/" + uriEncode(this._profileName) + "/" + this._clientId;
+
+        String fullUrl = BASE_URL + apiUrl;
+
+        RequestBody requestBody = new MultipartBody.Builder()
+                .setType(MultipartBody.FORM)
+                .addFormDataPart("file", fileName,
+                        RequestBody.create(MediaType.parse("application/octet-stream"),
+                                new File(fileName)))
+                .addFormDataPart("odoImport", odoImport)
+                .build();
+
+        Request request = new Request.Builder()
+                .url(fullUrl)
+                .addHeader("Content-Type", "multipart/form-data; boundary=" + boundary)
+                .post(requestBody)
+                .build();
+
+        Response postResponse = okHttpClient.newCall(request).execute();
         try {
-            JSONObject response = new JSONObject(doMultipartPost(BASE_BACKUP_PROFILE + "/" + uriEncode(this._profileName) + "/" + this._clientId, multipartEntityBuilder));
+            JSONObject response = new JSONObject(postResponse.toString());
             if (response.length() == 0) {
                 return true;
             } else {
@@ -1361,6 +1365,7 @@ public class Client {
         } catch (Exception e) {
             return false;
         }
+
     }
 
     /**
@@ -1371,11 +1376,11 @@ public class Client {
      */
     public JSONObject exportConfigurationAndProfile(String oldExport) {
         try {
-            BasicNameValuePair[] params = {
-                new BasicNameValuePair("oldExport", oldExport)
-            };
+
+            Map<String, String> params = new HashMap<>();
+            params.put("oldExport", oldExport);
             String url = BASE_BACKUP_PROFILE + "/" + uriEncode(this._profileName) + "/" + this._clientId;
-            return new JSONObject(doGet(url, new BasicNameValuePair[]{}));
+            return new JSONObject(doGet(url, params));
         } catch (Exception e) {
             return new JSONObject();
         }
@@ -1392,40 +1397,41 @@ public class Client {
     }
 
     protected static String doGet(String fullUrl, int timeout) throws Exception {
-        HttpGet get = new HttpGet(fullUrl);
 
-        HttpClient client = new DefaultHttpClient();
-        HttpConnectionParams.setConnectionTimeout(client.getParams(), timeout);
-        HttpConnectionParams.setSoTimeout(client.getParams(), timeout);
+        OkHttpClient okHttpClient = new OkHttpClient().newBuilder()
+                .readTimeout(timeout, TimeUnit.SECONDS)
+                .connectTimeout(timeout, TimeUnit.SECONDS)
+                .build();
 
-        HttpResponse response = client.execute(get);
+        Request request = new Request.Builder()
+                .url(fullUrl)
+                .build();
 
-        BufferedReader rd = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
-        String accumulator = "";
-        String line = "";
-        while ((line = rd.readLine()) != null) {
-            accumulator += line;
-            accumulator += "\n";
-        }
-        return accumulator;
+        Response response = okHttpClient.newCall(request).execute();
+        return response.body().string();
     }
 
-    protected String doGet(String apiUrl, BasicNameValuePair[] data) throws Exception {
+    private String getRequestUrlFromMap(String apiUrl, Map<String,String> data) throws Exception{
         String fullUrl = BASE_URL + apiUrl;
+        if ((data != null) && (!data.isEmpty())) {
+            fullUrl += "?";
 
-        if (data != null) {
-            if (data.length > 0) {
-                fullUrl += "?";
+
+            for (Map.Entry<String,String> entry : data.entrySet()) {
+                fullUrl += entry.getKey() + "=" + uriEncode(entry.getValue()) + "&";
             }
 
-            for (BasicNameValuePair bnvp : data) {
-                fullUrl += bnvp.getName() + "=" + uriEncode(bnvp.getValue()) + "&";
-            }
         }
+
+        return fullUrl;
+    }
+
+    protected String doGet(String apiUrl, Map<String,String> data) throws Exception {
+        String fullUrl = getRequestUrlFromMap(apiUrl, data);
 
         // add clientUUID if necessary
         if (_clientId != null) {
-            if (data == null || data.length == 0) {
+            if (data == null || data.isEmpty()) {
                 fullUrl += "?";
             }
             fullUrl += "clientUUID=" + _clientId;
@@ -1433,40 +1439,21 @@ public class Client {
 
         fullUrl += "&profileIdentifier=" + uriEncode(this._profileName);
 
-        HttpGet get = new HttpGet(fullUrl);
+        Request request = new Request.Builder()
+                .url(fullUrl)
+                .build();
 
-        HttpClient client = new DefaultHttpClient();
-        HttpConnectionParams.setConnectionTimeout(client.getParams(), _timeout);
-        HttpConnectionParams.setSoTimeout(client.getParams(), _timeout);
-
-        HttpResponse response = client.execute(get);
-
-        BufferedReader rd = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
-        String accumulator = "";
-        String line = "";
-        while ((line = rd.readLine()) != null) {
-            accumulator += line;
-            accumulator += "\n";
-        }
-        return accumulator;
+        Response response = okHttpClient.newCall(request).execute();
+        return response.body().string();
     }
 
-    protected String doDelete(String apiUrl, BasicNameValuePair[] data) throws Exception {
-        String fullUrl = BASE_URL + apiUrl;
+    protected String doDelete(String apiUrl, Map<String,String> data) throws Exception {
+        String fullUrl = getRequestUrlFromMap(apiUrl, data);
 
-        if (data != null) {
-            if (data.length > 0) {
-                fullUrl += "?";
-            }
-
-            for (BasicNameValuePair bnvp : data) {
-                fullUrl += bnvp.getName() + "=" + uriEncode(bnvp.getValue()) + "&";
-            }
-        }
 
         // add clientUUID if necessary
         if (_clientId != null) {
-            if (data == null || data.length == 0) {
+            if ( data == null || (data.isEmpty())) {
                 fullUrl += "?";
             }
             fullUrl += "clientUUID=" + _clientId;
@@ -1474,81 +1461,43 @@ public class Client {
 
         fullUrl += "&profileIdentifier=" + uriEncode(this._profileName);
 
-        HttpDelete get = new HttpDelete(fullUrl);
+        Request request = new Request.Builder()
+                .url(fullUrl)
+                .delete()
+                .build();
 
-        HttpClient client = new DefaultHttpClient();
-        HttpConnectionParams.setConnectionTimeout(client.getParams(), _timeout);
-        HttpConnectionParams.setSoTimeout(client.getParams(), _timeout);
-
-        HttpResponse response = client.execute(get);
-
-        BufferedReader rd = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
-        String accumulator = "";
-        String line = "";
-        while ((line = rd.readLine()) != null) {
-            accumulator += line;
-            accumulator += "\n";
-        }
-        return accumulator;
+        Response response = okHttpClient.newCall(request).execute();
+        return response.body().string();
     }
 
-    protected String doPost(String apiUrl, BasicNameValuePair[] data) throws Exception {
+    protected String doPost(String apiUrl, Map<String,String> data) throws Exception {
         String fullUrl = BASE_URL + apiUrl;
-        HttpPost post = new HttpPost(fullUrl);
 
-        post.setHeader("Content-Type", "application/x-www-form-urlencoded;charset=UTF-8");
-        ArrayList<BasicNameValuePair> dataList = new ArrayList<>();
-        if (data != null) {
-            dataList.addAll(Arrays.asList(data));
+        FormBody.Builder formBodyBuilder = new FormBody.Builder();
+
+        if ((data != null) && !data.isEmpty()) {
+                for (Map.Entry<String,String> entry : data.entrySet()) {
+                    formBodyBuilder.add(entry.getKey(), entry.getValue());
+                }
         }
 
-        // add clientUUID if necessary
         if (_clientId != null) {
-            BasicNameValuePair clientPair = new BasicNameValuePair("clientUUID", _clientId);
-            dataList.add(clientPair);
+
+            formBodyBuilder.add("clientUUID",  _clientId);
         }
 
-        if (dataList.size() > 0) {
-            UrlEncodedFormEntity urlEncodedFormEntity = new UrlEncodedFormEntity(dataList, StandardCharsets.UTF_8.name());
-            post.setEntity(urlEncodedFormEntity);
-        }
+        RequestBody body = formBodyBuilder.build();
 
-        HttpClient client = new DefaultHttpClient();
-        HttpConnectionParams.setConnectionTimeout(client.getParams(), _timeout);
-        HttpConnectionParams.setSoTimeout(client.getParams(), _timeout);
+        Request.Builder formBody = new Request.Builder()
+                .url(fullUrl)
+                .post(body)
+                .addHeader("Content-Type", "application/json; charset=utf-8");
 
-        HttpResponse response = client.execute(post);
-        BufferedReader rd = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
-        String accumulator = "";
-        String line = "";
-        while ((line = rd.readLine()) != null) {
-            accumulator += line;
-            accumulator += "\n";
-        }
-        return accumulator;
-    }
+        Request request = formBody.build();
 
-    protected String doMultipartPost(String apiUrl, MultipartEntityBuilder multipartEntityBuilder) throws Exception {
-        String boundary = "23ljkw4ljefw093ljk";
-        String fullUrl = BASE_URL + apiUrl;
-        HttpPost post = new HttpPost(fullUrl);
+        Response response = okHttpClient.newCall(request).execute();
 
-        post.setHeader("Content-Type", "multipart/form-data; boundary=" + boundary);
-        multipartEntityBuilder.setBoundary(boundary);
-        post.setEntity(multipartEntityBuilder.build());
+        return response.body().string().trim();
 
-        HttpClient client = new DefaultHttpClient();
-        HttpConnectionParams.setConnectionTimeout(client.getParams(), _timeout);
-        HttpConnectionParams.setSoTimeout(client.getParams(), _timeout);
-
-        HttpResponse response = client.execute(post);
-        BufferedReader rd = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
-        String accumulator = "";
-        String line = "";
-        while ((line = rd.readLine()) != null) {
-            accumulator += line;
-            accumulator += "\n";
-        }
-        return accumulator;
     }
 }
