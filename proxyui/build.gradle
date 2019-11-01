@@ -1,0 +1,51 @@
+plugins {
+    id 'war'
+    id 'org.springframework.boot' version '2.2.0.RELEASE'
+    id 'io.spring.dependency-management' version '1.0.8.RELEASE'
+}
+
+configurations.all {
+    exclude group: 'org.springframework.boot', module: 'spring-boot-starter-logging'
+    exclude group: 'org.springframework.boot', module: 'logback-classic'
+}
+
+bootWar {
+    mainClassName = 'com.groupon.odo.controllers.HomeController'
+    launchScript()
+}
+
+dependencies {
+    compile project(':proxylib')
+    compile project(':proxyserver')
+    compile 'org.json:json:20090211'
+    compile 'net.sf.flexjson:flexjson:2.1'
+    compile 'com.thetransactioncompany:cors-filter:1.9.2'
+    compile 'org.springframework.boot:spring-boot-starter-web'
+    compile 'org.springframework.boot:spring-boot-starter-data-jpa'
+    compile 'org.aspectj:aspectjrt:1.6.9'
+    compile 'javax.inject:javax.inject:1'
+    compile 'com.fasterxml.jackson.core:jackson-core:2.9.4'
+    compile 'com.fasterxml.jackson.core:jackson-databind:2.9.4'
+    compile 'com.fasterxml.jackson.core:jackson-annotations:2.9.4'
+    compile 'commons-fileupload:commons-fileupload:1.3.1'
+    compile 'commons-io:commons-io:2.4'
+    compile 'org.webjars:jquery:3.3.1'
+    compile 'org.webjars:jquery-ui:1.12.1'
+    compile 'org.webjars:jquery-ui-themes:1.12.1'
+    compile 'org.webjars:jqgrid:4.7.0'
+    compile 'org.webjars:jquery-migrate:3.0.0'
+    compile 'org.webjars:select2:3.5.4'
+    compile 'org.webjars:bootstrap:3.4.0'
+    compile 'org.webjars:jquery-cookie:1.4.1'
+    compile 'org.webjars:mousetrap:1.6.0'
+    compile 'org.webjars.bower:downloadjs:1.4.8'
+    runtime 'jstl:jstl:1.2'
+    runtime 'taglibs:standard:1.1.2'
+    runtime 'com.h2database:h2:1.4.193'
+    runtimeOnly 'org.springframework.boot:spring-boot-devtools'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testCompile 'junit:junit:4.12'
+    testCompile project(':client')
+    providedRuntime 'org.apache.tomcat.embed:tomcat-embed-jasper'
+    providedCompile 'javax.servlet:javax.servlet-api:4.0.0'
+}

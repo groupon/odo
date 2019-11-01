@@ -18,48 +18,60 @@ package com.groupon.odo.containers;
 import com.groupon.odo.proxylib.Constants;
 import com.groupon.odo.proxylib.Utils;
 import com.groupon.transparentproxy.TransparentProxy;
-import java.io.File;
-import java.io.IOException;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
-import javax.servlet.ServletContext;
-import org.apache.catalina.Context;
 import org.apache.catalina.connector.Connector;
 import org.apache.coyote.http11.Http11NioProtocol;
+import org.apache.tomcat.JarScanFilter;
+import org.apache.tomcat.JarScanType;
 import org.apache.tomcat.JarScanner;
 import org.apache.tomcat.JarScannerCallback;
-import org.springframework.boot.context.embedded.EmbeddedServletContainerFactory;
-import org.springframework.boot.context.embedded.tomcat.TomcatContextCustomizer;
-import org.springframework.boot.context.embedded.tomcat.TomcatEmbeddedServletContainerFactory;
+import org.apache.tomcat.util.http.LegacyCookieProcessor;
+import org.springframework.boot.web.embedded.tomcat.TomcatContextCustomizer;
+import org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory;
+import org.springframework.boot.web.servlet.server.ServletWebServerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import javax.servlet.ServletContext;
+import java.io.File;
+import java.io.IOException;
+import java.time.Duration;
 
 @Configuration
 public class HttpProxyContainer extends GenericProxyContainer {
     @Bean
-    public EmbeddedServletContainerFactory servletContainer() {
-        TomcatEmbeddedServletContainerFactory factory = new TomcatEmbeddedServletContainerFactory();
+    public ServletWebServerFactory servletContainer() {
+        TomcatServletWebServerFactory factory = new TomcatServletWebServerFactory();
         int httpPort = Utils.getSystemPort(Constants.SYS_HTTP_PORT);
 
         factory.setPort(httpPort);
-        factory.setSessionTimeout(10, TimeUnit.MINUTES);
+        factory.getSession().setTimeout(Duration.ofMinutes(10));
         factory.addAdditionalTomcatConnectors(createSslConnector());
-        factory.addContextCustomizers(new TomcatContextCustomizer() {
-            // The Context element represents a web application, which is run within a particular virtual host.
-            // You may define as many Context elements as you wish.
-            // Each such Context MUST have a unique context name within a virtual host.
-            // The context path does not need to be unique (see parallel deployment below).
-            // https://tomcat.apache.org/tomcat-7.0-doc/config/context.html
-            @Override
-            public void customize(Context context) {
-                JarScanner jarScanner = new JarScanner() {
-                    @Override
-                    public void scan(ServletContext context, ClassLoader loader,
-                                     JarScannerCallback scannerCallback, Set<String> args) {
-                    }
-                };
-                context.setJarScanner(jarScanner);
-            }
+        // The Context element represents a web application, which is run within a particular virtual host.
+// You may define as many Context elements as you wish.
+// Each such Context MUST have a unique context name within a virtual host.
+// The context path does not need to be unique (see parallel deployment below).
+// https://tomcat.apache.org/tomcat-7.0-doc/config/context.html
+        factory.addContextCustomizers((TomcatContextCustomizer) context -> {
+            JarScanner jarScanner = new JarScanner() {
+
+                @Override
+                public void scan(JarScanType scanType, ServletContext context, JarScannerCallback callback) {
+
+                }
+
+                @Override
+                public JarScanFilter getJarScanFilter() {
+                    return null;
+                }
+
+                @Override
+                public void setJarScanFilter(JarScanFilter jarScanFilter) {
+
+                }
+            };
+            context.setJarScanner(jarScanner);
+        }, (TomcatContextCustomizer) context -> {
+            context.setCookieProcessor(new LegacyCookieProcessor());
         });
 
         try {

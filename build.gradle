@@ -1,0 +1,43 @@
+allprojects {
+    group = 'com.groupon.odo'
+    version = '1.0.0-beta.12-SNAPSHOT'
+}
+
+subprojects {
+    apply plugin: 'java'
+    apply plugin: 'maven-publish'
+
+    repositories {
+        mavenLocal()
+        mavenCentral()
+        maven {
+            url = 'http://repo.maven.apache.org/maven2'
+        }
+
+        maven {
+            url = 'http://repo.spring.io/snapshot'
+        }
+
+        maven {
+            url = 'http://repo.spring.io/milestone'
+        }
+
+        maven {
+            url = 'http://webjars.github.com/m2'
+        }
+    }
+
+    sourceCompatibility = '1.8'
+
+    publishing {
+        publications {
+            maven(MavenPublication) {
+                from(components.java)
+            }
+        }
+    }
+
+    tasks.withType(JavaCompile) {
+        options.encoding = 'UTF-8'
+    }
+}

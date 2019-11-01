@@ -1,0 +1,4 @@
+dependencies {
+    compile project(':proxylib')
+    compile project(':client')
+}

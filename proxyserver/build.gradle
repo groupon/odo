@@ -1,0 +1,13 @@
+dependencies {
+    compile 'com.ibm.icu:icu4j:3.4.4'
+    compile 'commons-io:commons-io:2.4'
+    compile 'org.apache.httpcomponents:httpclient:4.2.3'
+    compile project(':proxylib')
+    compile project(':proxyplugin')
+    compile project(':browsermob-proxy')
+    compile 'org.slf4j:slf4j-api:1.7.1'
+    compile 'org.msgpack:msgpack-core:0.8.7'
+    compile 'org.springframework:spring-context:4.0.9.RELEASE'
+    compile 'org.springframework:spring-webmvc:4.0.9.RELEASE'
+    compileOnly 'javax.servlet:javax.servlet-api:3.0.1'
+}

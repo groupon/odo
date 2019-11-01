@@ -33,33 +33,21 @@ Java(TM) SE Runtime Environment (build 1.8.0_212-b10)
 Java HotSpot(TM) 64-Bit Server VM (build 25.212-b10, mixed mode)
 ```
 
-Maven should also be installed, check with the following command:
+From the repo root, run the following command for packaging the executable war:
 ```
-$ mvn -v
-Apache Maven 3.6.1 (d66c9c0b3152b2e69ee9bac180bb8fcc8e6af555; 2019-04-04T12:00:29-07:00)
-Maven home: /usr/local/Cellar/maven/3.6.1/libexec
-Java version: 1.8.0_212, vendor: Oracle Corporation, runtime: /Library/Java/JavaVirtualMachines/jdk1.8.0_212.jdk/Contents/Home/jre
-Default locale: en_US, platform encoding: UTF-8
-OS name: "mac os x", version: "10.14.5", arch: "x86_64", family: "mac"
+./gradlew bootWar
 ```
 
-From the repo root, run
-
-```
-mvn clean install
-mvn clean package
-```
-
-The `odo.war` will be created at `proxyui/target`.
+The executable war will be created at `proxyui/build/libs`.
 
 ## Run Odo
-From the location where you have odo.war, run
+From the location where you have the executable war (let's call it `proxyui.war`) run
 
 ```
-java -Xmx1024m -jar odo.war
+java -Xmx1024m -jar proxyui.war
 ```
 
-If you have Odo plugins, place them in a "plugins" directory under the Odo.war location.
+If you have Odo plugins, place them in a "plugins" directory under the `proxyui.war` location.
 
 ## Using Odo
 ### Odo UI
