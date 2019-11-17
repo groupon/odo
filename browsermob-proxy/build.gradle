@@ -1,11 +1,12 @@
+apply from: "$rootDir/dependencies.gradle"
 
 configurations {
     runtime.exclude group: 'javax.servlet', module: 'servlet-api'
 }
 
 dependencies {
-    implementation 'net.lightbody.bmp:browsermob-proxy:2.0-beta-9'
     implementation project(':proxylib')
-    implementation 'com.squareup.okhttp:okhttp:2.7.5'
-    implementation 'commons-fileupload:commons-fileupload:1.3.1'
+    implementation deps.browsermob_proxy
+    implementation deps.okhttp_old // TODO Migrate to newer version
+    implementation deps.commons_fileupload
 }

@@ -1,4 +1,6 @@
+apply from: "$rootDir/dependencies.gradle"
+
 dependencies {
     implementation project(':proxyplugin')
-    implementation 'org.json:json:20090211'
+    implementation deps.json
 }

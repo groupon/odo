@@ -1,26 +1,28 @@
+apply from: "$rootDir/dependencies.gradle"
+
 dependencies {
     implementation project(':proxyplugin')
-    implementation 'org.json:json:20090211'
-    implementation 'net.sf.flexjson:flexjson:2.1'
-    implementation 'commons-lang:commons-lang:2.6'
-    implementation 'javassist:javassist:3.12.1.GA'
-    implementation 'com.fasterxml.jackson.core:jackson-core:2.4.4'
-    implementation 'com.fasterxml.jackson.core:jackson-databind:2.4.4'
-    implementation 'com.fasterxml.jackson.core:jackson-annotations:2.4.4'
-    implementation 'com.h2database:h2:1.3.175'
-    implementation 'org.apache.httpcomponents:httpclient:4.3.1'
-    implementation 'org.slf4j:slf4j-api:1.5.10'
-    implementation 'org.springframework:spring-web:4.0.9.RELEASE'
-    implementation 'commons-fileupload:commons-fileupload:1.3.1'
-    implementation 'bsf:bsf:2.4.0'
-    implementation 'org.codehaus.groovy:groovy-bsf:2.1.7'
-    implementation 'org.apache.tomcat:tomcat-jdbc:7.0.55'
-    runtimeOnly 'org.slf4j:jcl-over-slf4j:1.5.10'
-    runtimeOnly('log4j:log4j:1.2.17') {
+    implementation deps.json
+    implementation deps.flexjson
+    implementation deps.commons_lang
+    implementation deps.javassist
+    implementation deps.jackson_core
+    implementation deps.jackson_databind
+    implementation deps.jackson_annotations
+    implementation deps.h2_database
+    implementation deps.apache_httpclient
+    implementation deps.slf4j_api
+    implementation deps.spring_web
+    implementation deps.commons_fileupload
+    implementation deps.bsf
+    implementation deps.groovy_bsf
+    implementation deps.tomcat_jdbc
+    runtimeOnly deps.jcl_over_slf4j
+    runtimeOnly(deps.log4j) {
         exclude group: 'javax.mail', module: 'mail'
         exclude group: 'javax.jms', module: 'jms'
         exclude group: 'com.sun.jdmk', module: 'jmxtools'
         exclude group: 'com.sun.jmx', module: 'jmxri'
     }
-    compileOnly 'javax.servlet:javax.servlet-api:3.1.0'
+    compileOnly deps.javax_servlet_api
 }

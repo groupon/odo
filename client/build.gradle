@@ -1,10 +1,13 @@
+apply from: "$rootDir/dependencies.gradle"
+
 dependencies {
-    implementation 'com.squareup.okhttp3:okhttp:3.11.0'
-    implementation 'commons-codec:commons-codec:1.7'
-    implementation 'commons-cli:commons-cli:1.2'
-    implementation 'org.json:json:20090211'
-    implementation 'commons-lang:commons-lang:2.6'
-    implementation 'com.fasterxml.jackson.core:jackson-core:2.4.4'
-    implementation 'com.fasterxml.jackson.core:jackson-databind:2.4.4'
-    testImplementation 'junit:junit:4.7'
+    implementation deps.okhttp
+    implementation deps.commons_codec
+    implementation deps.commons_cli
+    implementation deps.json
+    implementation deps.commons_lang
+    implementation deps.jackson_core
+    implementation deps.jackson_databind
+
+    testImplementation deps.junit
 }
