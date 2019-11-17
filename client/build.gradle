@@ -1,10 +1,10 @@
 dependencies {
-    compile 'com.squareup.okhttp3:okhttp:3.11.0'
-    compile 'commons-codec:commons-codec:1.7'
-    compile 'commons-cli:commons-cli:1.2'
-    compile 'org.json:json:20090211'
-    compile 'commons-lang:commons-lang:2.6'
-    compile 'com.fasterxml.jackson.core:jackson-core:2.4.4'
-    compile 'com.fasterxml.jackson.core:jackson-databind:2.4.4'
-    testCompile 'junit:junit:4.7'
+    implementation 'com.squareup.okhttp3:okhttp:3.11.0'
+    implementation 'commons-codec:commons-codec:1.7'
+    implementation 'commons-cli:commons-cli:1.2'
+    implementation 'org.json:json:20090211'
+    implementation 'commons-lang:commons-lang:2.6'
+    implementation 'com.fasterxml.jackson.core:jackson-core:2.4.4'
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.4.4'
+    testImplementation 'junit:junit:4.7'
 }

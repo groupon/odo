@@ -1,4 +1,4 @@
 dependencies {
-    compile project(':proxyplugin')
-    compile 'org.json:json:20090211'
+    implementation project(':proxyplugin')
+    implementation 'org.json:json:20090211'
 }
