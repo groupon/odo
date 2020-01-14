@@ -20,40 +20,29 @@ import com.groupon.odo.proxylib.Constants;
 import com.groupon.odo.proxylib.HistoryService;
 import com.groupon.odo.proxylib.SQLService;
 import com.groupon.odo.proxylib.Utils;
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.concurrent.TimeUnit;
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-import javax.servlet.Filter;
-import javax.servlet.MultipartConfigElement;
-import javax.servlet.annotation.MultipartConfig;
-import org.apache.catalina.connector.Connector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.autoconfigure.web.EmbeddedServletContainerAutoConfiguration;
-import org.springframework.boot.bind.RelaxedPropertyResolver;
-import org.springframework.boot.context.embedded.ConfigurableEmbeddedServletContainer;
-import org.springframework.boot.context.embedded.EmbeddedServletContainerCustomizer;
-import org.springframework.boot.context.embedded.EmbeddedServletContainerFactory;
-import org.springframework.boot.context.embedded.MultipartConfigFactory;
-import org.springframework.boot.context.embedded.tomcat.TomcatConnectorCustomizer;
-import org.springframework.boot.context.embedded.tomcat.TomcatEmbeddedServletContainerFactory;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.FilterType;
-import org.springframework.context.annotation.PropertySource;
-import org.springframework.context.annotation.PropertySources;
-import org.springframework.core.env.Environment;
+import org.springframework.boot.autoconfigure.web.servlet.ServletWebServerFactoryAutoConfiguration;
+import org.springframework.boot.web.embedded.tomcat.TomcatConnectorCustomizer;
+import org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory;
+import org.springframework.boot.web.servlet.server.ServletWebServerFactory;
+import org.springframework.context.annotation.*;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.filter.HiddenHttpMethodFilter;
+
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import javax.servlet.Filter;
+import java.io.File;
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 
 /**
  * Handles requests for the application home page.
@@ -62,17 +51,11 @@ import org.springframework.web.filter.HiddenHttpMethodFilter;
 @ComponentScan(basePackages = {"com.groupon.odo.controllers"}, excludeFilters = {
     @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = HttpProxyContainer.class)
 })
-@EnableAutoConfiguration(exclude = {EmbeddedServletContainerAutoConfiguration.class})
+@EnableAutoConfiguration(exclude = {ServletWebServerFactoryAutoConfiguration.class})
 @PropertySources(value = {@PropertySource("classpath:application.properties")})
 public class HomeController {
     private static final Logger logger = LoggerFactory.getLogger(HomeController.class);
     public File baseDirectory;
-
-    private RelaxedPropertyResolver propertyResolver;
-
-    public void setEnvironment(Environment environment) {
-        this.propertyResolver = new RelaxedPropertyResolver(environment, "tomcat.");
-    }
 
     @PostConstruct
     public void init() {
@@ -105,12 +88,12 @@ public class HomeController {
     }
 
     @Bean
-    public EmbeddedServletContainerFactory servletContainer() throws Exception {
-        TomcatEmbeddedServletContainerFactory factory = new TomcatEmbeddedServletContainerFactory();
+    public ServletWebServerFactory servletContainer() throws Exception {
+        TomcatServletWebServerFactory factory = new TomcatServletWebServerFactory();
 
         int apiPort = Utils.getSystemPort(Constants.SYS_API_PORT);
         factory.setPort(apiPort);
-        factory.setSessionTimeout(10, TimeUnit.MINUTES);
+        factory.getSession().setTimeout(Duration.ofMinutes(10));
         factory.setContextPath("/testproxy");
         baseDirectory = new File("./tmp");
         factory.setBaseDirectory(baseDirectory);
@@ -128,6 +111,8 @@ public class HomeController {
     public TomcatConnectorCustomizer tomcatConnectorCustomizers() {
         return connector -> {
             connector.setMaxPostSize(-1);
+            connector.setProperty("relaxedQueryChars", "<>[\\]^`{|}");
+            connector.setProperty("relaxedPathChars", "<>[\\]^`{|}");
         };
     }
 

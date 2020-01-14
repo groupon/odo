@@ -1,0 +1,6 @@
+apply from: "$rootDir/dependencies.gradle"
+
+dependencies {
+    implementation deps.commons_httpclient
+    compileOnly deps.javax_servlet_api_old // TODO Migrate to newer version
+}

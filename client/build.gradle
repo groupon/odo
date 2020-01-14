@@ -1,0 +1,13 @@
+apply from: "$rootDir/dependencies.gradle"
+
+dependencies {
+    implementation deps.okhttp
+    implementation deps.commons_codec
+    implementation deps.commons_cli
+    implementation deps.json
+    implementation deps.commons_lang
+    implementation deps.jackson_core
+    implementation deps.jackson_databind
+
+    testImplementation deps.junit
+}

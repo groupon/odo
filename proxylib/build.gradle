@@ -1,0 +1,28 @@
+apply from: "$rootDir/dependencies.gradle"
+
+dependencies {
+    implementation project(':proxyplugin')
+    implementation deps.json
+    implementation deps.flexjson
+    implementation deps.commons_lang
+    implementation deps.javassist
+    implementation deps.jackson_core
+    implementation deps.jackson_databind
+    implementation deps.jackson_annotations
+    implementation deps.h2_database
+    implementation deps.apache_httpclient
+    implementation deps.slf4j_api
+    implementation deps.spring_web
+    implementation deps.commons_fileupload
+    implementation deps.bsf
+    implementation deps.groovy_bsf
+    implementation deps.tomcat_jdbc
+    runtimeOnly deps.jcl_over_slf4j
+    runtimeOnly(deps.log4j) {
+        exclude group: 'javax.mail', module: 'mail'
+        exclude group: 'javax.jms', module: 'jms'
+        exclude group: 'com.sun.jdmk', module: 'jmxtools'
+        exclude group: 'com.sun.jmx', module: 'jmxri'
+    }
+    compileOnly deps.javax_servlet_api
+}

@@ -18,8 +18,8 @@ package com.groupon.odo.tests.TestServer;
 import com.groupon.odo.RemoveHeaderFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.context.embedded.FilterRegistrationBean;
-import org.springframework.boot.context.embedded.ServletRegistrationBean;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
+import org.springframework.boot.web.servlet.ServletRegistrationBean;
 import org.springframework.context.annotation.Bean;
 
 public class GenericTestProxyContainer {

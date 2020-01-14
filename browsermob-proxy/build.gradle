@@ -1,0 +1,12 @@
+apply from: "$rootDir/dependencies.gradle"
+
+configurations {
+    runtime.exclude group: 'javax.servlet', module: 'servlet-api'
+}
+
+dependencies {
+    implementation project(':proxylib')
+    implementation deps.browsermob_proxy
+    implementation deps.okhttp_old // TODO Migrate to newer version
+    implementation deps.commons_fileupload
+}

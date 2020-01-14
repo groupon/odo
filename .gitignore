@@ -15,3 +15,5 @@ proxyui/seleniumSslSupport/
 proxyui/backup-uploaded.json
 proxyui/tomcat.ks
 proxyui/tmp
+.gradle
+*/build/*

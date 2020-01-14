@@ -1,0 +1,56 @@
+plugins {
+    id 'war'
+    id 'org.springframework.boot' version '2.2.0.RELEASE'
+    id 'io.spring.dependency-management' version '1.0.8.RELEASE'
+}
+
+apply from: "$rootDir/dependencies.gradle"
+
+configurations.all {
+    exclude group: 'org.springframework.boot', module: 'spring-boot-starter-logging'
+    exclude group: 'org.springframework.boot', module: 'logback-classic'
+}
+
+bootWar {
+    mainClassName = 'com.groupon.odo.controllers.HomeController'
+    launchScript()
+}
+
+dependencies {
+    implementation project(':proxylib')
+    implementation project(':proxyserver')
+    implementation project(':browsermob-proxy')
+    implementation deps.json
+    implementation deps.flexjson
+    implementation deps.cors_filter
+    implementation deps.spring_boot_starter_web
+    implementation deps.spring_boot_starter_data_jpa
+    implementation deps.aspectjrt
+    implementation deps.javax_inject
+    implementation deps.jackson_core
+    implementation deps.jackson_databind
+    implementation deps.jackson_annotations
+    implementation deps.commons_fileupload
+    implementation deps.commons_io
+    implementation deps.webjars_jquery
+    implementation deps.webjars_jquery_ui
+    implementation deps.webjars_jquery_ui_themes
+    implementation deps.webjars_jqgrid
+    implementation deps.webjars_jquery_migrate
+    implementation deps.webjars_select2
+    implementation deps.webjars_bootstrap
+    implementation deps.webjars_jquery_cookie
+    implementation deps.webjars_mousetrap
+    implementation deps.webjars_bower_downloadjs
+    runtimeOnly deps.jstl
+    runtimeOnly deps.taglibs_standard
+    runtimeOnly deps.h2_database
+    runtimeOnly deps.spring_boot_devtools
+    providedRuntime deps.jasper
+    providedCompile deps.javax_servlet_api
+
+    testImplementation project(':client')
+    testImplementation deps.spring_boot_starter_test
+    testImplementation deps.junit
+    testImplementation deps.apache_httpclient
+}

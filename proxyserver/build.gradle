@@ -1,0 +1,18 @@
+apply from: "$rootDir/dependencies.gradle"
+
+dependencies {
+    implementation project(':proxylib')
+    implementation project(':proxyplugin')
+    implementation project(':browsermob-proxy')
+    implementation deps.icu4j
+    implementation deps.commons_io
+    implementation deps.slf4j_api
+    implementation deps.msgpack_core
+    implementation deps.spring_context
+    implementation deps.spring_webmvc
+    implementation deps.commons_fileupload
+    implementation deps.apache_httpclient
+    implementation deps.commons_httpclient
+    implementation deps.json
+    compileOnly deps.javax_servlet_api_old // TODO Migrate to newer version
+}
