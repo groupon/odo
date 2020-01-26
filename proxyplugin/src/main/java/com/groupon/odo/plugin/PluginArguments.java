@@ -15,18 +15,19 @@
 */
 package com.groupon.odo.plugin;
 
+import org.apache.http.client.methods.RequestBuilder;
+
 import javax.servlet.http.HttpServletResponse;
-import org.apache.commons.httpclient.HttpMethod;
 
 public class PluginArguments {
     private HttpServletResponse response;
     private HttpRequestInfo originalRequest;
-    private HttpMethod httpMethodProxyRequest;
+    private RequestBuilder httpMethodProxyRequest;
 
-    public PluginArguments(HttpServletResponse response, HttpRequestInfo request, HttpMethod modifiedRequest) {
+    public PluginArguments(HttpServletResponse response, HttpRequestInfo request, RequestBuilder modifiedRequestBuilder) {
         this.response = response;
         this.originalRequest = request;
-        this.httpMethodProxyRequest = modifiedRequest;
+        this.httpMethodProxyRequest = modifiedRequestBuilder;
     }
 
     public HttpServletResponse getResponse() {
@@ -37,7 +38,7 @@ public class PluginArguments {
         return originalRequest;
     }
 
-    public HttpMethod getHttpMethodProxyRequest() {
+    public RequestBuilder getHttpMethodProxyRequest() {
         return httpMethodProxyRequest;
     }
 }

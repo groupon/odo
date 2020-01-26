@@ -12,7 +12,6 @@ dependencies {
     implementation deps.spring_webmvc
     implementation deps.commons_fileupload
     implementation deps.apache_httpclient
-    implementation deps.commons_httpclient
     implementation deps.json
     compileOnly deps.javax_servlet_api_old // TODO Migrate to newer version
 }

@@ -673,6 +673,3 @@ public class ServerRedirectService {
         return false;
     }
 }
-
-
-

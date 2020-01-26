@@ -68,6 +68,7 @@ public class Client {
     protected static int REQUEST_TYPE_PUT = 2;
     protected static int REQUEST_TYPE_POST = 3;
     protected static int REQUEST_TYPE_DELETE = 4;
+    protected static int REQUEST_TYPE_PATCH = 5;
     protected History[] history;
 
     /**
@@ -957,6 +958,9 @@ public class Client {
         }
         if ("DELETE".equals(requestType)) {
             return REQUEST_TYPE_DELETE;
+        }
+        if ("PATCH".equals(requestType)) {
+            return REQUEST_TYPE_PATCH;
         }
         return REQUEST_TYPE_ALL;
     }

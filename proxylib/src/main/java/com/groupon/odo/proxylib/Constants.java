@@ -64,6 +64,7 @@ public class Constants {
     public static final int REQUEST_TYPE_PUT = 2;
     public static final int REQUEST_TYPE_POST = 3;
     public static final int REQUEST_TYPE_DELETE = 4;
+    public static final int REQUEST_TYPE_PATCH = 5;
 
     // script types
     public static final int SCRIPT_TYPE_HISTORY = 0;
@@ -104,6 +105,7 @@ public class Constants {
     public static final String HEADER_STATUS = "status";
     public static final String HEADER_ACCEPT = "accept";
     public static final String HEADER_ACCEPT_ENCODING = "accept-encoding";
+    public static final String HEADER_CONTENT_LENGTH = "content-length";
 
     // History constants
     public static final String HISTORY_FILTER_SOURCE_URI = "source_uri";
