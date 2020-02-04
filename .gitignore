@@ -13,7 +13,9 @@ proxyui/plugins/
 h2proxydb/
 proxyui/seleniumSslSupport/
 proxyui/backup-uploaded.json
+proxyui/last-restored-db.zip
 proxyui/tomcat.ks
 proxyui/tmp
+proxyui/null
 .gradle
 */build/*

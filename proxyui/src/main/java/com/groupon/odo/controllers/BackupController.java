@@ -15,37 +15,29 @@
 */
 package com.groupon.odo.controllers;
 
-import com.groupon.odo.proxylib.BackupService;
-import com.groupon.odo.proxylib.models.ViewFilters;
-import com.groupon.odo.proxylib.models.backup.Backup;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
+import com.groupon.odo.proxylib.BackupService;
+import com.groupon.odo.proxylib.SQLService;
+import com.groupon.odo.proxylib.models.ViewFilters;
+import com.groupon.odo.proxylib.models.backup.Backup;
 import com.groupon.odo.proxylib.models.backup.ConfigAndProfileBackup;
-import com.groupon.odo.proxylib.models.backup.SingleProfileBackup;
-import flexjson.JSON;
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import org.apache.commons.io.IOUtils;
 import org.json.JSONArray;
-import org.springframework.http.HttpStatus;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 /**
  * Controller that deals with backup/restore of all data
@@ -111,8 +103,8 @@ public class BackupController {
      * @param model
      * @param response
      * @param profileIdentifier Id of profile to backup
-     * @param clientUUID Client Id to backup
-     * @param oldExport Flag if this is exporting old configuration on a new import, used to change name of file
+     * @param clientUUID        Client Id to backup
+     * @param oldExport         Flag if this is exporting old configuration on a new import, used to change name of file
      * @return
      * @throws Exception
      */
@@ -137,17 +129,17 @@ public class BackupController {
             response.addHeader("Content-Disposition", "attachment; filename=Config_and_Profile_Backup.json");
         }
         ConfigAndProfileBackup configAndProfileBackup = BackupService.getInstance().
-            getConfigAndProfileData(profileID, clientUUID);
+                getConfigAndProfileData(profileID, clientUUID);
         return writer.withView(ViewFilters.Default.class).writeValueAsString(configAndProfileBackup);
     }
 
     /**
      * Set client server configuration and overrides according to backup
      *
-     * @param fileData File containing profile overrides and server configuration
+     * @param fileData          File containing profile overrides and server configuration
      * @param profileIdentifier Profile to update for client
-     * @param clientUUID Client to apply overrides to
-     * @param odoImport Param to determine if an odo config will be imported with the overrides import
+     * @param clientUUID        Client to apply overrides to
+     * @param odoImport         Param to determine if an odo config will be imported with the overrides import
      * @return
      * @throws Exception
      */
@@ -155,9 +147,9 @@ public class BackupController {
     public
     @ResponseBody
     ResponseEntity<String> processSingleProfileBackup(@RequestParam("fileData") MultipartFile fileData,
-                         @PathVariable String profileIdentifier,
-                         @PathVariable String clientUUID,
-                         @RequestParam(value = "odoImport", defaultValue = "true") boolean odoImport) throws Exception {
+                                                      @PathVariable String profileIdentifier,
+                                                      @PathVariable String clientUUID,
+                                                      @RequestParam(value = "odoImport", defaultValue = "true") boolean odoImport) throws Exception {
         int profileID = ControllerUtils.convertProfileIdentifier(profileIdentifier);
         if (!fileData.isEmpty()) {
             try {
@@ -176,7 +168,7 @@ public class BackupController {
                     byte[] bytes = odoBackup.toString().getBytes();
                     // Save to second file to be used in importing odo configuration
                     BufferedOutputStream stream =
-                        new BufferedOutputStream(new FileOutputStream(new File("backup-uploaded.json")));
+                            new BufferedOutputStream(new FileOutputStream(new File("backup-uploaded.json")));
                     stream.write(bytes);
                     stream.close();
                     File f = new File("backup-uploaded.json");
@@ -200,6 +192,43 @@ public class BackupController {
                 }
             }
         }
+
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    /**
+     * Backup db
+     */
+    @RequestMapping(value = "/api/backup/db", method = RequestMethod.GET, produces = "application/zip")
+    @ResponseBody
+    byte[] getBackupDb(Model model, HttpServletResponse response) throws Exception {
+        response.addHeader("Content-Disposition", "attachment; filename=odo-backup-db.zip");
+
+        File file = SQLService.getInstance().getBackupDb("odo-backup-db");
+
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(byteArrayOutputStream);
+        FileInputStream fileInputStream = new FileInputStream(file);
+
+        IOUtils.copy(fileInputStream, bufferedOutputStream);
+
+        IOUtils.closeQuietly(bufferedOutputStream);
+        IOUtils.closeQuietly(byteArrayOutputStream);
+
+        return byteArrayOutputStream.toByteArray();
+    }
+
+    /**
+     * Restore db
+     */
+    @RequestMapping(value = "/api/backup/db", method = RequestMethod.POST)
+    public
+    @ResponseBody
+    ResponseEntity<String> processDbBackup(@RequestParam("fileData") MultipartFile fileData) throws Exception {
+        File file = new File("last-restored-db.zip");
+        Files.write(Paths.get(file.getPath()), fileData.getBytes());
+
+        SQLService.getInstance().restoreDb(file);
 
         return new ResponseEntity<>(HttpStatus.OK);
     }
