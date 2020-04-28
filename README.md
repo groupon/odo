@@ -49,6 +49,36 @@ java -Xmx1024m -jar proxyui.war
 
 If you have Odo plugins, place them in a "plugins" directory under the `proxyui.war` location.
 
+## Build Run Odo from Docker
+Odo requires a specific version of the Java SDK (Java 8) to build and run, thus a containerized approach makes sense to guarantee proper set up.
+
+1. First build Odo from source into a Docker image. At the root of the repository, run:
+
+	```bash
+	docker build -t odo .
+	```
+
+2. Now we create a container for Odo:
+
+	```bash
+	docker run -d \
+		-p 8090:8090 \
+		-p 8082:8082 \
+		-p 8012:8012 \
+		-p 9090:9090 \
+		-p 9092:9092 \
+		--name odo \
+		odo:latest
+	```
+	
+	This will create a Docker container with the required ports published.
+
+3. To run Odo in the future:
+
+	```bash
+	docker start odo
+	```
+
 ## Using Odo
 ### Odo UI
 Odo UI is available at http://localhost:8090/testproxy
