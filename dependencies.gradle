@@ -1,6 +1,6 @@
 def versions = [:]
 versions.browsermob_proxy = "2.0-beta-9"
-versions.okhttp = "3.14.9"
+versions.okhttp = "4.9.1"
 versions.commons_fileupload = "1.3.1"
 versions.commons_codec = "1.7"
 versions.commons_cli = "1.2"
