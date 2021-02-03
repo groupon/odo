@@ -7,6 +7,6 @@ configurations {
 dependencies {
     implementation project(':proxylib')
     implementation deps.browsermob_proxy
-    implementation deps.okhttp_old // TODO Migrate to newer version
+    implementation deps.okhttp
     implementation deps.commons_fileupload
 }

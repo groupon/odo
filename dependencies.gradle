@@ -1,7 +1,6 @@
 def versions = [:]
 versions.browsermob_proxy = "2.0-beta-9"
-versions.okhttp_old = "2.7.5"
-versions.okhttp = "3.11.0"
+versions.okhttp = "3.14.9"
 versions.commons_fileupload = "1.3.1"
 versions.commons_codec = "1.7"
 versions.commons_cli = "1.2"
@@ -42,7 +41,6 @@ versions.webjars_bower_downloadjs = "1.4.8"
 
 ext.deps = [:]
 ext.deps.browsermob_proxy = "net.lightbody.bmp:browsermob-proxy:$versions.browsermob_proxy"
-ext.deps.okhttp_old = "com.squareup.okhttp:okhttp:$versions.okhttp_old"
 ext.deps.okhttp = "com.squareup.okhttp3:okhttp:$versions.okhttp"
 ext.deps.commons_fileupload = "commons-fileupload:commons-fileupload:$versions.commons_fileupload"
 ext.deps.commons_codec = "commons-codec:commons-codec:$versions.commons_codec"
