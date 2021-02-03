@@ -16,4 +16,7 @@ proxyui/backup-uploaded.json
 proxyui/tomcat.ks
 proxyui/tmp
 .gradle
-*/build/*
+**/build/*
+tmp/*
+*.ks
+*.override.yml
