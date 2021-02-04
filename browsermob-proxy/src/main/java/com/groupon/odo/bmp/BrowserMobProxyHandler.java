@@ -655,7 +655,9 @@ public class BrowserMobProxyHandler extends SeleniumProxyHandler {
                 // don't need to do anything else
             } else if ("POST".equals(request.getMethod()) ||
                        "PUT".equals(request.getMethod()) ||
-                       "DELETE".equals(request.getMethod())) {
+                       "DELETE".equals(request.getMethod()) ||
+                       "PATCH".equals(request.getMethod())
+            ) {
                 RequestBody okRequestBody = null;
                 if (hasContent) {
                     final String contentType = request.getContentType();
@@ -690,13 +692,15 @@ public class BrowserMobProxyHandler extends SeleniumProxyHandler {
                     okRequestBuilder = okRequestBuilder.put(okRequestBody);
                 } else if ("DELETE".equals(request.getMethod())) {
                     okRequestBuilder = okRequestBuilder.delete(okRequestBody);
+                } else if ("PATCH".equals(request.getMethod())) {
+                    okRequestBuilder = okRequestBuilder.patch(okRequestBody);
                 }
             } else if ("OPTIONS".equals(request.getMethod())) {
                 // NOT SUPPORTED
             } else if ("HEAD".equals(request.getMethod())) {
                 okRequestBuilder = okRequestBuilder.head();
             } else {
-                LOG.warn("Unexpected request method %s, giving up", request.getMethod());
+                LOG.warn("Unexpected request method {}, giving up", request.getMethod());
                 request.setHandled(true);
                 return -1;
             }

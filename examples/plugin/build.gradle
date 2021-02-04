@@ -3,4 +3,5 @@ apply from: "$rootDir/dependencies.gradle"
 dependencies {
     implementation project(':proxyplugin')
     implementation deps.json
+    compileOnly deps.javax_servlet_api_old // TODO Migrate to newer version
 }

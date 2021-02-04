@@ -284,6 +284,8 @@
                 return "POST";
             } else if (cellvalue == 4) {
                 return "DELETE";
+            } else if (cellvalue == 5) {
+                return "PATCH";
             }
         }
 
@@ -887,14 +889,14 @@
                         edittype: 'select',
                         editoptions: {
                             defaultValue: 0,
-                            value: "0:ALL;1:GET;2:PUT;3:POST;4:DELETE"
+                            value: "0:ALL;1:GET;2:PUT;3:POST;4:DELETE;5:PATCH"
                         },
                         editrules: {edithidden: true},
                         formatter: requestTypeFormatter,
                         search: true,
                         searchoptions: {
                             clearSearch: false,
-                            attr: { placeholder: "0...4" }
+                            attr: { placeholder: "0...5" }
                         }
                     },
                     {
@@ -2267,6 +2269,7 @@
                                             <option value="2">PUT</option>
                                             <option value="3">POST</option>
                                             <option value="4">DELETE</option>
+                                            <option value="5">PATCH</option>
                                         </select>
                                     </div>
                                     <label for="pathRepeatCount" class="col-sm-3">Repeat Count</label>

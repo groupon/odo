@@ -18,6 +18,7 @@ package com.groupon.odo;
 import com.groupon.odo.plugin.PluginHelper;
 import com.groupon.odo.proxylib.Constants;
 import com.groupon.odo.proxylib.models.History;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
@@ -30,14 +31,15 @@ import java.util.Map;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
-import org.apache.commons.httpclient.Header;
-import org.apache.commons.httpclient.HttpMethod;
-import org.apache.commons.httpclient.methods.ByteArrayRequestEntity;
-import org.apache.commons.httpclient.methods.EntityEnclosingMethod;
-import org.apache.commons.httpclient.methods.InputStreamRequestEntity;
-import org.apache.commons.httpclient.methods.RequestEntity;
 import org.apache.commons.io.IOUtils;
+import org.apache.http.Header;
+import org.apache.http.HttpEntity;
+import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.client.methods.RequestBuilder;
+import org.apache.http.entity.ByteArrayEntity;
+import org.apache.http.entity.InputStreamEntity;
 import org.msgpack.core.MessagePack;
 import org.msgpack.core.MessageUnpacker;
 import org.msgpack.value.ImmutableValue;
@@ -237,12 +239,12 @@ public class HttpUtilities {
     /**
      * Obtain newline-delimited headers from method
      *
-     * @param method HttpMethod to scan
+     * @param uriRequest HttpUriRequest to scan
      * @return newline-delimited headers
      */
-    public static String getHeaders(HttpMethod method) {
+    public static String getHeaders(HttpUriRequest uriRequest) {
         String headerString = "";
-        Header[] headers = method.getRequestHeaders();
+        Header[] headers = uriRequest.getAllHeaders();
         for (Header header : headers) {
             String name = header.getName();
             if (name.equals(Constants.ODO_PROXY_HEADER)) {
@@ -337,43 +339,43 @@ public class HttpUtilities {
     }
 
     /**
-     * Sets up the given {@link org.apache.commons.httpclient.methods.PostMethod} to send the same multipart POST data
+     * Sets up the given {@link RequestBuilder} to send the same multipart POST data
      * as was sent in the given {@link HttpServletRequest}
      *
-     * @param postMethodProxyRequest The {@link org.apache.commons.httpclient.methods.PostMethod} that we are configuring to send a
-     * multipart POST request
-     * @param httpServletRequest The {@link HttpServletRequest} that contains the multipart
-     * POST data to be sent via the {@link org.apache.commons.httpclient.methods.PostMethod}
+     * @param postMethodProxyRequestBuilder The {@link RequestBuilder} that we are configuring to send a
+     *                                      multipart POST request
+     * @param httpServletRequest            The {@link HttpServletRequest} that contains the multipart
+     *                                      POST data to be sent via the {@link RequestBuilder}
      */
     @SuppressWarnings("unchecked")
     public static void handleMultipartPost(
-        EntityEnclosingMethod postMethodProxyRequest,
-        HttpServletRequest httpServletRequest,
-        DiskFileItemFactory diskFileItemFactory)
-        throws ServletException {
+            RequestBuilder postMethodProxyRequestBuilder,
+            HttpServletRequest httpServletRequest,
+            DiskFileItemFactory diskFileItemFactory)
+            throws ServletException {
         // TODO: this function doesn't set any history data
         try {
             // just pass back the binary data
-            InputStreamRequestEntity ire = new InputStreamRequestEntity(httpServletRequest.getInputStream());
-            postMethodProxyRequest.setRequestEntity(ire);
-            postMethodProxyRequest.setRequestHeader(STRING_CONTENT_TYPE_HEADER_NAME, httpServletRequest.getHeader(STRING_CONTENT_TYPE_HEADER_NAME));
+            InputStreamEntity ire = new InputStreamEntity(httpServletRequest.getInputStream());
+            postMethodProxyRequestBuilder.setEntity(ire);
+            postMethodProxyRequestBuilder.setHeader(STRING_CONTENT_TYPE_HEADER_NAME, httpServletRequest.getHeader(STRING_CONTENT_TYPE_HEADER_NAME));
         } catch (Exception e) {
             throw new ServletException(e);
         }
     }
 
     /**
-     * Sets up the given {@link org.apache.commons.httpclient.methods.PostMethod} to send the same standard POST data
+     * Sets up the given {@link RequestBuilder} to send the same standard POST data
      * as was sent in the given {@link HttpServletRequest}
      *
-     * @param methodProxyRequest The {@link org.apache.commons.httpclient.methods.PostMethod} that we are configuring to send a
-     * standard POST request
+     * @param methodProxyRequestBuilder The {@link RequestBuilder} that we are configuring to send a
+     *                           standard POST request
      * @param httpServletRequest The {@link HttpServletRequest} that contains the POST data to
-     * be sent via the {@link org.apache.commons.httpclient.methods.PostMethod}
-     * @param history The {@link com.groupon.odo.proxylib.models.History} log for this request
+     *                           be sent via the {@link RequestBuilder}
+     * @param history            The {@link com.groupon.odo.proxylib.models.History} log for this request
      */
     @SuppressWarnings("unchecked")
-    public static void handleStandardPost(EntityEnclosingMethod methodProxyRequest,
+    public static void handleStandardPost(RequestBuilder methodProxyRequestBuilder,
                                           HttpServletRequest httpServletRequest,
                                           History history) throws Exception {
         String deserialisedMessages = "";
@@ -381,16 +383,16 @@ public class HttpUtilities {
         // Create a new StringBuffer with the data to be passed
         StringBuilder requestBody = new StringBuilder();
         InputStream body = httpServletRequest.getInputStream();
-        RequestEntity requestEntity = null;
+        HttpEntity requestEntity = null;
 
         if (httpServletRequest.getContentType() != null &&
-            httpServletRequest.getContentType().contains(STRING_CONTENT_TYPE_FORM_URLENCODED)
-            && httpServletRequest.getHeader("content-encoding") == null) {
+                httpServletRequest.getContentType().contains(STRING_CONTENT_TYPE_FORM_URLENCODED)
+                && httpServletRequest.getHeader("content-encoding") == null) {
             requestByteArray = IOUtils.toByteArray(body);
             history.setRawPostData(requestByteArray);
 
             // this is binary.. just return it as is
-            requestEntity = new ByteArrayRequestEntity(requestByteArray);
+            requestEntity = new ByteArrayEntity(requestByteArray);
 
             // Get the client POST data as a Map if content type is: application/x-www-form-urlencoded
             // We do this manually since some data is not properly parseable by the servlet request
@@ -400,7 +402,7 @@ public class HttpUtilities {
             for (String stringParameterName : mapPostParameters.keySet()) {
                 // Iterate the values for each parameter name
                 String[] stringArrayParameterValues = mapPostParameters
-                    .get(stringParameterName);
+                        .get(stringParameterName);
                 for (String stringParameterValue : stringArrayParameterValues) {
                     // Create a NameValuePair and store in list
 
@@ -430,10 +432,10 @@ public class HttpUtilities {
                 String postData = queryInformation.queryString;
                 requestBody = new StringBuilder(postData);
                 requestByteArray = postData.getBytes();
-                requestEntity = new ByteArrayRequestEntity(requestByteArray);
+                requestEntity = new ByteArrayEntity(requestByteArray);
             }
         } else if (httpServletRequest.getContentType() != null &&
-            httpServletRequest.getContentType().contains(STRING_CONTENT_TYPE_MESSAGEPACK)) {
+                httpServletRequest.getContentType().contains(STRING_CONTENT_TYPE_MESSAGEPACK)) {
 
             /**
              * Convert input stream to bytes for it to be read by the deserializer
@@ -441,7 +443,7 @@ public class HttpUtilities {
              */
             requestByteArray = IOUtils.toByteArray(body);
             history.setRawPostData(requestByteArray);
-            requestEntity = new ByteArrayRequestEntity(requestByteArray);
+            requestEntity = new ByteArrayEntity(requestByteArray);
             ByteArrayInputStream byteArrayIS = new ByteArrayInputStream(requestByteArray);
             MessageUnpacker unpacker = MessagePack.newDefaultUnpacker(byteArrayIS);
 
@@ -458,7 +460,7 @@ public class HttpUtilities {
             history.setRawPostData(requestByteArray);
 
             // this is binary.. just return it as is
-            requestEntity = new ByteArrayRequestEntity(requestByteArray);
+            requestEntity = new ByteArrayEntity(requestByteArray);
 
             // decode this for history if it is encoded
             String requestBodyString = PluginHelper.getByteArrayDataAsString(httpServletRequest.getHeader("content-encoding"), requestByteArray);
@@ -475,16 +477,16 @@ public class HttpUtilities {
         history.setRequestPostData(requestBody.toString());
 
         // set post body in proxy request object
-        methodProxyRequest.setRequestEntity(requestEntity);
+        methodProxyRequestBuilder.setEntity(requestEntity);
 
         /**
          * Set the history to have decoded messagepack. Pass the byte data back to request
          */
         if (httpServletRequest.getContentType() != null &&
-            httpServletRequest.getContentType().contains(STRING_CONTENT_TYPE_MESSAGEPACK)) {
+                httpServletRequest.getContentType().contains(STRING_CONTENT_TYPE_MESSAGEPACK)) {
             history.setRequestPostData(deserialisedMessages);
-            ByteArrayRequestEntity byteRequestEntity = new ByteArrayRequestEntity(requestByteArray);
-            methodProxyRequest.setRequestEntity(byteRequestEntity);
+            ByteArrayEntity byteRequestEntity = new ByteArrayEntity(requestByteArray);
+            methodProxyRequestBuilder.setEntity(byteRequestEntity);
         }
     }
 }
