@@ -1,6 +1,6 @@
 allprojects {
     group = 'com.groupon.odo'
-    version = '1.0.0-beta.13-SNAPSHOT'
+    version = '1.0.0-beta.14-SNAPSHOT'
 }
 
 subprojects {
