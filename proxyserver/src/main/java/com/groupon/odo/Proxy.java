@@ -1149,7 +1149,7 @@ public class Proxy extends HttpServlet {
                 history.setResponseContentType(httpServletResponse.getContentType());
                 history.setResponseData(httpServletResponse.getContentString());
                 history.setResponseBodyDecoded(httpServletResponse.isContentDecoded());
-                HistoryService.getInstance().addHistory(history);
+                HistoryService.Companion.getInstance().addHistory(history);
                 logger.info("Done storing");
             }
         } catch (Throwable e) {
