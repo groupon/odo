@@ -30,23 +30,7 @@ class HistoryService {
     private var sqlService: SQLService? = null
     private val maxHistorySize = System.getProperty("historySize", "30000").toInt()
     private var threadActive = false
-    private var disableHistoryWrite = false // TODO: This should be turned into a public property instead
-
-    // TODO: This should be turned into a property instead
-    /**
-     * Disable request history logging
-     */
-    fun disableHistory() {
-        disableHistoryWrite = true
-    }
-
-    // TODO: This should be turned into a property instead
-    /**
-     * Enable request history logging
-     */
-    fun enableHistory() {
-        disableHistoryWrite = false
-    }
+    var shouldDisableHistoryWrite = false
 
     /**
      * Removes old entries in the history table for the given profile and client UUID
@@ -130,26 +114,42 @@ class HistoryService {
      * @param history History object to add
      */
     fun addHistory(history: History) {
-        if (disableHistoryWrite) {
+        if (shouldDisableHistoryWrite) {
             return
         }
         var statement: PreparedStatement? = null
+        val dbTableHistoryValues = listOf(
+                Constants.GENERIC_PROFILE_ID,
+                Constants.GENERIC_CLIENT_UUID,
+                Constants.HISTORY_CREATED_AT,
+                Constants.GENERIC_REQUEST_TYPE,
+                Constants.HISTORY_REQUEST_URL,
+                Constants.HISTORY_REQUEST_PARAMS,
+                Constants.HISTORY_REQUEST_POST_DATA,
+                Constants.HISTORY_REQUEST_HEADERS,
+                Constants.HISTORY_RESPONSE_CODE,
+                Constants.HISTORY_RESPONSE_HEADERS,
+                Constants.HISTORY_RESPONSE_CONTENT_TYPE,
+                Constants.HISTORY_RESPONSE_DATA,
+                Constants.HISTORY_ORIGINAL_REQUEST_URL,
+                Constants.HISTORY_ORIGINAL_REQUEST_PARAMS,
+                Constants.HISTORY_ORIGINAL_REQUEST_POST_DATA,
+                Constants.HISTORY_ORIGINAL_REQUEST_HEADERS,
+                Constants.HISTORY_ORIGINAL_RESPONSE_CODE,
+                Constants.HISTORY_ORIGINAL_RESPONSE_HEADERS,
+                Constants.HISTORY_ORIGINAL_RESPONSE_CONTENT_TYPE,
+                Constants.HISTORY_ORIGINAL_RESPONSE_DATA,
+                Constants.HISTORY_MODIFIED,
+                Constants.HISTORY_REQUEST_SENT,
+                Constants.HISTORY_REQUEST_BODY_DECODED,
+                Constants.HISTORY_RESPONSE_BODY_DECODED,
+                Constants.HISTORY_EXTRA_INFO,
+                Constants.HISTORY_RAW_POST_DATA
+        )
         try {
             sqlService?.connection.use { sqlConnection ->
-                statement = sqlConnection?.prepareStatement("INSERT INTO ${Constants.DB_TABLE_HISTORY}" + // TODO: could use .joinToString() instead
-                        "(${Constants.GENERIC_PROFILE_ID},${Constants.GENERIC_CLIENT_UUID}," +
-                        "${Constants.HISTORY_CREATED_AT},${Constants.GENERIC_REQUEST_TYPE}," +
-                        "${Constants.HISTORY_REQUEST_URL},${Constants.HISTORY_REQUEST_PARAMS}," +
-                        "${Constants.HISTORY_REQUEST_POST_DATA},${Constants.HISTORY_REQUEST_HEADERS}," +
-                        "${Constants.HISTORY_RESPONSE_CODE},${Constants.HISTORY_RESPONSE_HEADERS}," +
-                        "${Constants.HISTORY_RESPONSE_CONTENT_TYPE},${Constants.HISTORY_RESPONSE_DATA}," +
-                        "${Constants.HISTORY_ORIGINAL_REQUEST_URL},${Constants.HISTORY_ORIGINAL_REQUEST_PARAMS}," +
-                        "${Constants.HISTORY_ORIGINAL_REQUEST_POST_DATA},${Constants.HISTORY_ORIGINAL_REQUEST_HEADERS}," +
-                        "${Constants.HISTORY_ORIGINAL_RESPONSE_CODE},${Constants.HISTORY_ORIGINAL_RESPONSE_HEADERS}," +
-                        "${Constants.HISTORY_ORIGINAL_RESPONSE_CONTENT_TYPE},${Constants.HISTORY_ORIGINAL_RESPONSE_DATA}," +
-                        "${Constants.HISTORY_MODIFIED},${Constants.HISTORY_REQUEST_SENT}," +
-                        "${Constants.HISTORY_REQUEST_BODY_DECODED},${Constants.HISTORY_RESPONSE_BODY_DECODED}," +
-                        "${Constants.HISTORY_EXTRA_INFO},${Constants.HISTORY_RAW_POST_DATA})" +
+                statement = sqlConnection?.prepareStatement("INSERT INTO ${Constants.DB_TABLE_HISTORY}" +
+                        "(${dbTableHistoryValues.joinToString(",")})" +
                         " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);")
                 statement?.setInt(1, history.profileId)
                 statement?.setString(2, history.clientUUID)
@@ -195,7 +195,7 @@ class HistoryService {
     @Throws(Exception::class)
     private fun historyFromSQLResult(result: ResultSet?, withResponseData: Boolean, scripts: Array<Script>): History {
         val history = History().apply {
-            id = result!!.getInt(Constants.GENERIC_ID)
+            id = result!!.getInt(Constants.GENERIC_ID) // TODO: need to figure something out for this !!
             profileId = result.getInt(Constants.GENERIC_PROFILE_ID)
             clientUUID = result.getString(Constants.GENERIC_CLIENT_UUID)
             createdAt = result.getString(Constants.HISTORY_CREATED_AT)

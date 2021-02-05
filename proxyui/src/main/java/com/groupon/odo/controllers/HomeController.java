@@ -102,7 +102,7 @@ public class HomeController {
         factory.setTomcatConnectorCustomizers(cs);
 
         if (Utils.getEnvironmentOptionValue(Constants.SYS_LOGGING_DISABLED) != null) {
-            HistoryService.Companion.getInstance().disableHistory();
+            HistoryService.Companion.getInstance().setShouldDisableHistoryWrite(true);
         }
         return factory;
     }
