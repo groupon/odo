@@ -79,9 +79,10 @@ class ClientService {
         try {
             sqlService?.connection.use { sqlConnection ->
                 val queryString = "SELECT * FROM ${Constants.DB_TABLE_CLIENT}" +
-                        " WHERE " + Constants.GENERIC_ID + " = ?"
+                        " WHERE ${Constants.GENERIC_ID} = ?"
                 statement = sqlConnection?.prepareStatement(queryString)
                 statement?.setInt(1, clientId)
+
                 results = statement?.executeQuery()
                 if (results?.next() != null) {
                     client = getClientFromResultSet(results)
@@ -143,13 +144,16 @@ class ClientService {
                 var queryString = "SELECT * FROM ${Constants.DB_TABLE_CLIENT}" +
                         " WHERE ${Constants.CLIENT_CLIENT_UUID} = ?"
                 if (profileId != null) {
-                    queryString += " AND " + Constants.GENERIC_PROFILE_ID + "=?"
+                    queryString += " AND ${Constants.GENERIC_PROFILE_ID}=?"
                 }
+
                 statement = sqlConnection?.prepareStatement(queryString)
                 statement?.setString(1, clientUUID)
+
                 if (profileId != null) {
                     statement?.setInt(2, profileId)
                 }
+
                 results = statement?.executeQuery()
                 if (results?.next() != null) {
                     client = getClientFromResultSet(results)
@@ -200,8 +204,8 @@ class ClientService {
                                 " WHERE ${Constants.GENERIC_CLIENT_UUID} = ?")
                         statement?.setString(1, curClientUUID)
                         results = statement?.executeQuery()
-                        curClientUUID = if (results?.next() != null) {
-                            UUID.randomUUID().toString()
+                        if (results?.next() != null) {
+                            curClientUUID = UUID.randomUUID().toString()
                         } else {
                             break
                         }
@@ -342,8 +346,8 @@ class ClientService {
         var statement: PreparedStatement? = null
         var rowsAffected = 0
         try {
-            sqlService!!.connection.use { sqlConnection ->
-                statement = sqlConnection.prepareStatement(
+            sqlService?.connection.use { sqlConnection ->
+                statement = sqlConnection?.prepareStatement(
                         "UPDATE " + Constants.DB_TABLE_CLIENT +
                                 " SET " + Constants.CLIENT_FRIENDLY_NAME + " = ?" +
                                 " WHERE " + Constants.CLIENT_CLIENT_UUID + " = ?" +
@@ -380,10 +384,11 @@ class ClientService {
 
         // Don't even try if the friendlyName is null/empty
         if (friendlyName == null || friendlyName.compareTo("") == 0) {
-            return client
+            return null
         }
         var statement: PreparedStatement? = null
         var results: ResultSet? = null
+
         try {
             sqlService?.connection.use { sqlConnection ->
                 val queryString = "SELECT * FROM ${Constants.DB_TABLE_CLIENT}" +
@@ -392,6 +397,7 @@ class ClientService {
                 statement = sqlConnection?.prepareStatement(queryString)
                 statement?.setString(1, friendlyName)
                 statement?.setInt(2, profileId ?: 0) // TODO: Handling of profileId possibily being null seems to be overlooked here to in the original java code. What should the default be? 0? -1?
+
                 results = statement?.executeQuery()
                 if (results?.next() != null) {
                     client = getClientFromResultSet(results)
@@ -461,6 +467,7 @@ class ClientService {
                 statement = sqlConnection?.prepareStatement(queryString)
                 statement?.setString(1, clientUUID)
                 statement?.setInt(2, profileId)
+
                 logger.info("Query: {}", statement.toString())
                 statement?.executeUpdate()
             }
@@ -524,10 +531,10 @@ class ClientService {
         try {
             sqlService?.connection.use { sqlConnection ->
                 statement = sqlConnection?.prepareStatement(
-                        "UPDATE " + Constants.DB_TABLE_CLIENT +
-                                " SET " + Constants.CLIENT_IS_ACTIVE + "= ?" +
-                                " WHERE " + Constants.GENERIC_CLIENT_UUID + "= ? " +
-                                " AND " + Constants.GENERIC_PROFILE_ID + "= ?"
+                        "UPDATE ${Constants.DB_TABLE_CLIENT}" +
+                                " SET ${Constants.CLIENT_IS_ACTIVE}= ?" +
+                                " WHERE ${Constants.GENERIC_CLIENT_UUID}= ? " +
+                                " AND ${Constants.GENERIC_PROFILE_ID}= ?"
                 )
                 statement?.setBoolean(1, active!!)
                 statement?.setString(2, clientUUID)
@@ -560,9 +567,9 @@ class ClientService {
             sqlService?.connection.use { sqlConnection ->
 
                 // first remove all enabled overrides with this client uuid
-                var queryString = "DELETE FROM " + Constants.DB_TABLE_ENABLED_OVERRIDE +
-                        " WHERE " + Constants.GENERIC_CLIENT_UUID + "= ? " +
-                        " AND " + Constants.GENERIC_PROFILE_ID + " = ?"
+                var queryString = "DELETE FROM ${Constants.DB_TABLE_ENABLED_OVERRIDE}" +
+                        " WHERE ${Constants.GENERIC_CLIENT_UUID}= ? " +
+                        " AND ${Constants.GENERIC_PROFILE_ID} = ?"
                 statement = sqlConnection?.prepareStatement(queryString)
                 statement?.setString(1, clientUUID)
                 statement?.setInt(2, profileId)
@@ -570,14 +577,14 @@ class ClientService {
                 statement?.close()
 
                 // clean up request response table for this uuid
-                queryString = ("UPDATE " + Constants.DB_TABLE_REQUEST_RESPONSE +
-                        " SET " + Constants.REQUEST_RESPONSE_CUSTOM_REQUEST + "=?, "
-                        + Constants.REQUEST_RESPONSE_CUSTOM_RESPONSE + "=?, "
-                        + Constants.REQUEST_RESPONSE_REPEAT_NUMBER + "=-1, "
-                        + Constants.REQUEST_RESPONSE_REQUEST_ENABLED + "=0, "
-                        + Constants.REQUEST_RESPONSE_RESPONSE_ENABLED + "=0 "
-                        + "WHERE " + Constants.GENERIC_CLIENT_UUID + "=? " +
-                        " AND " + Constants.GENERIC_PROFILE_ID + "=?")
+                queryString = ("UPDATE ${Constants.DB_TABLE_REQUEST_RESPONSE}" +
+                        " SET ${Constants.REQUEST_RESPONSE_CUSTOM_REQUEST}=?, "
+                        + "${Constants.REQUEST_RESPONSE_CUSTOM_RESPONSE}=?, "
+                        + "${Constants.REQUEST_RESPONSE_REPEAT_NUMBER}=-1, "
+                        + "${Constants.REQUEST_RESPONSE_REQUEST_ENABLED}=0, "
+                        + "${Constants.REQUEST_RESPONSE_RESPONSE_ENABLED}=0 "
+                        + "WHERE ${Constants.GENERIC_CLIENT_UUID}=? " +
+                        " AND ${Constants.GENERIC_PROFILE_ID}=?")
                 statement = sqlConnection?.prepareStatement(queryString)
                 statement?.setString(1, "")
                 statement?.setString(2, "")
@@ -597,16 +604,16 @@ class ClientService {
     }
 
     fun getClientUUIDfromId(id: Int): String {
-        return sqlService!!.getFromTable(Constants.CLIENT_CLIENT_UUID, Constants.GENERIC_ID, id, Constants.DB_TABLE_CLIENT) as String
+        return sqlService?.getFromTable(Constants.CLIENT_CLIENT_UUID, Constants.GENERIC_ID, id, Constants.DB_TABLE_CLIENT) as String
     }
 
     fun getIdFromClientUUID(uuid: String?): Int {
-        return sqlService!!.getFromTable(Constants.GENERIC_ID, Constants.CLIENT_CLIENT_UUID, uuid, Constants.DB_TABLE_CLIENT) as Int
+        return sqlService?.getFromTable(Constants.GENERIC_ID, Constants.CLIENT_CLIENT_UUID, uuid, Constants.DB_TABLE_CLIENT) as Int
     }
 
     //gets the profile_name associated with a specific id
     fun getProfileIdFromClientId(id: Int): String {
-        return sqlService!!.getFromTable(Constants.CLIENT_PROFILE_ID, Constants.GENERIC_ID, id, Constants.DB_TABLE_CLIENT) as String
+        return sqlService?.getFromTable(Constants.CLIENT_PROFILE_ID, Constants.GENERIC_ID, id, Constants.DB_TABLE_CLIENT) as String
     }
 
     companion object {
