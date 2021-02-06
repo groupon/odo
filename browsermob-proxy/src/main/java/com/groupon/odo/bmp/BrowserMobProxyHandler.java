@@ -243,11 +243,6 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
-import com.squareup.okhttp.OkHttpClient;
-import com.squareup.okhttp.Request;
-import com.squareup.okhttp.Response;
-import com.squareup.okhttp.RequestBody;
-import com.squareup.okhttp.MediaType;
 import net.lightbody.bmp.proxy.FirefoxErrorConstants;
 import net.lightbody.bmp.proxy.FirefoxErrorContent;
 import net.lightbody.bmp.proxy.http.BadURIException;
@@ -266,10 +261,14 @@ import net.lightbody.bmp.proxy.jetty.http.SslListener;
 import net.lightbody.bmp.proxy.jetty.jetty.Server;
 import net.lightbody.bmp.proxy.jetty.util.InetAddrPort;
 import net.lightbody.bmp.proxy.jetty.util.URI;
-import com.groupon.odo.bmp.KeyStoreManager;
 import net.lightbody.bmp.proxy.selenium.LauncherUtils;
 import net.lightbody.bmp.proxy.selenium.SeleniumProxyHandler;
 import net.lightbody.bmp.proxy.util.Log;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 import okio.BufferedSink;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.NoHttpResponseException;
@@ -279,8 +278,6 @@ import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;
-import javax.net.ssl.HostnameVerifier;
-import javax.net.ssl.SSLSession;
 import javax.net.ssl.SSLProtocolException;
 import java.security.cert.CertificateException;
 import java.util.concurrent.TimeUnit;
@@ -573,14 +570,10 @@ public class BrowserMobProxyHandler extends SeleniumProxyHandler {
             // Create an ssl socket factory with our all-trusting manager
             final SSLSocketFactory sslSocketFactory = sslContext.getSocketFactory();
 
-            OkHttpClient okHttpClient = new OkHttpClient();
-            okHttpClient.setSslSocketFactory(sslSocketFactory);
-            okHttpClient.setHostnameVerifier(new HostnameVerifier() {
-                @Override
-                public boolean verify(String hostname, SSLSession session) {
-                    return true;
-                }
-            });
+            OkHttpClient okHttpClient = new OkHttpClient.Builder()
+                    .sslSocketFactory(sslSocketFactory)
+                    .hostnameVerifier((s, sslSession) -> true)
+                    .build();
 
             return okHttpClient;
         } catch (Exception e) {
@@ -599,11 +592,12 @@ public class BrowserMobProxyHandler extends SeleniumProxyHandler {
 
             // setup okhttp to ignore ssl issues
             OkHttpClient okHttpClient = getUnsafeOkHttpClient();
-            okHttpClient.setFollowRedirects(false);
-            okHttpClient.setFollowSslRedirects(false);
-            okHttpClient.setConnectTimeout(60, TimeUnit.SECONDS);
-            okHttpClient.setReadTimeout(60, TimeUnit.SECONDS);
-            okHttpClient.setWriteTimeout(60, TimeUnit.SECONDS);
+            getUnsafeOkHttpClient().newBuilder()
+                    .followRedirects(false)
+                    .followSslRedirects(false)
+                    .connectTimeout(60, TimeUnit.SECONDS)
+                    .readTimeout(60, TimeUnit.SECONDS)
+                    .writeTimeout(60, TimeUnit.SECONDS);
 
             Request.Builder okRequestBuilder = new Request.Builder();
 
