@@ -152,7 +152,7 @@ public class BackupService {
         }
         singleProfileBackup.setEnabledPaths(enabledPaths);
 
-        Client backupClient = ClientService.getInstance().findClient(clientUUID, profileID);
+        Client backupClient = ClientService.Companion.getInstance().findClient(clientUUID, profileID);
         ServerGroup activeServerGroup = ServerRedirectService.getInstance().getServerGroup(backupClient.getActiveServerGroup(), profileID);
         singleProfileBackup.setActiveServerGroup(activeServerGroup);
 
@@ -333,7 +333,7 @@ public class BackupService {
                 }
 
                 // set active
-                ClientService.getInstance().updateActive(newProfile.getId(), Constants.PROFILE_CLIENT_DEFAULT_ID, profile.getActive());
+                ClientService.Companion.getInstance().updateActive(newProfile.getId(), Constants.PROFILE_CLIENT_DEFAULT_ID, profile.getActive());
             }
         } catch (Exception e) {
             // TODO Auto-generated catch block
@@ -473,7 +473,7 @@ public class BackupService {
      */
     public void setProfileFromBackup(JSONObject profileBackup, int profileId, String clientUUID) throws Exception {
         // Reset the profile before applying changes
-        ClientService clientService = ClientService.getInstance();
+        ClientService clientService = ClientService.Companion.getInstance();
         clientService.reset(profileId, clientUUID);
         clientService.updateActive(profileId, clientUUID, true);
         JSONArray errors = new JSONArray();
@@ -484,7 +484,7 @@ public class BackupService {
         if (activeServerId == -1) {
             errors.put(formErrorJson("Server Error", "Cannot change to '" + activeServerGroup.getString(Constants.NAME) + "' - Check Server Group Exists"));
         } else {
-            Client clientToUpdate = ClientService.getInstance().findClient(clientUUID, profileId);
+            Client clientToUpdate = ClientService.Companion.getInstance().findClient(clientUUID, profileId);
             ServerRedirectService.getInstance().activateServerGroup(activeServerId, clientToUpdate.getId());
         }
 

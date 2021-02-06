@@ -28,13 +28,13 @@ import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ClientService {
+public class ClientService2 {
 
     private static final Logger logger = LoggerFactory.getLogger(ClientService.class);
     private static SQLService sqlService = null;
     private static ClientService serviceInstance = null;
 
-    public ClientService() {
+    public ClientService2() {
 
     }
 

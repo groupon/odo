@@ -65,7 +65,7 @@ public class ServerRedirectService {
         List<ServerRedirect> servers = new ArrayList<>();
 
         try {
-            Client client = ClientService.getInstance().getClient(clientId);
+            Client client = ClientService.Companion.getInstance().getClient(clientId);
             servers = tableServers(client.getProfile().getId(), client.getActiveServerGroup());
         } catch (SQLException e) {
             e.printStackTrace();
@@ -283,7 +283,7 @@ public class ServerRedirectService {
         int serverId = -1;
 
         try {
-            Client client = ClientService.getInstance().getClient(clientId);
+            Client client = ClientService.Companion.getInstance().getClient(clientId);
             serverId = addServerRedirect(region, srcUrl, destUrl, hostHeader, profileId, client.getActiveServerGroup());
         } catch (Exception e) {
             e.printStackTrace();
@@ -659,7 +659,7 @@ public class ServerRedirectService {
                 return false;
             }
             for (Profile profile : profiles) {
-                List<Client> clients = ClientService.getInstance().findAllClients(profile.getId());
+                List<Client> clients = ClientService.Companion.getInstance().findAllClients(profile.getId());
                 for (Client client : clients) {
                     if (client.getIsActive()) {
                         return true;

@@ -657,7 +657,7 @@ public class Proxy extends HttpServlet {
         // if no profile is enabled then we pick the first one so that we have a URL mapping
         for (Profile tryProfile : ServerRedirectService.getInstance().getProfilesForServerName(origHostName)) {
             logger.info("Trying {}", tryProfile.getName());
-            Client tryClient = ClientService.getInstance().findClient(history.getClientUUID(), tryProfile.getId());
+            Client tryClient = ClientService.Companion.getInstance().findClient(history.getClientUUID(), tryProfile.getId());
             if (tryClient == null) {
                 continue;
             }

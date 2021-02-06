@@ -38,7 +38,7 @@ public class ClientController {
 
     private static final Logger logger = LoggerFactory.getLogger(ClientController.class);
 
-    private ClientService clientService = ClientService.getInstance();
+    private ClientService clientService = ClientService.Companion.getInstance();
 
     /**
      * @param model

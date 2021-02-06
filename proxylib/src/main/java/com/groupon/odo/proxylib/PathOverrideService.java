@@ -168,7 +168,7 @@ public class PathOverrideService {
         }
 
         // need to add to request response table for all clients
-        for (Client client : ClientService.getInstance().findAllClients(id)) {
+        for (Client client : ClientService.Companion.getInstance().findAllClients(id)) {
             this.addPathToRequestResponseTable(id, client.getUUID(), pathId);
         }
 

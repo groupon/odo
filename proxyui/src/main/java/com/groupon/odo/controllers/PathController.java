@@ -138,7 +138,7 @@ public class PathController {
         int profileId = ControllerUtils.convertProfileIdentifier(profileIdentifier);
 
         List<EndpointOverride> trySelectedRequestPaths = PathOverrideService.getInstance().getSelectedPaths(Constants.OVERRIDE_TYPE_REQUEST,
-                                                                                                            ClientService.getInstance().findClient("-1", profileId),
+                                                                                                            ClientService.Companion.getInstance().findClient("-1", profileId),
                                                                                                             ProfileService.getInstance().findProfile(profileId), url, requestType, true);
 
         HashMap<String, Object> jqReturn = Utils.getJQGridJSON(trySelectedRequestPaths, "paths");
