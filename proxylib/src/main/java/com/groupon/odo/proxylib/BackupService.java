@@ -490,7 +490,7 @@ public class BackupService {
 
         JSONArray enabledPaths = profileBackup.getJSONArray(Constants.ENABLED_PATHS);
         PathOverrideService pathOverrideService = PathOverrideService.getInstance();
-        OverrideService overrideService = OverrideService.getInstance();
+        OverrideService overrideService = OverrideService.Companion.getInstance();
 
         for (int i = 0; i < enabledPaths.length(); i++) {
             JSONObject path = enabledPaths.getJSONObject(i);

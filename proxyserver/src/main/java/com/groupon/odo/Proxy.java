@@ -767,7 +767,7 @@ public class Proxy extends HttpServlet {
                     HashMap<String, String> originalParams = HttpUtilities.getParameters(originalQueryString);
                     HashMap<String, String> modifierParams = new HashMap<String, String>();
 
-                    List<EnabledEndpoint> overrides = OverrideService.getInstance().getEnabledEndpoints(
+                    List<EnabledEndpoint> overrides = OverrideService.Companion.getInstance().getEnabledEndpoints(
                             selectedPath.getPathId(), selectedPath.getClientUUID(), null);
 
                     // find the first enabled custom request override
