@@ -79,12 +79,12 @@ class OverrideService {
                     method = PluginManager.getInstance().getMethod(className, methodName)
                 }
                 statement = sqlConnection?.prepareStatement(
-                        ("INSERT INTO " + Constants.DB_TABLE_ENABLED_OVERRIDE +
-                                "(" + Constants.GENERIC_PROFILE_ID + "," + Constants.GENERIC_CLIENT_UUID + "," +
-                                Constants.REQUEST_RESPONSE_PATH_ID + "," + Constants.ENABLED_OVERRIDES_OVERRIDE_ID + "," +
-                                Constants.ENABLED_OVERRIDES_PRIORITY + "," + Constants.ENABLED_OVERRIDES_ARGUMENTS + "," +
-                                Constants.ENABLED_OVERRIDES_RESPONSE_CODE + ")" +
-                                " VALUES (?, ?, ?, ?, ?, ?, ?);")
+                        ("INSERT INTO ${Constants.DB_TABLE_ENABLED_OVERRIDE}" +
+                            "(${Constants.GENERIC_PROFILE_ID},${Constants.GENERIC_CLIENT_UUID}," +
+                            "${Constants.REQUEST_RESPONSE_PATH_ID},${Constants.ENABLED_OVERRIDES_OVERRIDE_ID}," +
+                            "${Constants.ENABLED_OVERRIDES_PRIORITY},${Constants.ENABLED_OVERRIDES_ARGUMENTS}," +
+                            "${Constants.ENABLED_OVERRIDES_RESPONSE_CODE})" +
+                            " VALUES (?, ?, ?, ?, ?, ?, ?);")
                 )
                 statement?.setInt(1, profileId)
                 statement?.setString(2, clientUUID)
@@ -188,9 +188,9 @@ class OverrideService {
         var statement: PreparedStatement? = null
         try {
             sqlService?.connection.use { sqlConnection ->
-                val queryString: String = ("UPDATE " + Constants.DB_TABLE_ENABLED_OVERRIDE +
-                        " SET " + Constants.ENABLED_OVERRIDES_REPEAT_NUMBER + "= ? " +
-                        " WHERE " + Constants.GENERIC_ID + " = ?")
+                val queryString: String = ("UPDATE ${Constants.DB_TABLE_ENABLED_OVERRIDE}" +
+                        " SET ${Constants.ENABLED_OVERRIDES_REPEAT_NUMBER}= ? " +
+                        " WHERE ${Constants.GENERIC_ID} = ?")
                 statement = sqlConnection?.prepareStatement(queryString)
                 statement?.setInt(1, (repeatNumber)!!)
                 statement?.setInt(2, id)
@@ -239,9 +239,9 @@ class OverrideService {
         var statement: PreparedStatement? = null
         try {
             sqlService!!.connection.use { sqlConnection ->
-                val queryString: String = ("UPDATE " + Constants.DB_TABLE_ENABLED_OVERRIDE +
-                        " SET " + Constants.ENABLED_OVERRIDES_RESPONSE_CODE + "= ? " +
-                        " WHERE " + Constants.GENERIC_ID + " = ?")
+                val queryString: String = ("UPDATE ${Constants.DB_TABLE_ENABLED_OVERRIDE}" +
+                        " SET ${Constants.ENABLED_OVERRIDES_RESPONSE_CODE}= ? " +
+                        " WHERE ${Constants.GENERIC_ID} = ?")
                 statement = sqlConnection.prepareStatement(queryString)
                 statement?.setString(1, responseCode)
                 statement?.setInt(2, id)
@@ -269,11 +269,11 @@ class OverrideService {
         // TODO: reorder priorities after removal
         var statement: PreparedStatement? = null
         try {
-            sqlService!!.connection.use { sqlConnection ->
+            sqlService?.connection.use { sqlConnection ->
                 val enabledId: Int = getEnabledEndpoint(pathId, overrideId, ordinal, clientUUID)!!.getId()
-                statement = sqlConnection.prepareStatement(
-                        ("DELETE FROM " + Constants.DB_TABLE_ENABLED_OVERRIDE +
-                                " WHERE " + Constants.GENERIC_ID + " = ?")
+                statement = sqlConnection?.prepareStatement(
+                        ("DELETE FROM ${Constants.DB_TABLE_ENABLED_OVERRIDE}" +
+                                " WHERE ${Constants.GENERIC_ID} = ?")
                 )
                 statement?.setInt(1, enabledId)
                 statement?.executeUpdate()
@@ -304,13 +304,13 @@ class OverrideService {
         var statement: PreparedStatement? = null
         var results: ResultSet? = null
         try {
-            sqlService!!.connection.use { sqlConnection ->
+            sqlService?.connection.use { sqlConnection ->
                 results = null
-                statement = sqlConnection.prepareStatement(
-                        ("SELECT * FROM " + Constants.DB_TABLE_ENABLED_OVERRIDE +
-                                " WHERE " + Constants.ENABLED_OVERRIDES_PATH_ID + " = ?" +
-                                " AND " + Constants.GENERIC_CLIENT_UUID + " = ?" +
-                                " ORDER BY " + Constants.ENABLED_OVERRIDES_PRIORITY)
+                statement = sqlConnection?.prepareStatement(
+                        ("SELECT * FROM ${Constants.DB_TABLE_ENABLED_OVERRIDE}" +
+                                " WHERE ${Constants.ENABLED_OVERRIDES_PATH_ID} = ?" +
+                                " AND ${Constants.GENERIC_CLIENT_UUID} = ?" +
+                                " ORDER BY ${Constants.ENABLED_OVERRIDES_PRIORITY}")
                 )
                 statement?.setInt(1, pathId)
                 statement?.setString(2, clientUUID)
@@ -346,18 +346,18 @@ class OverrideService {
                 // update priorities
                 if (origPriority != -1 && newPriority != -1) {
                     statement = sqlConnection?.prepareStatement(
-                            ("UPDATE " + Constants.DB_TABLE_ENABLED_OVERRIDE +
-                                    " SET " + Constants.ENABLED_OVERRIDES_PRIORITY + "=?" +
-                                    " WHERE " + Constants.GENERIC_ID + "=?")
+                            ("UPDATE ${Constants.DB_TABLE_ENABLED_OVERRIDE}" +
+                                    " SET ${Constants.ENABLED_OVERRIDES_PRIORITY}=?" +
+                                    " WHERE ${Constants.GENERIC_ID}=?")
                     )
                     statement?.setInt(1, origPriority)
                     statement?.setInt(2, newId)
                     statement?.executeUpdate()
                     statement?.close()
                     statement = sqlConnection?.prepareStatement(
-                            ("UPDATE " + Constants.DB_TABLE_ENABLED_OVERRIDE +
-                                    " SET " + Constants.ENABLED_OVERRIDES_PRIORITY + "=?" +
-                                    " WHERE " + Constants.GENERIC_ID + "=?")
+                            ("UPDATE ${Constants.DB_TABLE_ENABLED_OVERRIDE}" +
+                                    " SET ${Constants.ENABLED_OVERRIDES_PRIORITY}=?" +
+                                    " WHERE ${Constants.GENERIC_ID}=?")
                     )
                     statement?.setInt(1, newPriority)
                     statement?.setInt(2, origId)
@@ -391,10 +391,10 @@ class OverrideService {
         try {
             sqlService!!.connection.use { sqlConnection ->
                 queryStatement = sqlConnection.prepareStatement(
-                        ("SELECT * FROM " + Constants.DB_TABLE_ENABLED_OVERRIDE +
-                                " WHERE " + Constants.ENABLED_OVERRIDES_PATH_ID + " = ?" +
-                                " AND " + Constants.GENERIC_CLIENT_UUID + " = ?" +
-                                " ORDER BY " + Constants.ENABLED_OVERRIDES_PRIORITY)
+                        ("SELECT * FROM ${Constants.DB_TABLE_ENABLED_OVERRIDE}" +
+                                " WHERE ${Constants.ENABLED_OVERRIDES_PATH_ID} = ?" +
+                                " AND ${Constants.GENERIC_CLIENT_UUID} = ?" +
+                                " ORDER BY ${Constants.ENABLED_OVERRIDES_PRIORITY}")
                 )
                 queryStatement?.setInt(1, pathId)
                 queryStatement?.setString(2, clientUUID)
@@ -476,9 +476,9 @@ class OverrideService {
         try {
             sqlService?.connection.use { sqlConnection ->
                 statement = sqlConnection?.prepareStatement(
-                        ("DELETE FROM " + Constants.DB_TABLE_ENABLED_OVERRIDE +
-                                " WHERE " + Constants.ENABLED_OVERRIDES_PATH_ID + " = ? " +
-                                " AND " + Constants.GENERIC_CLIENT_UUID + " = ? ")
+                        ("DELETE FROM ${Constants.DB_TABLE_ENABLED_OVERRIDE}" +
+                                " WHERE ${Constants.ENABLED_OVERRIDES_PATH_ID} = ? " +
+                                " AND ${Constants.GENERIC_CLIENT_UUID} = ? ")
                 )
                 statement?.setInt(1, pathID)
                 statement?.setString(2, clientUUID)
@@ -513,12 +513,12 @@ class OverrideService {
                 enabledOverrides.add(Constants.PLUGIN_REQUEST_OVERRIDE_CUSTOM_POST_BODY)
                 val overridePlaceholders: String = preparePlaceHolders(enabledOverrides.size)
                 statement = sqlConnection?.prepareStatement(
-                        ("DELETE FROM " + Constants.DB_TABLE_ENABLED_OVERRIDE +
-                                " WHERE " + Constants.ENABLED_OVERRIDES_PATH_ID + " = ? " +
-                                " AND " + Constants.GENERIC_CLIENT_UUID + " = ? " +
-                                " AND " + Constants.ENABLED_OVERRIDES_OVERRIDE_ID +
+                        ("DELETE FROM ${Constants.DB_TABLE_ENABLED_OVERRIDE}" +
+                                " WHERE ${Constants.ENABLED_OVERRIDES_PATH_ID} = ? " +
+                                " AND ${Constants.GENERIC_CLIENT_UUID} = ? " +
+                                " AND ${Constants.ENABLED_OVERRIDES_OVERRIDE_ID}" +
                                 (if (overrideType == Constants.OVERRIDE_TYPE_RESPONSE) " NOT" else "") +
-                                " IN ( " + overridePlaceholders + " )")
+                                " IN ( $overridePlaceholders )")
                 )
                 statement?.setInt(1, pathID)
                 statement?.setString(2, clientUUID)
@@ -552,12 +552,12 @@ class OverrideService {
         var query: PreparedStatement? = null
         var results: ResultSet? = null
         try {
-            sqlService!!.connection.use { sqlConnection ->
-                query = sqlConnection.prepareStatement(
-                        ("SELECT * FROM " + Constants.DB_TABLE_ENABLED_OVERRIDE +
-                                " WHERE " + Constants.ENABLED_OVERRIDES_PATH_ID + "=?" +
-                                " AND " + Constants.GENERIC_CLIENT_UUID + "=?" +
-                                " ORDER BY " + Constants.ENABLED_OVERRIDES_PRIORITY)
+            sqlService?.connection.use { sqlConnection ->
+                query = sqlConnection?.prepareStatement(
+                        ("SELECT * FROM ${Constants.DB_TABLE_ENABLED_OVERRIDE}" +
+                                " WHERE ${Constants.ENABLED_OVERRIDES_PATH_ID}=?" +
+                                " AND ${Constants.GENERIC_CLIENT_UUID}=?" +
+                                " ORDER BY ${Constants.ENABLED_OVERRIDES_PRIORITY}")
                 )
                 query?.setInt(1, pathId)
                 query?.setString(2, clientUUID)
