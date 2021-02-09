@@ -662,11 +662,11 @@ class OverrideService {
             sqlService?.connection.use { sqlConnection ->
                 // decrease ordinal by 1 so offset works right
                 ordinal--
-                val queryString: String = ("SELECT * FROM " + Constants.DB_TABLE_ENABLED_OVERRIDE +
-                        " WHERE " + Constants.ENABLED_OVERRIDES_PATH_ID + "=? " +
-                        " AND " + Constants.ENABLED_OVERRIDES_OVERRIDE_ID + "=? " +
-                        " AND " + Constants.GENERIC_CLIENT_UUID + "=? " +
-                        "ORDER BY " + Constants.PRIORITY + " LIMIT 1 OFFSET ?")
+                val queryString: String = ("SELECT * FROM ${Constants.DB_TABLE_ENABLED_OVERRIDE}" +
+                        " WHERE ${Constants.ENABLED_OVERRIDES_PATH_ID}=? " +
+                        " AND ${Constants.ENABLED_OVERRIDES_OVERRIDE_ID}=? " +
+                        " AND ${Constants.GENERIC_CLIENT_UUID}=? " +
+                        "ORDER BY ${Constants.PRIORITY} LIMIT 1 OFFSET ?")
                 statement = sqlConnection?.prepareStatement(queryString)
                 statement?.setInt(1, pathId)
                 statement?.setInt(2, overrideId)
