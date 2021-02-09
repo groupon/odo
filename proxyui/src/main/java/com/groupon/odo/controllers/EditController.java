@@ -151,7 +151,7 @@ public class EditController {
     public
     @ResponseBody
     String disableResponses(Model model, int path_id, @RequestParam(defaultValue = Constants.PROFILE_CLIENT_DEFAULT_ID) String clientUUID) throws Exception {
-        OverrideService.Companion.getInstance().disableAllOverrides(path_id, clientUUID);
+        OverrideService.Companion.getServiceInstance().disableAllOverrides(path_id, clientUUID);
         //TODO also need to disable custom override if there is one of those
         editService.removeCustomOverride(path_id, clientUUID);
 

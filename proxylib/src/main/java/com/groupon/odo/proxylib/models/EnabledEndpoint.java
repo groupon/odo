@@ -98,7 +98,7 @@ public class EnabledEndpoint {
      */
     public void decrementRepeatNumber() throws Exception {
         if (this.repeatNumber > 0)
-            OverrideService.Companion.getInstance().updateRepeatNumber(this.id, this.repeatNumber - 1);
+            OverrideService.Companion.getServiceInstance().updateRepeatNumber(this.id, this.repeatNumber - 1);
 
         this.repeatNumber--;
     }

@@ -816,19 +816,17 @@ class OverrideService {
     }
 
     companion object {
-        val logger = LoggerFactory
-                .getLogger(OverrideService::class.java)
-        private var serviceInstance: OverrideService? = null
+        val logger = LoggerFactory.getLogger(OverrideService::class.java)
         var sqlService: SQLService? = null
 
         @get:Throws(Exception::class)
-        val instance: OverrideService?
+        var serviceInstance: OverrideService? = null
             get() {
-                if (serviceInstance == null) {
+                if (field == null) {
                     sqlService = SQLService.getInstance()
-                    serviceInstance = OverrideService()
+                    field = OverrideService()
                 }
-                return serviceInstance
+                return field
             }
 
         /**

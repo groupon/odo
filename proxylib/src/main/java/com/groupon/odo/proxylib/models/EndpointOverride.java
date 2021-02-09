@@ -132,7 +132,7 @@ public class EndpointOverride {
     @JsonView(ViewFilters.BackupIgnore.class)
     public List<EnabledEndpoint> getEnabledEndpoints() throws Exception {
         if (enabledEndpoints == null) {
-            enabledEndpoints = OverrideService.Companion.getInstance().getEnabledEndpoints(this.getPathId(), clientUUID, this.filters);
+            enabledEndpoints = OverrideService.Companion.getServiceInstance().getEnabledEndpoints(this.getPathId(), clientUUID, this.filters);
         }
 
         return enabledEndpoints;

@@ -1494,7 +1494,7 @@ public class PathOverrideService {
     public void clearResponseSettings(int pathId, String clientUUID) throws Exception {
         logger.info("clearing response settings");
         this.setResponseEnabled(pathId, false, clientUUID);
-        OverrideService.Companion.getInstance().disableAllOverrides(pathId, clientUUID, Constants.OVERRIDE_TYPE_RESPONSE);
+        OverrideService.Companion.getServiceInstance().disableAllOverrides(pathId, clientUUID, Constants.OVERRIDE_TYPE_RESPONSE);
         EditService.getInstance().updateRepeatNumber(Constants.OVERRIDE_TYPE_RESPONSE, pathId, clientUUID);
     }
 
@@ -1507,7 +1507,7 @@ public class PathOverrideService {
      */
     public void clearRequestSettings(int pathId, String clientUUID) throws Exception {
         this.setRequestEnabled(pathId, false, clientUUID);
-        OverrideService.Companion.getInstance().disableAllOverrides(pathId, clientUUID, Constants.OVERRIDE_TYPE_REQUEST);
+        OverrideService.Companion.getServiceInstance().disableAllOverrides(pathId, clientUUID, Constants.OVERRIDE_TYPE_REQUEST);
         EditService.getInstance().updateRepeatNumber(Constants.OVERRIDE_TYPE_REQUEST, pathId, clientUUID);
     }
 
