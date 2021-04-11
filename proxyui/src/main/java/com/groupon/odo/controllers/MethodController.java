@@ -62,6 +62,6 @@ public class MethodController {
     public
     @ResponseBody
     HashMap<String, Object> getMethods(Model model) throws Exception {
-        return Utils.getJQGridJSON(pluginManager.getAllMethods(), "methods");
+        return Utils.INSTANCE.getJQGridJSON(pluginManager.getAllMethods(), "methods");
     }
 }

@@ -120,7 +120,7 @@ public class EndpointOverride {
     @JsonView(ViewFilters.BackupIgnore.class)
     public List<Method> getPossibleEndpoints() throws Exception {
         if (possibleEndpoints == null) {
-            possibleEndpoints = EditService.getInstance().getMethodsFromGroupIds(Utils.arrayFromStringOfIntegers(this.getGroupIds()), filters);
+            possibleEndpoints = EditService.getInstance().getMethodsFromGroupIds(Utils.INSTANCE.arrayFromStringOfIntegers(this.getGroupIds()), filters);
         }
         return possibleEndpoints;
     }
@@ -257,7 +257,7 @@ public class EndpointOverride {
     public List<String> getGroupNames() {
         if (groupNames == null) {
             groupNames = new ArrayList<String>();
-            for (int id : Utils.arrayFromStringOfIntegers(this.getGroupIds())) {
+            for (int id : Utils.INSTANCE.arrayFromStringOfIntegers(this.getGroupIds())) {
                 groupNames.add(PathOverrideService.getInstance().getGroupNameFromId(id));
             }
         }

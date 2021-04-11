@@ -179,7 +179,7 @@ public class Proxy extends HttpServlet {
                 alreadyServed = true;
             } else if (request.getPathInfo().toLowerCase().equals("/odo")) {
                 // redirect to certificate download page
-                response.sendRedirect("http://" + Utils.getPublicIPAddress() + ":" + Utils.getSystemPort(Constants.SYS_API_PORT) + "/testproxy/cert");
+                response.sendRedirect("http://" + Utils.INSTANCE.getPublicIPAddress() + ":" + Utils.INSTANCE.getSystemPort(Constants.SYS_API_PORT) + "/testproxy/cert");
                 alreadyServed = true;
             }
         } catch (Exception e) {

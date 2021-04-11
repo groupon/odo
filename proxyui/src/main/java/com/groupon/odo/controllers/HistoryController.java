@@ -103,7 +103,7 @@ public class HistoryController {
 
         History[] histories = HistoryService.Companion.getInstance().getHistory(profileId, clientUUID, offset, limit, false, filters, hasMessage);
         int totalRows = HistoryService.Companion.getInstance().getHistoryCount(profileId, clientUUID, filters);
-        HashMap<String, Object> returnJSON = Utils.getJQGridJSON(histories, "history", offset, totalRows, limit);
+        HashMap<String, Object> returnJSON = Utils.INSTANCE.getJQGridJSON(histories, "history", offset, totalRows, limit);
 
         return returnJSON;
     }

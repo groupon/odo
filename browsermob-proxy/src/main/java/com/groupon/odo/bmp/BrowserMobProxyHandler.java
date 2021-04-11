@@ -226,7 +226,6 @@ package com.groupon.odo.bmp;
 
 import com.groupon.odo.proxylib.Constants;
 
-import com.groupon.odo.proxylib.ServerRedirectService;
 import java.io.File;
 import java.io.IOException;
 import java.net.BindException;
@@ -243,6 +242,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
+import com.groupon.odo.proxylib.Utils;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
@@ -266,7 +266,6 @@ import net.lightbody.bmp.proxy.jetty.http.SslListener;
 import net.lightbody.bmp.proxy.jetty.jetty.Server;
 import net.lightbody.bmp.proxy.jetty.util.InetAddrPort;
 import net.lightbody.bmp.proxy.jetty.util.URI;
-import com.groupon.odo.bmp.KeyStoreManager;
 import net.lightbody.bmp.proxy.selenium.LauncherUtils;
 import net.lightbody.bmp.proxy.selenium.SeleniumProxyHandler;
 import net.lightbody.bmp.proxy.util.Log;
@@ -355,7 +354,7 @@ public class BrowserMobProxyHandler extends SeleniumProxyHandler {
         requestOriginalURI.set(realURI);
 
         // send requests to Odo HTTPS port
-        int httpsPort = com.groupon.odo.proxylib.Utils.getSystemPort(Constants.SYS_HTTPS_PORT);
+        int httpsPort = Utils.INSTANCE.getSystemPort(Constants.SYS_HTTPS_PORT);
         uri.setURI("127.0.0.1:" + httpsPort);
         uri.setPort(httpsPort);
 
@@ -455,7 +454,7 @@ public class BrowserMobProxyHandler extends SeleniumProxyHandler {
             // see https://github.com/webmetrics/browsermob-proxy/issues/105
             String escapedHost = host.replace('*', '_');
 
-            KeyStoreManager keyStoreManager = Utils.getKeyStoreManager(escapedHost);
+            KeyStoreManager keyStoreManager = com.groupon.odo.bmp.Utils.getKeyStoreManager(escapedHost);
             keyStoreManager.getKeyStore().deleteEntry(KeyStoreManager._caPrivKeyAlias);
             keyStoreManager.persist();
             listener.setKeystore(new File("seleniumSslSupport" + File.separator + escapedHost + File.separator + "cybervillainsCA.jks").getAbsolutePath());
@@ -594,7 +593,7 @@ public class BrowserMobProxyHandler extends SeleniumProxyHandler {
             String urlStr = url.toString();
 
             if (urlStr.toLowerCase().startsWith(Constants.ODO_INTERNAL_WEBAPP_URL)) {
-                urlStr = "http://localhost:" + com.groupon.odo.proxylib.Utils.getSystemPort(Constants.SYS_HTTP_PORT) + "/odo";
+                urlStr = "http://localhost:" + Utils.INSTANCE.getSystemPort(Constants.SYS_HTTP_PORT) + "/odo";
             }
 
             // setup okhttp to ignore ssl issues
@@ -612,7 +611,7 @@ public class BrowserMobProxyHandler extends SeleniumProxyHandler {
              * by checking it only has a : as part of http://
              */
             if (urlStr.startsWith("http://") && urlStr.indexOf(":") == urlStr.lastIndexOf(":")) {
-                int httpPort = com.groupon.odo.proxylib.Utils.getSystemPort(Constants.SYS_HTTP_PORT);
+                int httpPort = Utils.INSTANCE.getSystemPort(Constants.SYS_HTTP_PORT);
                 urlStr = urlStr.replace(getHostNameFromURL(urlStr), localIP + ":" + httpPort);
             }
 

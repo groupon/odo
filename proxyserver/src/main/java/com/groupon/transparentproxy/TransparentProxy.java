@@ -32,7 +32,7 @@ public class TransparentProxy {
     }
 
     public void startServer() throws Exception {
-        int fwdPort = Utils.getSystemPort(Constants.SYS_FWD_PORT);
+        int fwdPort = Utils.INSTANCE.getSystemPort(Constants.SYS_FWD_PORT);
         _proxyserver = new ProxyServer(fwdPort);
         _proxyserver.start();
     }

@@ -69,7 +69,7 @@ public class PathOrderController {
     public String pathOrderUpdated(Model model, @PathVariable int profileId, String pathOrder) {
 
         logger.info("new path order = {}", pathOrder);
-        int[] intArrayPathOrder = Utils.arrayFromStringOfIntegers(pathOrder);
+        int[] intArrayPathOrder = Utils.INSTANCE.arrayFromStringOfIntegers(pathOrder);
         pathOverrideService.updatePathOrder(profileId, intArrayPathOrder);
 
         return "pathOrder";

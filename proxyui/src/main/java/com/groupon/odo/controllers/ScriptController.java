@@ -52,7 +52,7 @@ public class ScriptController {
     HashMap<String, Object> getScripts(Model model,
                                        @RequestParam(required = false) Integer type) throws Exception {
         Script[] scripts = ScriptService.getInstance().getScripts(type);
-        return Utils.getJQGridJSON(scripts, "scripts");
+        return Utils.INSTANCE.getJQGridJSON(scripts, "scripts");
     }
 
     /**

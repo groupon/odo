@@ -69,7 +69,7 @@ public class ClientController {
                                           @PathVariable("profileIdentifier") String profileIdentifier) throws Exception {
 
         Integer profileId = ControllerUtils.convertProfileIdentifier(profileIdentifier);
-        return Utils.getJQGridJSON(clientService.findAllClients(profileId), "clients");
+        return Utils.INSTANCE.getJQGridJSON(clientService.findAllClients(profileId), "clients");
     }
 
     /**

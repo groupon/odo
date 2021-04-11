@@ -65,7 +65,7 @@ public class PathController {
         int profileId = ControllerUtils.convertProfileIdentifier(profileIdentifier);
         List<EndpointOverride> paths = PathOverrideService.getInstance().getPaths(profileId, clientUUID, typeFilter);
 
-        HashMap<String, Object> jqReturn = Utils.getJQGridJSON(paths, "paths");
+        HashMap<String, Object> jqReturn = Utils.INSTANCE.getJQGridJSON(paths, "paths");
 
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.addMixInAnnotations(Object.class, ViewFilters.GetPathFilter.class);
@@ -141,7 +141,7 @@ public class PathController {
                                                                                                             ClientService.Companion.getInstance().findClient("-1", profileId),
                                                                                                             ProfileService.getInstance().findProfile(profileId), url, requestType, true);
 
-        HashMap<String, Object> jqReturn = Utils.getJQGridJSON(trySelectedRequestPaths, "paths");
+        HashMap<String, Object> jqReturn = Utils.INSTANCE.getJQGridJSON(trySelectedRequestPaths, "paths");
 
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.addMixInAnnotations(Object.class, ViewFilters.GetPathFilter.class);
@@ -195,7 +195,7 @@ public class PathController {
         // return the remaining data
         List<EndpointOverride> paths = PathOverrideService.getInstance().getPaths(profileId, clientUUID, null);
 
-        return Utils.getJQGridJSON(paths, "paths");
+        return Utils.INSTANCE.getJQGridJSON(paths, "paths");
     }
 
     /**

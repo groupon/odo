@@ -64,7 +64,7 @@ public class SQLService {
     public void startServer() throws Exception {
         if (!externalDatabaseHost) {
             try {
-                this.port = Utils.getSystemPort(Constants.SYS_DB_PORT);
+                this.port = Utils.INSTANCE.getSystemPort(Constants.SYS_DB_PORT);
                 server = Server.createTcpServer("-tcpPort", String.valueOf(port), "-tcpAllowOthers").start();
             } catch (SQLException e) {
                 if (e.toString().contains("java.net.UnknownHostException")) {
@@ -109,8 +109,8 @@ public class SQLService {
             // default pool size is 20
             // can be overriden by env variable
             int dbPool = 20;
-            if (Utils.getEnvironmentOptionValue(Constants.SYS_DATABASE_POOL_SIZE) != null) {
-                dbPool = Integer.valueOf(Utils.getEnvironmentOptionValue(Constants.SYS_DATABASE_POOL_SIZE));
+            if (Utils.INSTANCE.getEnvironmentOptionValue(Constants.SYS_DATABASE_POOL_SIZE) != null) {
+                dbPool = Integer.valueOf(Utils.INSTANCE.getEnvironmentOptionValue(Constants.SYS_DATABASE_POOL_SIZE));
             }
 
             // initialize connection pool

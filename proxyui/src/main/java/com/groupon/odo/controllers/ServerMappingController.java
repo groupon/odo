@@ -110,7 +110,7 @@ public class ServerMappingController {
         }
         int clientId = ClientService.Companion.getInstance().findClient(clientUUID, profileId).getId();
 
-        HashMap<String, Object> returnJson = Utils.getJQGridJSON(ServerRedirectService.getInstance().tableServers(clientId), "servers");
+        HashMap<String, Object> returnJson = Utils.INSTANCE.getJQGridJSON(ServerRedirectService.getInstance().tableServers(clientId), "servers");
         returnJson.put("hostEditor", Client.isAvailable());
         return returnJson;
     }
@@ -148,7 +148,7 @@ public class ServerMappingController {
                 }
             }
         }
-        HashMap<String, Object> returnJson = Utils.getJQGridJSON(serverGroups, "servergroups");
+        HashMap<String, Object> returnJson = Utils.INSTANCE.getJQGridJSON(serverGroups, "servergroups");
         return returnJson;
     }
 

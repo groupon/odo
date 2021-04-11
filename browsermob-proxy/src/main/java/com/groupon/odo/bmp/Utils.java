@@ -21,8 +21,6 @@ import java.security.cert.X509Certificate;
 
 import org.apache.commons.io.FileUtils;
 
-import com.groupon.odo.bmp.KeyStoreManager;
-
 public class Utils {
 	
 	/**
@@ -62,8 +60,8 @@ public class Utils {
     		// create it and get the root cert
     		root.delete();
         	root.mkdirs();
-    		com.groupon.odo.proxylib.Utils.copyResourceToLocalFile("cybervillainsCA.jks", root.getAbsolutePath() + File.separator + "cybervillainsCA.jks");
-        	com.groupon.odo.proxylib.Utils.copyResourceToLocalFile("cybervillainsCA.cer", root.getAbsolutePath() + File.separator + "cybervillainsCA.cer");
+    		com.groupon.odo.proxylib.Utils.INSTANCE.copyResourceToLocalFile("cybervillainsCA.jks", root.getAbsolutePath() + File.separator + "cybervillainsCA.jks");
+        	com.groupon.odo.proxylib.Utils.INSTANCE.copyResourceToLocalFile("cybervillainsCA.cer", root.getAbsolutePath() + File.separator + "cybervillainsCA.cer");
     	}
 		
 		return root;

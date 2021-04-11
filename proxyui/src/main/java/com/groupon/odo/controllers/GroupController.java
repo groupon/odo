@@ -62,14 +62,14 @@ public class GroupController {
     public
     @ResponseBody
     HashMap<String, Object> getAllGroups(Model model) {
-        return Utils.getJQGridJSON(pathOverrideService.findAllGroups(), "groups");
+        return Utils.INSTANCE.getJQGridJSON(pathOverrideService.findAllGroups(), "groups");
     }
 
     @RequestMapping(value = "api/group/{groupId}", method = RequestMethod.GET)
     public
     @ResponseBody
     HashMap<String, Object> getGroup(Model model, @PathVariable int groupId) throws Exception {
-        return Utils.getJQGridJSON(editService.getMethodsFromGroupId(groupId, null), "methods");
+        return Utils.INSTANCE.getJQGridJSON(editService.getMethodsFromGroupId(groupId, null), "methods");
     }
 
 
@@ -87,7 +87,7 @@ public class GroupController {
                                            @RequestParam(value = "name", required = true) String groupName) {
         logger.info("groupname={}", groupName);
         pathOverrideService.addGroup(groupName);
-        return Utils.getJQGridJSON(pathOverrideService.findAllGroups(), "groups");
+        return Utils.INSTANCE.getJQGridJSON(pathOverrideService.findAllGroups(), "groups");
     }
 
     /**
