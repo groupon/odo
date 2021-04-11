@@ -105,7 +105,7 @@ public class ControllerUtils {
             className = overrideIdentifier.substring(0, lastDot);
             methodName = overrideIdentifier.substring(lastDot + 1);
 
-            overrideId = OverrideService.getInstance().getOverrideIdForMethod(className, methodName);
+            overrideId = OverrideService.Companion.getServiceInstance().getOverrideIdForMethod(className, methodName);
         }
 
         return overrideId;

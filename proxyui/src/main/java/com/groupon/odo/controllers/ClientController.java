@@ -38,7 +38,7 @@ public class ClientController {
 
     private static final Logger logger = LoggerFactory.getLogger(ClientController.class);
 
-    private ClientService clientService = ClientService.getInstance();
+    private ClientService clientService = ClientService.Companion.getInstance();
 
     /**
      * @param model
@@ -69,7 +69,7 @@ public class ClientController {
                                           @PathVariable("profileIdentifier") String profileIdentifier) throws Exception {
 
         Integer profileId = ControllerUtils.convertProfileIdentifier(profileIdentifier);
-        return Utils.getJQGridJSON(clientService.findAllClients(profileId), "clients");
+        return Utils.INSTANCE.getJQGridJSON(clientService.findAllClients(profileId), "clients");
     }
 
     /**

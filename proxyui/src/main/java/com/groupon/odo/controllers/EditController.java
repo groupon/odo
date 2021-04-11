@@ -30,19 +30,19 @@ import java.util.HashMap;
 public class EditController {
 
     private static final Logger logger = LoggerFactory.getLogger(EditController.class);
-    private ClientService clientService = ClientService.getInstance();
+    private ClientService clientService = ClientService.Companion.getInstance();
     private EditService editService = EditService.getInstance();
 
     @RequestMapping(value = "edit/{profileIdentifier}", method = RequestMethod.GET)
     public String edit2Request(Model model, @PathVariable String profileIdentifier,
                                @RequestParam(defaultValue = Constants.PROFILE_CLIENT_DEFAULT_ID) String clientUUID) throws Exception {
         Integer profileId = ControllerUtils.convertProfileIdentifier(profileIdentifier);
-        Client client = ClientService.getInstance().findClient(clientUUID, profileId);
+        Client client = ClientService.Companion.getInstance().findClient(clientUUID, profileId);
 
         // check to see if client is null
         if (client == null) {
             // get the default client instead
-            client = ClientService.getInstance().findClient(Constants.PROFILE_CLIENT_DEFAULT_ID, profileId);
+            client = ClientService.Companion.getInstance().findClient(Constants.PROFILE_CLIENT_DEFAULT_ID, profileId);
         }
 
         model.addAttribute("clientUUID", client.getUUID());
@@ -151,7 +151,7 @@ public class EditController {
     public
     @ResponseBody
     String disableResponses(Model model, int path_id, @RequestParam(defaultValue = Constants.PROFILE_CLIENT_DEFAULT_ID) String clientUUID) throws Exception {
-        OverrideService.getInstance().disableAllOverrides(path_id, clientUUID);
+        OverrideService.Companion.getServiceInstance().disableAllOverrides(path_id, clientUUID);
         //TODO also need to disable custom override if there is one of those
         editService.removeCustomOverride(path_id, clientUUID);
 

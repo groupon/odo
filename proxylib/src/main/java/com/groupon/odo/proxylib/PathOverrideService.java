@@ -168,7 +168,7 @@ public class PathOverrideService {
         }
 
         // need to add to request response table for all clients
-        for (Client client : ClientService.getInstance().findAllClients(id)) {
+        for (Client client : ClientService.Companion.getInstance().findAllClients(id)) {
             this.addPathToRequestResponseTable(id, client.getUUID(), pathId);
         }
 
@@ -275,7 +275,7 @@ public class PathOverrideService {
         String oldGroups = getGroupIdsInPathProfile(profileId, pathId);
         // make sure the old groups does not contain the current group we want
         // to add
-        if (!intArrayContains(Utils.arrayFromStringOfIntegers(oldGroups), groupNum)) {
+        if (!intArrayContains(Utils.INSTANCE.arrayFromStringOfIntegers(oldGroups), groupNum)) {
             if (!oldGroups.endsWith(",") && !oldGroups.isEmpty()) {
                 oldGroups += ",";
             }
@@ -520,7 +520,7 @@ public class PathOverrideService {
             while (results.next()) {
                 int pathId = results.getInt(Constants.GENERIC_ID);
                 String stringGroupIds = results.getString(Constants.PATH_PROFILE_GROUP_IDS);
-                int[] groupIds = Utils.arrayFromStringOfIntegers(stringGroupIds);
+                int[] groupIds = Utils.INSTANCE.arrayFromStringOfIntegers(stringGroupIds);
                 String newGroupIds = "";
                 for (int i = 0; i < groupIds.length; i++) {
                     if (groupIds[i] != groupIdToRemove) {
@@ -829,7 +829,7 @@ public class PathOverrideService {
         int profileId, int pathId) {
         ArrayList<Group> groupsInProfile = new ArrayList<Group>();
         ArrayList<Group> allGroups = new ArrayList<Group>(findAllGroups());
-        int[] groupIds = Utils.arrayFromStringOfIntegers(getGroupIdsInPathProfile(profileId,
+        int[] groupIds = Utils.INSTANCE.arrayFromStringOfIntegers(getGroupIdsInPathProfile(profileId,
                                                                                   pathId));
         // get all the groups, then remove the ones != group ids, leaving us
         // with all the groups in the profile
@@ -855,7 +855,7 @@ public class PathOverrideService {
         int profileId, int pathId) {
         ArrayList<Group> allGroups = new ArrayList<Group>(findAllGroups());
         ArrayList<Group> groupsNotInProfile = new ArrayList<Group>();
-        int[] groupIds = Utils.arrayFromStringOfIntegers(getGroupIdsInPathProfile(profileId,
+        int[] groupIds = Utils.INSTANCE.arrayFromStringOfIntegers(getGroupIdsInPathProfile(profileId,
                                                                                   pathId));
         // go though each group, if groupIds does not match any of them, then
         // the group must not be added, so we add it
@@ -881,7 +881,7 @@ public class PathOverrideService {
      * @param profileId ID of profile
      */
     public void removeGroupFromPathProfile(int group_id, int pathId, int profileId) {
-        int[] groupIds = Utils.arrayFromStringOfIntegers(getGroupIdsInPathProfile(profileId,
+        int[] groupIds = Utils.INSTANCE.arrayFromStringOfIntegers(getGroupIdsInPathProfile(profileId,
                                                                                   pathId));
         String newGroupIds = "";
         for (int i = 0; i < groupIds.length; i++) {
@@ -1494,7 +1494,7 @@ public class PathOverrideService {
     public void clearResponseSettings(int pathId, String clientUUID) throws Exception {
         logger.info("clearing response settings");
         this.setResponseEnabled(pathId, false, clientUUID);
-        OverrideService.getInstance().disableAllOverrides(pathId, clientUUID, Constants.OVERRIDE_TYPE_RESPONSE);
+        OverrideService.Companion.getServiceInstance().disableAllOverrides(pathId, clientUUID, Constants.OVERRIDE_TYPE_RESPONSE);
         EditService.getInstance().updateRepeatNumber(Constants.OVERRIDE_TYPE_RESPONSE, pathId, clientUUID);
     }
 
@@ -1507,7 +1507,7 @@ public class PathOverrideService {
      */
     public void clearRequestSettings(int pathId, String clientUUID) throws Exception {
         this.setRequestEnabled(pathId, false, clientUUID);
-        OverrideService.getInstance().disableAllOverrides(pathId, clientUUID, Constants.OVERRIDE_TYPE_REQUEST);
+        OverrideService.Companion.getServiceInstance().disableAllOverrides(pathId, clientUUID, Constants.OVERRIDE_TYPE_REQUEST);
         EditService.getInstance().updateRepeatNumber(Constants.OVERRIDE_TYPE_REQUEST, pathId, clientUUID);
     }
 

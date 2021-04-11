@@ -50,7 +50,7 @@ public class HistoryController {
         Integer page = 1;
         if (historyID != -1) {
             HashMap<String, String[]> filters = new HashMap<String, String[]>();
-            History[] histories = HistoryService.getInstance().getHistory(profileId, clientUUID, offset, limit, false, filters, hasMessage);
+            History[] histories = HistoryService.Companion.getInstance().getHistory(profileId, clientUUID, offset, limit, false, filters, hasMessage);
             Integer lastID = histories[0].getId();
             page = 1 + (lastID - historyID) / 20;
         }
@@ -101,9 +101,9 @@ public class HistoryController {
             offset = (page - 1) * rows;
         }
 
-        History[] histories = HistoryService.getInstance().getHistory(profileId, clientUUID, offset, limit, false, filters, hasMessage);
-        int totalRows = HistoryService.getInstance().getHistoryCount(profileId, clientUUID, filters);
-        HashMap<String, Object> returnJSON = Utils.getJQGridJSON(histories, "history", offset, totalRows, limit);
+        History[] histories = HistoryService.Companion.getInstance().getHistory(profileId, clientUUID, offset, limit, false, filters, hasMessage);
+        int totalRows = HistoryService.Companion.getInstance().getHistoryCount(profileId, clientUUID, filters);
+        HashMap<String, Object> returnJSON = Utils.INSTANCE.getJQGridJSON(histories, "history", offset, totalRows, limit);
 
         return returnJSON;
     }
@@ -123,7 +123,7 @@ public class HistoryController {
     HashMap<String, Object> deleteHistory(Model mode, @PathVariable String profileIdentifier,
                                           @RequestParam(value = "clientUUID", defaultValue = Constants.PROFILE_CLIENT_DEFAULT_ID) String clientUUID) throws Exception {
         Integer profileId = ControllerUtils.convertProfileIdentifier(profileIdentifier);
-        HistoryService.getInstance().clearHistory(profileId, clientUUID);
+        HistoryService.Companion.getInstance().clearHistory(profileId, clientUUID);
         logger.info("Called");
         History[] histories = new History[0];
         HashMap<String, Object> returnData = new HashMap<String, Object>();
@@ -148,7 +148,7 @@ public class HistoryController {
     HashMap<String, Object> getHistoryForId(Model mode, @PathVariable String profileIdentifier, @PathVariable Integer id,
                                             @RequestParam(value = "format", required = false) String formatted) {
         HashMap<String, Object> returnData = new HashMap<String, Object>();
-        History history = HistoryService.getInstance().getHistoryForID(id);
+        History history = HistoryService.Companion.getInstance().getHistoryForID(id);
         if (formatted != null) {
             try {
                 if (formatted.equals("formattedAll")) {
@@ -165,7 +165,7 @@ public class HistoryController {
             }
         } else {
             returnData = new HashMap<String, Object>();
-            returnData.put("history", HistoryService.getInstance().getHistoryForID(id));
+            returnData.put("history", HistoryService.Companion.getInstance().getHistoryForID(id));
         }
 
         return returnData;

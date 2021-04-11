@@ -65,7 +65,7 @@ public class PathController {
         int profileId = ControllerUtils.convertProfileIdentifier(profileIdentifier);
         List<EndpointOverride> paths = PathOverrideService.getInstance().getPaths(profileId, clientUUID, typeFilter);
 
-        HashMap<String, Object> jqReturn = Utils.getJQGridJSON(paths, "paths");
+        HashMap<String, Object> jqReturn = Utils.INSTANCE.getJQGridJSON(paths, "paths");
 
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.addMixInAnnotations(Object.class, ViewFilters.GetPathFilter.class);
@@ -138,10 +138,10 @@ public class PathController {
         int profileId = ControllerUtils.convertProfileIdentifier(profileIdentifier);
 
         List<EndpointOverride> trySelectedRequestPaths = PathOverrideService.getInstance().getSelectedPaths(Constants.OVERRIDE_TYPE_REQUEST,
-                                                                                                            ClientService.getInstance().findClient("-1", profileId),
+                                                                                                            ClientService.Companion.getInstance().findClient("-1", profileId),
                                                                                                             ProfileService.getInstance().findProfile(profileId), url, requestType, true);
 
-        HashMap<String, Object> jqReturn = Utils.getJQGridJSON(trySelectedRequestPaths, "paths");
+        HashMap<String, Object> jqReturn = Utils.INSTANCE.getJQGridJSON(trySelectedRequestPaths, "paths");
 
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.addMixInAnnotations(Object.class, ViewFilters.GetPathFilter.class);
@@ -195,7 +195,7 @@ public class PathController {
         // return the remaining data
         List<EndpointOverride> paths = PathOverrideService.getInstance().getPaths(profileId, clientUUID, null);
 
-        return Utils.getJQGridJSON(paths, "paths");
+        return Utils.INSTANCE.getJQGridJSON(paths, "paths");
     }
 
     /**
@@ -266,19 +266,19 @@ public class PathController {
 
         // add an override
         if (addOverride != null) {
-            OverrideService.getInstance().enableOverride(addOverride, pathId, clientUUID);
+            OverrideService.Companion.getServiceInstance().enableOverride(addOverride, pathId, clientUUID);
         }
 
         // move priority of an enabled override up
         if (enabledMoveUp != null) {
             String[] parts = enabledMoveUp.split(",");
-            OverrideService.getInstance().increasePriority(Integer.parseInt(parts[0]), Integer.parseInt(parts[1]), pathId, clientUUID);
+            OverrideService.Companion.getServiceInstance().increasePriority(Integer.parseInt(parts[0]), Integer.parseInt(parts[1]), pathId, clientUUID);
         }
 
         // move priority of an enabled override down
         if (enabledMoveDown != null) {
             String[] parts = enabledMoveDown.split(",");
-            OverrideService.getInstance().decreasePriority(Integer.parseInt(parts[0]), Integer.parseInt(parts[1]), pathId, clientUUID);
+            OverrideService.Companion.getServiceInstance().decreasePriority(Integer.parseInt(parts[0]), Integer.parseInt(parts[1]), pathId, clientUUID);
         }
 
         // update the name of the path
@@ -405,21 +405,21 @@ public class PathController {
         if (arguments != null) {
             JSONSerializer serializer = new JSONSerializer();
 
-            OverrideService.getInstance().updateArguments(overrideId, identifiers.getPathId(), ordinal, serializer.serialize(httpRequest.getParameterValues("arguments[]")), clientUUID);
+            OverrideService.Companion.getServiceInstance().updateArguments(overrideId, identifiers.getPathId(), ordinal, serializer.serialize(httpRequest.getParameterValues("arguments[]")), clientUUID);
         }
 
         // set repeat number
         if (repeatNumber != null) {
-            OverrideService.getInstance().updateRepeatNumber(overrideId, identifiers.getPathId(), ordinal, repeatNumber, clientUUID);
+            OverrideService.Companion.getServiceInstance().updateRepeatNumber(overrideId, identifiers.getPathId(), ordinal, repeatNumber, clientUUID);
         }
 
         // set response code
         if (responseCode != null) {
-            OverrideService.getInstance().updateResponseCode(overrideId, identifiers.getPathId(), ordinal, responseCode, clientUUID);
+            OverrideService.Companion.getServiceInstance().updateResponseCode(overrideId, identifiers.getPathId(), ordinal, responseCode, clientUUID);
         }
 
         HashMap<String, Object> returnMap = new HashMap<String, Object>();
-        returnMap.put("enabledEndpoint", OverrideService.getInstance().getEnabledEndpoint(identifiers.getPathId(), overrideId, ordinal, clientUUID));
+        returnMap.put("enabledEndpoint", OverrideService.Companion.getServiceInstance().getEnabledEndpoint(identifiers.getPathId(), overrideId, ordinal, clientUUID));
         return returnMap;
     }
 
@@ -448,10 +448,10 @@ public class PathController {
         // need to get overrideId for identifiers..
         Integer overrideId = ControllerUtils.convertOverrideIdentifier(overrideIdentifier);
 
-        OverrideService.getInstance().removeOverride(overrideId, identifiers.getPathId(), ordinal, clientUUID);
+        OverrideService.Companion.getServiceInstance().removeOverride(overrideId, identifiers.getPathId(), ordinal, clientUUID);
 
         HashMap<String, Object> returnMap = new HashMap<String, Object>();
-        returnMap.put("enabledEndpoint", OverrideService.getInstance().getEnabledEndpoint(identifiers.getPathId(), overrideId, ordinal, clientUUID));
+        returnMap.put("enabledEndpoint", OverrideService.Companion.getServiceInstance().getEnabledEndpoint(identifiers.getPathId(), overrideId, ordinal, clientUUID));
         return returnMap;
     }
 
@@ -481,7 +481,7 @@ public class PathController {
         HashMap<String, Object> returnMap = new HashMap<String, Object>();
 
         if (overrideId != null) {
-            returnMap.put("enabledEndpoint", OverrideService.getInstance().getEnabledEndpoint(identifiers.getPathId(), overrideId, ordinal, clientUUID));
+            returnMap.put("enabledEndpoint", OverrideService.Companion.getServiceInstance().getEnabledEndpoint(identifiers.getPathId(), overrideId, ordinal, clientUUID));
         }
 
         return returnMap;

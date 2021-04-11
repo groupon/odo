@@ -9,6 +9,7 @@ dependencies {
     implementation deps.jackson_core
     implementation deps.jackson_databind
     implementation deps.jackson_annotations
+    implementation deps.kotlin_stdlib
     implementation deps.h2_database
     implementation deps.apache_httpclient
     implementation deps.slf4j_api

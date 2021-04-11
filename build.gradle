@@ -3,9 +3,22 @@ allprojects {
     version = '1.0.0-beta.13-SNAPSHOT'
 }
 
+
+buildscript {
+    apply from: "$rootDir/dependencies.gradle"
+    repositories {
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath deps.kotlin
+    }
+}
+
 subprojects {
     apply plugin: 'java'
     apply plugin: 'maven-publish'
+    apply plugin: 'kotlin'
 
     repositories {
         mavenLocal()
@@ -28,6 +41,11 @@ subprojects {
     }
 
     sourceCompatibility = '1.8'
+    targetCompatibility = '1.8'
+
+    compileKotlin {
+        kotlinOptions.jvmTarget = "1.8"
+    }
 
     publishing {
         publications {

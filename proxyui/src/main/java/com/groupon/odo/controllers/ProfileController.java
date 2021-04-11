@@ -69,7 +69,7 @@ public class ProfileController {
     @ResponseBody
     HashMap<String, Object> getList(Model model) throws Exception {
         logger.info("Using a GET request to list profiles");
-        return Utils.getJQGridJSON(profileService.findAllProfiles(), "profiles");
+        return Utils.INSTANCE.getJQGridJSON(profileService.findAllProfiles(), "profiles");
     }
 
     /**
@@ -86,7 +86,7 @@ public class ProfileController {
     @ResponseBody
     HashMap<String, Object> addProfile(Model model, String name) throws Exception {
         logger.info("Should be adding the profile name when I hit the enter button={}", name);
-        return Utils.getJQGridJSON(profileService.add(name), "profile");
+        return Utils.INSTANCE.getJQGridJSON(profileService.add(name), "profile");
     }
 
     /**
@@ -102,7 +102,7 @@ public class ProfileController {
     @ResponseBody
     HashMap<String, Object> deleteProfile(Model model, int id) throws Exception {
         profileService.remove(id);
-        return Utils.getJQGridJSON(profileService.findAllProfiles(), "profiles");
+        return Utils.INSTANCE.getJQGridJSON(profileService.findAllProfiles(), "profiles");
     }
 
     /**
@@ -118,7 +118,7 @@ public class ProfileController {
     @ResponseBody
     HashMap<String, Object> getProfile(Model model, @PathVariable String profileIdentifier) throws Exception {
         Integer profileId = ControllerUtils.convertProfileIdentifier(profileIdentifier);
-        return Utils.getJQGridJSON(profileService.findProfile(profileId), "profile");
+        return Utils.INSTANCE.getJQGridJSON(profileService.findProfile(profileId), "profile");
     }
 
     /**
@@ -137,7 +137,7 @@ public class ProfileController {
         logger.info("Want to (preRemove) DELETE on id {}", profileId);
         // TODO: make this remove all clients etc for a profile
         profileService.remove(profileId);
-        return Utils.getJQGridJSON(profileService.findAllProfiles(), "profiles");
+        return Utils.INSTANCE.getJQGridJSON(profileService.findAllProfiles(), "profiles");
     }
 
     /*
@@ -155,7 +155,7 @@ public class ProfileController {
             removeFromList(model, profileIdentifier[i]);
         }
 
-        return Utils.getJQGridJSON(profileService.findAllProfiles(), "profiles");
+        return Utils.INSTANCE.getJQGridJSON(profileService.findAllProfiles(), "profiles");
     }
 
 }

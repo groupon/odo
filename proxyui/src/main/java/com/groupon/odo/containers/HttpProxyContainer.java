@@ -41,7 +41,7 @@ public class HttpProxyContainer extends GenericProxyContainer {
     @Bean
     public ServletWebServerFactory servletContainer() {
         TomcatServletWebServerFactory factory = new TomcatServletWebServerFactory();
-        int httpPort = Utils.getSystemPort(Constants.SYS_HTTP_PORT);
+        int httpPort = Utils.INSTANCE.getSystemPort(Constants.SYS_HTTP_PORT);
 
         factory.setPort(httpPort);
         factory.getSession().setTimeout(Duration.ofMinutes(10));
@@ -87,9 +87,9 @@ public class HttpProxyContainer extends GenericProxyContainer {
     private Connector createSslConnector() {
         Connector connector = new Connector("org.apache.coyote.http11.Http11NioProtocol");
         Http11NioProtocol protocol = (Http11NioProtocol) connector.getProtocolHandler();
-        final int httpsPort = Utils.getSystemPort(Constants.SYS_HTTPS_PORT);
+        final int httpsPort = Utils.INSTANCE.getSystemPort(Constants.SYS_HTTPS_PORT);
         try {
-            File keyStore = com.groupon.odo.proxylib.Utils.copyResourceToLocalFile("tomcat.ks", "tomcat.ks");
+            File keyStore = Utils.INSTANCE.copyResourceToLocalFile("tomcat.ks", "tomcat.ks");
             connector.setScheme("https");
             connector.setSecure(true);
             connector.setPort(httpsPort);

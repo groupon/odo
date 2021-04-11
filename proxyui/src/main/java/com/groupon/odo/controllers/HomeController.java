@@ -91,7 +91,7 @@ public class HomeController {
     public ServletWebServerFactory servletContainer() throws Exception {
         TomcatServletWebServerFactory factory = new TomcatServletWebServerFactory();
 
-        int apiPort = Utils.getSystemPort(Constants.SYS_API_PORT);
+        int apiPort = Utils.INSTANCE.getSystemPort(Constants.SYS_API_PORT);
         factory.setPort(apiPort);
         factory.getSession().setTimeout(Duration.ofMinutes(10));
         factory.setContextPath("/testproxy");
@@ -101,8 +101,8 @@ public class HomeController {
         cs.add(tomcatConnectorCustomizers());
         factory.setTomcatConnectorCustomizers(cs);
 
-        if (Utils.getEnvironmentOptionValue(Constants.SYS_LOGGING_DISABLED) != null) {
-            HistoryService.getInstance().disableHistory();
+        if (Utils.INSTANCE.getEnvironmentOptionValue(Constants.SYS_LOGGING_DISABLED) != null) {
+            HistoryService.Companion.getInstance().setShouldDisableHistoryWrite(true);
         }
         return factory;
     }

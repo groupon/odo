@@ -80,7 +80,7 @@ public class ServerMappingController {
             profileId = ProfileService.getInstance().getIdFromName(profileIdentifier);
         }
 
-        int clientId = ClientService.getInstance().findClient(clientUUID, profileId).getId();
+        int clientId = ClientService.Companion.getInstance().findClient(clientUUID, profileId).getId();
 
         int redirectId = ServerRedirectService.getInstance().addServerRedirectToProfile("", srcUrl, destUrl, hostHeader,
                 profileId, clientId);
@@ -108,9 +108,9 @@ public class ServerMappingController {
         if (profileId == null) {
             profileId = ProfileService.getInstance().getIdFromName(profileIdentifier);
         }
-        int clientId = ClientService.getInstance().findClient(clientUUID, profileId).getId();
+        int clientId = ClientService.Companion.getInstance().findClient(clientUUID, profileId).getId();
 
-        HashMap<String, Object> returnJson = Utils.getJQGridJSON(ServerRedirectService.getInstance().tableServers(clientId), "servers");
+        HashMap<String, Object> returnJson = Utils.INSTANCE.getJQGridJSON(ServerRedirectService.getInstance().tableServers(clientId), "servers");
         returnJson.put("hostEditor", Client.isAvailable());
         return returnJson;
     }
@@ -148,7 +148,7 @@ public class ServerMappingController {
                 }
             }
         }
-        HashMap<String, Object> returnJson = Utils.getJQGridJSON(serverGroups, "servergroups");
+        HashMap<String, Object> returnJson = Utils.INSTANCE.getJQGridJSON(serverGroups, "servergroups");
         return returnJson;
     }
 
@@ -263,7 +263,7 @@ public class ServerMappingController {
                 throw new Exception("clientUUID required");
             }
 
-            int clientId = ClientService.getInstance().findClient(clientUUID, profileId).getId();
+            int clientId = ClientService.Companion.getInstance().findClient(clientUUID, profileId).getId();
 
             if (activate) {
                 ServerRedirectService.getInstance().activateServerGroup(id, clientId);
@@ -370,7 +370,7 @@ public class ServerMappingController {
             profileId = ProfileService.getInstance().getIdFromName(profileIdentifier);
         }
 
-        int clientId = ClientService.getInstance().findClient(clientUUID, profileId).getId();
+        int clientId = ClientService.Companion.getInstance().findClient(clientUUID, profileId).getId();
 
         ServerGroup group = ServerRedirectService.getInstance().getServerGroup(id, profileId);
         ServerRedirectService.getInstance().deleteServerGroup(id);

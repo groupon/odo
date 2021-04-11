@@ -179,7 +179,7 @@ public class Proxy extends HttpServlet {
                 alreadyServed = true;
             } else if (request.getPathInfo().toLowerCase().equals("/odo")) {
                 // redirect to certificate download page
-                response.sendRedirect("http://" + Utils.getPublicIPAddress() + ":" + Utils.getSystemPort(Constants.SYS_API_PORT) + "/testproxy/cert");
+                response.sendRedirect("http://" + Utils.INSTANCE.getPublicIPAddress() + ":" + Utils.INSTANCE.getSystemPort(Constants.SYS_API_PORT) + "/testproxy/cert");
                 alreadyServed = true;
             }
         } catch (Exception e) {
@@ -657,7 +657,7 @@ public class Proxy extends HttpServlet {
         // if no profile is enabled then we pick the first one so that we have a URL mapping
         for (Profile tryProfile : ServerRedirectService.getInstance().getProfilesForServerName(origHostName)) {
             logger.info("Trying {}", tryProfile.getName());
-            Client tryClient = ClientService.getInstance().findClient(history.getClientUUID(), tryProfile.getId());
+            Client tryClient = ClientService.Companion.getInstance().findClient(history.getClientUUID(), tryProfile.getId());
             if (tryClient == null) {
                 continue;
             }
@@ -767,7 +767,7 @@ public class Proxy extends HttpServlet {
                     HashMap<String, String> originalParams = HttpUtilities.getParameters(originalQueryString);
                     HashMap<String, String> modifierParams = new HashMap<String, String>();
 
-                    List<EnabledEndpoint> overrides = OverrideService.getInstance().getEnabledEndpoints(
+                    List<EnabledEndpoint> overrides = OverrideService.Companion.getServiceInstance().getEnabledEndpoints(
                             selectedPath.getPathId(), selectedPath.getClientUUID(), null);
 
                     // find the first enabled custom request override
@@ -1149,7 +1149,7 @@ public class Proxy extends HttpServlet {
                 history.setResponseContentType(httpServletResponse.getContentType());
                 history.setResponseData(httpServletResponse.getContentString());
                 history.setResponseBodyDecoded(httpServletResponse.isContentDecoded());
-                HistoryService.getInstance().addHistory(history);
+                HistoryService.Companion.getInstance().addHistory(history);
                 logger.info("Done storing");
             }
         } catch (Throwable e) {
